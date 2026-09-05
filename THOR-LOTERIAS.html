@@ -7,10 +7,9 @@
 <script>
 // ---------- Licenciamento: login + chave de ativação por cliente ----------
 // Como adicionar um cliente novo: peça pro Claude gerar o hash de "nome|chave"
-// e adicionar na lista LICENCAS_VALIDAS abaixo (cada hash = 1 cliente liberado).
-const LICENCAS_VALIDAS = [
-  '12apkmf', // IRAN
-];
+// e adicionar uma linha na planilha do Google (coluna "Chave"), com a coluna
+// "DeviceID" vazia. O bloqueio de 1 aparelho por chave é feito pelo Apps Script.
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSmJaS9x3rnPofIm8LWiVcKVqNmWyoxSqPHfDTEmwk_hu1sVjSMS9-R8jmPrH2eTYFaA/exec';
 
 function hashLicenca(str){
   str = str.trim().toLowerCase();
@@ -20,6 +19,17 @@ function hashLicenca(str){
 }
 
 const LICENCA_STORAGE_KEY = 'lf_licenca_ok_v1';
+const DEVICE_ID_KEY = 'lf_device_id';
+
+function getDeviceId(){
+  let id;
+  try{ id = localStorage.getItem(DEVICE_ID_KEY); }catch(e){ id = null; }
+  if(!id){
+    id = 'dev-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,10);
+    try{ localStorage.setItem(DEVICE_ID_KEY, id); }catch(e){}
+  }
+  return id;
+}
 
 function licencaJaValidada(){
   try{ return localStorage.getItem(LICENCA_STORAGE_KEY) === '1'; }catch(e){ return false; }
@@ -45,20 +55,41 @@ function montarTelaLogin(){
     </div>`;
   document.body.appendChild(overlay);
 
-  function tentarEntrar(){
+  async function tentarEntrar(){
     const nome = document.getElementById('loginNome').value;
     const chave = document.getElementById('loginChave').value;
     const erroEl = document.getElementById('loginErro');
+    const btn = document.getElementById('loginBtn');
     if(!nome.trim() || !chave.trim()){
+      erroEl.style.color = '#B7791F';
       erroEl.textContent = 'Preencha nome e chave.';
       return;
     }
     const hash = hashLicenca(`${nome}|${chave}`);
-    if(LICENCAS_VALIDAS.includes(hash)){
-      try{ localStorage.setItem(LICENCA_STORAGE_KEY, '1'); }catch(e){}
-      overlay.remove();
-    } else {
-      erroEl.textContent = 'Nome ou chave inválidos.';
+    const deviceId = getDeviceId();
+
+    erroEl.style.color = '#8B80A3';
+    erroEl.textContent = 'Verificando...';
+    btn.disabled = true;
+
+    try{
+      const url = `${APPS_SCRIPT_URL}?chave=${encodeURIComponent(hash)}&deviceId=${encodeURIComponent(deviceId)}`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+      if(data.ok){
+        try{ localStorage.setItem(LICENCA_STORAGE_KEY, '1'); }catch(e){}
+        overlay.remove();
+      } else {
+        erroEl.style.color = '#B7791F';
+        erroEl.textContent = (data.erro === 'chave_em_uso')
+          ? 'Essa chave já está em uso em outro aparelho.'
+          : 'Nome ou chave inválidos.';
+      }
+    }catch(e){
+      erroEl.style.color = '#B7791F';
+      erroEl.textContent = 'Não foi possível verificar agora. Confira sua internet.';
+    }finally{
+      btn.disabled = false;
     }
   }
   document.getElementById('loginBtn').addEventListener('click', tentarEntrar);
@@ -232,6 +263,7 @@ document.addEventListener('selectstart', e=>{
     text-align:center;
   }
   .stat .k{font-size:8.5px;color:var(--muted);text-transform:none;margin-bottom:2px;}
+  #oficialLoteriaChips::-webkit-scrollbar{display:none;}
   .stat .v{font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:700;color:var(--ink);}
   label.field-label{
     display:block;
@@ -1374,9 +1406,10 @@ document.addEventListener('selectstart', e=>{
         <h1 style="font-size:16px;margin:0;">Jogos Desdobrados</h1>
         <div id="gamesCountLabel" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:11px;margin-top:2px;background:linear-gradient(90deg,#9BE12F,#4C9A2A);-webkit-background-clip:text;background-clip:text;color:transparent;"></div>
       </div>
-      <a id="floatingSave" title="Baixar todos os jogos (.txt)" style="width:30px;height:30px;border-radius:50%;background:var(--violet);color:#fff;border:none;font-size:13px;box-shadow:0 4px 10px rgba(76,29,149,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;flex:none;">💾</a>
-      <a id="floatingExcel" title="Salvar no Excel" style="width:30px;height:30px;border-radius:50%;background:var(--good);color:#fff;border:none;font-size:13px;box-shadow:0 4px 10px rgba(31,157,116,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;flex:none;">📊</a>
-      <button id="floatingShare" title="Compartilhar todos os jogos" style="width:30px;height:30px;border-radius:50%;background:var(--magenta);color:#fff;border:none;box-shadow:0 4px 10px rgba(214,51,108,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="5" r="3" stroke="white" stroke-width="2"/><circle cx="6" cy="12" r="3" stroke="white" stroke-width="2"/><circle cx="18" cy="19" r="3" stroke="white" stroke-width="2"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5" stroke="white" stroke-width="2"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5" stroke="white" stroke-width="2"/></svg></button>
+      <a id="floatingSave" title="Baixar todos os jogos (.txt)" style="width:24px;height:24px;border-radius:50%;background:var(--violet);color:#fff;border:none;font-size:10px;box-shadow:0 3px 8px rgba(76,29,149,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;flex:none;">💾</a>
+      <a id="floatingExcel" title="Salvar no Excel" style="width:24px;height:24px;border-radius:50%;background:var(--good);color:#fff;border:none;font-size:10px;box-shadow:0 3px 8px rgba(31,157,116,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;flex:none;">📊</a>
+      <button id="floatingShare" title="Compartilhar todos os jogos" style="width:24px;height:24px;border-radius:50%;background:var(--magenta);color:#fff;border:none;box-shadow:0 3px 8px rgba(214,51,108,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="5" r="3" stroke="white" stroke-width="2"/><circle cx="6" cy="12" r="3" stroke="white" stroke-width="2"/><circle cx="18" cy="19" r="3" stroke="white" stroke-width="2"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5" stroke="white" stroke-width="2"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5" stroke="white" stroke-width="2"/></svg></button>
+      <button id="floatingSalvarNome" title="Salvar jogos com um nome" style="width:24px;height:24px;border-radius:50%;background:#173817;color:#fff;border:none;box-shadow:0 3px 8px rgba(23,56,23,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;"><svg width="13" height="13" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7.83a2 2 0 0 0-.586-1.414l-2.83-2.83A2 2 0 0 0 16.17 3H5z"/><rect x="7" y="4.5" width="8" height="4" rx="1" fill="#173817"/><circle cx="12" cy="15" r="4" fill="#173817"/></svg></button>
     </header>
     <div style="padding:16px 16px 110px;">
       <div class="summary" id="summaryBox2" style="display:none;"></div>
@@ -1392,6 +1425,7 @@ document.addEventListener('selectstart', e=>{
         <div class="subtab-row" id="confSubtabRow" style="margin-bottom:12px;">
           <button class="subtab-btn active" id="subtabConfSorteio">Sortear</button>
           <button class="subtab-btn" id="subtabConfManual">Manual</button>
+          <button class="subtab-btn" id="subtabConfOficial">Oficial</button>
         </div>
 
         <div id="confSorteioPanel">
@@ -1407,6 +1441,25 @@ document.addEventListener('selectstart', e=>{
           <div class="conf-sub">Toque em um quadrado e digite a dezena sorteada (até 20).</div>
           <div class="conf-grid" id="confManualGrid" style="grid-template-columns:repeat(8,1fr);max-width:200px;gap:4px;"></div>
         </div>
+
+        <div id="confOficialPanel" style="display:none;">
+          <div class="conf-sub" id="oficialSubTexto" style="display:none;"></div>
+
+          <div id="oficialLoteriaChips" style="display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;margin-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;"></div>
+
+          <button id="btnOficialUltimo" style="width:100%;padding:6px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-size:9.5px;font-weight:700;cursor:pointer;margin-bottom:5px;">🔎 BUSCAR ÚLTIMO RESULTADO</button>
+          <div style="display:flex;align-items:center;gap:5px;">
+            <label for="oficialConcursoInput" style="font-size:9px;color:var(--muted,#666);white-space:nowrap;">Ou concurso Nº</label>
+            <input type="number" id="oficialConcursoInput" min="1" placeholder="ex: 3100" style="flex:1;min-width:0;padding:4px;border-radius:6px;border:1.5px solid var(--violet);text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;">
+            <button id="btnOficialConcurso" style="padding:5px 8px;border-radius:8px;border:1.5px solid var(--violet);background:#fff;color:var(--violet-deep);font-family:'Baloo 2',sans-serif;font-size:9.5px;font-weight:700;cursor:pointer;white-space:nowrap;flex:none;">Buscar</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:5px;">
+            <button id="btnOficialAnterior" style="flex:1;padding:5px;border-radius:8px;border:1.5px solid var(--violet);background:#fff;color:var(--violet-deep);font-family:'Baloo 2',sans-serif;font-size:9.5px;font-weight:700;cursor:pointer;">◀ Anterior</button>
+            <button id="btnOficialProximo" style="flex:1;padding:5px;border-radius:8px;border:1.5px solid var(--violet);background:#fff;color:var(--violet-deep);font-family:'Baloo 2',sans-serif;font-size:9.5px;font-weight:700;cursor:pointer;">Próximo ▶</button>
+          </div>
+          <div id="oficialInfo" style="font-size:12px;color:var(--muted);margin-top:8px;min-height:16px;line-height:1.5;"></div>
+        </div>
+
 
         <div id="confListaSorteadas" style="min-height:36px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px;margin-top:10px;padding:10px;border-radius:10px;background:var(--bg,#F5F2FC);">
           <span style="font-size:12.5px;color:var(--muted,#888);">Nenhuma dezena sorteada ainda.</span>
@@ -1541,6 +1594,18 @@ document.addEventListener('selectstart', e=>{
     </div>
   </div>
 </div>
+
+<div class="overlay" id="overlayNomeJogo" style="align-items:center;">
+  <div class="modal" style="border-radius:20px;max-width:340px;max-height:none;padding:28px 24px;overflow:visible;margin:0 24px;">
+    <div style="font-family:'Baloo 2',sans-serif;font-weight:700;font-size:21px;color:var(--ink);margin-bottom:22px;">Escolha um nome</div>
+    <input type="text" id="inputNomeJogo" placeholder="Ex: Jogos" maxlength="60" style="width:100%;box-sizing:border-box;border:none;border-bottom:2px solid var(--line);padding:6px 2px 8px;font-size:16px;color:var(--ink);font-family:'Inter',sans-serif;font-weight:500;outline:none;background:transparent;">
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:26px;">
+      <button id="btnNomeJogoCancelar" style="background:none;border:none;color:var(--violet);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;letter-spacing:.02em;cursor:pointer;padding:10px 12px;border-radius:8px;">CANCELAR</button>
+      <button id="btnNomeJogoSalvar" style="background:none;border:none;color:var(--violet);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;letter-spacing:.02em;cursor:pointer;padding:10px 12px;border-radius:8px;">SALVAR</button>
+    </div>
+  </div>
+</div>
+
 
 <div class="overlay" id="overlayErreX">
   <div class="modal">
@@ -1819,6 +1884,34 @@ document.addEventListener('selectstart', e=>{
   </div>
 </div>
 
+<div class="overlay-full" id="overlayGeradorLoteria" style="z-index:78;">
+  <header class="top" style="border-radius:0;display:flex;align-items:center;gap:12px;">
+    <button id="geradorLoteriaVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
+    <h1 style="font-size:19px;">Escolha a loteria</h1>
+  </header>
+  <div style="padding:16px;">
+    <div class="note" style="margin-bottom:14px;">Escolha a loteria pra gerar 50 jogos com base nas dezenas mais atrasadas e nas que mais saíram nos últimos concursos.</div>
+    <div id="geradorLoteriaLista"></div>
+  </div>
+</div>
+
+<div class="overlay-full" id="overlayGeradorFiltro" style="z-index:78;">
+  <header class="top" style="border-radius:0;display:flex;align-items:center;gap:12px;">
+    <button id="geradorFiltroVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
+    <h1 style="font-size:19px;" id="geradorFiltroTitulo">Loteria</h1>
+  </header>
+  <div style="padding:16px 16px 40px;">
+    <div class="card">
+      <label class="field-label" for="geradorFiltroQtd">Filtro de sorteio — analisar quantos concursos?</label>
+      <input type="number" id="geradorFiltroQtd" value="10" min="5" max="500" inputmode="numeric" style="width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:1.5px solid var(--violet);text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;margin:10px 0 14px;">
+      <button id="geradorFiltroGerarBtn" style="width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#4C1D95,#6D28D9);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">🎲 GERAR 50 JOGOS</button>
+    </div>
+    <div class="card" id="geradorFiltroUltimoResultado" style="margin-bottom:16px;padding:13px;"></div>
+    <div class="spinner" id="geradorFiltroSpinner" style="display:none;">Calculando…</div>
+    <div id="geradorFiltroResultado"></div>
+  </div>
+</div>
+
 <script>
 // ---------- constants ----------
 const FIB = new Set([1,2,3,5,8,13,21]);
@@ -1835,6 +1928,9 @@ let lastGames = []; // for download
 let confResult = new Set(); // dezenas sorteadas marcadas no conferidor (reflete a aba ativa: Sortear ou Manual)
 let confResultSorteio = new Set(); // resultado guardado só da aba Sortear
 let confResultManual = new Set(); // resultado guardado só da aba Manual
+let confResultOficial = new Set(); // resultado guardado só da aba Oficial (vindo da API da Caixa)
+let oficialCarregando = false; // true enquanto uma busca de resultado oficial está em andamento
+let oficialConcursoAtual = null; // nº do concurso oficial exibido no momento (pra Anterior/Próximo)
 let manualBallsOn = new Set(); // dezenas destacadas nas bolinhas da aba Manual (não é afetado pelo Sortear automático)
 let conferenceDone = false; // só mostra acertos depois de clicar em CONFERIR
 
@@ -1984,7 +2080,8 @@ function recalcularConfManual(){
 // sub-abas: Sortear (automático) x Manual (bolinhas)
 const CONF_SUBTABS = [
   {btn:'subtabConfSorteio', panel:'confSorteioPanel'},
-  {btn:'subtabConfManual', panel:'confManualPanel'}
+  {btn:'subtabConfManual', panel:'confManualPanel'},
+  {btn:'subtabConfOficial', panel:'confOficialPanel'}
 ];
 function ativarConfSubtab(idAtivo){
   CONF_SUBTABS.forEach(s=>{
@@ -1993,19 +2090,117 @@ function ativarConfSubtab(idAtivo){
     document.getElementById(s.panel).style.display = ativo ? 'block' : 'none';
   });
   // cada aba mostra só o resultado que pertence a ela — trocar de aba não deve
-  // arrastar o resultado sorteado automaticamente para a aba Manual (nem o contrário)
-  confResult = idAtivo === 'subtabConfManual' ? confResultManual : confResultSorteio;
+  // arrastar o resultado sorteado automaticamente (ou o oficial) pras outras abas
+  if(idAtivo === 'subtabConfManual') confResult = confResultManual;
+  else if(idAtivo === 'subtabConfOficial') confResult = confResultOficial;
+  else confResult = confResultSorteio;
   conferenceDone = false;
   confResultBox.style.display='none';
   refreshConfUI();
   renderGameCards();
   pintarDezenasEscolhidas();
+
+  // primeira vez que a aba Oficial é aberta nesta sessão: já busca o último resultado sozinho
+  if(idAtivo === 'subtabConfOficial' && confResultOficial.size === 0 && !oficialCarregando){
+    buscarResultadoOficial(null);
+  }
 }
 document.getElementById('subtabConfSorteio').addEventListener('click', ()=>{
   ativarConfSubtab('subtabConfSorteio');
 });
 document.getElementById('subtabConfManual').addEventListener('click', ()=>{
   ativarConfSubtab('subtabConfManual');
+});
+document.getElementById('subtabConfOficial').addEventListener('click', ()=>{
+  ativarConfSubtab('subtabConfOficial');
+});
+
+// ---------- conferidor: resultado OFICIAL (busca direto na Caixa via API) ----------
+function setOficialInfo(html){
+  const el = document.getElementById('oficialInfo');
+  if(el) el.innerHTML = html;
+}
+
+async function buscarResultadoOficial(concursoNumero){
+  if(oficialCarregando) return;
+  oficialCarregando = true;
+  const btnUltimo = document.getElementById('btnOficialUltimo');
+  const btnConcurso = document.getElementById('btnOficialConcurso');
+  const btnAnterior = document.getElementById('btnOficialAnterior');
+  const btnProximo = document.getElementById('btnOficialProximo');
+  if(btnUltimo) btnUltimo.disabled = true;
+  if(btnConcurso) btnConcurso.disabled = true;
+  if(btnAnterior) btnAnterior.disabled = true;
+  if(btnProximo) btnProximo.disabled = true;
+  setOficialInfo('<span class="res-loading" style="padding:0;display:block;">Buscando resultado oficial…</span>');
+
+  try{
+    const data = await fetchConcursoLoteria(oficialGameAtual, concursoNumero);
+    if(!data || !data.concurso || !Array.isArray(data.dezenas) || data.dezenas.length === 0){
+      throw new Error('resposta inválida da API');
+    }
+    const dezenas = data.dezenas.map(d=>parseInt(d,10)).filter(n=>!isNaN(n));
+    if(dezenas.length === 0) throw new Error('sem dezenas na resposta');
+
+    confResultOficial = new Set(dezenas);
+    if(document.getElementById('subtabConfOficial').classList.contains('active')){
+      confResult = confResultOficial;
+    }
+    conferenceDone = false; // a faixa de premiação só aparece ao apertar CONFERIR
+    confResultBox.style.display = 'none';
+    refreshConfUI();
+    renderGameCards();
+    pintarDezenasEscolhidas();
+
+    oficialConcursoAtual = parseInt(data.concurso, 10) || null;
+    const inputEl = document.getElementById('oficialConcursoInput');
+    if(inputEl && oficialConcursoAtual) inputEl.value = oficialConcursoAtual;
+
+    setOficialInfo('');
+  }catch(e){
+    setOficialInfo(`<span class="res-error" style="padding:0;display:block;">Não foi possível buscar o resultado agora.<br>Verifique sua internet e tente de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></span>`);
+  }finally{
+    oficialCarregando = false;
+    if(btnUltimo) btnUltimo.disabled = false;
+    if(btnConcurso) btnConcurso.disabled = false;
+    if(btnAnterior) btnAnterior.disabled = false;
+    if(btnProximo) btnProximo.disabled = (oficialConcursoAtual === null); // não dá pra saber o "próximo" sem já ter buscado algum concurso primeiro
+  }
+}
+
+document.getElementById('btnOficialUltimo').addEventListener('click', ()=>{
+  document.getElementById('oficialConcursoInput').value = '';
+  buscarResultadoOficial(null);
+});
+document.getElementById('btnOficialConcurso').addEventListener('click', ()=>{
+  const v = parseInt(document.getElementById('oficialConcursoInput').value, 10);
+  if(isNaN(v) || v < 1){
+    alert('Digite um número de concurso válido.');
+    return;
+  }
+  buscarResultadoOficial(v);
+});
+document.getElementById('oficialConcursoInput').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') document.getElementById('btnOficialConcurso').click();
+});
+document.getElementById('btnOficialAnterior').addEventListener('click', ()=>{
+  if(oficialCarregando) return;
+  // se ainda não buscou nada, usa o valor digitado no campo como base
+  const base = oficialConcursoAtual || parseInt(document.getElementById('oficialConcursoInput').value, 10);
+  if(isNaN(base) || base <= 1){
+    alert('Busque um concurso primeiro pra poder navegar.');
+    return;
+  }
+  buscarResultadoOficial(base - 1);
+});
+document.getElementById('btnOficialProximo').addEventListener('click', ()=>{
+  if(oficialCarregando) return;
+  const base = oficialConcursoAtual || parseInt(document.getElementById('oficialConcursoInput').value, 10);
+  if(isNaN(base)){
+    alert('Busque um concurso primeiro pra poder navegar.');
+    return;
+  }
+  buscarResultadoOficial(base + 1);
 });
 
 function syncQtdSorteio(){
@@ -2074,10 +2269,15 @@ function resetConferidor(){
   confResult = new Set();
   confResultSorteio = new Set();
   confResultManual = new Set();
+  confResultOficial = new Set();
   manualBallsOn = new Set();
   conferenceDone = false;
   confResultBox.style.display='none';
   limparCaixinhasManuais();
+  setOficialInfo('');
+  oficialConcursoAtual = null;
+  const oficialInput = document.getElementById('oficialConcursoInput');
+  if(oficialInput) oficialInput.value = '';
   refreshConfUI();
   pintarDezenasEscolhidas();
 }
@@ -2319,14 +2519,14 @@ const LOTO_API_BASES_ALT = [
   'https://loterias-caixa-gov.herokuapp.com/api',
 ];
 const GAMES = [
-  {code:'MS',  slug:'mega-sena',    altSlug:'megasena',   nome:'Mega-Sena',    color:'#1F9D74', icon:'💰', officialSlug:'Mega-Sena',   range:{min:1,max:60}},
+  {code:'MS',  slug:'mega-sena',    altSlug:'megasena',   nome:'Mega-Sena',    color:'#1F9D74', icon:'🍀', officialSlug:'Mega-Sena',   range:{min:1,max:60}},
   {code:'LF',  slug:'lotofacil',    altSlug:'lotofacil',  nome:'Lotofácil',    color:'#8B2FC9', icon:'🍀', officialSlug:'Lotofacil',   full:true, range:{min:1,max:25}},
-  {code:'QN',  slug:'quina',        altSlug:'quina',      nome:'Quina',        color:'#1D4ED8', icon:'🎯', officialSlug:'Quina',       range:{min:1,max:80}},
-  {code:'DIA', slug:'dia-de-sorte', altSlug:'diadesorte', nome:'Dia de Sorte', color:'#7A5211', icon:'☀️', officialSlug:'Dia_de_Sorte', range:{min:1,max:31}},
-  {code:'LM',  slug:'lotomania',    altSlug:'lotomania',  nome:'Lotomania',    color:'#D2691E', icon:'💯', officialSlug:'Lotomania',   range:{min:0,max:99}},
-  {code:'S7',  slug:'super-sete',   altSlug:'supersete',  nome:'Super Sete',   color:'#0E9488', icon:'🎲', officialSlug:'Super_Sete',  noFalha:true},
-  {code:'TM',  slug:'timemania',    altSlug:'timemania',  nome:'Timemania',    color:'#C2185B', icon:'⚽', officialSlug:'Timemania',   range:{min:1,max:80}},
-  {code:'DS',  slug:'dupla-sena',   altSlug:'duplasena',  nome:'Dupla Sena',   color:'#0891B2', icon:'🎰', officialSlug:'Dupla_Sena',  range:{min:1,max:50}},
+  {code:'QN',  slug:'quina',        altSlug:'quina',      nome:'Quina',        color:'#1D4ED8', icon:'🍀', officialSlug:'Quina',       range:{min:1,max:80}},
+  {code:'DIA', slug:'dia-de-sorte', altSlug:'diadesorte', nome:'Dia de Sorte', color:'#7A5211', icon:'🍀', officialSlug:'Dia_de_Sorte', range:{min:1,max:31}},
+  {code:'LM',  slug:'lotomania',    altSlug:'lotomania',  nome:'Lotomania',    color:'#D2691E', icon:'🍀', officialSlug:'Lotomania',   range:{min:0,max:99}},
+  {code:'S7',  slug:'super-sete',   altSlug:'supersete',  nome:'Super Sete',   color:'#0E9488', icon:'🍀', officialSlug:'Super_Sete',  noFalha:true},
+  {code:'TM',  slug:'timemania',    altSlug:'timemania',  nome:'Timemania',    color:'#C2185B', icon:'🍀', officialSlug:'Timemania',   range:{min:1,max:80}},
+  {code:'DS',  slug:'dupla-sena',   altSlug:'duplasena',  nome:'Dupla Sena',   color:'#0891B2', icon:'🍀', officialSlug:'Dupla_Sena',  range:{min:1,max:50}},
 ];
 
 let resultadoAtual = null;      // dados do concurso exibido no overlay agora
@@ -2384,6 +2584,52 @@ async function fetchConcursoLoteria(game, concurso){
 // ---------- tendência: dezenas com maior probabilidade de falha ----------
 let tendCarregouUmaVez = false;
 const LOTOFACIL_GAME = GAMES.find(g=>g.code==='LF');
+
+// ---------- seletor de loteria do conferidor Oficial ----------
+let oficialGameAtual = LOTOFACIL_GAME;
+
+function renderChipsOficialLoteria(){
+  const cont = document.getElementById('oficialLoteriaChips');
+  if(!cont) return;
+  cont.innerHTML = GAMES.map(g => {
+    const ativo = g.code === oficialGameAtual.code;
+    return `<button class="oficial-loteria-chip" data-code="${g.code}" style="flex:none;display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:999px;border:1.5px solid ${g.color};background:${ativo?g.color:'#fff'};color:${ativo?'#fff':g.color};font-family:'Baloo 2',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;">
+      <span style="display:inline-flex;width:15px;height:15px;flex:none;"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><circle cx="8" cy="8" r="5"/><circle cx="16" cy="8" r="5"/><circle cx="8" cy="16" r="5"/><circle cx="16" cy="16" r="5"/><rect x="11" y="14" width="2" height="8" rx="1"/></svg></span>${g.nome}
+    </button>`;
+  }).join('');
+  cont.querySelectorAll('.oficial-loteria-chip').forEach(btn=>{
+    btn.addEventListener('click', ()=> selecionarLoteriaOficial(btn.dataset.code));
+  });
+}
+
+function atualizarTextosOficial(){
+  const sub = document.getElementById('oficialSubTexto');
+  const btnUlt = document.getElementById('btnOficialUltimo');
+  if(sub) sub.textContent = `Busca o resultado oficial da ${oficialGameAtual.nome} direto da Caixa e confere sozinho.`;
+  if(btnUlt) btnUlt.textContent = `🔎 BUSCAR ÚLTIMO RESULTADO (${oficialGameAtual.nome.toUpperCase()})`;
+}
+renderChipsOficialLoteria();
+atualizarTextosOficial();
+
+function selecionarLoteriaOficial(code){
+  const game = GAMES.find(g=>g.code === code);
+  if(!game || game.code === oficialGameAtual.code) return;
+  oficialGameAtual = game;
+  oficialConcursoAtual = null;
+  confResultOficial = new Set();
+  if(document.getElementById('subtabConfOficial').classList.contains('active')){
+    confResult = confResultOficial;
+  }
+  conferenceDone = false;
+  confResultBox.style.display = 'none';
+  document.getElementById('oficialConcursoInput').value = '';
+  setOficialInfo('');
+  atualizarTextosOficial();
+  renderChipsOficialLoteria();
+  refreshConfUI();
+  renderGameCards();
+  pintarDezenasEscolhidas();
+}
 let tendGameAtual = LOTOFACIL_GAME; // qual loteria está sendo exibida na aba Tendência agora
 const tendCacheCarregou = {}; // slug -> já carregou pelo menos uma vez nesta sessão
 let tendVendoUltimo = true; // false quando o usuário navegou p/ um concurso antigo via Anterior/Próximo
@@ -2710,6 +2956,297 @@ function renderQuente(trios, maisAtrasadas, total, numeroUltimo){
       const item = quenteExibidosAtual.items[idx];
       if(item) abrirQuenteProb(item, quenteExibidosAtual.total, quenteExibidosAtual.numeroUltimo);
     });
+  });
+}
+
+// ---------- Gerador multi-loteria: escolher loteria -> filtro (últimos N concursos) -> 50 jogos ----------
+// dezenas por jogo (padrão oficial mínimo de cada loteria). Lotomania (50 dezenas por jogo) e
+// Super Sete (funciona por colunas, não por dezenas) não entram nesse gerador.
+const GERADOR_APOSTA_SIZE = {MS:6, LF:15, QN:5, DIA:7, TM:10, DS:6};
+const GERADOR_GAMES = GAMES.filter(g => GERADOR_APOSTA_SIZE[g.code]);
+let geradorGameAtual = null;
+
+// faixas oficiais de premiação de cada loteria (quantidade EXATA de acertos que premia,
+// da maior pra menor) — usadas pra marcar os jogos gerados como premiados de verdade
+const FAIXAS_PREMIACAO_GERADOR = {
+  MS:  [{h:6, label:'Sena'},        {h:5, label:'Quina'},      {h:4, label:'Quadra'}],
+  LF:  [{h:15,label:'15 pontos'},   {h:14,label:'14 pontos'},  {h:13,label:'13 pontos'}, {h:12,label:'12 pontos'}, {h:11,label:'11 pontos'}],
+  QN:  [{h:5, label:'Quina'},       {h:4, label:'Quadra'},     {h:3, label:'Terno'},     {h:2, label:'Duque'}],
+  DIA: [{h:7, label:'7 acertos'},   {h:6, label:'6 acertos'},  {h:5, label:'5 acertos'}, {h:4, label:'4 acertos'}],
+  TM:  [{h:7, label:'7 acertos'},   {h:6, label:'6 acertos'},  {h:5, label:'5 acertos'}, {h:4, label:'4 acertos'}, {h:3, label:'3 acertos'}],
+  DS:  [{h:6, label:'Sena'},        {h:5, label:'Quina'},      {h:4, label:'Quadra'},    {h:3, label:'Terno'}],
+};
+function faixaPremioGerador(code, hits){
+  const faixas = FAIXAS_PREMIACAO_GERADOR[code];
+  if(!faixas) return null;
+  return faixas.find(f => f.h === hits) || null;
+}
+
+let geradorUltimoResultado = null; // {gameCode, concurso, dezenas:Set} — resultado oficial mostrado agora no card
+let geradorUltimoJogosCtx = null;  // dados dos últimos 50 jogos gerados, pra re-conferir quando o resultado oficial mudar (Anterior/Próximo)
+
+function abrirGeradorLoteria(){
+  fecharModaisGlobais('overlayGeradorLoteria');
+  const lista = document.getElementById('geradorLoteriaLista');
+  lista.innerHTML = GERADOR_GAMES.map(g => `
+    <button class="gerador-loteria-btn" data-code="${g.code}" style="width:100%;display:flex;align-items:center;gap:12px;padding:14px;margin-bottom:10px;border-radius:14px;border:1.5px solid var(--line,#E7DFF5);background:#fff;font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:700;color:var(--ink,#241B2F);cursor:pointer;text-align:left;">
+      <span style="font-size:20px;">${g.icon}</span>${g.nome}
+    </button>`).join('');
+  lista.querySelectorAll('.gerador-loteria-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> abrirGeradorFiltro(btn.dataset.code));
+  });
+  document.getElementById('overlayGeradorLoteria').classList.add('show');
+  resetScroll();
+}
+
+function abrirGeradorFiltro(code){
+  geradorGameAtual = GAMES.find(g=>g.code===code);
+  if(!geradorGameAtual) return;
+  // fecha só as janelas soltas sem relação (Tendência, Histórico, etc.) — mantém a tela
+  // "escolher loteria" aberta por baixo, senão o botão de voltar (← ou físico) pula
+  // direto pro início em vez de voltar pra lista de loterias
+  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
+    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer'];
+  modalIds.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.classList.remove('show');
+  });
+  const drawerOv = document.getElementById('drawerOverlay');
+  if(drawerOv) drawerOv.classList.remove('show');
+  document.getElementById('geradorFiltroTitulo').textContent = geradorGameAtual.nome;
+  document.getElementById('geradorFiltroResultado').innerHTML = '';
+  geradorUltimoJogosCtx = null;
+  document.getElementById('overlayGeradorFiltro').classList.add('show');
+  resetScroll();
+  carregarUltimoResultadoGerador(geradorGameAtual);
+}
+
+// ---------- card com o resultado oficial da loteria escolhida, logo abaixo do botão GERAR ----------
+async function carregarUltimoResultadoGerador(g, concurso){
+  const box = document.getElementById('geradorFiltroUltimoResultado');
+  if(!box) return;
+  box.innerHTML = `<div class="res-loading">Buscando ${concurso ? 'concurso Nº '+concurso : 'o último resultado'} de ${g.nome}…</div>`;
+  try{
+    const data = await fetchConcursoLoteria(g, concurso);
+    if(!geradorGameAtual || geradorGameAtual.code !== g.code) return; // usuário já trocou de loteria enquanto buscava
+    if(!data || !data.concurso) throw new Error('sem dados');
+    if(!concursoMaisRecentePorJogo[g.slug] || data.concurso > concursoMaisRecentePorJogo[g.slug]){
+      concursoMaisRecentePorJogo[g.slug] = data.concurso;
+    }
+    renderUltimoResultadoGerador(g, data);
+  }catch(e){
+    if(!geradorGameAtual || geradorGameAtual.code !== g.code) return;
+    console.error('carregarUltimoResultadoGerador falhou:', e);
+    box.innerHTML = `<div class="res-error">Não foi possível buscar o resultado agora.<br><button class="res-nav-btn" id="geradorResTentar" style="margin-top:8px;">Tentar novamente</button></div>`;
+    const btn = document.getElementById('geradorResTentar');
+    if(btn) btn.addEventListener('click', ()=>carregarUltimoResultadoGerador(g, concurso));
+  }
+}
+
+function renderUltimoResultadoGerador(g, data){
+  const box = document.getElementById('geradorFiltroUltimoResultado');
+  if(!box) return;
+  const nums = (data.dezenas||[]).map(d=>parseInt(d,10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b);
+  const ballsHtml = nums.length
+    ? `<div class="result-balls" style="justify-content:center;flex-wrap:wrap;gap:5px;margin-bottom:6px;">${nums.map(n=>`<div class="result-ball-sm">${n.toString().padStart(2,'0')}</div>`).join('')}</div>`
+    : '';
+  const maisRecente = concursoMaisRecentePorJogo[g.slug];
+  const podeAvancar = maisRecente && data.concurso < maisRecente;
+  box.innerHTML = `
+    <div class="res-card-title" style="margin-bottom:6px;font-size:12.5px;">Último resultado — ${g.nome}</div>
+    <div class="res-nav-row" style="margin-bottom:6px;">
+      <button class="res-nav-btn" id="geradorResAnterior" style="padding:6px 9px;font-size:10.5px;">← Anterior</button>
+      <div class="res-concurso-num" style="font-size:16px;">Nº ${data.concurso}</div>
+      <button class="res-nav-btn" id="geradorResProximo" style="padding:6px 9px;font-size:10.5px;" ${podeAvancar ? '' : 'disabled'}>Próximo →</button>
+    </div>
+    ${ballsHtml}
+    <div class="res-local" style="font-size:10.5px;text-align:center;">${data.local ? `Sorteio em ${data.local} • ` : ''}${data.data || '—'}</div>`;
+
+  document.getElementById('geradorResAnterior').addEventListener('click', ()=> carregarUltimoResultadoGerador(g, data.concurso-1));
+  const btnProx = document.getElementById('geradorResProximo');
+  if(btnProx) btnProx.addEventListener('click', ()=> carregarUltimoResultadoGerador(g, data.concurso+1));
+
+  // guarda o resultado oficial mostrado agora e, se já existem 50 jogos gerados pra essa
+  // mesma loteria, re-confere eles na hora contra esse resultado (inclusive ao navegar
+  // Anterior/Próximo pra um concurso diferente)
+  geradorUltimoResultado = { gameCode: g.code, concurso: data.concurso, dezenas: new Set(nums) };
+  if(geradorUltimoJogosCtx && geradorUltimoJogosCtx.g.code === g.code){
+    renderGeradorResultado(
+      geradorUltimoJogosCtx.g, geradorUltimoJogosCtx.jogos, geradorUltimoJogosCtx.maisAtrasadas,
+      geradorUltimoJogosCtx.maisSairam, geradorUltimoJogosCtx.totalConcursos,
+      geradorUltimoJogosCtx.numeroUltimo, geradorUltimoJogosCtx.depSize
+    );
+  }
+}
+
+document.getElementById('geradorLoteriaVoltar').addEventListener('click', ()=>{
+  document.getElementById('overlayGeradorLoteria').classList.remove('show');
+});
+document.getElementById('geradorFiltroVoltar').addEventListener('click', ()=>{
+  document.getElementById('overlayGeradorFiltro').classList.remove('show');
+});
+
+document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async ()=>{
+  const g = geradorGameAtual;
+  if(!g) return;
+  const depSize = GERADOR_APOSTA_SIZE[g.code];
+
+  const qtdEl = document.getElementById('geradorFiltroQtd');
+  let qtdConcursos = parseInt(qtdEl.value, 10);
+  if(isNaN(qtdConcursos) || qtdConcursos < 5) qtdConcursos = 5;
+  if(qtdConcursos > 500) qtdConcursos = 500;
+  qtdEl.value = qtdConcursos;
+
+  const btn = document.getElementById('geradorFiltroGerarBtn');
+  const spinner = document.getElementById('geradorFiltroSpinner');
+  const out = document.getElementById('geradorFiltroResultado');
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  out.innerHTML = '';
+
+  try{
+    const min = g.range.min, max = g.range.max;
+    const ultimo = await fetchConcursoLoteria(g);
+    if(!ultimo || !ultimo.concurso || !Array.isArray(ultimo.dezenas)) throw new Error('resposta inválida da API');
+    const numeroUltimo = ultimo.concurso;
+
+    const numerosConcursos = [];
+    for(let c = numeroUltimo; c > numeroUltimo - qtdConcursos && c > 0; c--) numerosConcursos.push(c);
+
+    const concursos = new Array(numerosConcursos.length);
+    concursos[0] = ultimo;
+    const pendentes = numerosConcursos.slice(1).map((c, idx)=>
+      fetchConcursoLoteria(g, c).then(data=>{ concursos[idx+1] = data; }).catch(()=>{ concursos[idx+1] = null; })
+    );
+    await Promise.all(pendentes);
+    const validos = concursos.filter(Boolean);
+    if(validos.length === 0) throw new Error('sem dados suficientes');
+
+    const presenca = {}, atraso = {};
+    for(let n=min;n<=max;n++){ presenca[n]=0; atraso[n]=null; }
+    validos.forEach((data,i)=>{
+      const dezenas = (data.dezenas||[]).map(d=>parseInt(d,10));
+      for(let n=min;n<=max;n++){
+        if(dezenas.includes(n)){
+          presenca[n]++;
+          if(atraso[n]===null) atraso[n]=i;
+        }
+      }
+    });
+    for(let n=min;n<=max;n++){ if(atraso[n]===null) atraso[n]=validos.length; }
+
+    const todos = [];
+    for(let n=min;n<=max;n++) todos.push({n, presenca:presenca[n], atraso:atraso[n]});
+
+    // 10 dezenas mais atrasadas (há mais concursos sem sair)
+    const porAtraso = todos.slice().sort((a,b)=> b.atraso - a.atraso || a.n - b.n);
+    const maisAtrasadas = porAtraso.slice(0, 10);
+    const idsAtrasadas = new Set(maisAtrasadas.map(x=>x.n));
+
+    // 15 dezenas que mais saíram (fora as já escolhidas como atrasadas, pra não repetir)
+    const porPresenca = todos.filter(x=>!idsAtrasadas.has(x.n)).sort((a,b)=> b.presenca - a.presenca || a.n - b.n);
+    const maisSairam = porPresenca.slice(0, 15);
+
+    const pool = maisAtrasadas.concat(maisSairam).map(x=>x.n).sort((a,b)=>a-b);
+
+    if(pool.length < depSize){
+      out.innerHTML = `<div class="res-error">Não há dezenas suficientes pra montar jogos de ${depSize} dezenas com esse filtro.</div>`;
+      return;
+    }
+
+    // sorteia 50 jogos únicos, cada um com "depSize" dezenas, sempre dentro dessas 25 dezenas
+    const seen = new Set();
+    const jogos = [];
+    let tries = 0;
+    const maxTries = 50*40 + 800;
+    while(jogos.length < 50 && tries < maxTries){
+      tries++;
+      const embaralhado = pool.slice();
+      for(let i=embaralhado.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [embaralhado[i], embaralhado[j]] = [embaralhado[j], embaralhado[i]];
+      }
+      const jogo = embaralhado.slice(0, depSize).sort((a,b)=>a-b);
+      const key = jogo.join(',');
+      if(!seen.has(key)){ seen.add(key); jogos.push(jogo); }
+    }
+
+    geradorUltimoJogosCtx = { g, jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize };
+    renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, validos.length, numeroUltimo, depSize);
+  }catch(e){
+    console.error('gerador multi-loteria falhou:', e);
+    out.innerHTML = `<div class="res-error">Não foi possível calcular agora.<br>Verifique sua internet e toque em "GERAR" pra tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
+  }finally{
+    btn.disabled = false;
+    spinner.style.display = 'none';
+  }
+});
+
+function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcursos, numeroUltimo, depSize){
+  const out = document.getElementById('geradorFiltroResultado');
+
+  const bola = (n, corA, corB) => `<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;margin:2px;background:linear-gradient(160deg,${corA},${corB});color:#fff;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:700;">${n.toString().padStart(2,'0')}</span>`;
+
+  const bolasAtrasadas = maisAtrasadas.map(x=>bola(x.n, '#F0932B', '#D9770B')).join('');
+  const bolasQuentes = maisSairam.map(x=>bola(x.n, '#38BDF8', '#1D4ED8')).join('');
+
+  // confere cada jogo contra o resultado oficial mostrado no card acima (se for da mesma loteria)
+  const conferindo = geradorUltimoResultado && geradorUltimoResultado.gameCode === g.code;
+  const resultadoSet = conferindo ? geradorUltimoResultado.dezenas : null;
+  let totalPremiados = 0;
+
+  const listaJogosHtml = jogos.map((jogo,i)=>{
+    const hits = conferindo ? jogo.filter(n=>resultadoSet.has(n)).length : null;
+    const faixa = conferindo ? faixaPremioGerador(g.code, hits) : null;
+    if(faixa) totalPremiados++;
+    const badge = conferindo
+      ? `<span style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:${faixa ? '#1F9D74' : 'var(--muted)'};margin-left:auto;flex:none;">${hits} acerto${hits===1?'':'s'}</span>`
+      : '';
+    const premioTag = faixa
+      ? `<div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:#fff;background:linear-gradient(135deg,#1F9D74,#15764F);padding:3px 8px;border-radius:20px;display:inline-block;margin-top:5px;">🏆 PREMIADO — ${faixa.label}</div>`
+      : '';
+    return `
+    <div class="tend-row" style="align-items:center;flex-wrap:wrap;${faixa ? 'background:rgba(31,157,116,.08);border-color:#1F9D74;' : ''}">
+      <div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:12px;color:var(--muted);width:26px;flex:none;">${i+1}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;flex:1;">
+        ${jogo.map(n=>{
+          const acertou = conferindo && resultadoSet.has(n);
+          return `<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:${acertou ? 'linear-gradient(160deg,#1F9D74,#15764F)' : 'var(--bg,#F0EAFA)'};border:1px solid ${acertou ? 'transparent' : 'var(--line,#E7DFF5)'};color:${acertou ? '#fff' : 'var(--violet-deep)'};font-family:'Baloo 2',sans-serif;font-size:10.5px;font-weight:700;">${n.toString().padStart(2,'0')}</span>`;
+        }).join('')}
+      </div>
+      ${badge}
+      ${premioTag ? `<div style="width:100%;">${premioTag}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  const conferenciaResumoHtml = conferindo
+    ? `<div class="note" style="margin-bottom:10px;${totalPremiados>0 ? 'border-color:#1F9D74;' : ''}">Conferido com o resultado oficial <strong>Nº ${geradorUltimoResultado.concurso}</strong> de ${g.nome}.<br>${totalPremiados>0 ? `🏆 <strong>${totalPremiados}</strong> jogo${totalPremiados===1?'':'s'} premiado${totalPremiados===1?'':'s'}!` : 'Nenhum jogo bateu a premiação mínima dessa vez.'}</div>`
+    : '';
+
+  out.innerHTML = `
+    <div class="note" style="margin:14px 0;">
+      Baseado nos últimos <strong>${totalConcursos}</strong> concursos de ${g.nome} (até o Nº ${numeroUltimo}):<br>
+      <strong>10 dezenas mais atrasadas</strong> (há mais tempo sem sair):
+      <div style="margin:6px 0 10px;">${bolasAtrasadas}</div>
+      <strong>15 dezenas que mais saíram</strong>:
+      <div style="margin:6px 0;">${bolasQuentes}</div>
+      <span style="font-size:11.5px;">Cada sorteio é independente — isso é estatística histórica, não garante resultado futuro.</span>
+    </div>
+    <div class="note" style="margin-bottom:10px;"><strong>${jogos.length}</strong> jogos gerados, ${depSize} dezenas cada, sorteados dentro dessas 25 dezenas.</div>
+    ${conferenciaResumoHtml}
+    ${listaJogosHtml}
+    <button id="geradorBaixarBtn" class="download-btn" style="margin-top:14px;">Baixar jogos (.txt)</button>
+  `;
+
+  document.getElementById('geradorBaixarBtn').addEventListener('click', ()=>{
+    const text = jogos.map((j,i)=> `Jogo ${i+1}: ${j.map(n=>n.toString().padStart(2,'0')).join(' - ')}`).join('\n');
+    const blob = new Blob([text], {type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${g.slug}-50-jogos.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
   });
 }
 
@@ -3939,7 +4476,8 @@ function fecharOutrasOverlaysDeAba(manter){
 // uma janela antiga escondendo a tela nova por trás
 function fecharModaisGlobais(manter){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
-    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer'];
+    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer',
+    'overlayGeradorLoteria','overlayGeradorFiltro'];
   modalIds.forEach(id=>{
     if(id === manter) return;
     const el = document.getElementById(id);
@@ -3951,7 +4489,8 @@ function fecharModaisGlobais(manter){
 
 function goHome(){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
-    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer'];
+    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer',
+    'overlayGeradorLoteria','overlayGeradorFiltro'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.classList.remove('show');
@@ -3969,7 +4508,7 @@ function goHome(){
 function irParaSelecao(){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer',
-    'overlayListaResultados'];
+    'overlayGeradorLoteria','overlayGeradorFiltro','overlayListaResultados'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.classList.remove('show');
@@ -4039,7 +4578,7 @@ document.getElementById('btnJogosSalvosAtalho2').addEventListener('click', ()=>{
   document.getElementById('overlayHistorico').classList.add('show');
   setActiveTab('tabJogos');
 });
-document.getElementById('btnAbrirFechamentoAtalho').addEventListener('click', irParaSelecao);
+document.getElementById('btnAbrirFechamentoAtalho').addEventListener('click', abrirGeradorLoteria);
 document.getElementById('btnFechamentoAtalho').addEventListener('click', irParaSelecao);
 document.getElementById('btnTendenciaAtalho').addEventListener('click', abrirTendencia);
 document.getElementById('btnSimularAtalho').addEventListener('click', ()=>{
@@ -4236,7 +4775,7 @@ function getHistorico(){
   }catch(e){ return []; }
 }
 
-function saveToHistorico(summaryHtml, games){
+function saveToHistorico(summaryHtml, games, nome){
   if(!games || games.length === 0) return;
   const resumo = summaryHtml.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
   const entry = {
@@ -4244,7 +4783,8 @@ function saveToHistorico(summaryHtml, games){
     data: new Date().toISOString(),
     dezenas: [...selected].sort((a,b)=>a-b),
     resumo: resumo,
-    games: games
+    games: games,
+    nome: (nome && nome.trim()) ? nome.trim() : null
   };
   const hist = getHistorico();
   hist.unshift(entry);
@@ -4257,6 +4797,10 @@ function fmtDataBR(iso){
   return d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 }
 
+function escapeHtmlSimples(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
 function renderHistorico(){
   const list = document.getElementById('historicoList');
   const hist = getHistorico();
@@ -4266,7 +4810,7 @@ function renderHistorico(){
   }
   list.innerHTML = hist.map(entry => `
     <div class="hist-entry" data-id="${entry.id}">
-      <div class="he-date">${fmtDataBR(entry.data)}</div>
+      <div class="he-date">${entry.nome ? `🔖 <strong>${escapeHtmlSimples(entry.nome)}</strong> · ` : ''}${fmtDataBR(entry.data)}</div>
       <div class="he-desc"><strong>${entry.games.length}</strong> jogo(s) · dezenas: ${entry.dezenas.map(n=>n.toString().padStart(2,'0')).join(', ')}</div>
       <div class="he-actions">
         <button class="he-ver" data-id="${entry.id}">VER JOGOS</button>
@@ -4439,7 +4983,7 @@ function renderGameCards(){
 }
 
 document.getElementById('backToSelection').addEventListener('click', ()=>{
-  irParaResultados();
+  irParaSelecao();
 });
 
 document.getElementById('floatingSave').addEventListener('click', function(e){
@@ -4468,6 +5012,38 @@ document.getElementById('floatingShare').addEventListener('click', async functio
     this.innerHTML = '✅';
     setTimeout(()=>{ this.innerHTML = original; }, 1200);
   }
+});
+
+document.getElementById('floatingSalvarNome').addEventListener('click', function(){
+  if(!lastGames || lastGames.length === 0){
+    alert('Nenhum jogo gerado ainda pra salvar.');
+    return;
+  }
+  const input = document.getElementById('inputNomeJogo');
+  if(input) input.value = '';
+  fecharModaisGlobais('overlayNomeJogo');
+  document.getElementById('overlayNomeJogo').classList.add('show');
+  setTimeout(()=>{ if(input) input.focus(); }, 50);
+});
+
+document.getElementById('btnNomeJogoCancelar').addEventListener('click', ()=>{
+  document.getElementById('overlayNomeJogo').classList.remove('show');
+});
+
+document.getElementById('inputNomeJogo').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') document.getElementById('btnNomeJogoSalvar').click();
+});
+
+document.getElementById('btnNomeJogoSalvar').addEventListener('click', ()=>{
+  const nome = document.getElementById('inputNomeJogo').value;
+  const summaryEl = document.getElementById('summaryBox2');
+  const summaryHtml = (summaryEl && summaryEl.innerHTML) ? summaryEl.innerHTML : '';
+  saveToHistorico(summaryHtml, lastGames, nome);
+  document.getElementById('overlayNomeJogo').classList.remove('show');
+  const btn = document.getElementById('floatingSalvarNome');
+  const original = btn.innerHTML;
+  btn.innerHTML = '✅';
+  setTimeout(()=>{ btn.innerHTML = original; }, 1200);
 });
 
 document.getElementById('floatingExcel').addEventListener('click', function(e){
@@ -4911,12 +5487,14 @@ document.getElementById('downloadBtn').addEventListener('click', ()=>{
 
 refreshUI();
 
-// ---------- Botão VOLTAR do celular navega entre as telas do app ----------
+// ---------- Botão VOLTAR do celular navega entre as telas do app, uma de cada vez ----------
 (function(){
-  // "Casa" = tela inicial (overlayListaResultados) visível e nada por cima dela.
+  // ordem de prioridade ao fechar: o que estiver mais "por cima"/mais aninhado primeiro
   const MODAL_IDS = [
-    'overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
-    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer'
+    'overlayNomeJogo','overlayFotoFull','drawer','overlay','overlayTrioProb','overlayProb',
+    'overlayHistorico','overlayErreX','overlayGaleria',
+    'overlayGeradorFiltro','overlayGeradorLoteria',
+    'overlayAltaQueda','overlayResultado','overlayTendencia'
   ];
 
   function isModalOpen(id){
@@ -4924,37 +5502,89 @@ refreshUI();
     return !!(el && el.classList.contains('show'));
   }
 
-  function isHomeVisible(){
-    const home = document.getElementById('overlayListaResultados');
-    if(!home || !home.classList.contains('show')) return false;
-    return !MODAL_IDS.some(isModalOpen);
+  function countOpenModals(){
+    return MODAL_IDS.reduce((n,id)=> n + (isModalOpen(id) ? 1 : 0), 0);
   }
 
-  let atHome = isHomeVisible();
-  let suppress = false;
-  try{ history.replaceState({home:atHome}, '', location.href); }catch(e){}
+  function getBaseScreen(){
+    const sel = document.querySelector('.app > section:not(#resultsSection)');
+    const res = document.getElementById('resultsSection');
+    if(sel && sel.style.display === 'block') return 'selecao';
+    if(res && res.style.display === 'block') return 'resultados';
+    return 'home';
+  }
 
-  document.addEventListener('click', function(){
-    setTimeout(function(){
-      if(suppress) return;
-      const nowHome = isHomeVisible();
-      if(nowHome === atHome) return;
-      if(!nowHome){
-        try{ history.pushState({home:false}, '', location.href); }catch(e){}
-      } else {
-        try{ history.back(); }catch(e){}
+  // "profundidade" atual = 0 na tela inicial sem nada aberto, e sobe 1 por
+  // camada (tela não-inicial e/ou cada modal/overlay aberto em cima dela)
+  function totalLayers(){
+    return (getBaseScreen() === 'home' ? 0 : 1) + countOpenModals();
+  }
+
+  function closeTopModal(){
+    for(const id of MODAL_IDS){
+      if(isModalOpen(id)){
+        document.getElementById(id).classList.remove('show');
+        if(id === 'drawer'){
+          const ov = document.getElementById('drawerOverlay');
+          if(ov) ov.classList.remove('show');
+        }
+        return true;
       }
-      atHome = nowHome;
-    }, 30);
-  }, true);
+    }
+    return false;
+  }
+
+  let lastTotal = totalLayers();
+  let pushedExtra = 0;      // quantos estados extras nós empilhamos no histórico do navegador
+  let handlingPop = false;  // true enquanto respondemos a um voltar físico/gesto
+  let programmaticPop = false; // true quando fomos nós que disparamos o "voltar" (pra reequilibrar a pilha)
+
+  try{ history.replaceState({thorNav:0}, '', location.href); }catch(e){}
+
+  // observa qualquer mudança real de tela/overlay do app (não importa o que a
+  // disparou: clique, toque fora, tecla, etc.) e mantém o histórico do
+  // navegador com uma entrada por camada aberta
+  function sync(){
+    if(handlingPop) return;
+    const newTotal = totalLayers();
+    if(newTotal === lastTotal) return;
+    if(newTotal > lastTotal){
+      for(let i=lastTotal;i<newTotal;i++){
+        pushedExtra++;
+        try{ history.pushState({thorNav:pushedExtra}, '', location.href); }catch(e){}
+      }
+    } else {
+      const delta = Math.min(lastTotal-newTotal, pushedExtra);
+      if(delta > 0){
+        pushedExtra -= delta;
+        programmaticPop = true;
+        try{ history.go(-delta); }catch(e){}
+      }
+    }
+    lastTotal = newTotal;
+  }
+
+  new MutationObserver(sync).observe(document.body, {
+    attributes:true, attributeFilter:['class','style'], subtree:true
+  });
 
   window.addEventListener('popstate', function(){
-    suppress = true;
-    if(!isHomeVisible()) goHome();
-    setTimeout(function(){
-      atHome = isHomeVisible();
-      suppress = false;
-    }, 50);
+    // esse popstate foi gerado por nós mesmos (history.go acima) pra
+    // reequilibrar a pilha depois de um fechamento feito por um botão do
+    // próprio app — não é o botão físico, então não fecha nada de novo
+    if(programmaticPop){
+      programmaticPop = false;
+      lastTotal = totalLayers();
+      return;
+    }
+    // botão/gesto de voltar de verdade: fecha só a camada mais de cima
+    handlingPop = true;
+    const fechouAlgo = closeTopModal();
+    if(!fechouAlgo && getBaseScreen() !== 'home'){
+      goHome();
+    }
+    lastTotal = totalLayers();
+    setTimeout(function(){ handlingPop = false; }, 0);
   });
 })();
 
