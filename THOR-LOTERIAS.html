@@ -71,6 +71,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.documentElement.style.visibility = 'visible';
   if(!licencaJaValidada()) montarTelaLogin();
 });
+
+// ---------- bloqueia cópia, corte, menu de contexto e arraste em todo o app ----------
+document.addEventListener('contextmenu', e=> e.preventDefault());
+document.addEventListener('copy', e=> e.preventDefault());
+document.addEventListener('cut', e=> e.preventDefault());
+document.addEventListener('dragstart', e=> e.preventDefault());
+// dentro de inputs ainda dá para selecionar texto pra editar, mas o "selecionar tudo / copiar"
+// fora deles (nos números, resultados, etc.) fica bloqueado pelo CSS de user-select
+document.addEventListener('selectstart', e=>{
+  const tag = e.target.tagName;
+  if(tag !== 'INPUT' && tag !== 'TEXTAREA') e.preventDefault();
+});
 </script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#4C1D95">
@@ -107,6 +119,20 @@ document.addEventListener('DOMContentLoaded', ()=>{
     --home-blue-2:#2E1E7A;
   }
   *{box-sizing:border-box;}
+  /* ---- bloqueia seleção de texto / cópia em todo o app ---- */
+  *, *::before, *::after{
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+    -webkit-touch-callout:none; /* impede o menu de "copiar" ao segurar o dedo no iOS */
+  }
+  input, textarea{
+    -webkit-user-select:text;
+    -moz-user-select:text;
+    -ms-user-select:text;
+    user-select:text; /* mantém a digitação normal nos campos de nome/chave de ativação */
+  }
   body{
     margin:0;
     background:var(--bg);
@@ -256,12 +282,15 @@ document.addEventListener('DOMContentLoaded', ()=>{
     padding:4px;
     border-radius:12px;
     margin-bottom:14px;
+    overflow-x:auto;
   }
   .subtab-btn{
-    flex:1;
+    flex:0 0 auto;
+    min-width:72px;
+    white-space:nowrap;
     border:none;
     background:none;
-    padding:10px 2px;
+    padding:10px 10px;
     border-radius:9px;
     font-family:'Baloo 2',sans-serif;
     font-weight:700;
@@ -273,6 +302,16 @@ document.addEventListener('DOMContentLoaded', ()=>{
     background:#fff;
     color:var(--violet-deep);
     box-shadow:0 2px 6px rgba(76,29,149,.15);
+  }
+  /* o toggle Sortear/Manual do conferidor usa as mesmas classes, mas tem só 2 opções
+     e deve continuar dividindo a largura toda igualmente, sem rolagem */
+  #confSubtabRow{
+    overflow-x:visible;
+  }
+  #confSubtabRow .subtab-btn{
+    flex:1;
+    min-width:0;
+    padding:10px 2px;
   }
   input[type=number]{
     width:100%;
@@ -1078,6 +1117,53 @@ document.addEventListener('DOMContentLoaded', ()=>{
     background:linear-gradient(160deg,#E3A91C,#C9971F);
     box-shadow:0 3px 10px rgba(201,151,31,.35);
   }
+  .tend-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:3px;
+    font-family:'Baloo 2',sans-serif;
+    font-size:10.5px;
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:999px;
+    margin-bottom:4px;
+  }
+  .tend-tag.alta{background:rgba(31,157,116,.14);color:var(--good);}
+  .tend-tag.queda{background:rgba(240,75,75,.14);color:#C0392B;}
+
+  /* ---- alta e queda: duas colunas lado a lado ---- */
+  .aq-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;}
+  .aq-col-head{
+    font-family:'Baloo 2',sans-serif;
+    font-size:12.5px;font-weight:700;
+    text-align:center;
+    padding:7px 4px;
+    border-radius:8px;
+    margin-bottom:8px;
+  }
+  .aq-col-head.alta{background:rgba(37,99,235,.14);color:#2563EB;}
+  .aq-col-head.queda{background:rgba(240,75,75,.14);color:#C0392B;}
+  .aq-item{
+    display:flex;align-items:center;gap:7px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:7px 8px;
+    margin-bottom:6px;
+  }
+  .aq-item .aq-ball{
+    width:28px;height:28px;flex:none;
+    border-radius:50%;
+    color:#fff;
+    font-family:'Baloo 2',sans-serif;
+    font-size:11.5px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .aq-item.alta .aq-ball{background:linear-gradient(160deg,var(--good),#0E7A5A);}
+  .aq-item.queda .aq-ball{background:linear-gradient(160deg,#F04B4B,#8C1010);}
+  .aq-item .aq-sub{font-size:10px;color:var(--muted);line-height:1.3;}
+  .aq-arrow-up{width:11px;height:11px;vertical-align:-1px;margin-right:2px;}
+  .aq-empty{font-size:12px;color:var(--muted);text-align:center;padding:12px 0;}
 
   /* ---- conferidor ---- */
   .conf-card{
@@ -1165,6 +1251,26 @@ document.addEventListener('DOMContentLoaded', ()=>{
     color:#fff;
   }
   .conf-ball:disabled{opacity:.35;cursor:not-allowed;}
+  .escolhida-ball{
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:12px;
+    border:1.5px solid var(--line);
+    background:#fff;
+    color:var(--ink);
+  }
+  .escolhida-ball.hit{
+    background:linear-gradient(160deg,var(--magenta),var(--violet));
+    border-color:transparent;
+    color:#fff;
+    box-shadow:0 3px 10px rgba(109,40,217,.35);
+  }
   .conf-count{
     font-size:11px;
     color:var(--muted);
@@ -1249,19 +1355,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     </div>
 
     <div class="card">
-      <label class="field-label" for="filterSelect">Ordenar / destacar resultado (não altera a garantia)</label>
-      <select id="filterSelect">
-        <option value="none">Sem filtro</option>
-        <option value="balance">Priorizar jogos equilibrados (pares/ímpares)</option>
-        <option value="sum">Priorizar soma próxima da média histórica (~195)</option>
-      </select>
-    </div>
-
-    <div class="card">
       <div class="actions" style="grid-template-columns:1fr;">
-        <button class="primary-btn btn-desdobrar" id="btnDesdobrar" disabled>DESDOBRAR</button>
       </div>
-      <button class="primary-btn" id="btnJogosSalvos" style="width:100%;margin-top:10px;background:#fff;border:1.5px solid var(--line);color:var(--violet-deep);">💾 JOGOS SALVOS</button>
 
       <div class="spinner" id="spinner">Calculando…</div>
       <div class="summary" id="summaryBox"></div>
@@ -1269,26 +1364,27 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <div class="result-box" id="resultBox"></div>
       <button class="download-btn" id="downloadBtn">Baixar jogos (.txt)</button>
 
-      <div class="note" id="mainNote">
-        <strong>GERAR</strong> monta o fechamento 100%: todas as combinações de 15 números dentro das suas dezenas escolhidas — garante 15 pontos se todos os sorteados estiverem no seu grupo, mas o número de jogos cresce muito rápido.<br><br>
-        <strong>DESDOBRAR</strong> usa um algoritmo guloso (heurística) para reduzir a quantidade de jogos, garantindo 14 pontos <em>se</em> os acertos estiverem dentro do seu grupo — não é o menor fechamento matematicamente possível, é uma aproximação prática.
-      </div>
     </div>
   </section>
 
   <section id="resultsSection" style="display:none;padding:0;">
-    <header class="top" style="border-radius:0;display:flex;align-items:center;gap:12px;">
-      <button id="backToSelection" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
+    <header class="top" style="border-radius:0;display:flex;align-items:center;gap:10px;padding:14px 16px 16px;">
+      <button id="backToSelection" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0;">←</button>
       <div style="flex:1;min-width:0;">
-        <h1 style="font-size:20px;margin:0;">Jogos Desdobrados</h1>
-        <div id="gamesCountLabel" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:13px;margin-top:2px;background:linear-gradient(90deg,#FF5F6D,#B31217);-webkit-background-clip:text;background-clip:text;color:transparent;"></div>
+        <h1 style="font-size:16px;margin:0;">Jogos Desdobrados</h1>
+        <div id="gamesCountLabel" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:11px;margin-top:2px;background:linear-gradient(90deg,#9BE12F,#4C9A2A);-webkit-background-clip:text;background-clip:text;color:transparent;"></div>
       </div>
-      <a id="floatingSave" title="Baixar todos os jogos (.txt)" style="width:38px;height:38px;border-radius:50%;background:var(--violet);color:#fff;border:none;font-size:16px;box-shadow:0 4px 10px rgba(76,29,149,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;flex:none;">💾</a>
-      <a id="floatingExcel" title="Salvar no Excel" style="width:38px;height:38px;border-radius:50%;background:var(--good);color:#fff;border:none;font-size:16px;box-shadow:0 4px 10px rgba(31,157,116,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;flex:none;">📊</a>
-      <button id="floatingShare" title="Compartilhar todos os jogos" style="width:38px;height:38px;border-radius:50%;background:var(--magenta);color:#fff;border:none;box-shadow:0 4px 10px rgba(214,51,108,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="5" r="3" stroke="white" stroke-width="2"/><circle cx="6" cy="12" r="3" stroke="white" stroke-width="2"/><circle cx="18" cy="19" r="3" stroke="white" stroke-width="2"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5" stroke="white" stroke-width="2"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5" stroke="white" stroke-width="2"/></svg></button>
+      <a id="floatingSave" title="Baixar todos os jogos (.txt)" style="width:30px;height:30px;border-radius:50%;background:var(--violet);color:#fff;border:none;font-size:13px;box-shadow:0 4px 10px rgba(76,29,149,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;flex:none;">💾</a>
+      <a id="floatingExcel" title="Salvar no Excel" style="width:30px;height:30px;border-radius:50%;background:var(--good);color:#fff;border:none;font-size:13px;box-shadow:0 4px 10px rgba(31,157,116,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;flex:none;">📊</a>
+      <button id="floatingShare" title="Compartilhar todos os jogos" style="width:30px;height:30px;border-radius:50%;background:var(--magenta);color:#fff;border:none;box-shadow:0 4px 10px rgba(214,51,108,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="5" r="3" stroke="white" stroke-width="2"/><circle cx="6" cy="12" r="3" stroke="white" stroke-width="2"/><circle cx="18" cy="19" r="3" stroke="white" stroke-width="2"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5" stroke="white" stroke-width="2"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5" stroke="white" stroke-width="2"/></svg></button>
     </header>
     <div style="padding:16px 16px 110px;">
       <div class="summary" id="summaryBox2" style="display:none;"></div>
+
+      <div class="conf-card" id="dezenasEscolhidasCard">
+        <div class="conf-title">Suas dezenas escolhidas</div>
+        <div id="dezenasEscolhidasLista" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      </div>
 
       <div class="conf-card">
         <div class="conf-title">Conferidor de resultado</div>
@@ -1338,7 +1434,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <div class="modal-card">
       <div class="mc-title">Dezenas por cartão</div>
       <input type="range" id="dezenasPorCartaoSlider" min="3" max="60" value="15" step="1">
-      <div class="mc-value" id="dezenasPorCartaoValue">15</div>
+      <div class="stepper-row">
+        <button class="stepper-btn" id="dpcMinus">−</button>
+        <div class="mc-value" id="dezenasPorCartaoValue" style="margin:0;">15</div>
+        <button class="stepper-btn" id="dpcPlus">+</button>
+      </div>
     </div>
 
     <div class="modal-card">
@@ -1513,10 +1613,30 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <div id="homeHero"></div>
   </div>
 
-  <div class="home-premium-card">
+  <div class="home-premium-card" id="homePremiumCardTendencia" style="cursor:pointer;">
     <span class="home-premium-tag">TENDÊNCIA</span>
     <h3>Dezenas em alta e em queda</h3>
     <p>Veja quais números mais e menos saíram nos últimos concursos</p>
+  </div>
+</div>
+
+<div class="overlay-full" id="overlayAltaQueda" style="z-index:76;">
+  <header class="top" style="border-radius:0;display:flex;align-items:center;gap:12px;">
+    <button id="altaQuedaVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
+    <h1 style="font-size:19px;" id="altaQuedaTitulo">Dezenas em alta e em queda</h1>
+  </header>
+  <div style="padding:16px 16px 40px;">
+    <div class="card">
+      <select id="altaQuedaQtdSelect" class="qtd-pill">
+        <option value="5" selected>Últimos 5 concursos</option>
+        <option value="10">Últimos 10 concursos</option>
+        <option value="25">Últimos 25 concursos</option>
+        <option value="50">Últimos 50 concursos</option>
+        <option value="100">Últimos 100 concursos</option>
+      </select>
+      <button class="btn-confirm" id="altaQuedaAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">ATUALIZAR</button>
+    </div>
+    <div id="altaQuedaConteudo"></div>
   </div>
 </div>
 
@@ -1557,6 +1677,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <button class="subtab-btn" id="subtabGerar">Gerar</button>
       <button class="subtab-btn" id="subtabTrios">Trios</button>
       <button class="subtab-btn" id="subtabFalhas">Falhas</button>
+      <button class="subtab-btn" id="subtabQuente">Quente</button>
     </div>
 
     <div id="tendPanel">
@@ -1670,6 +1791,30 @@ document.addEventListener('DOMContentLoaded', ()=>{
         <button class="btn-confirm" id="falhasAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">ATUALIZAR</button>
       </div>
       <div id="falhasConteudo"></div>
+    </div>
+
+    <div id="quentePanel" style="display:none;">
+      <div class="card">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Pega as dezenas <strong>mais atrasadas</strong> (que há mais tempo não saem) e monta as trincas (grupos de 3) mais "quentes" combinando essas dezenas entre si.</div>
+        <label class="field-label" for="quenteQtdSelect">Baseado em quantos concursos</label>
+        <select id="quenteQtdSelect" class="qtd-pill" style="margin-bottom:12px;">
+          <option value="5">Últimos 5 concursos</option>
+          <option value="10">Últimos 10 concursos</option>
+          <option value="25" selected>Últimos 25 concursos</option>
+          <option value="50">Últimos 50 concursos</option>
+          <option value="100">Últimos 100 concursos</option>
+        </select>
+        <label class="field-label" for="quenteTopoSelect">Usar quantas dezenas mais atrasadas</label>
+        <select id="quenteTopoSelect" class="qtd-pill">
+          <option value="6">Top 6 dezenas</option>
+          <option value="8" selected>Top 8 dezenas</option>
+          <option value="10">Top 10 dezenas</option>
+          <option value="12">Top 12 dezenas</option>
+          <option value="15">Top 15 dezenas</option>
+        </select>
+        <button class="btn-confirm" id="quenteAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">ATUALIZAR</button>
+      </div>
+      <div id="quenteConteudo"></div>
     </div>
   </div>
 </div>
@@ -1829,10 +1974,11 @@ function recalcularConfManual(){
   manualBallsOn = new Set(numeros);
   confResultManual = new Set(numeros);
   confResult = confResultManual; // aba Manual está ativa quando isso roda
-  conferenceDone = false;
+  conferenceDone = false; // a faixa de premiação e a lista filtrada só aparecem ao apertar CONFERIR
   confResultBox.style.display='none';
   refreshConfUI();
   renderGameCards();
+  pintarDezenasEscolhidas(); // as bolinhas de "suas dezenas escolhidas" pintam na hora, mesmo sem confirmar
 }
 
 // sub-abas: Sortear (automático) x Manual (bolinhas)
@@ -1853,6 +1999,7 @@ function ativarConfSubtab(idAtivo){
   confResultBox.style.display='none';
   refreshConfUI();
   renderGameCards();
+  pintarDezenasEscolhidas();
 }
 document.getElementById('subtabConfSorteio').addEventListener('click', ()=>{
   ativarConfSubtab('subtabConfSorteio');
@@ -1898,6 +2045,31 @@ function limparCaixinhasManuais(){
   });
 }
 
+// mostra, acima do conferidor, as dezenas que o usuário marcou na tela anterior
+// (começam desmarcadas — só pintam quando o sorteio for conferido)
+function mostrarDezenasEscolhidas(){
+  const lista = document.getElementById('dezenasEscolhidasLista');
+  if(!lista) return;
+  const nums = Array.from(selected).sort((a,b)=>a-b);
+  if(nums.length === 0){
+    lista.innerHTML = '<span style="font-size:12.5px;color:var(--muted,#888);">Nenhuma dezena escolhida.</span>';
+    return;
+  }
+  lista.innerHTML = nums.map(n=>`<span class="escolhida-ball" data-num="${n}">${n.toString().padStart(2,'0')}</span>`).join('');
+  pintarDezenasEscolhidas();
+}
+
+// pinta (de roxo/rosa) só as dezenas escolhidas que batem com o sorteio/dígitos atuais
+function pintarDezenasEscolhidas(){
+  const lista = document.getElementById('dezenasEscolhidasLista');
+  if(!lista) return;
+  const bateu = confResult.size > 0;
+  lista.querySelectorAll('.escolhida-ball').forEach(el=>{
+    const n = parseInt(el.dataset.num, 10);
+    el.classList.toggle('hit', bateu && confResult.has(n));
+  });
+}
+
 function resetConferidor(){
   confResult = new Set();
   confResultSorteio = new Set();
@@ -1907,6 +2079,7 @@ function resetConferidor(){
   confResultBox.style.display='none';
   limparCaixinhasManuais();
   refreshConfUI();
+  pintarDezenasEscolhidas();
 }
 
 document.getElementById('btnLimparConf').addEventListener('click', ()=>{
@@ -1956,14 +2129,16 @@ document.getElementById('btnSorteioAuto').addEventListener('click', ()=>{
 
   confResultSorteio = new Set(sorteados);
   confResult = confResultSorteio; // aba Sortear está ativa quando isso roda — não mexe no resultado da aba Manual
-  conferenceDone = false;
+  conferenceDone = false; // a faixa de premiação e a lista filtrada só aparecem ao apertar CONFERIR
   confResultBox.style.display='none';
   refreshConfUI();
   renderGameCards();
+  pintarDezenasEscolhidas(); // as bolinhas de "suas dezenas escolhidas" pintam na hora, mesmo sem confirmar
 });
 
 function atualizarConferencia(){
   renderGameCards();
+  pintarDezenasEscolhidas();
 
   if(confResult.size === 0){
     confResultBox.style.display='none';
@@ -1986,7 +2161,7 @@ function atualizarConferencia(){
     const totalPremiados = hitsList.filter(h=>h>=11).length;
 
     const linhasFaixas = faixas.length
-      ? faixas.map(f=>`Você tem <strong>${f.qtd}</strong> cartão${f.qtd===1?'':'ões'} premiado${f.qtd===1?'':'s'} com <strong>${f.pts} pontos</strong>`).join('<br>')
+      ? faixas.map(f=>`Você tem <strong>${f.qtd}</strong> ${f.qtd===1?'cartão':'cartões'} premiado${f.qtd===1?'':'s'} com <strong>${f.pts} pontos</strong>`).join('<br>')
       : 'Nenhum cartão bateu 11 pontos ou mais.';
 
     confResultBox.innerHTML = `Resultado completo conferido em <strong>${lastGames.length}</strong> jogo(s).<br>Melhor pontuação: <strong>${bestHits} pontos</strong>.<br><br><strong>Cartões premiados: ${totalPremiados}</strong><br>${linhasFaixas}`;
@@ -1998,7 +2173,7 @@ function atualizarConferencia(){
       if(qtd>0) faixasParciais.push({h, qtd});
     }
     const linhasParciais = faixasParciais.length
-      ? faixasParciais.map(f=>`Você tem <strong>${f.qtd}</strong> cartão${f.qtd===1?'':'ões'} premiado${f.qtd===1?'':'s'} com <strong>${f.h} ponto${f.h===1?'':'s'}</strong>`).join('<br>')
+      ? faixasParciais.map(f=>`Você tem <strong>${f.qtd}</strong> ${f.qtd===1?'cartão':'cartões'} premiado${f.qtd===1?'':'s'} com <strong>${f.h} ponto${f.h===1?'':'s'}</strong>`).join('<br>')
       : 'Nenhum jogo bateu nenhuma das dezenas marcadas ainda.';
 
     confResultBox.innerHTML = `Você marcou <strong>${totalDezenas}</strong> dezena(s) até agora.<br>Melhor pontuação parcial: <strong>${bestHits} de ${totalDezenas}</strong>.<br><br>${linhasParciais}`;
@@ -2295,6 +2470,273 @@ function renderTendencia(linhas, total, numeroUltimo){
       <span style="font-size:11.5px;">Cada sorteio é independente — isso é apenas estatística histórica, não é garantia de resultado futuro.</span>
     </div>
     ${rows}`;
+}
+
+// ---------- tela separada: Dezenas em alta e em queda (agora segue a loteria escolhida na home) ----------
+let altaQuedaCarregouUmaVez = false;
+let altaQuedaGameCarregado = null; // code da loteria que está exibida agora nessa tela
+
+function abrirAltaQueda(){
+  closeDrawer();
+  fecharModaisGlobais('overlayAltaQueda');
+  document.getElementById('overlayAltaQueda').classList.add('show');
+
+  const titulo = document.getElementById('altaQuedaTitulo');
+  if(titulo) titulo.textContent = homeGameAtual.code === LOTOFACIL_GAME.code ? 'Dezenas em alta e em queda' : `Alta e queda · ${homeGameAtual.nome}`;
+
+  // se o usuário trocou a loteria na home desde a última vez que abriu essa tela, recarrega
+  if(!altaQuedaCarregouUmaVez || altaQuedaGameCarregado !== homeGameAtual.code){
+    carregarAltaQueda();
+  }
+}
+document.getElementById('homePremiumCardTendencia').addEventListener('click', abrirAltaQueda);
+document.getElementById('altaQuedaVoltar').addEventListener('click', ()=>{
+  document.getElementById('overlayAltaQueda').classList.remove('show');
+});
+document.getElementById('altaQuedaAtualizarBtn').addEventListener('click', carregarAltaQueda);
+
+async function carregarAltaQueda(){
+  const qtdEl = document.getElementById('altaQuedaQtdSelect');
+  const qtd = qtdEl ? parseInt(qtdEl.value,10) : 5;
+  const cont = document.getElementById('altaQuedaConteudo');
+  const btn = document.getElementById('altaQuedaAtualizarBtn');
+  const game = homeGameAtual;
+  altaQuedaGameCarregado = game.code;
+
+  if(game.noFalha){
+    // Super Sete sorteia 7 colunas de 0 a 9, formato que não se encaixa nessa análise por dezena
+    if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">O formato do ${game.nome} (colunas de 0 a 9) não se encaixa nessa análise de alta e queda por dezena.</div>`;
+    altaQuedaCarregouUmaVez = true;
+    return;
+  }
+
+  if(btn) btn.disabled = true;
+  if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos de ${game.nome}…</div>`;
+  const min = game.range.min, max = game.range.max;
+  try{
+    const ultimo = await fetchConcursoLoteria(game);
+    if(!ultimo || !ultimo.concurso || !Array.isArray(ultimo.dezenas)){
+      throw new Error('resposta inválida da API');
+    }
+    const numeroUltimo = ultimo.concurso;
+    const numeros = [];
+    for(let c = numeroUltimo; c > numeroUltimo - qtd && c > 0; c--) numeros.push(c);
+
+    const concursos = new Array(numeros.length);
+    concursos[0] = ultimo;
+    const pendentes = numeros.slice(1).map((c, idx)=>
+      fetchConcursoLoteria(game, c).then(data=>{ concursos[idx+1] = data; }).catch(()=>{ concursos[idx+1] = null; })
+    );
+    await Promise.all(pendentes);
+
+    const validos = concursos.filter(Boolean);
+    if(validos.length === 0) throw new Error('sem dados');
+
+    const presenca = {};
+    for(let n=min;n<=max;n++){ presenca[n]=0; }
+    validos.forEach(data=>{
+      const dezenas = (data.dezenas||[]).map(d=>parseInt(d,10));
+      for(let n=min;n<=max;n++){ if(dezenas.includes(n)) presenca[n]++; }
+    });
+
+    const total = validos.length;
+    const mediaPresenca = Object.values(presenca).reduce((s,v)=>s+v,0) / (max-min+1);
+
+    const linhas = [];
+    for(let n=min;n<=max;n++){ linhas.push({n, presenca:presenca[n]}); }
+    linhas.sort((a,b)=> b.presenca - a.presenca || a.n - b.n);
+
+    altaQuedaCarregouUmaVez = true;
+    renderAltaQueda(linhas, total, numeroUltimo, mediaPresenca);
+  }catch(e){
+    console.error('carregarAltaQueda falhou:', e);
+    if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
+  }finally{
+    if(btn) btn.disabled = false;
+  }
+}
+
+function renderAltaQueda(linhas, total, numeroUltimo, mediaPresenca){
+  const cont = document.getElementById('altaQuedaConteudo');
+  const nomeJogo = homeGameAtual.nome;
+
+  const emAlta = linhas.filter(l=> l.presenca >= mediaPresenca);
+  const emQueda = linhas.filter(l=> l.presenca < mediaPresenca).sort((a,b)=> a.presenca - b.presenca || a.n - b.n);
+
+  const itemHtml = (l, tipo)=> `
+    <div class="aq-item ${tipo}">
+      <div class="aq-ball">${l.n.toString().padStart(2,'0')}</div>
+      <div class="aq-sub">Saiu em<br><strong>${l.presenca}/${total}</strong></div>
+    </div>`;
+
+  const colAltaHtml = emAlta.length
+    ? emAlta.map(l=>itemHtml(l,'alta')).join('')
+    : `<div class="aq-empty">Nenhuma dezena em alta</div>`;
+  const colQuedaHtml = emQueda.length
+    ? emQueda.map(l=>itemHtml(l,'queda')).join('')
+    : `<div class="aq-empty">Nenhuma dezena em queda</div>`;
+
+  cont.innerHTML = `
+    <div class="note" style="margin:14px 0;">
+      Com base nos últimos <strong>${total}</strong> concursos de ${nomeJogo} (até o Nº ${numeroUltimo}).<br>
+      <strong>EM ALTA</strong> = saiu mais que a média nesse período · <strong>EM QUEDA</strong> = saiu menos que a média.<br>
+      <span style="font-size:11.5px;">Cada sorteio é independente — isso é apenas estatística histórica, não é garantia de resultado futuro.</span>
+    </div>
+    <div class="aq-cols">
+      <div class="aq-col">
+        <div class="aq-col-head alta"><svg class="aq-arrow-up" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="6 11 12 5 18 11"/></svg>EM ALTA</div>
+        ${colAltaHtml}
+      </div>
+      <div class="aq-col">
+        <div class="aq-col-head queda">🔻 EM QUEDA</div>
+        ${colQuedaHtml}
+      </div>
+    </div>`;
+}
+let quenteCarregouUmaVez = false;
+let quenteExibidosAtual = {items:[], total:0, numeroUltimo:null};
+
+async function carregarQuente(gameParam){
+  const game = gameParam || tendGameAtual;
+  const qtdEl = document.getElementById('quenteQtdSelect');
+  const qtd = qtdEl ? parseInt(qtdEl.value,10) : 25;
+  const topoEl = document.getElementById('quenteTopoSelect');
+  const topo = topoEl ? parseInt(topoEl.value,10) : 8;
+  const cont = document.getElementById('quenteConteudo');
+  const btn = document.getElementById('quenteAtualizarBtn');
+  if(btn) btn.disabled = true;
+  if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
+  const min = game.range.min, max = game.range.max;
+  try{
+    const ultimo = await fetchConcursoLoteria(game);
+    if(!ultimo || !ultimo.concurso || !Array.isArray(ultimo.dezenas)){
+      throw new Error('resposta inválida da API');
+    }
+    const numeroUltimo = ultimo.concurso;
+    const numeros = [];
+    for(let c = numeroUltimo; c > numeroUltimo - qtd && c > 0; c--) numeros.push(c);
+
+    const concursos = new Array(numeros.length);
+    concursos[0] = ultimo;
+    const pendentes = numeros.slice(1).map((c, idx)=>
+      fetchConcursoLoteria(game, c).then(data=>{ concursos[idx+1] = data; }).catch(()=>{ concursos[idx+1] = null; })
+    );
+    await Promise.all(pendentes);
+
+    const validos = concursos.filter(Boolean);
+    if(validos.length === 0) throw new Error('sem dados');
+
+    const presenca = {}, atraso = {};
+    for(let n=min;n<=max;n++){ presenca[n]=0; atraso[n]=null; }
+    validos.forEach((data, i)=>{
+      const dezenas = (data.dezenas||[]).map(d=>parseInt(d,10));
+      for(let n=min;n<=max;n++){
+        if(dezenas.includes(n)){
+          presenca[n]++;
+          if(atraso[n]===null) atraso[n] = i;
+        }
+      }
+    });
+    for(let n=min;n<=max;n++){ if(atraso[n]===null) atraso[n] = validos.length; }
+
+    const total = validos.length;
+    const linhas = [];
+    for(let n=min;n<=max;n++){
+      const falhas = total - presenca[n];
+      const pct = total > 0 ? (falhas/total*100) : 0;
+      linhas.push({n, presenca:presenca[n], falhas, pct, atraso:atraso[n]});
+    }
+    // ordena pela dezena que está há mais concursos sem sair (desempate pelo % de falha)
+    linhas.sort((a,b)=> b.atraso - a.atraso || b.pct - a.pct);
+
+    const maisAtrasadas = linhas.slice(0, Math.min(topo, linhas.length));
+
+    const trios = [...combinations(maisAtrasadas.map(l=>l.n), 3)].map(trio=>{
+      const infos = trio.map(n=> maisAtrasadas.find(l=>l.n===n));
+      const somaAtraso = infos.reduce((a,l)=>a+l.atraso,0);
+      return {trio, somaAtraso, mediaAtraso: somaAtraso/3, infos};
+    });
+    trios.sort((a,b)=> b.somaAtraso - a.somaAtraso);
+
+    quenteCarregouUmaVez = true;
+    renderQuente(trios, maisAtrasadas, total, numeroUltimo);
+  }catch(e){
+    console.error('carregarQuente falhou:', e);
+    if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
+  }finally{
+    if(btn) btn.disabled = false;
+  }
+}
+
+function renderQuente(trios, maisAtrasadas, total, numeroUltimo){
+  const cont = document.getElementById('quenteConteudo');
+  if(trios.length === 0){
+    cont.innerHTML = `<div class="note" style="margin:14px 0;">Não há dezenas atrasadas suficientes para formar trincas — aumente o "Top" de dezenas acima.</div>`;
+    return;
+  }
+
+  const capExibicao = 30;
+  const exibidos = trios.slice(0, capExibicao);
+  quenteExibidosAtual = {items: exibidos, total, numeroUltimo};
+  const rows = exibidos.map((item,i)=>{
+    const bolas = item.trio.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:30px;height:30px;border-radius:50%;margin-right:4px;background:linear-gradient(160deg,#F0932B,#D9770B);color:#fff;border-color:transparent;">${n.toString().padStart(2,'0')}</span>`).join('');
+    const detalhes = item.infos.map(l=>`${l.n.toString().padStart(2,'0')}: sem sair há ${l.atraso} concurso${l.atraso===1?'':'s'}`).join(' · ');
+    return `
+    <div class="tend-row trio-clickable${i===0 ? ' tend-top1':''}" data-idx="${i}" style="cursor:pointer;">
+      <div style="display:flex;align-items:center;gap:2px;margin-right:10px;">${bolas}</div>
+      <div class="tend-info">
+        <div class="tend-pct">🔥 Atraso combinado: ${item.somaAtraso} concursos (média ${item.mediaAtraso.toFixed(1)})</div>
+        <div class="tend-sub">${detalhes}</div>
+        <div style="font-size:11px;color:var(--violet);margin-top:4px;">Toque para ver a probabilidade de sair de cada dezena →</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const infoTopo = maisAtrasadas.map(l=>l.n.toString().padStart(2,'0')).join(', ');
+  const nota = trios.length > capExibicao
+    ? `<span style="font-size:11.5px;">Mostrando as ${capExibicao} trincas mais "quentes" de um total de ${trios.length} combinações possíveis entre essas dezenas.</span>`
+    : '';
+
+  cont.innerHTML = `
+    <div class="note" style="margin:14px 0;">
+      Com base nos últimos <strong>${total}</strong> concursos (até o Nº ${numeroUltimo}), estas são as trincas formadas pelas <strong>${maisAtrasadas.length}</strong> dezenas mais atrasadas (${infoTopo}), da mais "quente" (maior atraso combinado) para a menos.<br>
+      <span style="font-size:11.5px;">Cada sorteio é independente — isso é apenas estatística histórica, não é garantia de resultado futuro.</span> ${nota}
+    </div>
+    ${rows}`;
+
+  cont.querySelectorAll('.trio-clickable').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const idx = parseInt(el.dataset.idx,10);
+      const item = quenteExibidosAtual.items[idx];
+      if(item) abrirQuenteProb(item, quenteExibidosAtual.total, quenteExibidosAtual.numeroUltimo);
+    });
+  });
+}
+
+// ---------- modal: probabilidade de cada dezena da trinca "quente" sair no próximo sorteio ----------
+function abrirQuenteProb(item, total, numeroUltimo){
+  const overlay = document.getElementById('overlayTrioProb');
+  const info = document.getElementById('trioProbInfo');
+  const cont = document.getElementById('trioProbConteudo');
+  const rotulo = nomeGrupo(item.trio.length, false);
+  const trioTxt = item.trio.map(n=>n.toString().padStart(2,'0')).join(' - ');
+  info.innerHTML = `${rotulo} <strong>${trioTxt}</strong> · baseado nos últimos <strong>${total}</strong> concursos (até Nº ${numeroUltimo})`;
+
+  const rows = item.infos.map(l=>{
+    const pctSair = 100 - l.pct;
+    return `
+    <div class="tend-row">
+      <div class="tend-ball">${l.n.toString().padStart(2,'0')}</div>
+      <div class="tend-info">
+        <div class="tend-pct">${pctSair.toFixed(1)}% de chance de sair no próximo sorteio</div>
+        <div class="tend-bar-bg"><div class="tend-bar-fill" style="width:${pctSair}%"></div></div>
+        <div class="tend-sub">Saiu em ${l.presenca} de ${total} concursos · sem sair há ${l.atraso} concurso${l.atraso===1?'':'s'}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  cont.innerHTML = rows + `<div style="font-size:11px;color:var(--muted);margin-top:10px;">Chance estimada com base na frequência histórica de cada dezena — cada sorteio é independente, não é garantia de resultado futuro.</div>`;
+  overlay.classList.add('show');
 }
 
 let falhaCarregouUmaVez = false;
@@ -3039,6 +3481,7 @@ function mudarJogoTendencia(g){
   falhaCarregouUmaVez = false;
   trioCarregouUmaVez = false;
   falhasCarregouUmaVez = false;
+  quenteCarregouUmaVez = false;
 
   const subtabRow = document.getElementById('tendSubtabRow');
   const cont = document.getElementById('tendConteudo');
@@ -3347,7 +3790,9 @@ document.getElementById('qtdSliderPlus').addEventListener('click', ()=>{
 
 // ---------- nota principal (gameSize fixo em 15 — padrão oficial da Lotofácil) ----------
 function updateMainNote(){
-  document.getElementById('mainNote').innerHTML =
+  const el = document.getElementById('mainNote');
+  if(!el) return;
+  el.innerHTML =
     `<strong>GERAR</strong> monta o fechamento 100%: todas as combinações de ${gameSize} números dentro das suas dezenas escolhidas — garante ${gameSize} pontos se todos os sorteados estiverem no seu grupo, mas o número de jogos cresce muito rápido.<br><br>` +
     `<strong>DESDOBRAR</strong> usa um algoritmo guloso (heurística) para reduzir a quantidade de jogos, garantindo 14 pontos <em>se</em> os acertos estiverem dentro do seu grupo — não é o menor fechamento matematicamente possível, é uma aproximação prática.`;
 }
@@ -3481,7 +3926,7 @@ function resetScroll(){
 }
 
 function fecharOutrasOverlaysDeAba(manter){
-  const modalIds = ['overlayTendencia','overlayProb','overlayHistorico'];
+  const modalIds = ['overlayTendencia','overlayAltaQueda','overlayProb','overlayHistorico'];
   modalIds.forEach(id=>{
     if(id === manter) return;
     const el = document.getElementById(id);
@@ -3493,7 +3938,7 @@ function fecharOutrasOverlaysDeAba(manter){
 // está sendo aberta agora — usado ao trocar de aba pela barra inferior, pra nunca deixar
 // uma janela antiga escondendo a tela nova por trás
 function fecharModaisGlobais(manter){
-  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayHistorico',
+  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer'];
   modalIds.forEach(id=>{
     if(id === manter) return;
@@ -3505,7 +3950,7 @@ function fecharModaisGlobais(manter){
 }
 
 function goHome(){
-  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayHistorico',
+  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
@@ -3522,7 +3967,7 @@ function goHome(){
 }
 
 function irParaSelecao(){
-  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayHistorico',
+  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer',
     'overlayListaResultados'];
   modalIds.forEach(id=>{
@@ -3579,7 +4024,7 @@ document.getElementById('menuHistorico').addEventListener('click', ()=>{
   document.getElementById('overlayHistorico').classList.add('show');
   setActiveTab('tabJogos');
 });
-document.getElementById('btnJogosSalvos').addEventListener('click', ()=>{
+document.getElementById('btnJogosSalvos')?.addEventListener('click', ()=>{
   fecharOutrasOverlaysDeAba('overlayHistorico');
   renderHistorico();
   document.getElementById('overlayHistorico').classList.add('show');
@@ -3625,6 +4070,7 @@ document.getElementById('tendAtualizarBtn').addEventListener('click', ()=>{
 document.getElementById('falhaAtualizarBtn').addEventListener('click', ()=>carregarFalha(tendGameAtual));
 document.getElementById('trioAtualizarBtn').addEventListener('click', ()=>carregarTrios(tendGameAtual));
 document.getElementById('falhasAtualizarBtn').addEventListener('click', ()=>carregarFalhas(tendGameAtual));
+document.getElementById('quenteAtualizarBtn').addEventListener('click', ()=>carregarQuente(tendGameAtual));
 
 // ---------- sub-abas dentro de Tendência (Tendência / Pode falhar / Trios / Falhas) ----------
 const TEND_SUBTABS = [
@@ -3632,13 +4078,16 @@ const TEND_SUBTABS = [
   {btn:'subtabFalha', panel:'falhaPanel'},
   {btn:'subtabGerar', panel:'gerarPanel'},
   {btn:'subtabTrios', panel:'trioPanel'},
-  {btn:'subtabFalhas', panel:'falhasPanel'}
+  {btn:'subtabFalhas', panel:'falhasPanel'},
+  {btn:'subtabQuente', panel:'quentePanel'}
 ];
 function ativarSubtabTendencia(idAtivo){
   TEND_SUBTABS.forEach(s=>{
     const ativo = s.btn === idAtivo;
-    document.getElementById(s.btn).classList.toggle('active', ativo);
+    const btnEl = document.getElementById(s.btn);
+    btnEl.classList.toggle('active', ativo);
     document.getElementById(s.panel).style.display = ativo ? 'block' : 'none';
+    if(ativo) btnEl.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
   });
 }
 document.getElementById('subtabTendencia').addEventListener('click', ()=>{
@@ -3664,6 +4113,10 @@ document.getElementById('subtabTrios').addEventListener('click', ()=>{
 document.getElementById('subtabFalhas').addEventListener('click', ()=>{
   ativarSubtabTendencia('subtabFalhas');
   if(!falhasCarregouUmaVez) carregarFalhas(tendGameAtual);
+});
+document.getElementById('subtabQuente').addEventListener('click', ()=>{
+  ativarSubtabTendencia('subtabQuente');
+  if(!quenteCarregouUmaVez) carregarQuente(tendGameAtual);
 });
 
 // (barra de abas inferior removida — navegação agora só pelo menu ☰ do cabeçalho e pelo menu lateral)
@@ -3828,6 +4281,7 @@ function renderHistorico(){
       const entry = getHistorico().find(e=>e.id === id);
       if(!entry) return;
       document.getElementById('overlayHistorico').classList.remove('show');
+      selected = new Set(entry.dezenas); // restaura as dezenas escolhidas desse jogo salvo
       showResultsScreen(entry.resumo + '<br><span style="font-size:12px">(recuperado do histórico salvo)</span>', entry.games, true);
     });
   });
@@ -3865,7 +4319,8 @@ function refreshUI(){
   }
   const ok = n >= 3;
   document.getElementById('btnGerar').disabled = !ok;
-  document.getElementById('btnDesdobrar').disabled = !ok;
+  const btnDesd = document.getElementById('btnDesdobrar');
+  if(btnDesd) btnDesd.disabled = !ok;
 
   const hint = document.getElementById('statusHint');
   const fixaTxt = fixedNums.size > 0
@@ -3911,10 +4366,11 @@ function showResultsScreen(summaryHtml, games, skipHistorico){
   const countLbl = document.getElementById('gamesCountLabel');
   if(countLbl) countLbl.textContent = `${games.length} jogo${games.length===1?'':'s'} gerado${games.length===1?'':'s'}`;
   resetConferidor();
+  mostrarDezenasEscolhidas();
   renderGameCards();
   // fecha qualquer overlay/tela que esteja aberta por cima (Tendência, Histórico, etc.)
   // pra tela de resultados não ficar escondida atrás dela
-  ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayHistorico',
+  ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay',
     'drawer','overlayListaResultados'].forEach(id=>{
     const el = document.getElementById(id);
@@ -3934,13 +4390,15 @@ function renderGameCards(){
   const conferindo = conferenceDone && confResult.size >= 1;
   const bestHits = conferindo ? Math.max(...lastGames.map(g=>g.filter(n=>confResult.has(n)).length)) : -1;
 
+  let algumPremiado = false;
   lastGames.forEach((g,i)=>{
     const st = statsForGame(g);
     const hits = conferindo ? g.filter(n=>confResult.has(n)).length : null;
     const premiado = conferindo && (confResult.size === 15 ? hits>=11 : (hits===bestHits && bestHits>0));
+    if(premiado) algumPremiado = true;
     const isTopScore = conferindo && bestHits > 0 && hits === bestHits;
     const badge = conferindo ? `<span class="gc-badge${isTopScore ? ' top':''}">${hits} pontos</span>` : '';
-    const topTag = isTopScore ? `<span class="gc-top-tag">🏆 Maior pontuação</span>` : '';
+    const topTag = isTopScore ? `<span class="gc-top-tag">🏆 Jogo premiado</span>` : '';
     const card = document.createElement('div');
     card.className = 'game-card' + (premiado ? ' premiado':'') + (isTopScore ? ' top-score':'');
     card.innerHTML = `
@@ -4074,6 +4532,12 @@ function formatAllGamesText(games){
   }).join('\n');
 }
 
+// filterSelect foi removido da tela; sem ele, sempre usa "sem filtro" (não altera a garantia)
+function getFilterValue(){
+  const el = document.getElementById('filterSelect');
+  return el ? el.value : 'none';
+}
+
 function sortGames(games, mode){
   if(mode==='balance'){
     games.sort((a,b)=>{
@@ -4149,6 +4613,14 @@ function updateModal(){
 }
 
 dezenasPorCartaoSlider.addEventListener('input', updateModal);
+document.getElementById('dpcMinus').addEventListener('click', ()=>{
+  dezenasPorCartaoSlider.value = Math.max(parseInt(dezenasPorCartaoSlider.min,10), parseInt(dezenasPorCartaoSlider.value,10)-1);
+  updateModal();
+});
+document.getElementById('dpcPlus').addEventListener('click', ()=>{
+  dezenasPorCartaoSlider.value = Math.min(parseInt(dezenasPorCartaoSlider.max,10), parseInt(dezenasPorCartaoSlider.value,10)+1);
+  updateModal();
+});
 qtdJogosSlider.addEventListener('input', updateModal);
 document.getElementById('qtdMinus').addEventListener('click', ()=>{
   qtdJogosSlider.value = Math.max(1, parseInt(qtdJogosSlider.value,10)-1);
@@ -4203,7 +4675,7 @@ function generateSampledCartoes(nums, dpc, qtd){
 
   const costPerCartao = nCr(dpc,gameSize) * 3.00;
   const total = costPerCartao * games.length;
-  const sorted = sortGames(games, document.getElementById('filterSelect').value);
+  const sorted = sortGames(games, getFilterValue());
   const fixaInfo = fixedList.length > 0
     ? ` <strong>${fixedList.length}</strong> dezena${fixedList.length===1?'':'s'} fixa${fixedList.length===1?'':'s'} (${fixedList.map(x=>x.toString().padStart(2,'0')).join(', ')}) presente${fixedList.length===1?'':'s'} em todos os cartões.`
     : '';
@@ -4272,7 +4744,7 @@ document.getElementById('erreGerarBtn').addEventListener('click', ()=>{
 
 
 // ---------- DESDOBRAR (greedy reduced wheel) ----------
-document.getElementById('btnDesdobrar').addEventListener('click', ()=>{
+document.getElementById('btnDesdobrar')?.addEventListener('click', ()=>{
   hideOutputs();
   const nums = [...selected].sort((a,b)=>a-b);
   const n = nums.length;
@@ -4305,7 +4777,7 @@ document.getElementById('btnDesdobrar').addEventListener('click', ()=>{
     const result = greedyWheel(nums, k, idxOf, candidateSize, gameSize);
     spinner.style.display='none';
 
-    const sorted = sortGames(result.games, document.getElementById('filterSelect').value);
+    const sorted = sortGames(result.games, getFilterValue());
     const html = `Fechamento reduzido: <strong>${sorted.length}</strong> jogos garantem <strong>${k} pontos</strong> se todos os acertos estiverem dentro das suas ${n} dezenas.<br>Custo estimado (R$3,50/jogo): <strong>R$ ${(sorted.length*3.5).toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong><br><span style="font-size:12px">Heurística gulosa — não é garantido ser o menor fechamento possível.</span>`;
     showResultsScreen(html, sorted);
   }, 30);
@@ -4443,7 +4915,7 @@ refreshUI();
 (function(){
   // "Casa" = tela inicial (overlayListaResultados) visível e nada por cima dela.
   const MODAL_IDS = [
-    'overlayFotoFull','overlayGaleria','overlayTendencia','overlayHistorico',
+    'overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer'
   ];
 
