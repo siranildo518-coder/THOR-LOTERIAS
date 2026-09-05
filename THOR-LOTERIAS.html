@@ -1137,6 +1137,33 @@ document.addEventListener('DOMContentLoaded', ()=>{
     border-color:transparent;
     color:#fff;
   }
+  .conf-ball-input{
+    aspect-ratio:1;
+    border-radius:8px;
+    border:1.5px solid var(--line);
+    background:#fff;
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    font-weight:700;
+    text-align:center;
+    padding:0;
+    width:100%;
+  }
+  .conf-ball-input:focus{
+    outline:none;
+    border-color:var(--violet);
+  }
+  .conf-ball-input.filled{
+    background:linear-gradient(160deg,var(--magenta),var(--violet));
+    border-color:transparent;
+    color:#fff;
+  }
+  .conf-ball-input.duplicado{
+    background:linear-gradient(160deg,#F04B4B,#8C1010);
+    border-color:transparent;
+    color:#fff;
+  }
   .conf-ball:disabled{opacity:.35;cursor:not-allowed;}
   .conf-count{
     font-size:11px;
@@ -1265,16 +1292,30 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
       <div class="conf-card">
         <div class="conf-title">Conferidor de resultado</div>
-        <div id="confListaSorteadas" style="min-height:36px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px;padding:10px;border-radius:10px;background:var(--bg,#F5F2FC);">
+
+        <div class="subtab-row" id="confSubtabRow" style="margin-bottom:12px;">
+          <button class="subtab-btn active" id="subtabConfSorteio">Sortear</button>
+          <button class="subtab-btn" id="subtabConfManual">Manual</button>
+        </div>
+
+        <div id="confSorteioPanel">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <label for="qtdSorteio" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">Sortear</label>
+            <input type="number" id="qtdSorteio" value="15" min="1" max="20" style="width:56px;padding:8px;border-radius:8px;border:1.5px solid var(--violet);text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;">
+            <label for="qtdSorteio" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">dezenas</label>
+            <button id="btnSorteioAuto" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">🎲 SORTEAR</button>
+          </div>
+        </div>
+
+        <div id="confManualPanel" style="display:none;">
+          <div class="conf-sub">Toque em um quadrado e digite a dezena sorteada (até 20).</div>
+          <div class="conf-grid" id="confManualGrid" style="grid-template-columns:repeat(8,1fr);max-width:200px;gap:4px;"></div>
+        </div>
+
+        <div id="confListaSorteadas" style="min-height:36px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px;margin-top:10px;padding:10px;border-radius:10px;background:var(--bg,#F5F2FC);">
           <span style="font-size:12.5px;color:var(--muted,#888);">Nenhuma dezena sorteada ainda.</span>
         </div>
         <div class="conf-count">Selecionadas: <strong id="confCount">0</strong> / 20</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-          <label for="qtdSorteio" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">Sortear</label>
-          <input type="number" id="qtdSorteio" value="15" min="1" max="20" style="width:56px;padding:8px;border-radius:8px;border:1.5px solid var(--violet);text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;">
-          <label for="qtdSorteio" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">dezenas</label>
-          <button id="btnSorteioAuto" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">🎲 SORTEAR</button>
-        </div>
         <div class="conf-actions">
           <button class="btn-limpar-conf" id="btnLimparConf">LIMPAR</button>
           <button class="btn-conferir" id="btnConferir" disabled>CONFERIR</button>
@@ -1646,7 +1687,10 @@ let targetCount = 0;
 let gameSize = 15;
 let guaranteeLevel = 14;
 let lastGames = []; // for download
-let confResult = new Set(); // dezenas sorteadas marcadas no conferidor
+let confResult = new Set(); // dezenas sorteadas marcadas no conferidor (reflete a aba ativa: Sortear ou Manual)
+let confResultSorteio = new Set(); // resultado guardado só da aba Sortear
+let confResultManual = new Set(); // resultado guardado só da aba Manual
+let manualBallsOn = new Set(); // dezenas destacadas nas bolinhas da aba Manual (não é afetado pelo Sortear automático)
 let conferenceDone = false; // só mostra acertos depois de clicar em CONFERIR
 
 // ---------- build ball grid ----------
@@ -1681,6 +1725,141 @@ const confCountEl = document.getElementById('confCount');
 const btnConferir = document.getElementById('btnConferir');
 const confResultBox = document.getElementById('confResult');
 const CONF_MAX = 20;
+const confManualGrid = document.getElementById('confManualGrid');
+
+// caixinhas digitáveis (até 20) do conferidor manual — toca e digita a dezena direto no quadrado
+for(let i=0;i<CONF_MAX;i++){
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.inputMode = 'numeric';
+  inp.maxLength = 3;
+  inp.className = 'conf-ball-input';
+  inp.dataset.idx = i;
+  inp.addEventListener('input', onConfManualBoxInput);
+  inp.addEventListener('keydown', onConfManualBoxKeydown);
+  confManualGrid.appendChild(inp);
+}
+
+const confManualTimer = new Map(); // timers de espera (dígito único) por índice do quadrado
+
+function onConfManualBoxKeydown(e){
+  if(e.key !== 'Backspace') return;
+  const el = e.target;
+  if(el.value.length > 0) return; // ainda tem dígito aqui — deixa o backspace normal apagar
+
+  const idx = parseInt(el.dataset.idx,10);
+  const anterior = confManualGrid.querySelector(`.conf-ball-input[data-idx="${idx-1}"]`);
+  if(!anterior) return;
+
+  e.preventDefault();
+  if(confManualTimer.has(idx-1)){
+    clearTimeout(confManualTimer.get(idx-1));
+    confManualTimer.delete(idx-1);
+  }
+  anterior.value = '';
+  anterior.classList.remove('filled');
+  anterior.focus();
+  recalcularConfManual();
+}
+
+function onConfManualBoxInput(e){
+  const el = e.target;
+  const idx = parseInt(el.dataset.idx,10);
+
+  if(confManualTimer.has(idx)){
+    clearTimeout(confManualTimer.get(idx));
+    confManualTimer.delete(idx);
+  }
+
+  let v = el.value.replace(/\D/g,''); // só dígitos
+  if(v.length>3) v = v.slice(0,3);
+  if(v.length===3){
+    const num3 = parseInt(v,10);
+    if(isNaN(num3) || num3<0 || num3>100){
+      // com 3 dígitos, só "100" é válido — qualquer outro volta pros 2 primeiros dígitos
+      v = v.slice(0,2);
+    }
+  }
+  el.value = v;
+  const num = parseInt(v,10);
+  const valido = v.length>0 && !isNaN(num) && num>=0 && num<=100;
+  el.classList.toggle('filled', valido);
+
+  recalcularConfManual();
+
+  function irProximo(){
+    const proximo = confManualGrid.querySelector(`.conf-ball-input[data-idx="${idx+1}"]`);
+    if(proximo) proximo.focus();
+  }
+
+  if(v.length>=2 && valido){
+    // já completou uma dezena (ou "100") — pula na hora
+    irProximo();
+  } else if(v.length===1){
+    // dígito único: espera um instante pra dar tempo de digitar o segundo antes de pular
+    const t = setTimeout(()=>{
+      confManualTimer.delete(idx);
+      irProximo();
+    }, 600);
+    confManualTimer.set(idx, t);
+  }
+}
+
+function recalcularConfManual(){
+  const inputs = Array.from(confManualGrid.querySelectorAll('.conf-ball-input'));
+  const contagem = new Map();
+  const entradas = inputs.map(inp=>{
+    const v = parseInt(inp.value,10);
+    const valido = !isNaN(v) && v>=0 && v<=100;
+    if(valido) contagem.set(v, (contagem.get(v)||0)+1);
+    return {inp, v, valido};
+  });
+
+  const numeros = [];
+  const vistos = new Set();
+  entradas.forEach(({inp,v,valido})=>{
+    const repetida = valido && contagem.get(v) > 1;
+    inp.classList.toggle('duplicado', repetida);
+    if(valido && !vistos.has(v)){
+      vistos.add(v);
+      numeros.push(v);
+    }
+  });
+
+  manualBallsOn = new Set(numeros);
+  confResultManual = new Set(numeros);
+  confResult = confResultManual; // aba Manual está ativa quando isso roda
+  conferenceDone = false;
+  confResultBox.style.display='none';
+  refreshConfUI();
+  renderGameCards();
+}
+
+// sub-abas: Sortear (automático) x Manual (bolinhas)
+const CONF_SUBTABS = [
+  {btn:'subtabConfSorteio', panel:'confSorteioPanel'},
+  {btn:'subtabConfManual', panel:'confManualPanel'}
+];
+function ativarConfSubtab(idAtivo){
+  CONF_SUBTABS.forEach(s=>{
+    const ativo = s.btn === idAtivo;
+    document.getElementById(s.btn).classList.toggle('active', ativo);
+    document.getElementById(s.panel).style.display = ativo ? 'block' : 'none';
+  });
+  // cada aba mostra só o resultado que pertence a ela — trocar de aba não deve
+  // arrastar o resultado sorteado automaticamente para a aba Manual (nem o contrário)
+  confResult = idAtivo === 'subtabConfManual' ? confResultManual : confResultSorteio;
+  conferenceDone = false;
+  confResultBox.style.display='none';
+  refreshConfUI();
+  renderGameCards();
+}
+document.getElementById('subtabConfSorteio').addEventListener('click', ()=>{
+  ativarConfSubtab('subtabConfSorteio');
+});
+document.getElementById('subtabConfManual').addEventListener('click', ()=>{
+  ativarConfSubtab('subtabConfManual');
+});
 
 function syncQtdSorteio(){
   const qtdInput = document.getElementById('qtdSorteio');
@@ -1710,10 +1889,23 @@ function refreshConfUI(){
   renderConfLista();
 }
 
+function limparCaixinhasManuais(){
+  confManualTimer.forEach(t=>clearTimeout(t));
+  confManualTimer.clear();
+  confManualGrid.querySelectorAll('.conf-ball-input').forEach(inp=>{
+    inp.value = '';
+    inp.classList.remove('filled','duplicado');
+  });
+}
+
 function resetConferidor(){
   confResult = new Set();
+  confResultSorteio = new Set();
+  confResultManual = new Set();
+  manualBallsOn = new Set();
   conferenceDone = false;
   confResultBox.style.display='none';
+  limparCaixinhasManuais();
   refreshConfUI();
 }
 
@@ -1723,24 +1915,47 @@ document.getElementById('btnLimparConf').addEventListener('click', ()=>{
 });
 
 document.getElementById('btnSorteioAuto').addEventListener('click', ()=>{
-  if(selected.size === 0){
+  // usa as dezenas escolhidas nesta sessão (selected) OU, se estiverem vazias
+  // (ex: jogo aberto do histórico/salvos), usa as dezenas que aparecem nos jogos gerados
+  const poolBase = selected.size > 0 ? selected : new Set(lastGames.flat());
+  if(poolBase.size === 0){
     alert('Escolha as dezenas na tela inicial antes de sortear.');
     return;
   }
   const qtdInput = document.getElementById('qtdSorteio');
   let qtd = parseInt(qtdInput.value, 10);
   if(isNaN(qtd) || qtd < 1) qtd = 1;
-  const limite = Math.min(CONF_MAX, selected.size);
+  const limite = Math.min(CONF_MAX, poolBase.size);
   if(qtd > limite) qtd = limite;
   qtdInput.value = qtd;
 
-  const pool = Array.from(selected);
-  for(let i=pool.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
+  const manualAtual = confResultManual; // dezenas marcadas no conferidor manual (só pra evitar sortear o mesmo grupo)
+
+  function sortearUmaVez(){
+    const pool = Array.from(poolBase);
+    for(let i=pool.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool.slice(0, qtd);
   }
-  const sorteados = pool.slice(0, qtd);
-  confResult = new Set(sorteados);
+
+  function igualAoManual(arr){
+    if(arr.length !== manualAtual.size) return false;
+    return arr.every(n=>manualAtual.has(n));
+  }
+
+  let sorteados = sortearUmaVez();
+  let tentativas = 1;
+  const maxTentativas = 200;
+  // se o resultado saiu idêntico ao que está marcado no conferidor manual, tenta de novo
+  while(manualAtual.size > 0 && igualAoManual(sorteados) && tentativas < maxTentativas){
+    sorteados = sortearUmaVez();
+    tentativas++;
+  }
+
+  confResultSorteio = new Set(sorteados);
+  confResult = confResultSorteio; // aba Sortear está ativa quando isso roda — não mexe no resultado da aba Manual
   conferenceDone = false;
   confResultBox.style.display='none';
   refreshConfUI();
