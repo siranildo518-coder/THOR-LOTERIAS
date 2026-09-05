@@ -2,7 +2,7 @@
   "name": "THOR LOTERIAS",
   "short_name": "THOR",
   "description": "Gerador de números para Lotofácil",
-  "start_url": "./GERADOR_LOTOFACIL_home_redesign-22-2-9-7-5-12-8.html",
+  "start_url": "./THOR-LOTERIAS.html",
   "display": "standalone",
   "background_color": "#F6F2FB",
   "theme_color": "#4C1D95",
