@@ -7357,10 +7357,47 @@ refreshUI();
   });
 })();
 
-// ---------- PWA: registro do service worker (sem aviso de nova versão) ----------
+// ---------- PWA: registro do service worker + atualização automática e discreta ----------
+// Quando sai uma versão nova, o app troca sozinho sem precisar perguntar nada
+// pro usuário (sem banner, sem popup) — só recarrega baixinho em segundo plano.
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
+    let jaRecarregou = false;
+    function recarregarUmaVez(){
+      if(jaRecarregou) return;
+      jaRecarregou = true;
+      location.reload();
+    }
+
+    navigator.serviceWorker.addEventListener('controllerchange', recarregarUmaVez);
+
+    navigator.serviceWorker.register('sw.js').then(registration=>{
+      function ativarVersaoNova(){
+        if(registration.waiting){
+          registration.waiting.postMessage({type:'SKIP_WAITING'});
+        }
+      }
+      // já tinha uma versão nova baixada esperando (ex: usuário abriu o app de novo)
+      if(registration.waiting && navigator.serviceWorker.controller){
+        ativarVersaoNova();
+      }
+      registration.addEventListener('updatefound', ()=>{
+        const novoWorker = registration.installing;
+        if(!novoWorker) return;
+        novoWorker.addEventListener('statechange', ()=>{
+          if(novoWorker.state === 'installed' && navigator.serviceWorker.controller){
+            // só ativa sozinho se já havia uma versão anterior rodando
+            // (não faz nada na primeira instalação)
+            ativarVersaoNova();
+          }
+        });
+      });
+      // confere no GitHub se tem versão nova: a cada 60s e sempre que o usuário volta pro app
+      setInterval(()=> registration.update().catch(()=>{}), 60000);
+      document.addEventListener('visibilitychange', ()=>{
+        if(document.visibilityState === 'visible') registration.update().catch(()=>{});
+      });
+    }).catch(()=>{});
   });
 }
 </script>
