@@ -1,7 +1,7 @@
 // Esse número é gerado automaticamente (data + hora) toda vez que o Claude
 // entrega uma atualização do index.html. Não precisa mudar isso na mão:
 // é essa mudança que faz o navegador do cliente perceber a versão nova.
-const CACHE_NAME = 'thor-loterias-2026-09-07-1719';
+const CACHE_NAME = 'thor-loterias-2026-09-07-1750';
 
 const CACHE_FILES = [
   './index.html',
