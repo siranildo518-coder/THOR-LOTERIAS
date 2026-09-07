@@ -400,21 +400,88 @@ document.addEventListener('selectstart', e=>{
     color:#fff;
     font-family:'Baloo 2',sans-serif;
     font-weight:700;
-    font-size:14.5px;
-    padding:11px 34px 11px 38px;
+    font-size:12px;
+    padding:8px 26px 8px 30px;
     appearance:none;
     -webkit-appearance:none;
     -moz-appearance:none;
     cursor:pointer;
     box-shadow:0 4px 12px rgba(31,157,116,.35);
     background-repeat:no-repeat,no-repeat;
-    background-position:14px center, right 14px center;
-    background-size:14px 14px, 11px 11px;
+    background-position:11px center, right 11px center;
+    background-size:11px 11px, 9px 9px;
     background-image:
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M1 2h14l-5 6v5l-4 2v-7z' fill='white'/%3E%3C/svg%3E"),
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='white' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   }
   .qtd-pill:focus{outline:none;}
+  /* ---------- tema claro/azul da aba "Estatísticas" (dentro de Estatísticas ▸ Estatísticas) ---------- */
+  #tendPanel.stat-dark-wrap{
+    background:#FFFFFF;
+    margin:0 -16px;
+    padding:14px 16px 6px;
+  }
+  #tendPanel .card{
+    background:#FFFFFF;
+    border:1px solid #BFDBFE;
+  }
+  #tendPanel label.field-label{color:#2563EB;}
+  .stat-card{
+    background:#FFFFFF;
+    border:1px solid #BFDBFE;
+    border-radius:16px;
+    padding:15px 16px;
+    margin-bottom:12px;
+    box-shadow:0 2px 8px rgba(37,99,235,.06);
+  }
+  .stat-card.destaque{
+    border:1.5px solid var(--magenta);
+    background:linear-gradient(160deg,rgba(214,51,108,.06),rgba(37,99,235,.06));
+  }
+  .stat-card-title{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:.02em;
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .stat-line{font-size:12.5px;color:#1D4ED8;margin-bottom:4px;line-height:1.5;}
+  .stat-line-highlight{font-weight:700;color:#B45309;}
+  .stat-sub-title{font-size:12.5px;color:#1E3A8A;font-weight:700;margin:10px 0 4px;}
+  .stat-bar-bg{background:#DBEAFE;border-radius:4px;height:6px;margin:2px 0 8px;overflow:hidden;}
+  .stat-bar-fill{background:#3B82F6;height:100%;border-radius:4px;}
+  .stat-bar-fill-highlight{background:#F59E0B;}
+  .gfc-ball{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;margin:2px;background:#E7E1F5;color:#5B4B78;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;}
+  .gfc-ball-rep{background:linear-gradient(160deg,#C026D3,#86198F);color:#fff;}
+  .gfc-dark-card{background:linear-gradient(160deg,#F3F4F6,#E2E4E9);border-radius:16px;padding:16px 14px;margin-bottom:12px;border:1px solid #D8DAE0;}
+  .gfc-dark-title{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:13px;letter-spacing:.02em;color:#A21CAF;text-transform:uppercase;margin-bottom:14px;}
+  .gfc-dark-label{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;letter-spacing:.02em;color:#6B7280;text-transform:uppercase;margin-bottom:7px;}
+  .gfc-dark-stepper-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;}
+  .gfc-dark-stepper-btn{width:40px;height:40px;border-radius:11px;border:1px solid #D8DAE0;background:#fff;color:#F97316;font-size:19px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
+  .gfc-dark-stepper-btn.plus{color:#22C55E;}
+  .gfc-dark-value{flex:1;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;color:#1F2937;}
+  .gfc-dark-value-input{flex:1;min-width:0;width:100%;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;color:#1F2937;background:#fff;border:1.5px solid #D8DAE0;border-radius:10px;padding:6px 4px;box-sizing:border-box;-moz-appearance:textfield;}
+  .gfc-dark-value-input:focus{outline:none;border-color:#A21CAF;}
+  .gfc-dark-value-input::-webkit-outer-spin-button,
+  .gfc-dark-value-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .gfc-dark-filtro-label{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:12px;color:#6B7280;margin-bottom:7px;}
+  .gfc-dark-filtros{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .gfc-dark-filtros .gfc-dark-input-wrap{flex:1 1 28%;min-width:64px;}
+  .gfc-dark-input-wrap{flex:1;min-width:0;position:relative;}
+  .gfc-dark-input-wrap input{width:100%;box-sizing:border-box;padding:7px 4px;border-radius:8px;border:1.5px solid #D8DAE0;background:#fff;color:#1F2937;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;transition:background .12s ease,border-color .12s ease,color .12s ease;}
+  .gfc-dark-input-wrap input:focus{outline:none;border-color:#A21CAF;}
+  .gfc-dark-input-wrap input:not(:placeholder-shown){background:#F3E8FF;border-color:#A21CAF;color:#4C1D95;}
+  .gfc-dark-input-wrap span{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;color:#9CA3AF;pointer-events:none;transition:all .12s ease;}
+  .gfc-dark-input-wrap input:focus + span,
+  .gfc-dark-input-wrap input:not(:placeholder-shown) + span{
+    left:8px;right:auto;top:-7px;transform:none;text-align:left;font-size:9.5px;color:#A21CAF;background:#F3F4F6;padding:0 4px;
+  }
+  .gfc-dark-btn{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#A21CAF,#86198F);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:14px;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;}
+  .stat-note-dark{font-size:11.5px;color:#2563EB;margin-bottom:12px;line-height:1.5;}
   .subtab-row{
     display:flex;
     gap:6px;
@@ -1489,15 +1556,15 @@ document.addEventListener('selectstart', e=>{
   }
   .conf-ball:disabled{opacity:.35;cursor:not-allowed;}
   .escolhida-ball{
-    width:30px;
-    height:30px;
+    width:24px;
+    height:24px;
     border-radius:50%;
     display:inline-flex;
     align-items:center;
     justify-content:center;
     font-family:'Baloo 2',sans-serif;
     font-weight:700;
-    font-size:12px;
+    font-size:10px;
     border:1.5px solid var(--line);
     background:#fff;
     color:var(--ink);
@@ -1626,6 +1693,7 @@ document.addEventListener('selectstart', e=>{
 
         <div class="subtab-row" id="confSubtabRow" style="margin-bottom:12px;">
           <button class="subtab-btn active" id="subtabConfSorteio">Sortear</button>
+          <button class="subtab-btn" id="subtabConfSorteio2">Sortear</button>
           <button class="subtab-btn" id="subtabConfManual">Manual</button>
           <button class="subtab-btn" id="subtabConfOficial">Oficial</button>
         </div>
@@ -1633,9 +1701,35 @@ document.addEventListener('selectstart', e=>{
         <div id="confSorteioPanel">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
             <label for="qtdSorteio" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">Sortear</label>
-            <input type="number" id="qtdSorteio" value="15" min="1" max="20" style="width:56px;padding:8px;border-radius:8px;border:none;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;background:linear-gradient(135deg,#9CA3AF,#4B5563);color:#fff;">
+            <input type="number" id="qtdSorteio" value="15" min="1" max="20" inputmode="numeric" enterkeyhint="done" style="width:56px;padding:8px;border-radius:8px;border:none;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;background:linear-gradient(135deg,#9CA3AF,#4B5563);color:#fff;">
             <label for="qtdSorteio" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">dezenas</label>
             <button id="btnSorteioAuto" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:700;cursor:pointer;"><span id="btnSorteioAutoSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="btnSorteioAutoLabel">🎲 SORTEAR</span></button>
+          </div>
+        </div>
+
+        <div id="confSorteioPanel2" style="display:none;">
+          <div id="sorteio2Setup" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <label for="qtdSorteio2" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">Sortear</label>
+            <input type="number" id="qtdSorteio2" value="15" min="1" max="20" inputmode="numeric" enterkeyhint="done" style="width:56px;padding:8px;border-radius:8px;border:none;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;background:linear-gradient(135deg,#9CA3AF,#4B5563);color:#fff;">
+            <label for="qtdSorteio2" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">dezenas</label>
+            <button id="btnSorteioIniciar2" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">🎲 SORTEAR</button>
+          </div>
+
+          <div id="sorteio2Anim" style="display:none;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;">
+              <label for="sorteio2QtdBadge" style="font-size:13px;color:var(--muted,#666);white-space:nowrap;">Sortear</label>
+              <input type="number" id="sorteio2QtdBadge" value="15" min="1" max="20" inputmode="numeric" enterkeyhint="done" style="width:56px;padding:8px;border-radius:10px;border:none;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;background:linear-gradient(135deg,#9CA3AF,#4B5563);color:#fff;">
+              <label for="sorteio2QtdBadge" style="font-size:13px;color:var(--muted,#666);white-space:nowrap;">dezenas</label>
+            </div>
+            <div id="sorteio2Progresso" style="text-align:center;font-family:'Baloo 2',sans-serif;font-weight:800;color:var(--violet-deep);font-size:13px;margin-bottom:8px;">Sorteando (0/15)</div>
+            <div style="background:var(--bg,#F0EAFA);border-radius:16px;padding:22px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+              <div id="sorteio2Bola" style="width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #ffffff, #d7d2e2 75%);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:26px;color:#2b2b2b;box-shadow:0 4px 10px rgba(0,0,0,.18);">–</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button id="btnSorteioBola2" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#F5B942,#D9860F);color:#3A2600;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">BOLA 1</button>
+              <button id="btnSorteioRestantes2" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#FF7A45,#D9430F);color:#fff;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">SORTEAR RESTANTES (14)</button>
+            </div>
+            <div id="sorteio2Toast" style="display:none;margin-top:8px;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:12px;color:#1F9D74;">✅ Sorteio completo!</div>
           </div>
         </div>
 
@@ -1795,7 +1889,7 @@ document.addEventListener('selectstart', e=>{
   <div class="drawer-section-label">Lotofácil</div>
   <button class="drawer-item" id="menuSortear"><span class="ic">🍀</span> Sortear / Gerar jogos</button>
   <button class="drawer-item" id="menuHistorico"><span class="ic">💾</span> Histórico salvo</button>
-  <button class="drawer-item" id="menuTendencia"><span class="ic">📈</span> Tendência</button>
+  <button class="drawer-item" id="menuTendencia"><span class="ic">📈</span> Estatísticas</button>
 
   <div class="drawer-hr"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
@@ -1887,7 +1981,7 @@ document.addEventListener('selectstart', e=>{
   <div class="home-free-banner">
     <div class="hfb-spark">✨</div>
     <div class="hfb-txt">
-      <strong>Fechamento gratuito</strong>
+      <strong>Fechamento personalizado</strong>
       <p>Monte suas dezenas e gere jogos com garantia total ou reduzida</p>
     </div>
     <button class="home-upgrade-btn" id="btnAbrirFechamentoAtalho">Gerar</button>
@@ -1918,7 +2012,7 @@ document.addEventListener('selectstart', e=>{
         <option value="50">Últimos 50 concursos</option>
         <option value="100">Últimos 100 concursos</option>
       </select>
-      <button class="btn-confirm" id="altaQuedaAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">ATUALIZAR</button>
+      <button class="btn-confirm" id="altaQuedaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
     </div>
     <div id="altaQuedaConteudo"></div>
   </div>
@@ -1948,15 +2042,15 @@ document.addEventListener('selectstart', e=>{
 <div class="overlay-full" id="overlayTendencia" style="z-index:76;">
   <header class="top" style="border-radius:0;display:flex;align-items:center;gap:12px;">
     <button id="tendenciaVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
-    <h1 style="font-size:19px;" id="tendenciaTitulo">Tendência</h1>
+    <h1 style="font-size:19px;" id="tendenciaTitulo">Estatísticas</h1>
   </header>
   <div class="home-tabs" id="tendGameTabs" style="padding:14px 16px 4px;"></div>
   <div style="padding:0 16px;">
-    <div class="card" id="tendUltimoResultado" style="margin-bottom:16px;padding:13px;"></div>
+    <div class="card" id="tendUltimoResultado" style="margin-bottom:12px;padding:10px;"></div>
   </div>
   <div style="padding:16px 16px 40px;">
     <div class="subtab-row" id="tendSubtabRow">
-      <button class="subtab-btn active" id="subtabTendencia">Tendência</button>
+      <button class="subtab-btn active" id="subtabTendencia">Estatísticas</button>
       <button class="subtab-btn" id="subtabFalha">Centro</button>
       <button class="subtab-btn" id="subtabMoldura">Moldura</button>
       <button class="subtab-btn" id="subtabGerar">Gerar</button>
@@ -1966,16 +2060,16 @@ document.addEventListener('selectstart', e=>{
       <button class="subtab-btn" id="subtabManual">Manual</button>
     </div>
 
-    <div id="tendPanel">
+    <div id="tendPanel" class="stat-dark-wrap">
       <div class="card">
-        <select id="tendQtdSelect" class="qtd-pill">
-          <option value="5" selected>Últimos 5 concursos</option>
+        <select id="tendQtdSelect" class="qtd-pill" style="font-size:11.5px;padding:7px 26px 7px 30px;background-size:11px 11px, 9px 9px;background-position:11px center, right 11px center;">
+          <option value="5">Últimos 5 concursos</option>
           <option value="10">Últimos 10 concursos</option>
-          <option value="25">Últimos 25 concursos</option>
+          <option value="25" selected>Últimos 25 concursos</option>
           <option value="50">Últimos 50 concursos</option>
           <option value="100">Últimos 100 concursos</option>
         </select>
-        <button class="btn-confirm" id="tendAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">ATUALIZAR</button>
+        <button class="btn-confirm" id="tendAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
       </div>
       <div id="tendConteudo"></div>
     </div>
@@ -1984,7 +2078,7 @@ document.addEventListener('selectstart', e=>{
       <div class="card">
         <label class="field-label" for="centroQtdInput">Analisar quantos últimos concursos?</label>
         <input type="number" id="centroQtdInput" min="2" max="500" value="10" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
-        <button class="btn-confirm" id="falhaAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+        <button class="btn-confirm" id="falhaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
       </div>
       <div id="falhaConteudo"></div>
     </div>
@@ -1993,7 +2087,7 @@ document.addEventListener('selectstart', e=>{
       <div class="card">
         <label class="field-label" for="molduraQtdInput">Analisar quantos últimos concursos?</label>
         <input type="number" id="molduraQtdInput" min="2" max="500" value="10" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
-        <button class="btn-confirm" id="molduraAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+        <button class="btn-confirm" id="molduraAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
       </div>
       <div id="molduraConteudo"></div>
     </div>
@@ -2002,7 +2096,7 @@ document.addEventListener('selectstart', e=>{
       <div class="card">
         <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Analisa as dezenas com <strong>maior potencial de falhar</strong> (não repetir) no próximo concurso e monta grupos com elas.</div>
         <label class="field-label" for="gerarTamanhoSelect">Gerar</label>
-        <select id="gerarTamanhoSelect" class="qtd-pill" style="margin-bottom:12px;">
+        <select id="gerarTamanhoSelect" class="qtd-pill" style="margin-bottom:9px;font-size:11.5px;padding:7px 26px 7px 30px;background-size:11px 11px, 9px 9px;background-position:11px center, right 11px center;">
           <option value="2" selected>Duplas (2 dezenas)</option>
           <option value="3">Trios (3 dezenas)</option>
           <option value="4">Quadras (4 dezenas)</option>
@@ -2020,11 +2114,11 @@ document.addEventListener('selectstart', e=>{
         </select>
         <label class="field-label" for="gerarQtdInput">Baseado em quantos concursos (3 a 100)</label>
         <div style="display:flex;align-items:center;gap:8px;">
-          <input type="number" id="gerarQtdInput" min="3" max="100" value="10" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
-          <button type="button" id="gerarQtdAtualizarBtn" style="padding:8px 14px;border:none;border-radius:999px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;"><span id="gerarQtdAtualizarIcon" style="display:inline-block;">🔄</span> Atualizar</button>
+          <input type="number" id="gerarQtdInput" min="3" max="100" value="10" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:70px;padding:6px 8px;font-size:11.5px;">
+          <button type="button" id="gerarQtdAtualizarBtn" style="padding:6px 11px;border:none;border-radius:999px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:10.5px;cursor:pointer;"><span id="gerarQtdAtualizarIcon" style="display:inline-block;">🔄</span> Atualizar</button>
         </div>
-        <label class="field-label" for="gerarTopoSelect" style="margin-top:12px;">Usar quantas dezenas (as de maior potencial de falha)</label>
-        <select id="gerarTopoSelect" class="qtd-pill">
+        <label class="field-label" for="gerarTopoSelect" style="margin-top:9px;">Usar quantas dezenas (as de maior potencial de falha)</label>
+        <select id="gerarTopoSelect" class="qtd-pill" style="font-size:11.5px;padding:7px 26px 7px 30px;background-size:11px 11px, 9px 9px;background-position:11px center, right 11px center;">
           <option value="4">Top 4 dezenas</option>
           <option value="5">Top 5 dezenas</option>
           <option value="6" selected>Top 6 dezenas</option>
@@ -2034,7 +2128,7 @@ document.addEventListener('selectstart', e=>{
           <option value="15">Top 15 dezenas</option>
         </select>
         <div id="gerarTopoPreview" style="margin-top:10px;"></div>
-        <button class="btn-confirm" id="gerarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">GERAR DUPLAS</button>
+        <button class="btn-confirm" id="gerarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">GERAR DUPLAS</button>
       </div>
       <div id="gerarConteudo"></div>
     </div>
@@ -2055,7 +2149,7 @@ document.addEventListener('selectstart', e=>{
           <option value="30">Últimos 30 concursos</option>
           <option value="50">Últimos 50 concursos</option>
         </select>
-        <button class="btn-confirm" id="trioAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">ATUALIZAR</button>
+        <button class="btn-confirm" id="trioAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
       </div>
       <div id="trioConteudo"></div>
     </div>
@@ -2083,7 +2177,7 @@ document.addEventListener('selectstart', e=>{
           <option value="30">Últimos 30 concursos</option>
           <option value="50">Últimos 50 concursos</option>
         </select>
-        <button class="btn-confirm" id="falhasAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">ATUALIZAR</button>
+        <button class="btn-confirm" id="falhasAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
       </div>
       <div id="falhasConteudo"></div>
     </div>
@@ -2107,19 +2201,25 @@ document.addEventListener('selectstart', e=>{
           <option value="12">Top 12 dezenas</option>
           <option value="15">Top 15 dezenas</option>
         </select>
-        <button class="btn-confirm" id="quenteAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">ATUALIZAR</button>
+        <button class="btn-confirm" id="quenteAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
       </div>
       <div id="quenteConteudo"></div>
     </div>
 
     <div id="manualPanel" style="display:none;">
       <div class="card">
-        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Digite de 1 a 3 dezenas à sua escolha. Com 1 dezena, calculamos o atraso dela sozinha; com 2 ou 3, calculamos o atraso combinado entre elas.</div>
-        <label class="field-label">Digite 1, 2 ou 3 dezenas</label>
-        <div style="display:flex;gap:10px;margin:10px 0 14px;justify-content:center;">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Digite de 1 a 9 dezenas à sua escolha. Com 1 dezena, calculamos o atraso dela sozinha; com 2 ou mais, calculamos o atraso combinado entre elas.</div>
+        <label class="field-label">Digite de 1 a 9 dezenas</label>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 14px;justify-content:center;">
           <input type="text" id="manualDezena1" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
           <input type="text" id="manualDezena2" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
           <input type="text" id="manualDezena3" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+          <input type="text" id="manualDezena4" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+          <input type="text" id="manualDezena5" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+          <input type="text" id="manualDezena6" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+          <input type="text" id="manualDezena7" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+          <input type="text" id="manualDezena8" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+          <input type="text" id="manualDezena9" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
         </div>
         <div style="display:flex;gap:10px;margin-top:12px;">
           <button class="btn-confirm" id="manualAtualizarBtn" style="flex:1;padding:6px;border-radius:8px;border:none;font-size:11px;">CALCULAR</button>
@@ -2148,14 +2248,79 @@ document.addEventListener('selectstart', e=>{
     <h1 style="font-size:19px;" id="geradorFiltroTitulo">Loteria</h1>
   </header>
   <div style="padding:16px 16px 40px;">
-    <div class="card">
-      <label class="field-label" for="geradorFiltroQtd">Filtro de sorteio — analisar quantos concursos?</label>
-      <input type="number" id="geradorFiltroQtd" value="10" min="5" max="500" inputmode="numeric" style="width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:1.5px solid var(--violet);text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;margin:10px 0 14px;">
-      <button id="geradorFiltroGerarBtn" style="width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#4C1D95,#6D28D9);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">🎲 GERAR 50 JOGOS</button>
-    </div>
     <div class="card" id="geradorFiltroUltimoResultado" style="margin-bottom:16px;padding:13px;"></div>
-    <div class="spinner" id="geradorFiltroSpinner" style="display:none;">Calculando…</div>
-    <div id="geradorFiltroResultado"></div>
+    <div class="card" id="geradorFiltroAnalise" style="margin-bottom:16px;padding:13px;"></div>
+
+    <div class="gfc-tabs" id="geradorFiltroTabs" style="display:flex;gap:6px;margin-bottom:14px;">
+      <button type="button" class="gfc-tab-btn active" id="geradorFiltroTabConfig" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:#4C1D95;color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Palpites</button>
+      <button type="button" class="gfc-tab-btn" id="geradorFiltroTabJogos" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:#fff;color:#4C1D95;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Jogos gerados</button>
+    </div>
+
+    <div id="geradorFiltroTabPanelConfig">
+      <div class="gfc-dark-card" id="geradorFiltroConfigAvancada">
+        <div class="gfc-dark-title">Configurações avançadas</div>
+
+        <div class="gfc-dark-label">Número de dezenas por jogo</div>
+        <div class="gfc-dark-stepper-row">
+          <button type="button" class="gfc-dark-stepper-btn" id="gfcDezenasMenos">−</button>
+          <input type="number" inputmode="numeric" class="gfc-dark-value-input" id="gfcDezenasValor" value="15">
+          <button type="button" class="gfc-dark-stepper-btn plus" id="gfcDezenasMais">+</button>
+        </div>
+
+        <div class="gfc-dark-label">Repetidas do concurso anterior</div>
+        <div class="gfc-dark-stepper-row">
+          <button type="button" class="gfc-dark-stepper-btn" id="gfcRepMenos">−</button>
+          <input type="number" inputmode="numeric" class="gfc-dark-value-input" id="gfcRepValor" value="9">
+          <button type="button" class="gfc-dark-stepper-btn plus" id="gfcRepMais">+</button>
+        </div>
+
+        <div class="gfc-dark-label">Quantidade de jogos (1-5000)</div>
+        <div class="gfc-dark-stepper-row">
+          <button type="button" class="gfc-dark-stepper-btn" id="gfcQtdMenos">−</button>
+          <input type="number" inputmode="numeric" class="gfc-dark-value-input" id="gfcQtdValor" value="10">
+          <button type="button" class="gfc-dark-stepper-btn plus" id="gfcQtdMais">+</button>
+        </div>
+
+        <div class="gfc-dark-label">🛠️ Filtros personalizados</div>
+        <div class="gfc-dark-filtros">
+          <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroPares" placeholder=" ">
+            <span>Pares</span>
+          </div>
+          <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroImpares" placeholder=" ">
+            <span>Ímpares</span>
+          </div>
+          <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroPrimos" placeholder=" ">
+            <span>Primos</span>
+          </div>
+          <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroFib" placeholder=" ">
+            <span>Fibonacci</span>
+          </div>
+          <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroMoldura" placeholder=" ">
+            <span>Moldura</span>
+          </div>
+          <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroCentro" placeholder=" ">
+            <span>Centro</span>
+          </div>
+          <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroMult3" placeholder=" ">
+            <span>Múlt. de 3</span>
+          </div>
+        </div>
+
+        <button type="button" class="gfc-dark-btn" id="geradorFiltroGerarBtn"><span id="geradorFiltroGerarSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="geradorFiltroGerarLabel">Gerar jogos</span></button>
+      </div>
+    </div>
+
+    <div id="geradorFiltroTabPanelJogos" style="display:none;">
+      <div class="spinner" id="geradorFiltroSpinner" style="display:none;">Calculando…</div>
+      <div id="geradorFiltroResultado"></div>
+    </div>
   </div>
 </div>
 
@@ -2186,6 +2351,7 @@ let guaranteeLevel = 14;
 let lastGames = []; // for download
 let confResult = new Set(); // dezenas sorteadas marcadas no conferidor (reflete a aba ativa: Sortear ou Manual)
 let confResultSorteio = new Set(); // resultado guardado só da aba Sortear
+let confResultSorteio2 = new Set(); // resultado guardado só da 2ª aba Sortear
 let confResultManual = new Set(); // resultado guardado só da aba Manual
 let confResultOficial = new Set(); // resultado guardado só da aba Oficial (vindo da API da Caixa)
 let oficialCarregando = false; // true enquanto uma busca de resultado oficial está em andamento
@@ -2339,6 +2505,7 @@ function recalcularConfManual(){
 // sub-abas: Sortear (automático) x Manual (bolinhas)
 const CONF_SUBTABS = [
   {btn:'subtabConfSorteio', panel:'confSorteioPanel'},
+  {btn:'subtabConfSorteio2', panel:'confSorteioPanel2'},
   {btn:'subtabConfManual', panel:'confManualPanel'},
   {btn:'subtabConfOficial', panel:'confOficialPanel'}
 ];
@@ -2350,7 +2517,8 @@ function ativarConfSubtab(idAtivo){
   });
   // cada aba mostra só o resultado que pertence a ela — trocar de aba não deve
   // arrastar o resultado sorteado automaticamente (ou o oficial) pras outras abas
-  if(idAtivo === 'subtabConfManual') confResult = confResultManual;
+  if(idAtivo === 'subtabConfSorteio2') confResult = confResultSorteio2;
+  else if(idAtivo === 'subtabConfManual') confResult = confResultManual;
   else if(idAtivo === 'subtabConfOficial') confResult = confResultOficial;
   else confResult = confResultSorteio;
   conferenceDone = false;
@@ -2366,6 +2534,10 @@ function ativarConfSubtab(idAtivo){
 }
 document.getElementById('subtabConfSorteio').addEventListener('click', ()=>{
   ativarConfSubtab('subtabConfSorteio');
+});
+document.getElementById('subtabConfSorteio2').addEventListener('click', ()=>{
+  ativarConfSubtab('subtabConfSorteio2');
+  iniciarSorteio2();
 });
 document.getElementById('subtabConfManual').addEventListener('click', ()=>{
   ativarConfSubtab('subtabConfManual');
@@ -2463,14 +2635,16 @@ document.getElementById('btnOficialProximo').addEventListener('click', ()=>{
 });
 
 function syncQtdSorteio(){
-  const qtdInput = document.getElementById('qtdSorteio');
-  if(!qtdInput) return;
   const limite = Math.min(CONF_MAX, selected.size || CONF_MAX);
-  qtdInput.max = limite;
-  let v = parseInt(qtdInput.value, 10);
-  if(isNaN(v) || v < 1) v = 1;
-  if(v > limite) v = limite;
-  qtdInput.value = v;
+  ['qtdSorteio','qtdSorteio2'].forEach(id=>{
+    const qtdInput = document.getElementById(id);
+    if(!qtdInput) return;
+    qtdInput.max = limite;
+    let v = parseInt(qtdInput.value, 10);
+    if(isNaN(v) || v < 1) v = 1;
+    if(v > limite) v = limite;
+    qtdInput.value = v;
+  });
 }
 
 function renderConfLista(){
@@ -2527,12 +2701,14 @@ function pintarDezenasEscolhidas(){
 function resetConferidor(){
   confResult = new Set();
   confResultSorteio = new Set();
+  confResultSorteio2 = new Set();
   confResultManual = new Set();
   confResultOficial = new Set();
   manualBallsOn = new Set();
   conferenceDone = false;
   confResultBox.style.display='none';
   limparCaixinhasManuais();
+  resetarSorteio2UI();
   setOficialInfo('');
   oficialConcursoAtual = null;
   const oficialInput = document.getElementById('oficialConcursoInput');
@@ -2607,6 +2783,334 @@ document.getElementById('btnSorteioAuto').addEventListener('click', ()=>{
   label.textContent = '🎲 SORTEAR';
   btnSorteioAutoEl.disabled = false;
   }, 50);
+});
+
+// ---------- 2ª aba "Sortear": sorteio animado bola a bola ----------
+let sorteio2Pool = [];
+let sorteio2Qtd = 0;
+let sorteio2Drawn = [];
+let sorteio2Animando = false;
+
+// --- sons do sorteio (gerados via Web Audio API, sem precisar de arquivo) ---
+let sorteioAudioCtx = null;
+function getSorteioAudioCtx(){
+  if(!sorteioAudioCtx){
+    try{ sorteioAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; }
+  }
+  if(sorteioAudioCtx.state === 'suspended') sorteioAudioCtx.resume();
+  return sorteioAudioCtx;
+}
+function tocarSomTick(){
+  const ctx = getSorteioAudioCtx();
+  if(!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'square';
+  osc.frequency.value = 520;
+  gain.gain.setValueAtTime(0.06, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.05);
+}
+function tocarSomBolaSorteada(){
+  const ctx = getSorteioAudioCtx();
+  if(!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(660, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(990, ctx.currentTime + 0.12);
+  gain.gain.setValueAtTime(0.001, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.14, ctx.currentTime + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.35);
+}
+function tocarSomSorteioCompleto(){
+  const ctx = getSorteioAudioCtx();
+  if(!ctx) return;
+  [523.25, 659.25, 783.99].forEach((freq, i)=>{
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    const start = ctx.currentTime + i * 0.11;
+    gain.gain.setValueAtTime(0.001, start);
+    gain.gain.exponentialRampToValueAtTime(0.16, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.3);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + 0.3);
+  });
+}
+
+function atualizarUISorteio2(){
+  const restante = sorteio2Qtd - sorteio2Drawn.length;
+  const progresso = document.getElementById('sorteio2Progresso');
+  const btnBola = document.getElementById('btnSorteioBola2');
+  const btnRestantes = document.getElementById('btnSorteioRestantes2');
+  if(progresso) progresso.textContent = `Sorteando (${sorteio2Drawn.length}/${sorteio2Qtd})`;
+  if(restante <= 0){
+    if(btnBola) btnBola.textContent = 'NOVO SORTEIO';
+    if(btnRestantes) btnRestantes.textContent = 'NOVO SORTEIO';
+  } else {
+    if(btnBola) btnBola.textContent = `BOLA ${sorteio2Drawn.length+1}`;
+    if(btnRestantes) btnRestantes.textContent = `SORTEAR RESTANTES (${restante})`;
+  }
+}
+
+function mostrarToastSorteio2Completo(){
+  const toast = document.getElementById('sorteio2Toast');
+  if(toast) toast.style.display = 'block';
+}
+
+function iniciarSorteio2(){
+  // usa as dezenas escolhidas nesta sessão (selected) OU, se estiverem vazias
+  // (ex: jogo aberto do histórico/salvos), usa as dezenas que aparecem nos jogos gerados
+  const poolBase = selected.size > 0 ? selected : new Set(lastGames.flat());
+  if(poolBase.size === 0){
+    alert('Escolha as dezenas na tela inicial antes de sortear.');
+    return;
+  }
+
+  const qtdInput2 = document.getElementById('qtdSorteio2');
+  let qtd2 = parseInt(qtdInput2.value, 10);
+  if(isNaN(qtd2) || qtd2 < 1) qtd2 = 1;
+  const limite2 = Math.min(CONF_MAX, poolBase.size);
+  if(qtd2 > limite2) qtd2 = limite2;
+  qtdInput2.value = qtd2;
+
+  sorteio2Pool = Array.from(poolBase);
+  for(let i=sorteio2Pool.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [sorteio2Pool[i], sorteio2Pool[j]] = [sorteio2Pool[j], sorteio2Pool[i]];
+  }
+  sorteio2Qtd = qtd2;
+  sorteio2Drawn = [];
+  confResultSorteio2 = new Set();
+  confResult = confResultSorteio2; // 2ª aba Sortear está ativa quando isso roda — não mexe nas outras abas
+  conferenceDone = false;
+  confResultBox.style.display = 'none';
+
+  const bolaEl = document.getElementById('sorteio2Bola');
+  if(bolaEl){ bolaEl.textContent = '–'; bolaEl.style.color = '#2b2b2b'; }
+  const toast = document.getElementById('sorteio2Toast');
+  if(toast) toast.style.display = 'none';
+  const qtdRef = document.getElementById('sorteio2QtdBadge');
+  if(qtdRef) qtdRef.value = qtd2;
+
+  document.getElementById('sorteio2Setup').style.display = 'none';
+  document.getElementById('sorteio2Anim').style.display = 'block';
+  atualizarUISorteio2();
+  refreshConfUI();
+  renderGameCards();
+  pintarDezenasEscolhidas();
+}
+
+function finalizarBolaSorteio2(numero, onDepoisDeAnimar){
+  const bolaEl = document.getElementById('sorteio2Bola');
+  if(bolaEl){ bolaEl.textContent = numero.toString().padStart(2,'0'); bolaEl.style.color = '#2b2b2b'; }
+  tocarSomBolaSorteada();
+  sorteio2Drawn.push(numero);
+  confResultSorteio2 = new Set(sorteio2Drawn);
+  confResult = confResultSorteio2;
+  atualizarUISorteio2();
+  refreshConfUI();
+  renderGameCards();
+  pintarDezenasEscolhidas();
+  sorteio2Animando = false;
+  if(sorteio2Drawn.length >= sorteio2Qtd){
+    mostrarToastSorteio2Completo();
+    setTimeout(tocarSomSorteioCompleto, 150);
+  }
+  if(typeof onDepoisDeAnimar === 'function') onDepoisDeAnimar();
+}
+
+function sortearProximaBola2(onDepoisDeAnimar){
+  if(sorteio2Animando || sorteio2Drawn.length >= sorteio2Qtd) return;
+  sorteio2Animando = true;
+  const bolaEl = document.getElementById('sorteio2Bola');
+  const toast = document.getElementById('sorteio2Toast');
+  if(toast) toast.style.display = 'none';
+  if(bolaEl) bolaEl.style.color = '#D9860F';
+  const numeroFinal = sorteio2Pool[sorteio2Drawn.length];
+  let ticks = 0;
+  const maxTicks = 10;
+  const interval = setInterval(()=>{
+    if(bolaEl){
+      const r = sorteio2Pool[Math.floor(Math.random()*sorteio2Pool.length)];
+      bolaEl.textContent = r.toString().padStart(2,'0');
+    }
+    tocarSomTick();
+    ticks++;
+    if(ticks >= maxTicks){
+      clearInterval(interval);
+      finalizarBolaSorteio2(numeroFinal, onDepoisDeAnimar);
+    }
+  }, 70);
+}
+
+// "SORTEAR RESTANTES": sorteia bola por bola, uma atrás da outra, até completar
+function sortearRestantes2(){
+  if(sorteio2Animando || sorteio2Drawn.length >= sorteio2Qtd) return;
+  function proximaDaFila(){
+    if(sorteio2Drawn.length >= sorteio2Qtd) return;
+    sortearProximaBola2(()=>{
+      setTimeout(proximaDaFila, 180);
+    });
+  }
+  proximaDaFila();
+}
+
+function resetarSorteio2UI(){
+  const animEl = document.getElementById('sorteio2Anim');
+  const jaEstavaNaAnimacao = animEl && animEl.style.display === 'block';
+
+  const toast = document.getElementById('sorteio2Toast');
+  if(toast) toast.style.display = 'none';
+  const bolaEl = document.getElementById('sorteio2Bola');
+  if(bolaEl){ bolaEl.textContent = '–'; bolaEl.style.color = '#2b2b2b'; }
+  sorteio2Drawn = [];
+  // apaga o resultado do sorteio antigo desta aba
+  confResultSorteio2 = new Set();
+  confResult = confResultSorteio2;
+  conferenceDone = false;
+  confResultBox.style.display = 'none';
+
+  if(jaEstavaNaAnimacao){
+    // LIMPAR/estado já em andamento: fica na mesma tela, só zera o progresso
+    const poolBase = selected.size > 0 ? selected : new Set(lastGames.flat());
+    if(poolBase.size > 0){
+      const limite = Math.min(CONF_MAX, poolBase.size);
+      if(!sorteio2Qtd) sorteio2Qtd = parseInt(document.getElementById('qtdSorteio2').value, 10) || 1;
+      sorteio2Qtd = Math.min(sorteio2Qtd, limite);
+      sorteio2Pool = Array.from(poolBase);
+      for(let i=sorteio2Pool.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [sorteio2Pool[i], sorteio2Pool[j]] = [sorteio2Pool[j], sorteio2Pool[i]];
+      }
+      const qtdBadge = document.getElementById('sorteio2QtdBadge');
+      if(qtdBadge) qtdBadge.value = sorteio2Qtd;
+    } else {
+      sorteio2Pool = [];
+      sorteio2Qtd = 0;
+    }
+    atualizarUISorteio2();
+  } else {
+    // ainda não tinha começado: mantém a tela de configuração
+    sorteio2Pool = [];
+    sorteio2Qtd = 0;
+  }
+
+  refreshConfUI();
+  renderGameCards();
+  pintarDezenasEscolhidas();
+}
+
+// "NOVO SORTEIO": reinicia o sorteio (mesma quantidade) SEM sair da tela de animação
+function novoSorteio2(){
+  const poolBase = selected.size > 0 ? selected : new Set(lastGames.flat());
+  if(poolBase.size === 0){
+    alert('Escolha as dezenas na tela inicial antes de sortear.');
+    return;
+  }
+  const qtdAnterior = sorteio2Qtd || parseInt(document.getElementById('qtdSorteio2').value, 10) || 1;
+  const limite = Math.min(CONF_MAX, poolBase.size);
+  sorteio2Qtd = Math.min(qtdAnterior, limite);
+
+  sorteio2Pool = Array.from(poolBase);
+  for(let i=sorteio2Pool.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [sorteio2Pool[i], sorteio2Pool[j]] = [sorteio2Pool[j], sorteio2Pool[i]];
+  }
+  sorteio2Drawn = [];
+  confResultSorteio2 = new Set();
+  confResult = confResultSorteio2;
+  conferenceDone = false;
+  confResultBox.style.display = 'none';
+
+  const bolaEl = document.getElementById('sorteio2Bola');
+  if(bolaEl){ bolaEl.textContent = '–'; bolaEl.style.color = '#2b2b2b'; }
+  const toast = document.getElementById('sorteio2Toast');
+  if(toast) toast.style.display = 'none';
+  const qtdBadge = document.getElementById('sorteio2QtdBadge');
+  if(qtdBadge) qtdBadge.value = sorteio2Qtd;
+  const qtdInput = document.getElementById('qtdSorteio2');
+  if(qtdInput) qtdInput.value = sorteio2Qtd;
+
+  atualizarUISorteio2();
+  refreshConfUI();
+  renderGameCards();
+  pintarDezenasEscolhidas();
+}
+
+document.getElementById('btnSorteioIniciar2').addEventListener('click', iniciarSorteio2);
+
+document.getElementById('sorteio2QtdBadge').addEventListener('input', (e)=>{
+  if(sorteio2Animando) return; // não muda a quantidade no meio de uma animação em andamento
+  const poolBase = selected.size > 0 ? selected.size : new Set(lastGames.flat()).size;
+  const limiteMax = Math.min(CONF_MAX, poolBase || CONF_MAX);
+  let v = parseInt(e.target.value, 10);
+  if(isNaN(v)) return;
+  if(v < sorteio2Drawn.length) v = sorteio2Drawn.length || 1; // não pode ficar menor que o já sorteado
+  if(v > limiteMax) v = limiteMax;
+  if(v < 1) v = 1;
+  sorteio2Qtd = v;
+  atualizarUISorteio2();
+});
+// tenta esconder a barra de endereço do navegador junto com o teclado,
+// forçando um pequeno scroll (funciona na maioria dos navegadores mobile Android)
+function esconderBarraDoNavegador(){
+  window.scrollTo(0, 1);
+  setTimeout(()=> window.scrollTo(0, 1), 50);
+  setTimeout(()=> window.scrollTo(0, 1), 300);
+}
+['sorteio2QtdBadge','qtdSorteio','qtdSorteio2'].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('focus', esconderBarraDoNavegador);
+});
+
+document.getElementById('sorteio2QtdBadge').addEventListener('blur', (e)=>{
+  e.target.value = sorteio2Qtd;
+});
+document.getElementById('sorteio2QtdBadge').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    e.target.blur();
+  }
+});
+document.getElementById('qtdSorteio').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    e.target.blur();
+  }
+});
+document.getElementById('qtdSorteio2').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    e.target.blur();
+  }
+});
+
+document.getElementById('btnSorteioBola2').addEventListener('click', ()=>{
+  if(sorteio2Drawn.length >= sorteio2Qtd){
+    novoSorteio2();
+    return;
+  }
+  sortearProximaBola2();
+});
+
+document.getElementById('btnSorteioRestantes2').addEventListener('click', ()=>{
+  if(sorteio2Drawn.length >= sorteio2Qtd){
+    novoSorteio2();
+    return;
+  }
+  sortearRestantes2();
 });
 
 function atualizarConferencia(){
@@ -2972,7 +3476,7 @@ async function carregarTendencia(gameParam){
 
     tendCarregouUmaVez = true;
     tendCacheCarregou[game.slug] = true;
-    renderTendencia(linhas, total, numeroUltimo);
+    renderTendencia(validos, min, max, total, numeroUltimo, presenca, atraso);
   }catch(e){
     console.error('carregarTendencia falhou:', e);
     if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
@@ -2981,24 +3485,235 @@ async function carregarTendencia(gameParam){
   }
 }
 
-function renderTendencia(linhas, total, numeroUltimo){
+function isPrimoNum(n){
+  if(n < 2) return false;
+  for(let i=2; i*i<=n; i++){ if(n % i === 0) return false; }
+  return true;
+}
+
+function renderTendencia(validos, min, max, total, numeroUltimo, presenca, atraso){
   const cont = document.getElementById('tendConteudo');
-  const rows = linhas.map((l,i)=>`
-    <div class="tend-row${i===0 ? ' tend-top1':''}">
-      <div class="tend-ball">${l.n.toString().padStart(2,'0')}</div>
-      <div class="tend-info">
-        <div class="tend-pct">${pctExibicao(l.pct)}% de falha</div>
-        <div class="tend-bar-bg"><div class="tend-bar-fill" style="width:${l.pct}%"></div></div>
-        <div class="tend-sub">Saiu em ${l.presenca} de ${total} concursos · sem sair há ${l.atraso} concurso${l.atraso===1?'':'s'}</div>
-      </div>
-    </div>`).join('');
+  if(!cont) return;
+  if(!validos || !validos.length){
+    cont.innerHTML = `<div class="res-error">Sem dados suficientes para calcular as estatísticas.</div>`;
+    return;
+  }
+
+  const draws = validos.map(v => (v.dezenas||[]).map(d=>parseInt(d,10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b));
+  const qtdSorteada = draws[0] ? draws[0].length : 0;
+
+  const media = arr => arr.length ? arr.reduce((a,b)=>a+b,0) / arr.length : 0;
+  const desvio = (arr, m) => arr.length < 2 ? 0 : Math.sqrt(arr.reduce((a,b)=>a+(b-m)*(b-m),0) / arr.length);
+  const pct1 = (v,t) => t>0 ? (v/t*100) : 0;
+  const f1 = v => v.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+
+  function linhaBarra(label, count, totalRef, escala, destacar){
+    const p = pct1(count, totalRef);
+    const largura = escala ? Math.min(100, p*escala) : p;
+    const classeLinha = destacar ? ' stat-line-highlight' : '';
+    const classeBarra = destacar ? ' stat-bar-fill-highlight' : '';
+    return `<div class="stat-line${classeLinha}">${label}: ${count}x (${f1(p)}%)</div><div class="stat-bar-bg"><div class="stat-bar-fill${classeBarra}" style="width:${largura}%"></div></div>`;
+  }
+
+  // 1) Análise de repetição (dezenas repetidas em relação ao concurso imediatamente anterior)
+  const repCounts = [];
+  for(let i=0; i<draws.length-1; i++){
+    const atualSet = new Set(draws[i]);
+    let rep = 0;
+    draws[i+1].forEach(n=>{ if(atualSet.has(n)) rep++; });
+    repCounts.push(rep);
+  }
+  const repMedia = media(repCounts);
+  const repDist = {};
+  for(let k=0;k<=qtdSorteada;k++) repDist[k]=0;
+  repCounts.forEach(r=> repDist[r] = (repDist[r]||0)+1);
+  const repRows = Object.keys(repDist).map(Number).sort((a,b)=>a-b)
+    .map(k => linhaBarra(`${k} repetidas`, repDist[k], repCounts.length, undefined, repDist[k] > 0)).join('');
+
+  // 2) Pares e ímpares
+  const paresArr = draws.map(d => d.filter(n=>n%2===0).length);
+  const paresMedia = media(paresArr);
+  const imparesMedia = qtdSorteada - paresMedia;
+  const paresStd = desvio(paresArr, paresMedia);
+  const paresRecMin = Math.max(0, Math.round(paresMedia-paresStd));
+  const paresRecMax = Math.min(qtdSorteada, Math.round(paresMedia+paresStd));
+  const paresDist = {};
+  paresArr.forEach(p=> paresDist[p] = (paresDist[p]||0)+1);
+  const paresRows = Object.keys(paresDist).map(Number).sort((a,b)=>a-b)
+    .map(k => linhaBarra(`${k} pares`, paresDist[k], paresArr.length)).join('');
+
+  // 3) Números primos
+  const primosArr = draws.map(d => d.filter(isPrimoNum).length);
+  const primosMedia = media(primosArr);
+  const primosStd = desvio(primosArr, primosMedia);
+  const primosRecMin = Math.max(0, Math.round(primosMedia-primosStd));
+  const primosRecMax = Math.min(qtdSorteada, Math.round(primosMedia+primosStd));
+  const primosDist = {};
+  primosArr.forEach(p=> primosDist[p] = (primosDist[p]||0)+1);
+  const primosRows = Object.keys(primosDist).map(Number).sort((a,b)=>a-b)
+    .map(k => linhaBarra(`${k} primos`, primosDist[k], primosArr.length)).join('');
+
+  // 4) Análise de somas
+  const somasArr = draws.map(d => d.reduce((a,b)=>a+b,0));
+  const somaMin = Math.min(...somasArr);
+  const somaMax = Math.max(...somasArr);
+  const somaMedia = media(somasArr);
+  const somaStd = desvio(somasArr, somaMedia);
+  const somaRecMin = Math.round(somaMedia-somaStd);
+  const somaRecMax = Math.round(somaMedia+somaStd);
+  const somaDist = {};
+  somasArr.forEach(s=>{ const b = Math.floor(s/10)*10; somaDist[b] = (somaDist[b]||0)+1; });
+  const somaRows = Object.keys(somaDist).map(Number).sort((a,b)=>a-b)
+    .map(b => linhaBarra(`${b}-${b+9}`, somaDist[b], somasArr.length)).join('');
+
+  // 5) Mais/menos atrasados
+  const numerosList = [];
+  for(let n=min;n<=max;n++) numerosList.push(n);
+  const atrasoMedio = media(numerosList.map(n=>atraso[n]));
+  const maisAtrasados = numerosList.slice().sort((a,b)=> atraso[b]-atraso[a] || a-b).slice(0,5);
+  const menosAtrasados = numerosList.slice().sort((a,b)=> atraso[a]-atraso[b] || a-b).slice(0,5);
+  const linhaAtraso = n => `<div class="stat-line">${n.toString().padStart(2,'0')}: ${atraso[n]} concurso${atraso[n]===1?'':'s'}</div>`;
+
+  // 6) Mais/menos frequentes
+  const maisFrequentes = numerosList.slice().sort((a,b)=> presenca[b]-presenca[a] || a-b).slice(0,5);
+  const menosFrequentes = numerosList.slice().sort((a,b)=> presenca[a]-presenca[b] || a-b).slice(0,5);
+  const linhaFreq = n => `<div class="stat-line">${n.toString().padStart(2,'0')}: ${presenca[n]}x (${f1(pct1(presenca[n], total))}%)</div>`;
+
+  // 7) Sequências (maior sequência de dezenas consecutivas em cada concurso)
+  function maiorSequencia(nums){
+    let melhor=1, atualSeq=1;
+    for(let i=1;i<nums.length;i++){
+      if(nums[i] === nums[i-1]+1){ atualSeq++; if(atualSeq>melhor) melhor=atualSeq; }
+      else atualSeq=1;
+    }
+    return nums.length ? melhor : 0;
+  }
+  const seqArr = draws.map(maiorSequencia);
+  const seqMedia = media(seqArr);
+  const seqDist = {};
+  seqArr.forEach(s=> seqDist[s] = (seqDist[s]||0)+1);
+  const seqRows = Object.keys(seqDist).map(Number).sort((a,b)=>a-b)
+    .map(k => linhaBarra(`Sequência de ${k}`, seqDist[k], seqArr.length)).join('');
+
+  // 8) Distribuição por faixas
+  let faixas;
+  if(min===1 && max===25){
+    faixas = [{ini:1,fim:9},{ini:10,fim:19},{ini:20,fim:25}];
+  } else {
+    const tam = Math.ceil((max-min+1)/3);
+    faixas = [
+      {ini:min, fim:Math.min(max, min+tam-1)},
+      {ini:min+tam, fim:Math.min(max, min+2*tam-1)},
+      {ini:min+2*tam, fim:max},
+    ];
+  }
+  const faixasStats = faixas.map(f=>{
+    const contagens = draws.map(d => d.filter(n=> n>=f.ini && n<=f.fim).length);
+    const m = media(contagens);
+    const s = desvio(contagens, m);
+    const tamFaixa = f.fim-f.ini+1;
+    return {...f, media:m, recMin:Math.max(0,Math.round(m-s)), recMax:Math.min(tamFaixa,Math.round(m+s))};
+  });
+
+  // 9) Finais mais comuns
+  const finaisCount = new Array(10).fill(0);
+  let totalOcorrencias = 0;
+  draws.forEach(d => d.forEach(n=>{ finaisCount[n%10]++; totalOcorrencias++; }));
+  const finaisOrdenados = finaisCount.map((c,i)=>({final:i,count:c})).sort((a,b)=> b.count-a.count);
+  const finaisMaxPct = pct1(finaisOrdenados[0].count, totalOcorrencias) || 1;
+  const finaisRows = finaisOrdenados.map(f=>{
+    const p = pct1(f.count, totalOcorrencias);
+    const largura = Math.min(100, (p/finaisMaxPct)*100);
+    return `<div class="stat-line">Final ${f.final}: ${f.count}x (${f1(p)}%)</div><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${largura}%"></div></div>`;
+  }).join('');
+
+  // 10) Melhores padrões
+  const primosHits = primosArr.filter(p=> p>=primosRecMin && p<=primosRecMax).length;
+  const paresHits = paresArr.filter(p=> p>=paresRecMin && p<=paresRecMax).length;
+  const somaHits = somasArr.filter(s=> s>=somaRecMin && s<=somaRecMax).length;
+  const padroes = [
+    {desc:`${primosRecMin}..${primosRecMax} números primos`, hits:primosHits},
+    {desc:`${paresRecMin}..${paresRecMax} pares e ${qtdSorteada-paresRecMax}..${qtdSorteada-paresRecMin} ímpares`, hits:paresHits},
+    {desc:`Soma entre ${somaRecMin} e ${somaRecMax}`, hits:somaHits},
+  ].sort((a,b)=> b.hits-a.hits);
+  const padroesRows = padroes.map((p,i)=> `<div class="stat-line" style="margin-bottom:8px;"><strong>${i+1}.</strong> ${p.desc}<br><span style="color:#2563EB;">${p.hits} vezes (${f1(pct1(p.hits,total))}%)</span></div>`).join('');
 
   cont.innerHTML = `
-    <div class="note" style="margin:14px 0;">
-      Com base nos últimos <strong>${total}</strong> concursos (até o Nº ${numeroUltimo}), ordenado da dezena que <strong>mais deixou de sair</strong> para a que menos deixou.<br>
-      <span style="font-size:11.5px;">Cada sorteio é independente — isso é apenas estatística histórica, não é garantia de resultado futuro.</span>
+    <div class="stat-note-dark">Baseado nos últimos <strong style="color:#1D4ED8;">${total}</strong> concursos (até o Nº ${numeroUltimo}). Cada sorteio é independente — isso é apenas estatística histórica, não é garantia de resultado futuro.</div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">🔄 Análise de repetição</div>
+      <div class="stat-line">Média de repetição: ${f1(repMedia)}</div>
+      <div class="stat-sub-title">Distribuição:</div>
+      ${repRows}
     </div>
-    ${rows}`;
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">⚖️ Pares e ímpares</div>
+      <div class="stat-line">Média de pares: ${f1(paresMedia)}</div>
+      <div class="stat-line">Média de ímpares: ${f1(imparesMedia)}</div>
+      <div class="stat-line">Faixa recomendada: ${paresRecMin}..${paresRecMax} pares</div>
+      <div class="stat-sub-title">Distribuição:</div>
+      ${paresRows}
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">🔢 Números primos</div>
+      <div class="stat-line">Média de primos: ${f1(primosMedia)}</div>
+      <div class="stat-line">Faixa recomendada: ${primosRecMin}..${primosRecMax} primos</div>
+      <div class="stat-sub-title">Distribuição:</div>
+      ${primosRows}
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">➕ Análise de somas</div>
+      <div class="stat-line">Soma mínima: ${somaMin}</div>
+      <div class="stat-line">Soma máxima: ${somaMax}</div>
+      <div class="stat-line">Média: ${f1(somaMedia)}</div>
+      <div class="stat-line">Faixa recomendada: ${somaRecMin}..${somaRecMax}</div>
+      <div class="stat-sub-title">Distribuição:</div>
+      ${somaRows}
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">⏰ Mais atrasados</div>
+      <div class="stat-line">Atraso médio: ${f1(atrasoMedio)} concursos</div>
+      <div class="stat-sub-title">Mais atrasados:</div>
+      ${maisAtrasados.map(linhaAtraso).join('')}
+      <div class="stat-sub-title">Menos atrasados:</div>
+      ${menosAtrasados.map(linhaAtraso).join('')}
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">🔥 Mais frequentes</div>
+      <div class="stat-sub-title">Mais frequentes:</div>
+      ${maisFrequentes.map(linhaFreq).join('')}
+      <div class="stat-sub-title">Menos frequentes:</div>
+      ${menosFrequentes.map(linhaFreq).join('')}
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">📊 Sequências</div>
+      <div class="stat-line">Média de sequência máxima: ${f1(seqMedia)}</div>
+      ${seqRows}
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">📦 Distribuição por faixas</div>
+      ${faixasStats.map(f=> `<div class="stat-line">Faixa ${f.ini}-${f.fim}: média ${f1(f.media)} números</div>`).join('')}
+      <div style="height:6px;"></div>
+      ${faixasStats.map(f=> `<div class="stat-line">${f.ini}-${f.fim}: ${f.recMin}..${f.recMax} números recomendados</div>`).join('')}
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">🔚 Finais mais comuns</div>
+      ${finaisRows}
+    </div>
+
+    <div class="stat-card destaque">
+      <div class="stat-card-title" style="color:#1D4ED8;">🏆 Melhores padrões</div>
+      ${padroesRows}
+    </div>`;
 }
 
 // ---------- tela separada: Dezenas em alta e em queda (agora segue a loteria escolhida na home) ----------
@@ -3256,9 +3971,15 @@ async function carregarManual(gameParam){
   const brutos = [
     document.getElementById('manualDezena1').value,
     document.getElementById('manualDezena2').value,
-    document.getElementById('manualDezena3').value
+    document.getElementById('manualDezena3').value,
+    document.getElementById('manualDezena4').value,
+    document.getElementById('manualDezena5').value,
+    document.getElementById('manualDezena6').value,
+    document.getElementById('manualDezena7').value,
+    document.getElementById('manualDezena8').value,
+    document.getElementById('manualDezena9').value
   ];
-  // ignora campos vazios — calcula com as dezenas que foram realmente preenchidas (1, 2 ou 3)
+  // ignora campos vazios — calcula com as dezenas que foram realmente preenchidas (1 a 9)
   const dezenasDigitadas = brutos
     .filter(v=> v !== '' && v !== null && v !== undefined)
     .map(v=> parseInt(v,10));
@@ -3292,13 +4013,21 @@ async function carregarManual(gameParam){
       throw new Error('resposta inválida da API');
     }
     const numeroUltimo = ultimo.concurso;
+    const calcularFalhaConjunta = dezenasDigitadas.length >= 1;
 
     const cache = {0: ultimo}; // i concursos atrás do último -> dados do concurso
     let atrasoEncontrado = null; // i (concursos atrás) em que a dezena (ou todas as dezenas) saíram
+    let falhaConjuntaEncontrada = null; // i (concursos atrás) em que as 3 dezenas faltaram JUNTAS (nenhuma saiu) — só p/ 3 dezenas
     let totalAnalisado = 0;
     let inicio = 0;
 
-    while(atrasoEncontrado === null && inicio < MANUAL_MAX_CONCURSOS && (numeroUltimo - inicio) > 0){
+    function aindaPrecisaBuscar(){
+      const faltaAtraso = atrasoEncontrado === null;
+      const faltaFalha = calcularFalhaConjunta && falhaConjuntaEncontrada === null;
+      return faltaAtraso || faltaFalha;
+    }
+
+    while(aindaPrecisaBuscar() && inicio < MANUAL_MAX_CONCURSOS && (numeroUltimo - inicio) > 0){
       const fim = Math.min(inicio + MANUAL_CHUNK, MANUAL_MAX_CONCURSOS, numeroUltimo);
       const pendentes = [];
       for(let i=inicio;i<fim;i++){
@@ -3316,17 +4045,20 @@ async function carregarManual(gameParam){
         totalAnalisado = i+1;
         if(data && Array.isArray(data.dezenas)){
           const dezenas = data.dezenas.map(d=>parseInt(d,10));
-          if(dezenasDigitadas.every(n=>dezenas.includes(n))){
+          if(atrasoEncontrado === null && dezenasDigitadas.every(n=>dezenas.includes(n))){
             atrasoEncontrado = i;
-            break;
+          }
+          if(calcularFalhaConjunta && falhaConjuntaEncontrada === null && dezenasDigitadas.every(n=>!dezenas.includes(n))){
+            falhaConjuntaEncontrada = i;
           }
         }
+        if(!aindaPrecisaBuscar()) break;
       }
       inicio = fim;
     }
 
     manualCarregouUmaVez = true;
-    renderManual(dezenasDigitadas, atrasoEncontrado, totalAnalisado, numeroUltimo);
+    renderManual(dezenasDigitadas, atrasoEncontrado, totalAnalisado, numeroUltimo, calcularFalhaConjunta ? falhaConjuntaEncontrada : undefined);
   }catch(e){
     console.error('carregarManual falhou:', e);
     if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "CALCULAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
@@ -3335,7 +4067,7 @@ async function carregarManual(gameParam){
   }
 }
 
-function renderManual(dezenas, atraso, totalAnalisado, numeroUltimo){
+function renderManual(dezenas, atraso, totalAnalisado, numeroUltimo, falhaConjunta){
   const cont = document.getElementById('manualConteudo');
   const bolas = dezenas.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:34px;height:34px;border-radius:50%;margin-right:6px;background:linear-gradient(160deg,#F0932B,#D9770B);color:#fff;border-color:transparent;font-weight:700;">${n.toString().padStart(2,'0')}</span>`).join('');
   const sozinha = dezenas.length === 1;
@@ -3351,14 +4083,38 @@ function renderManual(dezenas, atraso, totalAnalisado, numeroUltimo){
     mensagem = `${sujeito} não sa${sozinha?'i':'em'}${verboJuntas} há <strong>${atraso}</strong> concurso${atraso===1?'':'s'} — a última vez que sa${sozinha?'iu':'íram'}${verboJuntas} foi no concurso Nº ${numeroUltimo - atraso}.`;
   }
 
+  // segundo bloco: aparece sempre — quantos concursos seguidos elas (ou ela, se só 1) NÃO
+  // falham juntas (ou seja, há quanto tempo não acontece de faltarem todas no mesmo sorteio)
+  let blocoFalha = '';
+  if(falhaConjunta !== undefined){
+    const nenhumaDelas = sozinha ? 'ela não saiu' : 'nenhuma delas saiu';
+    const verboFalhaPassado = sozinha ? 'falhou' : 'falharam';
+    const verboFalhaPresente = sozinha ? 'falha' : 'falham';
+    const faltaVerbo = sozinha ? 'faltou' : 'faltaram';
+    let mensagemFalha;
+    if(falhaConjunta === null){
+      mensagemFalha = `${sujeito} não ${verboFalhaPassado}${verboJuntas} nos últimos <strong>${totalAnalisado}</strong> concursos analisados (até o Nº ${numeroUltimo}) — em todos eles, ${sozinha ? 'ela saiu' : 'pelo menos uma saiu'}.`;
+    } else if(falhaConjunta === 0){
+      mensagemFalha = `${sujeito} ${verboFalhaPassado}${verboJuntas} no <strong>último concurso</strong> (Nº ${numeroUltimo}) — ${nenhumaDelas}.`;
+    } else {
+      mensagemFalha = `${sujeito} não ${verboFalhaPresente}${verboJuntas} há <strong>${falhaConjunta}</strong> concurso${falhaConjunta===1?'':'s'} — a última vez que ${faltaVerbo}${verboJuntas} (${nenhumaDelas}) foi no concurso Nº ${numeroUltimo - falhaConjunta}.`;
+    }
+    blocoFalha = `
+    <div class="tend-row" style="margin-top:12px;">
+      <div style="display:flex;align-items:center;gap:2px;margin-right:10px;">${bolas}</div>
+      <div class="tend-info">
+        <div class="tend-pct">🧊 ${mensagemFalha}</div>
+      </div>
+    </div>`;
+  }
+
   cont.innerHTML = `
     <div class="tend-row">
       <div style="display:flex;align-items:center;gap:2px;margin-right:10px;">${bolas}</div>
       <div class="tend-info">
         <div class="tend-pct">🔥 ${mensagem}</div>
-        <div class="tend-sub" style="margin-top:4px;">Cada sorteio é independente — isso é apenas estatística histórica, não é garantia de resultado futuro.</div>
       </div>
-    </div>`;
+    </div>${blocoFalha}`;
 }
 
 // ---------- Gerador multi-loteria: escolher loteria -> filtro (últimos N concursos) -> 50 jogos ----------
@@ -3367,6 +4123,165 @@ function renderManual(dezenas, atraso, totalAnalisado, numeroUltimo){
 const GERADOR_APOSTA_SIZE = {MS:6, LF:15, QN:5, DIA:7, TM:10, DS:6};
 const GERADOR_GAMES = GAMES.filter(g => GERADOR_APOSTA_SIZE[g.code]);
 let geradorGameAtual = null;
+
+// ---------- configurações avançadas do fechamento personalizado ----------
+const gfc = { dezenas: null, repetidas: null, qtd: 10 };
+
+function gfcClamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+function gfcAtualizarTela(){
+  const elD = document.getElementById('gfcDezenasValor');
+  const elR = document.getElementById('gfcRepValor');
+  const elQ = document.getElementById('gfcQtdValor');
+  if(elD) elD.value = gfc.dezenas;
+  if(elR) elR.value = gfc.repetidas;
+  if(elQ) elQ.value = gfc.qtd;
+}
+
+function gfcInicializar(g){
+  const depSize = GERADOR_APOSTA_SIZE[g.code];
+  const rangeSize = g.range.max - g.range.min + 1;
+  gfc.dezenas = depSize;
+  gfc.repetidas = gfcClamp(Math.round((depSize*depSize)/rangeSize), 0, depSize);
+  gfc.qtd = 10;
+  gfcAtualizarTela();
+  ['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  const analiseEl = document.getElementById('geradorFiltroAnalise');
+  if(analiseEl) analiseEl.innerHTML = '';
+}
+
+document.getElementById('gfcDezenasMenos').addEventListener('click', ()=>{
+  if(!geradorGameAtual) return;
+  const rangeSize = geradorGameAtual.range.max - geradorGameAtual.range.min + 1;
+  gfc.dezenas = gfcClamp(gfc.dezenas - 1, 2, rangeSize);
+  gfc.repetidas = gfcClamp(gfc.repetidas, 0, gfc.dezenas);
+  gfcAtualizarTela();
+});
+document.getElementById('gfcDezenasMais').addEventListener('click', ()=>{
+  if(!geradorGameAtual) return;
+  const rangeSize = geradorGameAtual.range.max - geradorGameAtual.range.min + 1;
+  gfc.dezenas = gfcClamp(gfc.dezenas + 1, 2, rangeSize);
+  gfc.repetidas = gfcClamp(gfc.repetidas, 0, gfc.dezenas);
+  gfcAtualizarTela();
+});
+document.getElementById('gfcRepMenos').addEventListener('click', ()=>{
+  gfc.repetidas = gfcClamp(gfc.repetidas - 1, 0, gfc.dezenas || 99);
+  gfcAtualizarTela();
+});
+document.getElementById('gfcRepMais').addEventListener('click', ()=>{
+  gfc.repetidas = gfcClamp(gfc.repetidas + 1, 0, gfc.dezenas || 99);
+  gfcAtualizarTela();
+});
+document.getElementById('gfcQtdMenos').addEventListener('click', ()=>{
+  gfc.qtd = gfcClamp(gfc.qtd - 1, 1, 5000);
+  gfcAtualizarTela();
+});
+document.getElementById('gfcQtdMais').addEventListener('click', ()=>{
+  gfc.qtd = gfcClamp(gfc.qtd + 1, 1, 5000);
+  gfcAtualizarTela();
+});
+
+// ---------- permite digitar os valores diretamente, sem precisar usar +/- ----------
+function gfcLigarEdicaoManual(el, onChange){
+  if(!el) return;
+  el.addEventListener('change', ()=>{
+    const v = parseInt(el.value, 10);
+    onChange(isNaN(v) ? 0 : v);
+    gfcAtualizarTela();
+  });
+  el.addEventListener('keydown', e=>{ if(e.key === 'Enter') el.blur(); });
+}
+gfcLigarEdicaoManual(document.getElementById('gfcDezenasValor'), v=>{
+  const rangeSize = geradorGameAtual ? (geradorGameAtual.range.max - geradorGameAtual.range.min + 1) : 99;
+  gfc.dezenas = gfcClamp(v, 2, rangeSize);
+  gfc.repetidas = gfcClamp(gfc.repetidas, 0, gfc.dezenas);
+});
+gfcLigarEdicaoManual(document.getElementById('gfcRepValor'), v=>{
+  gfc.repetidas = gfcClamp(v, 0, gfc.dezenas || 99);
+});
+gfcLigarEdicaoManual(document.getElementById('gfcQtdValor'), v=>{
+  gfc.qtd = gfcClamp(v, 1, 5000);
+});
+
+// gera um jogo respeitando: quantas dezenas repetem do último concurso, e as
+// contagens opcionais de pares / ímpares / primos (null = sem filtro nessa contagem)
+function gerarJogoPersonalizado(min, max, dezenasPorJogo, ultimoSet, repetidasAlvo, filtroPares, filtroImpares, filtroPrimos, filtrosExtra){
+  const fibSet = (filtrosExtra && filtrosExtra.fibSet) || new Set();
+  const molduraSet = (filtrosExtra && filtrosExtra.molduraSet) || new Set();
+  const centroSet = (filtrosExtra && filtrosExtra.centroSet) || new Set();
+  const filtroFib = (filtrosExtra && filtrosExtra.fib !== undefined) ? filtrosExtra.fib : null;
+  const filtroMoldura = (filtrosExtra && filtrosExtra.moldura !== undefined) ? filtrosExtra.moldura : null;
+  const filtroCentro = (filtrosExtra && filtrosExtra.centro !== undefined) ? filtrosExtra.centro : null;
+  const filtroMult3 = (filtrosExtra && filtrosExtra.mult3 !== undefined) ? filtrosExtra.mult3 : null;
+
+  const todosNums = [];
+  for(let n=min;n<=max;n++) todosNums.push(n);
+  const doUltimo = todosNums.filter(n=>ultimoSet.has(n));
+  const outros = todosNums.filter(n=>!ultimoSet.has(n));
+
+  const repAlvo = gfcClamp(repetidasAlvo, 0, Math.min(dezenasPorJogo, doUltimo.length));
+  const restantesAlvo = dezenasPorJogo - repAlvo;
+  if(restantesAlvo > outros.length) return null; // impossível com esses parâmetros
+
+  function embaralhar(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  let ultimaTentativa = null;
+  const maxTentativas = 60;
+  for(let t=0;t<maxTentativas;t++){
+    const partA = embaralhar(doUltimo).slice(0, repAlvo);
+    const partB = embaralhar(outros).slice(0, restantesAlvo);
+    const jogo = partA.concat(partB).sort((a,b)=>a-b);
+    ultimaTentativa = jogo;
+    const pares = jogo.filter(n=>n%2===0).length;
+    const impares = jogo.length - pares;
+    const primos = jogo.filter(isPrimoNum).length;
+    const fib = jogo.filter(n=>fibSet.has(n)).length;
+    const moldura = jogo.filter(n=>molduraSet.has(n)).length;
+    const centro = jogo.filter(n=>centroSet.has(n)).length;
+    const mult3 = jogo.filter(n=>n%3===0).length;
+    if(filtroPares!==null && pares!==filtroPares) continue;
+    if(filtroImpares!==null && impares!==filtroImpares) continue;
+    if(filtroPrimos!==null && primos!==filtroPrimos) continue;
+    if(filtroFib!==null && fib!==filtroFib) continue;
+    if(filtroMoldura!==null && moldura!==filtroMoldura) continue;
+    if(filtroCentro!==null && centro!==filtroCentro) continue;
+    if(filtroMult3!==null && mult3!==filtroMult3) continue;
+    return jogo;
+  }
+  // não achou combinação que bata exatamente nos filtros dentro do limite de tentativas —
+  // devolve a última tentativa mesmo assim (best-effort) pra não travar a geração
+  return ultimaTentativa;
+}
+
+function renderGeradorAnalise(g, ultimo, anterior, repMedia, faixaMin, faixaMax, quentes, atrasados){
+  const el = document.getElementById('geradorFiltroAnalise');
+  if(!el) return;
+  const numsUltimo = (ultimo.dezenas||[]).map(d=>parseInt(d,10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b);
+  const numsAnterior = anterior ? (anterior.dezenas||[]).map(d=>parseInt(d,10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b) : [];
+  const setAnterior = new Set(numsAnterior);
+  const repetidas = numsUltimo.filter(n=>setAnterior.has(n));
+
+  const ballRep = n => `<span class="gfc-ball gfc-ball-rep">${n.toString().padStart(2,'0')}</span>`;
+
+  const gridRepetidas = repetidas.length
+    ? repetidas.map(ballRep).join('')
+    : `<span style="font-size:12.5px;color:#6B7280;">Nenhuma dezena repetida.</span>`;
+
+  el.innerHTML = `
+    <div class="stat-sub-title" style="color:#A21CAF;margin-top:0;">Repetiu do concurso ${anterior ? anterior.concurso : '—'} pro ${ultimo.concurso}</div>
+    <div style="margin:4px 0 0;">${gridRepetidas}</div>
+  `;
+}
 
 // faixas oficiais de premiação de cada loteria (quantidade EXATA de acertos que premia,
 // da maior pra menor) — usadas pra marcar os jogos gerados como premiados de verdade
@@ -3386,6 +4301,38 @@ function faixaPremioGerador(code, hits){
 
 let geradorUltimoResultado = null; // {gameCode, concurso, dezenas:Set} — resultado oficial mostrado agora no card
 let geradorUltimoJogosCtx = null;  // dados dos últimos 50 jogos gerados, pra re-conferir quando o resultado oficial mudar (Anterior/Próximo)
+
+// ---------- salva os jogos gerados no aparelho, por loteria, pra continuarem lá
+// mesmo se o usuário mudar de tela e voltar (ou fechar e abrir o app de novo) ----------
+const GERADOR_ESTADO_KEY = 'tl_gerador_estado_v1';
+
+function carregarTodosGeradorEstados(){
+  try{
+    const bruto = localStorage.getItem(GERADOR_ESTADO_KEY);
+    const obj = bruto ? JSON.parse(bruto) : {};
+    return (obj && typeof obj === 'object') ? obj : {};
+  }catch(e){ return {}; }
+}
+
+function salvarGeradorEstado(code, estado){
+  try{
+    const todos = carregarTodosGeradorEstados();
+    todos[code] = estado;
+    localStorage.setItem(GERADOR_ESTADO_KEY, JSON.stringify(todos));
+  }catch(e){}
+}
+
+function carregarGeradorEstado(code){
+  return carregarTodosGeradorEstados()[code] || null;
+}
+
+function limparGeradorEstado(code){
+  try{
+    const todos = carregarTodosGeradorEstados();
+    delete todos[code];
+    localStorage.setItem(GERADOR_ESTADO_KEY, JSON.stringify(todos));
+  }catch(e){}
+}
 
 function abrirGeradorLoteria(){
   fecharModaisGlobais('overlayGeradorLoteria');
@@ -3416,8 +4363,24 @@ function abrirGeradorFiltro(code){
   const drawerOv = document.getElementById('drawerOverlay');
   if(drawerOv) drawerOv.classList.remove('show');
   document.getElementById('geradorFiltroTitulo').textContent = geradorGameAtual.nome;
-  document.getElementById('geradorFiltroResultado').innerHTML = '';
-  geradorUltimoJogosCtx = null;
+
+  const estadoSalvo = carregarGeradorEstado(geradorGameAtual.code);
+  if(estadoSalvo && Array.isArray(estadoSalvo.jogos) && estadoSalvo.jogos.length){
+    geradorUltimoJogosCtx = {
+      g: geradorGameAtual, jogos: estadoSalvo.jogos,
+      maisAtrasadas: estadoSalvo.maisAtrasadas||[], maisSairam: estadoSalvo.maisSairam||[],
+      totalConcursos: estadoSalvo.totalConcursos||0, numeroUltimo: estadoSalvo.numeroUltimo||0,
+      depSize: estadoSalvo.depSize||0
+    };
+    renderGeradorResultado(geradorGameAtual, estadoSalvo.jogos, estadoSalvo.maisAtrasadas||[],
+      estadoSalvo.maisSairam||[], estadoSalvo.totalConcursos||0, estadoSalvo.numeroUltimo||0, estadoSalvo.depSize||0);
+  } else {
+    document.getElementById('geradorFiltroResultado').innerHTML = '';
+    document.getElementById('geradorFiltroTabJogos').textContent = 'Jogos gerados';
+    gfcMostrarTab('config');
+    geradorUltimoJogosCtx = null;
+  }
+  gfcInicializar(geradorGameAtual);
   document.getElementById('overlayGeradorFiltro').classList.add('show');
   resetScroll();
   carregarUltimoResultadoGerador(geradorGameAtual);
@@ -3455,7 +4418,7 @@ function renderUltimoResultadoGerador(g, data){
   const maisRecente = concursoMaisRecentePorJogo[g.slug];
   const podeAvancar = maisRecente && data.concurso < maisRecente;
   box.innerHTML = `
-    <div class="res-card-title" style="margin-bottom:6px;font-size:12.5px;">Último resultado — ${g.nome}</div>
+    <div class="res-card-title" style="margin-bottom:6px;font-size:12.5px;">Resultado — ${g.nome}</div>
     <div class="res-nav-row" style="margin-bottom:6px;">
       <button class="res-nav-btn" id="geradorResAnterior" style="padding:6px 9px;font-size:10.5px;">← Anterior</button>
       <div class="res-concurso-num" style="font-size:16px;">Nº ${data.concurso}</div>
@@ -3479,6 +4442,15 @@ function renderUltimoResultadoGerador(g, data){
       geradorUltimoJogosCtx.numeroUltimo, geradorUltimoJogosCtx.depSize
     );
   }
+
+  // mostra logo abaixo do sorteio, automaticamente, as dezenas repetidas em relação ao concurso anterior
+  const analiseEl = document.getElementById('geradorFiltroAnalise');
+  if(analiseEl) analiseEl.innerHTML = '';
+  fetchConcursoLoteria(g, data.concurso-1).then(anteriorData=>{
+    if(!geradorGameAtual || geradorGameAtual.code !== g.code) return;
+    if(!geradorUltimoResultado || geradorUltimoResultado.concurso !== data.concurso) return; // usuário já navegou pra outro concurso
+    renderGeradorAnalise(g, data, anteriorData, 0, 0, 0, [], []);
+  }).catch(()=>{});
 }
 
 document.getElementById('geradorLoteriaVoltar').addEventListener('click', ()=>{
@@ -3488,41 +4460,87 @@ document.getElementById('geradorFiltroVoltar').addEventListener('click', ()=>{
   document.getElementById('overlayGeradorFiltro').classList.remove('show');
 });
 
+// ---------- abas "Configurações" / "Jogos gerados" dentro da tela do gerador ----------
+function gfcMostrarTab(tab){
+  const painelConfig = document.getElementById('geradorFiltroTabPanelConfig');
+  const painelJogos = document.getElementById('geradorFiltroTabPanelJogos');
+  const btnConfig = document.getElementById('geradorFiltroTabConfig');
+  const btnJogos = document.getElementById('geradorFiltroTabJogos');
+  const ativa = { background:'#4C1D95', color:'#fff' };
+  const inativa = { background:'#fff', color:'#4C1D95' };
+  if(tab === 'jogos'){
+    painelConfig.style.display = 'none';
+    painelJogos.style.display = 'block';
+    Object.assign(btnJogos.style, ativa);
+    Object.assign(btnConfig.style, inativa);
+  } else {
+    painelConfig.style.display = 'block';
+    painelJogos.style.display = 'none';
+    Object.assign(btnConfig.style, ativa);
+    Object.assign(btnJogos.style, inativa);
+  }
+}
+document.getElementById('geradorFiltroTabConfig').addEventListener('click', ()=> gfcMostrarTab('config'));
+document.getElementById('geradorFiltroTabJogos').addEventListener('click', ()=> gfcMostrarTab('jogos'));
+
 document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async ()=>{
   const g = geradorGameAtual;
   if(!g) return;
-  const depSize = GERADOR_APOSTA_SIZE[g.code];
 
-  const qtdEl = document.getElementById('geradorFiltroQtd');
-  let qtdConcursos = parseInt(qtdEl.value, 10);
-  if(isNaN(qtdConcursos) || qtdConcursos < 5) qtdConcursos = 5;
-  if(qtdConcursos > 500) qtdConcursos = 500;
-  qtdEl.value = qtdConcursos;
+  const dezenasPorJogo = gfc.dezenas;
+  const repetidasAlvo = gfc.repetidas;
+  const qtdJogos = gfc.qtd;
+  const parseFiltro = id => {
+    const v = document.getElementById(id).value;
+    return v==='' ? null : gfcClamp(parseInt(v,10), 0, dezenasPorJogo);
+  };
+  const filtroPares = parseFiltro('gfcFiltroPares');
+  const filtroImpares = parseFiltro('gfcFiltroImpares');
+  const filtroPrimos = parseFiltro('gfcFiltroPrimos');
+  const filtroFib = parseFiltro('gfcFiltroFib');
+  const filtroMoldura = parseFiltro('gfcFiltroMoldura');
+  const filtroCentro = parseFiltro('gfcFiltroCentro');
+  const filtroMult3 = parseFiltro('gfcFiltroMult3');
+
+  const centroArr = centroDoJogo(g) || [];
+  const molduraArr = molduraDoJogo(g) || [];
+  const filtrosExtra = {
+    fib: filtroFib, moldura: filtroMoldura, centro: filtroCentro, mult3: filtroMult3,
+    fibSet: FIB, molduraSet: new Set(molduraArr), centroSet: new Set(centroArr)
+  };
+
+  const qtdConcursos = 10;
 
   const btn = document.getElementById('geradorFiltroGerarBtn');
+  const btnSpinner = document.getElementById('geradorFiltroGerarSpinner');
   const spinner = document.getElementById('geradorFiltroSpinner');
   const out = document.getElementById('geradorFiltroResultado');
   btn.disabled = true;
+  if(btnSpinner) btnSpinner.style.display = 'inline-block';
   spinner.style.display = 'block';
   out.innerHTML = '';
+  gfcMostrarTab('jogos');
 
   try{
     const min = g.range.min, max = g.range.max;
+    // "ultimo" aqui é o concurso ATUAL — usado só pra exibir na tela (título, "concurso X"),
+    // nunca entra como base de cálculo/geração dos jogos.
     const ultimo = await fetchConcursoLoteria(g);
     if(!ultimo || !ultimo.concurso || !Array.isArray(ultimo.dezenas)) throw new Error('resposta inválida da API');
     const numeroUltimo = ultimo.concurso;
 
+    // janela de concursos ANTERIORES ao atual (nunca inclui numeroUltimo)
     const numerosConcursos = [];
-    for(let c = numeroUltimo; c > numeroUltimo - qtdConcursos && c > 0; c--) numerosConcursos.push(c);
+    for(let c = numeroUltimo - 1; c > numeroUltimo - 1 - qtdConcursos && c > 0; c--) numerosConcursos.push(c);
 
     const concursos = new Array(numerosConcursos.length);
-    concursos[0] = ultimo;
-    const pendentes = numerosConcursos.slice(1).map((c, idx)=>
-      fetchConcursoLoteria(g, c).then(data=>{ concursos[idx+1] = data; }).catch(()=>{ concursos[idx+1] = null; })
+    const pendentes = numerosConcursos.map((c, idx)=>
+      fetchConcursoLoteria(g, c).then(data=>{ concursos[idx] = data; }).catch(()=>{ concursos[idx] = null; })
     );
     await Promise.all(pendentes);
     const validos = concursos.filter(Boolean);
     if(validos.length === 0) throw new Error('sem dados suficientes');
+    const anterior = validos[0] || null; // concurso imediatamente anterior ao atual — base real da geração
 
     const presenca = {}, atraso = {};
     for(let n=min;n<=max;n++){ presenca[n]=0; atraso[n]=null; }
@@ -3549,48 +4567,64 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
     const porPresenca = todos.filter(x=>!idsAtrasadas.has(x.n)).sort((a,b)=> b.presenca - a.presenca || a.n - b.n);
     const maisSairam = porPresenca.slice(0, 15);
 
-    const pool = maisAtrasadas.concat(maisSairam).map(x=>x.n).sort((a,b)=>a-b);
-
-    if(pool.length < depSize){
-      out.innerHTML = `<div class="res-error">Não há dezenas suficientes pra montar jogos de ${depSize} dezenas com esse filtro.</div>`;
-      return;
+    // média/faixa recomendada de repetição concurso-a-concurso, com base no histórico buscado
+    const drawsHist = validos.map(v=>(v.dezenas||[]).map(d=>parseInt(d,10)).filter(n=>!isNaN(n)));
+    const repCountsHist = [];
+    for(let i=0;i<drawsHist.length-1;i++){
+      const setA = new Set(drawsHist[i]);
+      let rep = 0;
+      drawsHist[i+1].forEach(n=>{ if(setA.has(n)) rep++; });
+      repCountsHist.push(rep);
     }
+    const repMediaHist = repCountsHist.length ? repCountsHist.reduce((a,b)=>a+b,0)/repCountsHist.length : 0;
+    const repStdHist = repCountsHist.length<2 ? 0 : Math.sqrt(repCountsHist.reduce((a,b)=>a+(b-repMediaHist)*(b-repMediaHist),0)/repCountsHist.length);
+    const drawSizeUltimo = (ultimo.dezenas||[]).length;
+    const faixaMin = Math.max(0, Math.round(repMediaHist-repStdHist));
+    const faixaMax = Math.min(drawSizeUltimo, Math.round(repMediaHist+repStdHist));
 
-    // sorteia 50 jogos únicos, cada um com "depSize" dezenas, sempre dentro dessas 25 dezenas
+    renderGeradorAnalise(g, ultimo, anterior, repMediaHist, faixaMin, faixaMax,
+      maisSairam.slice(0,5).map(x=>x.n), maisAtrasadas.slice(0,5).map(x=>x.n));
+
+    // gera os jogos: dezenas por jogo, quantas repetem do concurso anterior (nunca do atual), e os
+    // filtros opcionais de pares/ímpares/primos — tudo vindo das configurações avançadas
+    if(!anterior || !Array.isArray(anterior.dezenas)) throw new Error('sem concurso anterior suficiente pra gerar');
+    const numsAnteriorBase = anterior.dezenas.map(d=>parseInt(d,10)).filter(n=>!isNaN(n));
+    const ultimoSet = new Set(numsAnteriorBase);
     const seen = new Set();
     const jogos = [];
     let tries = 0;
-    const maxTries = 50*40 + 800;
-    while(jogos.length < 50 && tries < maxTries){
+    const maxTries = qtdJogos*80 + 800;
+    while(jogos.length < qtdJogos && tries < maxTries){
       tries++;
-      const embaralhado = pool.slice();
-      for(let i=embaralhado.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [embaralhado[i], embaralhado[j]] = [embaralhado[j], embaralhado[i]];
+      const jogo = gerarJogoPersonalizado(min, max, dezenasPorJogo, ultimoSet, repetidasAlvo, filtroPares, filtroImpares, filtroPrimos, filtrosExtra);
+      if(!jogo){
+        out.innerHTML = `<div class="res-error">Não é possível montar jogos de ${dezenasPorJogo} dezenas com ${repetidasAlvo} repetidas do concurso anterior. Ajuste as configurações avançadas.</div>`;
+        return;
       }
-      const jogo = embaralhado.slice(0, depSize).sort((a,b)=>a-b);
       const key = jogo.join(',');
       if(!seen.has(key)){ seen.add(key); jogos.push(jogo); }
     }
 
-    geradorUltimoJogosCtx = { g, jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize };
-    renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, validos.length, numeroUltimo, depSize);
+    if(jogos.length === 0){
+      out.innerHTML = `<div class="res-error">Não foi possível gerar jogos com esses filtros. Tente ajustar pares/ímpares/primos nas configurações avançadas.</div>`;
+      return;
+    }
+
+    geradorUltimoJogosCtx = { g, jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo };
+    salvarGeradorEstado(g.code, { jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo });
+    renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, validos.length, numeroUltimo, dezenasPorJogo);
   }catch(e){
     console.error('gerador multi-loteria falhou:', e);
     out.innerHTML = `<div class="res-error">Não foi possível calcular agora.<br>Verifique sua internet e toque em "GERAR" pra tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
   }finally{
     btn.disabled = false;
+    if(btnSpinner) btnSpinner.style.display = 'none';
     spinner.style.display = 'none';
   }
 });
 
 function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcursos, numeroUltimo, depSize){
   const out = document.getElementById('geradorFiltroResultado');
-
-  const bola = (n, corA, corB) => `<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;margin:2px;background:linear-gradient(160deg,${corA},${corB});color:#fff;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:700;">${n.toString().padStart(2,'0')}</span>`;
-
-  const bolasAtrasadas = maisAtrasadas.map(x=>bola(x.n, '#F0932B', '#D9770B')).join('');
-  const bolasQuentes = maisSairam.map(x=>bola(x.n, '#38BDF8', '#1D4ED8')).join('');
 
   // confere cada jogo contra o resultado oficial mostrado no card acima (se for da mesma loteria)
   const conferindo = geradorUltimoResultado && geradorUltimoResultado.gameCode === g.code;
@@ -3621,34 +4655,31 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     </div>`;
   }).join('');
 
-  const conferenciaResumoHtml = conferindo
-    ? `<div class="note" style="margin-bottom:10px;${totalPremiados>0 ? 'border-color:#1F9D74;' : ''}">Conferido com o resultado oficial <strong>Nº ${geradorUltimoResultado.concurso}</strong> de ${g.nome}.<br>${totalPremiados>0 ? `🏆 <strong>${totalPremiados}</strong> jogo${totalPremiados===1?'':'s'} premiado${totalPremiados===1?'':'s'}!` : 'Nenhum jogo bateu a premiação mínima dessa vez.'}</div>`
-    : '';
-
   out.innerHTML = `
-    <div class="note" style="margin:14px 0;">
-      Baseado nos últimos <strong>${totalConcursos}</strong> concursos de ${g.nome} (até o Nº ${numeroUltimo}):<br>
-      <strong>10 dezenas mais atrasadas</strong> (há mais tempo sem sair):
-      <div style="margin:6px 0 10px;">${bolasAtrasadas}</div>
-      <strong>15 dezenas que mais saíram</strong>:
-      <div style="margin:6px 0;">${bolasQuentes}</div>
-      <span style="font-size:11.5px;">Cada sorteio é independente — isso é estatística histórica, não garante resultado futuro.</span>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <button id="geradorLimparBtn" class="download-btn" style="display:block;flex:1;margin-top:0;padding:7px;font-size:12px;background:#fff;color:#B91C1C;border:1.5px solid #B91C1C;"><span id="geradorLimparSpinner" style="display:none;width:11px;height:11px;border:2px solid rgba(185,28,28,.35);border-top-color:#B91C1C;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="geradorLimparLabel">Limpar jogos</span></button>
+      <a id="geradorJogarOnlineBtn" class="download-btn" href="https://loterias.caixa.gov.br/Paginas/${g.officialSlug}.aspx" target="_blank" rel="noopener" style="display:block;flex:1;margin-top:0;padding:7px;font-size:12px;text-align:center;text-decoration:none;box-sizing:border-box;">Jogar online</a>
     </div>
-    <div class="note" style="margin-bottom:10px;"><strong>${jogos.length}</strong> jogos gerados, ${depSize} dezenas cada, sorteados dentro dessas 25 dezenas.</div>
-    ${conferenciaResumoHtml}
     ${listaJogosHtml}
-    <button id="geradorBaixarBtn" class="download-btn" style="margin-top:14px;">Baixar jogos (.txt)</button>
   `;
 
-  document.getElementById('geradorBaixarBtn').addEventListener('click', ()=>{
-    const text = jogos.map((j,i)=> `Jogo ${i+1}: ${j.map(n=>n.toString().padStart(2,'0')).join(' - ')}`).join('\n');
-    const blob = new Blob([text], {type:'text/plain'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${g.slug}-50-jogos.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+  // atualiza o nome da aba com a quantidade de jogos e já leva o usuário pra ela
+  const tabJogosBtn = document.getElementById('geradorFiltroTabJogos');
+  if(tabJogosBtn) tabJogosBtn.textContent = `Jogos gerados (${jogos.length})`;
+  gfcMostrarTab('jogos');
+
+  document.getElementById('geradorLimparBtn').addEventListener('click', function(){
+    const limparBtn = this;
+    const limparSpinner = document.getElementById('geradorLimparSpinner');
+    limparBtn.disabled = true;
+    if(limparSpinner) limparSpinner.style.display = 'inline-block';
+    setTimeout(()=>{
+      out.innerHTML = '';
+      geradorUltimoJogosCtx = null;
+      limparGeradorEstado(g.code);
+      if(tabJogosBtn) tabJogosBtn.textContent = 'Jogos gerados';
+      gfcMostrarTab('config');
+    }, 350);
   });
 }
 
@@ -4598,7 +5629,7 @@ function mudarJogoTendencia(g){
   });
 
   const titulo = document.getElementById('tendenciaTitulo');
-  if(titulo) titulo.textContent = g.code === LOTOFACIL_GAME.code ? 'Tendência' : `Tendência · ${g.nome}`;
+  if(titulo) titulo.textContent = g.code === LOTOFACIL_GAME.code ? 'Estatísticas' : `Estatísticas · ${g.nome}`;
 
   atualizarUltimoResultadoTend(g);
 
@@ -4659,20 +5690,20 @@ function renderUltimoResultadoTend(g, data){
   if(!box) return;
   const nums = (data.dezenas||[]).map(d=>parseInt(d,10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b);
   const ballsHtml = nums.length
-    ? `<div class="result-balls" style="justify-content:center;flex-wrap:wrap;gap:5px;margin-bottom:6px;">${nums.map(n=>`<div class="result-ball-sm">${n.toString().padStart(2,'0')}</div>`).join('')}</div>`
+    ? `<div class="result-balls" style="justify-content:center;flex-wrap:wrap;gap:4px;margin-bottom:5px;">${nums.map(n=>`<div class="result-ball-sm" style="width:21px;height:21px;font-size:8.5px;">${n.toString().padStart(2,'0')}</div>`).join('')}</div>`
     : '';
   const maisRecente = concursoMaisRecentePorJogo[g.slug];
   const podeAvancar = maisRecente && data.concurso < maisRecente;
   tendVendoUltimo = !podeAvancar; // só true quando o concurso mostrado é de fato o mais recente conhecido
   box.innerHTML = `
-    <div class="res-card-title" style="margin-bottom:6px;font-size:12.5px;">Último resultado</div>
-    <div class="res-nav-row" style="margin-bottom:6px;">
-      <button class="res-nav-btn" id="tendResAnterior" style="padding:6px 9px;font-size:10.5px;">← Anterior</button>
-      <div class="res-concurso-num" style="font-size:16px;">Nº ${data.concurso}</div>
-      <button class="res-nav-btn" id="tendResProximo" style="padding:6px 9px;font-size:10.5px;" ${podeAvancar ? '' : 'disabled'}>Próximo →</button>
+    <div class="res-card-title" style="margin-bottom:4px;font-size:11px;">Último resultado</div>
+    <div class="res-nav-row" style="margin-bottom:4px;">
+      <button class="res-nav-btn" id="tendResAnterior" style="padding:4px 7px;font-size:9px;">← Anterior</button>
+      <div class="res-concurso-num" style="font-size:13px;">Nº ${data.concurso}</div>
+      <button class="res-nav-btn" id="tendResProximo" style="padding:4px 7px;font-size:9px;" ${podeAvancar ? '' : 'disabled'}>Próximo →</button>
     </div>
     ${ballsHtml}
-    <div class="res-local" style="font-size:10.5px;">${data.local ? `Sorteio em ${data.local} • ` : ''}${data.data || '—'}</div>`;
+    <div class="res-local" style="font-size:9px;">${data.local ? `Sorteio em ${data.local} • ` : ''}${data.data || '—'}</div>`;
 
   document.getElementById('tendResAnterior').addEventListener('click', ()=> atualizarUltimoResultadoTend(g, data.concurso-1));
   const btnProx = document.getElementById('tendResProximo');
@@ -5228,16 +6259,18 @@ document.getElementById('falhasAtualizarBtn').addEventListener('click', ()=>carr
 document.getElementById('quenteAtualizarBtn').addEventListener('click', ()=>carregarQuente(tendGameAtual));
 document.getElementById('manualAtualizarBtn').addEventListener('click', ()=>carregarManual(tendGameAtual));
 document.getElementById('manualLimparBtn').addEventListener('click', ()=>{
-  document.getElementById('manualDezena1').value = '';
-  document.getElementById('manualDezena2').value = '';
-  document.getElementById('manualDezena3').value = '';
+  ['manualDezena1','manualDezena2','manualDezena3','manualDezena4','manualDezena5','manualDezena6','manualDezena7','manualDezena8','manualDezena9'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
   const cont = document.getElementById('manualConteudo');
   if(cont) cont.innerHTML = '';
   const primeiro = document.getElementById('manualDezena1');
   if(primeiro) primeiro.focus();
 });
 (function(){
-  const campos = ['manualDezena1','manualDezena2','manualDezena3'];
+  const campos = ['manualDezena1','manualDezena2','manualDezena3','manualDezena4','manualDezena5','manualDezena6','manualDezena7','manualDezena8','manualDezena9'];
+  const timers = {}; // id -> timeout pendente de avanço rápido (dezena de 1 dígito só)
 
   function validarDezenaCampo(el){
     const game = (typeof tendGameAtual !== 'undefined' && tendGameAtual) ? tendGameAtual : null;
@@ -5254,21 +6287,42 @@ document.getElementById('manualLimparBtn').addEventListener('click', ()=>{
     }
   }
 
+  function cancelarTimer(id){
+    if(timers[id]){ clearTimeout(timers[id]); delete timers[id]; }
+  }
+
   campos.forEach((id, idx)=>{
     const el = document.getElementById(id);
     if(!el) return;
     el.addEventListener('input', ()=>{
       // mantém só dígitos, no máximo 2
       el.value = el.value.replace(/\D/g,'').slice(0,2);
+      cancelarTimer(id);
+
       if(el.value.length >= 2){
         validarDezenaCampo(el);
         if(idx < campos.length-1){
           const proximo = document.getElementById(campos[idx+1]);
-          if(proximo){ proximo.focus(); proximo.select(); }
+          // espera uma piscada da barra (cursor) no campo atual antes de avançar
+          timers[id] = setTimeout(()=>{
+            delete timers[id];
+            if(proximo){ proximo.focus(); proximo.select(); }
+          }, 530);
+        }
+      } else if(el.value.length === 1){
+        // dezena de 1 dígito só (ex.: "1", "5", "9") — não espera um 2º dígito
+        // por muito tempo, pula rápido pro próximo quadradinho
+        if(idx < campos.length-1){
+          const proximo = document.getElementById(campos[idx+1]);
+          timers[id] = setTimeout(()=>{
+            delete timers[id];
+            validarDezenaCampo(el);
+            if(proximo){ proximo.focus(); proximo.select(); }
+          }, 400);
         }
       }
     });
-    el.addEventListener('blur', ()=> validarDezenaCampo(el));
+    el.addEventListener('blur', ()=>{ cancelarTimer(id); validarDezenaCampo(el); });
     el.addEventListener('keydown', (e)=>{
       if(e.key === 'Backspace' && el.value === '' && idx > 0){
         const anterior = document.getElementById(campos[idx-1]);
