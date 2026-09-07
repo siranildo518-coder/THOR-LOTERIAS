@@ -26,7 +26,7 @@ const dbFirestore = firebase.firestore();
 // (tudo minúsculo) e adicione uma linha dentro do array CREDENCIAIS_VALIDAS abaixo,
 // no formato: 'hash', // nome de quem é (só um comentário, pra você lembrar)
 function hashLogin(str){
-  str = str.trim().toLowerCase();
+  str = str.trim().toLowerCase().normalize('NFC');
   let h = 5381;
   for(let i=0;i<str.length;i++){ h = ((h*33) ^ str.charCodeAt(i)) >>> 0; }
   return h.toString(36);
@@ -76,6 +76,7 @@ const CREDENCIAIS_VALIDAS = [
   '12apkjq', // Iran (novo, senha 142590)
   '1vescdu', // Thor (senha 142580)
   'o779k', // Márcio (senha 142580)
+  '11luovd', // Rique (senha 142580)
 ];
 
 const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
@@ -7362,59 +7363,10 @@ refreshUI();
   });
 })();
 
-// ---------- PWA: registro do service worker + aviso de nova versão disponível ----------
-function mostrarBannerAtualizacaoApp(registration){
-  if(document.getElementById('appUpdateBanner')) return;
-  const banner = document.createElement('div');
-  banner.id = 'appUpdateBanner';
-  banner.style.cssText = 'position:fixed;left:12px;right:12px;bottom:14px;z-index:100000;background:linear-gradient(135deg,#4C1D95,#6D28D9);color:#fff;border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);font-family:"Baloo 2",sans-serif;';
-  banner.innerHTML = `
-    <span style="font-size:13.5px;font-weight:600;flex:1;">🔄 Nova versão do app disponível!</span>
-    <button id="appUpdateBtn" style="background:#fff;color:#4C1D95;border:none;border-radius:9px;padding:9px 14px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;">ATUALIZAR</button>
-  `;
-  document.body.appendChild(banner);
-  document.getElementById('appUpdateBtn').addEventListener('click', ()=>{
-    const btn = document.getElementById('appUpdateBtn');
-    btn.textContent = '...';
-    btn.disabled = true;
-    let jaRecarregou = false;
-    function recarregar(){
-      if(jaRecarregou) return;
-      jaRecarregou = true;
-      location.reload();
-    }
-    if(registration && registration.waiting){
-      registration.waiting.postMessage({type:'SKIP_WAITING'});
-    }
-    navigator.serviceWorker.addEventListener('controllerchange', recarregar, {once:true});
-    // caso o sw.js ainda não trate essa mensagem, recarrega mesmo assim depois de um tempinho
-    setTimeout(recarregar, 1200);
-  });
-}
-
+// ---------- PWA: registro do service worker (sem aviso de nova versão) ----------
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('sw.js').then(registration=>{
-      // já tinha uma versão nova baixada esperando (ex: usuário abriu o app de novo)
-      if(registration.waiting && navigator.serviceWorker.controller){
-        mostrarBannerAtualizacaoApp(registration);
-      }
-      registration.addEventListener('updatefound', ()=>{
-        const novoWorker = registration.installing;
-        if(!novoWorker) return;
-        novoWorker.addEventListener('statechange', ()=>{
-          if(novoWorker.state === 'installed' && navigator.serviceWorker.controller){
-            // só avisa se já havia uma versão anterior rodando (não na primeira instalação)
-            mostrarBannerAtualizacaoApp(registration);
-          }
-        });
-      });
-      // confere no GitHub se tem versão nova: a cada 60s e sempre que o usuário volta pro app
-      setInterval(()=> registration.update().catch(()=>{}), 60000);
-      document.addEventListener('visibilitychange', ()=>{
-        if(document.visibilityState === 'visible') registration.update().catch(()=>{});
-      });
-    }).catch(()=>{});
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
   });
 }
 </script>
