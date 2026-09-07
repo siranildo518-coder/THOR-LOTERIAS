@@ -275,6 +275,9 @@ document.addEventListener('selectstart', e=>{
     padding:22px 20px 26px;
     border-radius:0 0 22px 22px;
     color:#fff;
+    position:sticky;
+    top:0;
+    z-index:20;
   }
   #appHeader{
     position:sticky;
@@ -564,15 +567,17 @@ document.addEventListener('selectstart', e=>{
     to{transform:rotate(360deg);}
   }
   @keyframes bolaSorteada{
-    0%{transform:scale(1) rotate(0deg);}
-    20%{transform:scale(1.15) rotate(-8deg);}
-    40%{transform:scale(0.95) rotate(6deg);}
-    60%{transform:scale(1.08) rotate(-4deg);}
-    80%{transform:scale(0.98) rotate(2deg);}
-    100%{transform:scale(1) rotate(0deg);}
+    0%{transform:translateY(-20px) scale(1,1);}
+    45%{transform:translateY(0) scale(1,1);}
+    52%{transform:translateY(2px) scale(1.14,0.84);}
+    62%{transform:translateY(-9px) scale(0.95,1.05);}
+    72%{transform:translateY(0) scale(1,1);}
+    80%{transform:translateY(1px) scale(1.05,0.95);}
+    88%{transform:translateY(-3px) scale(0.98,1.02);}
+    100%{transform:translateY(0) scale(1,1);}
   }
   #sorteio2Bola.bola-animando{
-    animation:bolaSorteada .6s ease;
+    animation:bolaSorteada .7s cubic-bezier(.36,.07,.19,.97);
   }
   /* o toggle Sortear/Manual do conferidor usa as mesmas classes, mas tem só 2 opções
      e deve continuar dividindo a largura toda igualmente, sem rolagem */
@@ -1360,6 +1365,12 @@ document.addEventListener('selectstart', e=>{
     border-radius:12px;
     padding:10px 12px;
     margin-bottom:8px;
+    opacity:0;
+    animation:tendRowEntrada .7s ease forwards;
+  }
+  @keyframes tendRowEntrada{
+    from{opacity:0;transform:translateX(-14px) translateY(-16px);}
+    to{opacity:1;transform:translateX(0) translateY(0);}
   }
   .tend-row .tend-ball{
     width:34px;height:34px;flex:none;
@@ -1422,6 +1433,12 @@ document.addEventListener('selectstart', e=>{
     justify-content:center;
     color:#fff;
     box-shadow:0 1px 4px rgba(0,0,0,.2);
+    opacity:0;
+    animation:centroCelEntrada .5s ease forwards;
+  }
+  @keyframes centroCelEntrada{
+    from{opacity:0;transform:translateY(10px) scale(.6);}
+    to{opacity:1;transform:translateY(0) scale(1);}
   }
   .centro-cel .centro-num{
     font-family:'Baloo 2',sans-serif;
@@ -1703,22 +1720,12 @@ document.addEventListener('selectstart', e=>{
         <div class="conf-title">Conferidor de resultado</div>
 
         <div class="subtab-row" id="confSubtabRow" style="margin-bottom:12px;">
-          <button class="subtab-btn active" id="subtabConfSorteio">Sortear</button>
-          <button class="subtab-btn" id="subtabConfSorteio2">Sortear</button>
+          <button class="subtab-btn active" id="subtabConfSorteio2">Sortear</button>
           <button class="subtab-btn" id="subtabConfManual">Manual</button>
           <button class="subtab-btn" id="subtabConfOficial">Oficial</button>
         </div>
 
-        <div id="confSorteioPanel">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-            <label for="qtdSorteio" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">Sortear</label>
-            <input type="number" id="qtdSorteio" value="15" min="1" max="20" inputmode="numeric" enterkeyhint="done" style="width:56px;padding:8px;border-radius:8px;border:none;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;background:linear-gradient(135deg,#9CA3AF,#4B5563);color:#fff;">
-            <label for="qtdSorteio" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">dezenas</label>
-            <button id="btnSorteioAuto" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:700;cursor:pointer;"><span id="btnSorteioAutoSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="btnSorteioAutoLabel">🎲 SORTEAR</span></button>
-          </div>
-        </div>
-
-        <div id="confSorteioPanel2" style="display:none;">
+        <div id="confSorteioPanel2">
           <div id="sorteio2Setup" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
             <label for="qtdSorteio2" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">Sortear</label>
             <input type="number" id="qtdSorteio2" value="15" min="1" max="20" inputmode="numeric" enterkeyhint="done" style="width:56px;padding:8px;border-radius:8px;border:none;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;background:linear-gradient(135deg,#9CA3AF,#4B5563);color:#fff;">
@@ -1734,7 +1741,11 @@ document.addEventListener('selectstart', e=>{
             </div>
             <div id="sorteio2Progresso" style="text-align:center;font-family:'Baloo 2',sans-serif;font-weight:800;color:var(--violet-deep);font-size:13px;margin-bottom:8px;">Sorteando (0/15)</div>
             <div style="background:var(--bg,#F0EAFA);border-radius:16px;padding:22px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
-              <div id="sorteio2Bola" style="width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #ffffff, #d7d2e2 75%);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:26px;color:#2b2b2b;box-shadow:0 4px 10px rgba(0,0,0,.18);">–</div>
+              <div id="sorteio2Bola" style="width:84px;height:84px;border-radius:50%;position:relative;background:radial-gradient(circle at 32% 26%, #ffffff 0%, #EDEDEF 22%, #CBCBCF 55%, #9C9CA2 100%);box-shadow:0 10px 18px rgba(0,0,0,.2), inset 0 -8px 14px rgba(0,0,0,.1), inset 0 6px 10px rgba(255,255,255,.6);">
+                <div id="sorteio2BolaMiolo" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:50%;background:#ffffff;box-shadow:inset 0 2px 4px rgba(0,0,0,.18), inset 0 -2px 3px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;">
+                  <span id="sorteio2BolaNum" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:21px;color:#222;">–</span>
+                </div>
+              </div>
             </div>
             <div style="display:flex;gap:8px;">
               <button id="btnSorteioBola2" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#F5B942,#D9860F);color:#3A2600;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">BOLA 1</button>
@@ -2051,9 +2062,9 @@ document.addEventListener('selectstart', e=>{
 </div>
 
 <div class="overlay-full" id="overlayTendencia" style="z-index:76;">
-  <header class="top" style="border-radius:0;display:flex;align-items:center;gap:12px;">
-    <button id="tendenciaVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
-    <h1 style="font-size:19px;" id="tendenciaTitulo">Estatísticas</h1>
+  <header class="top" style="border-radius:0;display:flex;align-items:center;gap:10px;padding:12px 16px 14px;">
+    <button id="tendenciaVoltar" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;padding:0;">←</button>
+    <h1 style="font-size:15px;" id="tendenciaTitulo">Estatísticas</h1>
   </header>
   <div class="home-tabs" id="tendGameTabs" style="padding:14px 16px 4px;"></div>
   <div style="padding:0 16px;">
@@ -2515,7 +2526,6 @@ function recalcularConfManual(){
 
 // sub-abas: Sortear (automático) x Manual (bolinhas)
 const CONF_SUBTABS = [
-  {btn:'subtabConfSorteio', panel:'confSorteioPanel'},
   {btn:'subtabConfSorteio2', panel:'confSorteioPanel2'},
   {btn:'subtabConfManual', panel:'confManualPanel'},
   {btn:'subtabConfOficial', panel:'confOficialPanel'}
@@ -2528,10 +2538,9 @@ function ativarConfSubtab(idAtivo){
   });
   // cada aba mostra só o resultado que pertence a ela — trocar de aba não deve
   // arrastar o resultado sorteado automaticamente (ou o oficial) pras outras abas
-  if(idAtivo === 'subtabConfSorteio2') confResult = confResultSorteio2;
-  else if(idAtivo === 'subtabConfManual') confResult = confResultManual;
+  if(idAtivo === 'subtabConfManual') confResult = confResultManual;
   else if(idAtivo === 'subtabConfOficial') confResult = confResultOficial;
-  else confResult = confResultSorteio;
+  else confResult = confResultSorteio2;
   conferenceDone = false;
   confResultBox.style.display='none';
   refreshConfUI();
@@ -2543,9 +2552,6 @@ function ativarConfSubtab(idAtivo){
     buscarResultadoOficial(null);
   }
 }
-document.getElementById('subtabConfSorteio').addEventListener('click', ()=>{
-  ativarConfSubtab('subtabConfSorteio');
-});
 document.getElementById('subtabConfSorteio2').addEventListener('click', ()=>{
   ativarConfSubtab('subtabConfSorteio2');
   iniciarSorteio2();
@@ -2658,14 +2664,20 @@ function syncQtdSorteio(){
   });
 }
 
+// paleta de cores no estilo "bola de bilhar" pras bolinhas da lista de dezenas sorteadas
+const CORES_BOLINHA_LISTA = [
+  'radial-gradient(circle at 32% 24%, #ffffff 0%, #A6F09E 12%, #33B233 50%, #146614 100%)'
+];
 function renderConfLista(){
   if(confResult.size === 0){
     confListaEl.innerHTML = '<span style="font-size:12.5px;color:var(--muted,#888);">Nenhuma dezena sorteada ainda.</span>';
     return;
   }
   const ordenadas = Array.from(confResult).sort((a,b)=>a-b);
-  confListaEl.innerHTML = ordenadas.map(n=>`
-    <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:linear-gradient(160deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:12px;">${n.toString().padStart(2,'0')}</span>
+  confListaEl.innerHTML = ordenadas.map((n,i)=>`
+    <span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:${CORES_BOLINHA_LISTA[i % CORES_BOLINHA_LISTA.length]};box-shadow:0 3px 6px rgba(0,0,0,.25), inset 0 -3px 5px rgba(0,0,0,.15), inset 0 3px 4px rgba(255,255,255,.5);">
+      <span style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:13px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);">${n.toString().padStart(2,'0')}</span>
+    </span>
   `).join('');
 }
 
@@ -2731,69 +2743,6 @@ function resetConferidor(){
 document.getElementById('btnLimparConf').addEventListener('click', ()=>{
   resetConferidor();
   renderGameCards();
-});
-
-document.getElementById('btnSorteioAuto').addEventListener('click', ()=>{
-  // usa as dezenas escolhidas nesta sessão (selected) OU, se estiverem vazias
-  // (ex: jogo aberto do histórico/salvos), usa as dezenas que aparecem nos jogos gerados
-  const poolBase = selected.size > 0 ? selected : new Set(lastGames.flat());
-  if(poolBase.size === 0){
-    alert('Escolha as dezenas na tela inicial antes de sortear.');
-    return;
-  }
-
-  const btnSorteioAutoEl = document.getElementById('btnSorteioAuto');
-  const spinner = document.getElementById('btnSorteioAutoSpinner');
-  const label = document.getElementById('btnSorteioAutoLabel');
-  spinner.style.display = 'inline-block';
-  label.textContent = 'SORTEANDO...';
-  btnSorteioAutoEl.disabled = true;
-
-  setTimeout(()=>{
-  const qtdInput = document.getElementById('qtdSorteio');
-  let qtd = parseInt(qtdInput.value, 10);
-  if(isNaN(qtd) || qtd < 1) qtd = 1;
-  const limite = Math.min(CONF_MAX, poolBase.size);
-  if(qtd > limite) qtd = limite;
-  qtdInput.value = qtd;
-
-  const manualAtual = confResultManual; // dezenas marcadas no conferidor manual (só pra evitar sortear o mesmo grupo)
-
-  function sortearUmaVez(){
-    const pool = Array.from(poolBase);
-    for(let i=pool.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
-    }
-    return pool.slice(0, qtd);
-  }
-
-  function igualAoManual(arr){
-    if(arr.length !== manualAtual.size) return false;
-    return arr.every(n=>manualAtual.has(n));
-  }
-
-  let sorteados = sortearUmaVez();
-  let tentativas = 1;
-  const maxTentativas = 200;
-  // se o resultado saiu idêntico ao que está marcado no conferidor manual, tenta de novo
-  while(manualAtual.size > 0 && igualAoManual(sorteados) && tentativas < maxTentativas){
-    sorteados = sortearUmaVez();
-    tentativas++;
-  }
-
-  confResultSorteio = new Set(sorteados);
-  confResult = confResultSorteio; // aba Sortear está ativa quando isso roda — não mexe no resultado da aba Manual
-  conferenceDone = false; // a faixa de premiação e a lista filtrada só aparecem ao apertar CONFERIR
-  confResultBox.style.display='none';
-  refreshConfUI();
-  renderGameCards();
-  pintarDezenasEscolhidas(); // as bolinhas de "suas dezenas escolhidas" pintam na hora, mesmo sem confirmar
-
-  spinner.style.display = 'none';
-  label.textContent = '🎲 SORTEAR';
-  btnSorteioAutoEl.disabled = false;
-  }, 50);
 });
 
 // ---------- 2ª aba "Sortear": sorteio animado bola a bola ----------
@@ -2881,6 +2830,7 @@ function mostrarToastSorteio2Completo(){
 }
 
 function iniciarSorteio2(){
+  corBolaSorteioIndex = 0;
   // usa as dezenas escolhidas nesta sessão (selected) OU, se estiverem vazias
   // (ex: jogo aberto do histórico/salvos), usa as dezenas que aparecem nos jogos gerados
   const poolBase = selected.size > 0 ? selected : new Set(lastGames.flat());
@@ -2909,7 +2859,12 @@ function iniciarSorteio2(){
   confResultBox.style.display = 'none';
 
   const bolaEl = document.getElementById('sorteio2Bola');
-  if(bolaEl){ bolaEl.textContent = '–'; bolaEl.style.color = '#2b2b2b'; }
+  const bolaNumEl = document.getElementById('sorteio2BolaNum');
+  if(bolaNumEl) bolaNumEl.textContent = '–';
+  if(bolaEl){
+    bolaEl.style.background = 'radial-gradient(circle at 32% 26%, #ffffff 0%, #EDEDEF 22%, #CBCBCF 55%, #9C9CA2 100%)';
+    bolaEl.style.boxShadow = '0 10px 18px rgba(0,0,0,.2), inset 0 -8px 14px rgba(0,0,0,.1), inset 0 6px 10px rgba(255,255,255,.6)';
+  }
   const toast = document.getElementById('sorteio2Toast');
   if(toast) toast.style.display = 'none';
   const qtdRef = document.getElementById('sorteio2QtdBadge');
@@ -2925,9 +2880,9 @@ function iniciarSorteio2(){
 
 function finalizarBolaSorteio2(numero, onDepoisDeAnimar){
   const bolaEl = document.getElementById('sorteio2Bola');
+  const bolaNumEl = document.getElementById('sorteio2BolaNum');
+  if(bolaNumEl) bolaNumEl.textContent = numero.toString().padStart(2,'0');
   if(bolaEl){
-    bolaEl.textContent = numero.toString().padStart(2,'0');
-    bolaEl.style.color = '#2b2b2b';
     bolaEl.classList.remove('bola-animando');
     void bolaEl.offsetWidth; // força reiniciar a animação mesmo em bolas seguidas
     bolaEl.classList.add('bola-animando');
@@ -2948,20 +2903,32 @@ function finalizarBolaSorteio2(numero, onDepoisDeAnimar){
   if(typeof onDepoisDeAnimar === 'function') onDepoisDeAnimar();
 }
 
+// paleta de cores que a bolinha do sorteio vai passando: uma cor nova a cada bola sorteada
+// (estilo esfera 3D suave: brilho definido no canto superior esquerdo, degradê macio até a cor mais forte na borda)
+const SOMBRA_BOLA_SORTEIO = '0 10px 18px rgba(0,0,0,.22), inset 0 -8px 14px rgba(0,0,0,.14), inset 0 6px 10px rgba(255,255,255,.55)';
+const CORES_BOLA_SORTEIO = [
+  'radial-gradient(circle at 32% 24%, #ffffff 0%, #FF9E90 12%, #F4402E 50%, #B4160B 100%)'
+];
+let corBolaSorteioIndex = 0;
 function sortearProximaBola2(onDepoisDeAnimar){
   if(sorteio2Animando || sorteio2Drawn.length >= sorteio2Qtd) return;
   sorteio2Animando = true;
   const bolaEl = document.getElementById('sorteio2Bola');
   const toast = document.getElementById('sorteio2Toast');
   if(toast) toast.style.display = 'none';
-  if(bolaEl) bolaEl.style.color = '#D9860F';
+  if(bolaEl){
+    bolaEl.style.background = CORES_BOLA_SORTEIO[corBolaSorteioIndex % CORES_BOLA_SORTEIO.length];
+    bolaEl.style.boxShadow = SOMBRA_BOLA_SORTEIO;
+    corBolaSorteioIndex++;
+  }
   const numeroFinal = sorteio2Pool[sorteio2Drawn.length];
   let ticks = 0;
   const maxTicks = 10;
   const interval = setInterval(()=>{
     if(bolaEl){
       const r = sorteio2Pool[Math.floor(Math.random()*sorteio2Pool.length)];
-      bolaEl.textContent = r.toString().padStart(2,'0');
+      const bolaNumEl = document.getElementById('sorteio2BolaNum');
+      if(bolaNumEl) bolaNumEl.textContent = r.toString().padStart(2,'0');
     }
     tocarSomTick();
     ticks++;
@@ -2991,7 +2958,12 @@ function resetarSorteio2UI(){
   const toast = document.getElementById('sorteio2Toast');
   if(toast) toast.style.display = 'none';
   const bolaEl = document.getElementById('sorteio2Bola');
-  if(bolaEl){ bolaEl.textContent = '–'; bolaEl.style.color = '#2b2b2b'; }
+  const bolaNumEl = document.getElementById('sorteio2BolaNum');
+  if(bolaNumEl) bolaNumEl.textContent = '–';
+  if(bolaEl){
+    bolaEl.style.background = 'radial-gradient(circle at 32% 26%, #ffffff 0%, #EDEDEF 22%, #CBCBCF 55%, #9C9CA2 100%)';
+    bolaEl.style.boxShadow = '0 10px 18px rgba(0,0,0,.2), inset 0 -8px 14px rgba(0,0,0,.1), inset 0 6px 10px rgba(255,255,255,.6)';
+  }
   sorteio2Drawn = [];
   // apaga o resultado do sorteio antigo desta aba
   confResultSorteio2 = new Set();
@@ -3031,6 +3003,7 @@ function resetarSorteio2UI(){
 
 // "NOVO SORTEIO": reinicia o sorteio (mesma quantidade) SEM sair da tela de animação
 function novoSorteio2(){
+  corBolaSorteioIndex = 0;
   const poolBase = selected.size > 0 ? selected : new Set(lastGames.flat());
   if(poolBase.size === 0){
     alert('Escolha as dezenas na tela inicial antes de sortear.');
@@ -3052,7 +3025,12 @@ function novoSorteio2(){
   confResultBox.style.display = 'none';
 
   const bolaEl = document.getElementById('sorteio2Bola');
-  if(bolaEl){ bolaEl.textContent = '–'; bolaEl.style.color = '#2b2b2b'; }
+  const bolaNumEl = document.getElementById('sorteio2BolaNum');
+  if(bolaNumEl) bolaNumEl.textContent = '–';
+  if(bolaEl){
+    bolaEl.style.background = 'radial-gradient(circle at 32% 26%, #ffffff 0%, #EDEDEF 22%, #CBCBCF 55%, #9C9CA2 100%)';
+    bolaEl.style.boxShadow = '0 10px 18px rgba(0,0,0,.2), inset 0 -8px 14px rgba(0,0,0,.1), inset 0 6px 10px rgba(255,255,255,.6)';
+  }
   const toast = document.getElementById('sorteio2Toast');
   if(toast) toast.style.display = 'none';
   const qtdBadge = document.getElementById('sorteio2QtdBadge');
@@ -3087,7 +3065,7 @@ function esconderBarraDoNavegador(){
   setTimeout(()=> window.scrollTo(0, 1), 50);
   setTimeout(()=> window.scrollTo(0, 1), 300);
 }
-['sorteio2QtdBadge','qtdSorteio','qtdSorteio2'].forEach(id=>{
+['sorteio2QtdBadge','qtdSorteio2'].forEach(id=>{
   const el = document.getElementById(id);
   if(el) el.addEventListener('focus', esconderBarraDoNavegador);
 });
@@ -3096,12 +3074,6 @@ document.getElementById('sorteio2QtdBadge').addEventListener('blur', (e)=>{
   e.target.value = sorteio2Qtd;
 });
 document.getElementById('sorteio2QtdBadge').addEventListener('keydown', (e)=>{
-  if(e.key === 'Enter'){
-    e.preventDefault();
-    e.target.blur();
-  }
-});
-document.getElementById('qtdSorteio').addEventListener('keydown', (e)=>{
   if(e.key === 'Enter'){
     e.preventDefault();
     e.target.blur();
@@ -3940,10 +3912,10 @@ function renderQuente(trios, maisAtrasadas, total, numeroUltimo){
   const exibidos = trios.slice(0, capExibicao);
   quenteExibidosAtual = {items: exibidos, total, numeroUltimo};
   const rows = exibidos.map((item,i)=>{
-    const bolas = item.trio.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:30px;height:30px;border-radius:50%;margin-right:4px;background:linear-gradient(160deg,#F0932B,#D9770B);color:#fff;border-color:transparent;">${n.toString().padStart(2,'0')}</span>`).join('');
+    const bolas = item.trio.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:24px;height:24px;border-radius:50%;margin-right:4px;font-size:11px;background:linear-gradient(160deg,#F0932B,#D9770B);color:#fff;border-color:transparent;">${n.toString().padStart(2,'0')}</span>`).join('');
     const detalhes = item.infos.map(l=>`${l.n.toString().padStart(2,'0')}: sem sair há ${l.atraso} concurso${l.atraso===1?'':'s'}`).join(' · ');
     return `
-    <div class="tend-row trio-clickable${i===0 ? ' tend-top1':''}" data-idx="${i}" style="cursor:pointer;">
+    <div class="tend-row trio-clickable${i===0 ? ' tend-top1':''}" data-idx="${i}" style="cursor:pointer;animation-delay:${Math.min(i,20)*280}ms;">
       <div style="display:flex;align-items:center;gap:2px;margin-right:10px;">${bolas}</div>
       <div class="tend-info">
         <div class="tend-pct">🔥 Atraso combinado: ${item.somaAtraso} concursos (média ${item.mediaAtraso.toFixed(1)})</div>
@@ -4840,11 +4812,11 @@ function renderFalha(linhas, pares, numeroUltimo){
   centroDadosPorN = {};
   linhas.forEach(l=>{ centroDadosPorN[l.n] = l; });
 
-  const celulas = linhas.map(l=>{
+  const celulas = linhas.map((l,i)=>{
     const cor = corCentroPorPct(l.pct);
     const semDados = l.pct===null;
     const pctVem = l.pct===null ? null : 100 - l.pct;
-    const estilo = semDados ? '' : `background:${cor};`;
+    const estilo = (semDados ? '' : `background:${cor};`) + `animation-delay:${i*330}ms;`;
     return `
     <div class="centro-cel${semDados ? ' sem-dados' : ''}" style="${estilo}" onclick="abrirCentroDezena(${l.n})" title="${l.n.toString().padStart(2,'0')}: ${semDados ? 'sem dados no período — essa dezena não saiu nos últimos 10 concursos analisados' : (l.pct>=50 ? pctExibicao(l.pct)+'% de chance de falhar' : pctExibicao(pctVem)+'% de chance de vir no próximo concurso')}">
       <div class="centro-num">${l.n.toString().padStart(2,'0')}</div>
@@ -4893,11 +4865,11 @@ function renderMoldura(linhas, pares, numeroUltimo){
   // usa o mesmo mapa/modal de detalhe da bolinha do Centro — só um painel fica visível por vez
   linhas.forEach(l=>{ centroDadosPorN[l.n] = l; });
 
-  const celulas = linhas.map(l=>{
+  const celulas = linhas.map((l,i)=>{
     const cor = corCentroPorPct(l.pct);
     const semDados = l.pct===null;
     const pctVem = l.pct===null ? null : 100 - l.pct;
-    const estilo = semDados ? '' : `background:${cor};`;
+    const estilo = (semDados ? '' : `background:${cor};`) + `animation-delay:${i*330}ms;`;
     return `
     <div class="centro-cel${semDados ? ' sem-dados' : ''}" style="${estilo}" onclick="abrirCentroDezena(${l.n})" title="${l.n.toString().padStart(2,'0')}: ${semDados ? 'sem dados no período — essa dezena não saiu nos últimos 10 concursos analisados' : (l.pct>=50 ? pctExibicao(l.pct)+'% de chance de falhar' : pctExibicao(pctVem)+'% de chance de vir no próximo concurso')}">
       <div class="centro-num">${l.n.toString().padStart(2,'0')}</div>
@@ -5069,7 +5041,7 @@ function renderGerarDuplas(itens, top, info){
       ? `<div style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:999px;background:linear-gradient(120deg,#38BDF8,#1D4ED8);color:#fff;font-size:10.5px;font-weight:700;">⚠ MAIOR CHANCE DE FALHAR</div>`
       : '';
     return `
-    <div class="tend-row trio-clickable${emDestaque ? ' tend-top1':''}" data-trio="${item.grupo.join(',')}" style="${destaqueEstilo}cursor:pointer;">
+    <div class="tend-row trio-clickable${emDestaque ? ' tend-top1':''}" data-trio="${item.grupo.join(',')}" style="${destaqueEstilo}cursor:pointer;animation-delay:${Math.min(i,20)*280}ms;">
       <div style="display:flex;align-items:center;flex-wrap:wrap;gap:2px;margin-right:10px;">${bolas}</div>
       <div class="tend-info">
         <div class="tend-pct">Chance média de falha: <strong>${pctExibicao(item.pctMedia)}%</strong></div>
@@ -5235,7 +5207,7 @@ function renderTrios(repetidas, validos, numeroUltimo, trioDestaque){
   const rows = repetidas.map((item,i)=>{
     const perfeita = item.count === validos.length;
     const emDestaque = destaqueChave === item.trio.join(',');
-    const bolas = item.trio.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:30px;height:30px;border-radius:50%;margin-right:4px;${perfeita ? 'background:linear-gradient(160deg,#FF5F6D,#B7191F);color:#fff;border-color:transparent;' : ''}">${n.toString().padStart(2,'0')}</span>`).join('');
+    const bolas = item.trio.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:24px;height:24px;border-radius:50%;margin-right:4px;font-size:11px;${perfeita ? 'background:linear-gradient(160deg,#FF5F6D,#B7191F);color:#fff;border-color:transparent;' : ''}">${n.toString().padStart(2,'0')}</span>`).join('');
     const concursosTxt = item.concursos.map(c=>`Nº ${c}`).join(' e ');
     const destaqueEstilo = perfeita
       ? 'background:linear-gradient(120deg,rgba(255,95,109,.14),rgba(183,25,31,.10));border:1px solid rgba(183,25,31,.35);border-radius:12px;'
@@ -5249,7 +5221,7 @@ function renderTrios(repetidas, validos, numeroUltimo, trioDestaque){
     const pctTxt = item.pctMedia!==undefined && item.pctMedia!==null
       ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;">Chance média de falha: ${pctExibicao(item.pctMedia)}%</div>` : '';
     return `
-    <div class="tend-row trio-clickable${i===0 ? ' tend-top1':''}" data-trio="${item.trio.join(',')}" style="${destaqueEstilo}cursor:pointer;">
+    <div class="tend-row trio-clickable${i===0 ? ' tend-top1':''}" data-trio="${item.trio.join(',')}" style="${destaqueEstilo}cursor:pointer;animation-delay:${Math.min(i,20)*280}ms;">
       <div style="display:flex;align-items:center;gap:2px;margin-right:10px;">${bolas}</div>
       <div class="tend-info">
         <div class="tend-pct"${perfeita ? ' style="color:#B7191F;"' : ''}>Saíram juntas em ${item.count} de ${validos.length} concursos</div>
@@ -5525,7 +5497,7 @@ function renderFalhas(repetidos, validos, numeroUltimo, tamanho){
   const rows = repetidos.map((item,i)=>{
     const perfeita = item.count === validos.length;
     const emDestaque = i===0 && topo.pctMedia!==null && topo.pctMedia!==undefined;
-    const bolas = item.grupo.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:30px;height:30px;border-radius:50%;margin-right:4px;${perfeita ? 'background:linear-gradient(160deg,#FF5F6D,#B7191F);color:#fff;border-color:transparent;' : ''}">${n.toString().padStart(2,'0')}</span>`).join('');
+    const bolas = item.grupo.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:24px;height:24px;border-radius:50%;margin-right:4px;font-size:11px;${perfeita ? 'background:linear-gradient(160deg,#FF5F6D,#B7191F);color:#fff;border-color:transparent;' : ''}">${n.toString().padStart(2,'0')}</span>`).join('');
     const concursosTxt = item.concursos.map(c=>`Nº ${c}`).join(' e ');
     const destaqueEstilo = perfeita
       ? 'background:linear-gradient(120deg,rgba(255,95,109,.14),rgba(183,25,31,.10));border:1px solid rgba(183,25,31,.35);border-radius:12px;'
@@ -5539,7 +5511,7 @@ function renderFalhas(repetidos, validos, numeroUltimo, tamanho){
     const pctTxt = item.pctMedia!==undefined && item.pctMedia!==null
       ? `<div class="tend-pct" style="margin-bottom:2px;">Chance média de falha: <strong>${pctExibicao(item.pctMedia)}%</strong></div>` : '';
     return `
-    <div class="tend-row trio-clickable${i===0 && emDestaque ? ' tend-top1':''}" data-trio="${item.grupo.join(',')}" style="${destaqueEstilo}cursor:pointer;flex-wrap:wrap;">
+    <div class="tend-row trio-clickable${i===0 && emDestaque ? ' tend-top1':''}" data-trio="${item.grupo.join(',')}" style="${destaqueEstilo}cursor:pointer;flex-wrap:wrap;animation-delay:${Math.min(i,20)*280}ms;">
       <div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-right:10px;max-width:110px;">${bolas}</div>
       <div class="tend-info" style="min-width:160px;">
         ${pctTxt}
@@ -6683,6 +6655,7 @@ function showResultsScreen(summaryHtml, games, skipHistorico){
   resetConferidor();
   mostrarDezenasEscolhidas();
   renderGameCards();
+  iniciarSorteio2(); // abre a tela de jogos já direto no sorteio com a bolinha, pulando a tela de configuração
   // fecha qualquer overlay/tela que esteja aberta por cima (Tendência, Histórico, etc.)
   // pra tela de resultados não ficar escondida atrás dela
   ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
@@ -6696,7 +6669,7 @@ function showResultsScreen(summaryHtml, games, skipHistorico){
   document.querySelector('.app > section:not(#resultsSection)').style.display='none';
   document.getElementById('resultsSection').style.display='block';
   window.scrollTo(0,0);
-  if(!skipHistorico) saveToHistorico(summaryHtml, games);
+  // não salva mais automaticamente no histórico ao gerar — só quando o usuário aperta "Salvar"
 }
 
 function renderGameCards(){
