@@ -4,38 +4,134 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THOR LOTERIAS</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-// ---------- Licenciamento: login + chave de ativação por cliente ----------
-// Como adicionar um cliente novo: peça pro Claude gerar o hash de "nome|chave"
-// e adicionar uma linha na planilha do Google (coluna "Chave"), com a coluna
-// "DeviceID" vazia. O bloqueio de 1 aparelho por chave é feito pelo Apps Script.
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSmJaS9x3rnPofIm8LWiVcKVqNmWyoxSqPHfDTEmwk_hu1sVjSMS9-R8jmPrH2eTYFaA/exec';
-
-function hashLicenca(str){
+// ---------- Firebase: usado só para travar cada conta em um único aparelho ----------
+const firebaseConfig = {
+  apiKey: "AIzaSyB3C4umom-ke5d339tcDgRD3A9Oqg4OydE",
+  authDomain: "thor-loterias.firebaseapp.com",
+  projectId: "thor-loterias",
+  storageBucket: "thor-loterias.firebasestorage.app",
+  messagingSenderId: "234375514263",
+  appId: "1:234375514263:web:2259ad7a822c259cfa41d2",
+  measurementId: "G-K1M35B2VH4"
+};
+firebase.initializeApp(firebaseConfig);
+const dbFirestore = firebase.firestore();
+</script>
+<script>
+// ---------- Login por usuário/senha (100% local, não depende de internet) ----------
+// Como adicionar um cliente novo: peça pro Claude gerar o hash de "usuario|senha"
+// (tudo minúsculo) e adicione uma linha dentro do array CREDENCIAIS_VALIDAS abaixo,
+// no formato: 'hash', // nome de quem é (só um comentário, pra você lembrar)
+function hashLogin(str){
   str = str.trim().toLowerCase();
   let h = 5381;
   for(let i=0;i<str.length;i++){ h = ((h*33) ^ str.charCodeAt(i)) >>> 0; }
   return h.toString(36);
 }
 
-const LICENCA_STORAGE_KEY = 'lf_licenca_ok_v1';
-const DEVICE_ID_KEY = 'lf_device_id';
-
-function getDeviceId(){
-  let id;
-  try{ id = localStorage.getItem(DEVICE_ID_KEY); }catch(e){ id = null; }
-  if(!id){
-    id = 'dev-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,10);
-    try{ localStorage.setItem(DEVICE_ID_KEY, id); }catch(e){}
+// ---------- ID único deste aparelho (gerado uma vez e salvo local) ----------
+const DEVICE_ID_KEY = 'tl_device_id_v1';
+function obterDeviceId(){
+  try{
+    let id = localStorage.getItem(DEVICE_ID_KEY);
+    if(!id){
+      id = 'dev-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2) + '-' + Math.random().toString(36).slice(2);
+      localStorage.setItem(DEVICE_ID_KEY, id);
+    }
+    return id;
+  }catch(e){
+    return 'dev-sem-storage';
   }
-  return id;
 }
 
-function licencaJaValidada(){
-  try{ return localStorage.getItem(LICENCA_STORAGE_KEY) === '1'; }catch(e){ return false; }
+// Confere no Firebase se essa conta (hash) já está travada em outro aparelho.
+// A primeira vez que uma conta loga em algum aparelho, ela fica "casada" com ele.
+// Retorna {ok:true} se pode entrar, ou {ok:false, motivo:'outro_aparelho'|'sem_internet'}.
+async function verificarTravaAparelho(hash){
+  const deviceId = obterDeviceId();
+  try{
+    const ref = dbFirestore.collection('contas_ativadas').doc(hash);
+    const snap = await ref.get();
+    if(!snap.exists){
+      await ref.set({ deviceId: deviceId, ativadoEm: firebase.firestore.FieldValue.serverTimestamp() });
+      return {ok:true};
+    }
+    const dados = snap.data();
+    if(dados.deviceId === deviceId){
+      return {ok:true};
+    }
+    return {ok:false, motivo:'outro_aparelho'};
+  }catch(e){
+    return {ok:false, motivo:'sem_internet'};
+  }
 }
 
-if(!licencaJaValidada()){
+const CREDENCIAIS_VALIDAS = [
+  '4bedkb', // Taty
+  '12apkmf', // Iran
+  '1sjuwvg', // cliente03
+];
+
+const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
+const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio cliente, direto no aparelho dele
+
+function carregarContasExtras(){
+  try{
+    const bruto = localStorage.getItem(CONTAS_EXTRAS_KEY);
+    const lista = bruto ? JSON.parse(bruto) : [];
+    return Array.isArray(lista) ? lista : [];
+  }catch(e){ return []; }
+}
+
+// cada conta extra é salva como {hash, foto} — foto fica em base64, comprimida antes de salvar
+function salvarContaExtra(hash, foto){
+  try{
+    const lista = carregarContasExtras();
+    lista.push({hash, foto: foto || null});
+    localStorage.setItem(CONTAS_EXTRAS_KEY, JSON.stringify(lista));
+  }catch(e){}
+}
+
+function contaExtraHash(item){
+  return (item && typeof item === 'object') ? item.hash : item; // compatibilidade com formato antigo (string)
+}
+
+function credencialValida(hash){
+  return CREDENCIAIS_VALIDAS.includes(hash) || carregarContasExtras().some(item=> contaExtraHash(item) === hash);
+}
+
+// reduz a foto pra um tamanho leve antes de guardar no localStorage (evita estourar o limite de espaço)
+function comprimirFoto(dataUrl, maxLado){
+  return new Promise((resolve)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      let w = img.width, h = img.height;
+      if(w > h && w > maxLado){ h = Math.round(h * (maxLado/w)); w = maxLado; }
+      else if(h > maxLado){ w = Math.round(w * (maxLado/h)); h = maxLado; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.6));
+    };
+    img.onerror = ()=> resolve(null);
+    img.src = dataUrl;
+  });
+}
+
+function loginJaValidado(){
+  try{ return localStorage.getItem(LOGIN_STORAGE_KEY) === '1'; }catch(e){ return false; }
+}
+
+// Derruba o login deste aparelho/navegador e volta pra tela de usuário/senha.
+function sairDoLogin(){
+  try{ localStorage.removeItem(LOGIN_STORAGE_KEY); }catch(e){}
+  location.reload();
+}
+
+if(!loginJaValidado()){
   document.documentElement.style.visibility = 'hidden';
 }
 
@@ -45,62 +141,64 @@ function montarTelaLogin(){
   overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,#4C1D95,#6D28D9);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,sans-serif;';
   overlay.innerHTML = `
     <div style="background:#fff;border-radius:18px;padding:28px 22px;max-width:340px;width:100%;box-shadow:0 12px 30px rgba(0,0,0,.3);">
-      <div style="text-align:center;font-size:34px;margin-bottom:6px;">🍀</div>
-      <h2 style="font-family:'Baloo 2',sans-serif;text-align:center;color:#4C1D95;margin:0 0 4px;font-size:20px;">THOR LOTERIAS</h2>
-      <p style="text-align:center;color:#8B80A3;font-size:13px;margin:0 0 18px;">Digite seu nome e a chave de ativação para liberar o app.</p>
-      <input id="loginNome" placeholder="Seu nome" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:10px;font-size:14.5px;">
-      <input id="loginChave" placeholder="Chave de ativação" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:6px;font-size:14.5px;">
-      <div id="loginErro" style="color:#B7791F;font-size:12.5px;min-height:16px;margin-bottom:8px;"></div>
-      <button id="loginBtn" style="width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#4C1D95,#6D28D9);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">ENTRAR</button>
+      <div id="formLogin">
+        <div style="text-align:center;font-size:34px;margin-bottom:6px;">🍀</div>
+        <h2 style="font-family:'Baloo 2',sans-serif;text-align:center;color:#4C1D95;margin:0 0 4px;font-size:20px;">THOR LOTERIAS</h2>
+        <p style="text-align:center;color:#8B80A3;font-size:13px;margin:0 0 18px;">Digite seu usuário e senha para entrar.</p>
+        <input id="loginUsuario" placeholder="Usuário" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:10px;font-size:14.5px;">
+        <input id="loginSenha" type="password" placeholder="Senha" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:6px;font-size:14.5px;">
+        <div id="loginErro" style="color:#B7791F;font-size:12.5px;min-height:16px;margin-bottom:8px;"></div>
+        <button id="loginBtn" style="width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#4C1D95,#6D28D9);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">ENTRAR</button>
+      </div>
     </div>`;
   document.body.appendChild(overlay);
 
   async function tentarEntrar(){
-    const nome = document.getElementById('loginNome').value;
-    const chave = document.getElementById('loginChave').value;
+    const usuario = document.getElementById('loginUsuario').value;
+    const senha = document.getElementById('loginSenha').value;
     const erroEl = document.getElementById('loginErro');
-    const btn = document.getElementById('loginBtn');
-    if(!nome.trim() || !chave.trim()){
+    if(!usuario.trim() || !senha.trim()){
       erroEl.style.color = '#B7791F';
-      erroEl.textContent = 'Preencha nome e chave.';
+      erroEl.textContent = 'Preencha usuário e senha.';
       return;
     }
-    const hash = hashLicenca(`${nome}|${chave}`);
-    const deviceId = getDeviceId();
-
-    erroEl.style.color = '#8B80A3';
-    erroEl.textContent = 'Verificando...';
-    btn.disabled = true;
-
-    try{
-      const url = `${APPS_SCRIPT_URL}?chave=${encodeURIComponent(hash)}&deviceId=${encodeURIComponent(deviceId)}`;
-      const resp = await fetch(url);
-      const data = await resp.json();
-      if(data.ok){
-        try{ localStorage.setItem(LICENCA_STORAGE_KEY, '1'); }catch(e){}
+    const hash = hashLogin(`${usuario}|${senha}`);
+    if(credencialValida(hash)){
+      const btn = document.getElementById('loginBtn');
+      erroEl.style.color = '#8B80A3';
+      erroEl.textContent = 'Verificando...';
+      btn.disabled = true;
+      const resultado = await verificarTravaAparelho(hash);
+      btn.disabled = false;
+      if(resultado.ok){
+        try{ localStorage.setItem(LOGIN_STORAGE_KEY, '1'); }catch(e){}
         overlay.remove();
+        document.documentElement.style.visibility = 'visible';
+      } else if(resultado.motivo === 'outro_aparelho'){
+        erroEl.style.color = '#B7791F';
+        erroEl.textContent = 'Esta conta já está em uso em outro aparelho.';
       } else {
         erroEl.style.color = '#B7791F';
-        erroEl.textContent = (data.erro === 'chave_em_uso')
-          ? 'Essa chave já está em uso em outro aparelho.'
-          : 'Nome ou chave inválidos.';
+        erroEl.textContent = 'Sem conexão com a internet. Conecte-se para entrar.';
       }
-    }catch(e){
+    } else {
       erroEl.style.color = '#B7791F';
-      erroEl.textContent = 'Não foi possível verificar agora. Confira sua internet.';
-    }finally{
-      btn.disabled = false;
+      erroEl.textContent = 'Usuário ou senha inválidos.';
     }
   }
+
   document.getElementById('loginBtn').addEventListener('click', tentarEntrar);
-  overlay.querySelectorAll('input').forEach(inp=>{
+
+  overlay.querySelectorAll('#formLogin input').forEach(inp=>{
     inp.addEventListener('keydown', e=>{ if(e.key==='Enter') tentarEntrar(); });
   });
 }
 
 document.addEventListener('DOMContentLoaded', ()=>{
   document.documentElement.style.visibility = 'visible';
-  if(!licencaJaValidada()) montarTelaLogin();
+  if(!loginJaValidado()){
+    montarTelaLogin();
+  }
 });
 
 // ---------- bloqueia cópia, corte, menu de contexto e arraste em todo o app ----------
@@ -177,6 +275,9 @@ document.addEventListener('selectstart', e=>{
     padding:22px 20px 26px;
     border-radius:0 0 22px 22px;
     color:#fff;
+    position:sticky;
+    top:0;
+    z-index:20;
   }
   #appHeader{
     position:sticky;
@@ -231,7 +332,8 @@ document.addEventListener('selectstart', e=>{
   .ball:active{transform:scale(0.92);}
   .ball.on{
     background:linear-gradient(160deg,var(--magenta),var(--violet));
-    border-color:transparent;
+    border-color:#fff;
+    border-width:2px;
     color:#fff;
     box-shadow:0 3px 10px rgba(109,40,217,.35);
   }
@@ -243,14 +345,23 @@ document.addEventListener('selectstart', e=>{
   }
   .total-row{
     display:flex;
-    justify-content:space-between;
-    align-items:baseline;
+    justify-content:flex-start;
+    align-items:center;
+    gap:12px;
     padding-top:2px;
     border-top:1px dashed var(--line);
     padding-top:12px;
   }
   .total-row .label{font-size:12.5px;color:var(--muted);letter-spacing:.02em;}
-  .total-row .value{font-family:'Baloo 2',sans-serif;font-size:24px;font-weight:700;color:var(--violet-deep);}
+  .total-row .value{
+    font-family:'Baloo 2',sans-serif;font-size:20px;font-weight:700;color:#fff;
+    background:linear-gradient(135deg,var(--magenta),var(--violet));
+    border:2px solid #fff;
+    border-radius:10px;
+    padding:6px 18px;
+    box-shadow:0 3px 10px rgba(109,40,217,.35);
+    display:inline-block;
+  }
   .stats-grid{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -292,21 +403,88 @@ document.addEventListener('selectstart', e=>{
     color:#fff;
     font-family:'Baloo 2',sans-serif;
     font-weight:700;
-    font-size:14.5px;
-    padding:11px 34px 11px 38px;
+    font-size:12px;
+    padding:8px 26px 8px 30px;
     appearance:none;
     -webkit-appearance:none;
     -moz-appearance:none;
     cursor:pointer;
     box-shadow:0 4px 12px rgba(31,157,116,.35);
     background-repeat:no-repeat,no-repeat;
-    background-position:14px center, right 14px center;
-    background-size:14px 14px, 11px 11px;
+    background-position:11px center, right 11px center;
+    background-size:11px 11px, 9px 9px;
     background-image:
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M1 2h14l-5 6v5l-4 2v-7z' fill='white'/%3E%3C/svg%3E"),
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='white' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   }
   .qtd-pill:focus{outline:none;}
+  /* ---------- tema claro/azul da aba "Estatísticas" (dentro de Estatísticas ▸ Estatísticas) ---------- */
+  #tendPanel.stat-dark-wrap{
+    background:#FFFFFF;
+    margin:0 -16px;
+    padding:14px 16px 6px;
+  }
+  #tendPanel .card{
+    background:#FFFFFF;
+    border:1px solid #BFDBFE;
+  }
+  #tendPanel label.field-label{color:#2563EB;}
+  .stat-card{
+    background:#FFFFFF;
+    border:1px solid #BFDBFE;
+    border-radius:16px;
+    padding:15px 16px;
+    margin-bottom:12px;
+    box-shadow:0 2px 8px rgba(37,99,235,.06);
+  }
+  .stat-card.destaque{
+    border:1.5px solid var(--magenta);
+    background:linear-gradient(160deg,rgba(214,51,108,.06),rgba(37,99,235,.06));
+  }
+  .stat-card-title{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:.02em;
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .stat-line{font-size:12.5px;color:#1D4ED8;margin-bottom:4px;line-height:1.5;}
+  .stat-line-highlight{font-weight:700;color:#B45309;}
+  .stat-sub-title{font-size:12.5px;color:#1E3A8A;font-weight:700;margin:10px 0 4px;}
+  .stat-bar-bg{background:#DBEAFE;border-radius:4px;height:6px;margin:2px 0 8px;overflow:hidden;}
+  .stat-bar-fill{background:#3B82F6;height:100%;border-radius:4px;}
+  .stat-bar-fill-highlight{background:#F59E0B;}
+  .gfc-ball{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;margin:2px;background:#E7E1F5;color:#5B4B78;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;}
+  .gfc-ball-rep{background:linear-gradient(160deg,#C026D3,#86198F);color:#fff;}
+  .gfc-dark-card{background:linear-gradient(160deg,#F3F4F6,#E2E4E9);border-radius:16px;padding:16px 14px;margin-bottom:12px;border:1px solid #D8DAE0;}
+  .gfc-dark-title{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:13px;letter-spacing:.02em;color:#A21CAF;text-transform:uppercase;margin-bottom:14px;}
+  .gfc-dark-label{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;letter-spacing:.02em;color:#6B7280;text-transform:uppercase;margin-bottom:7px;}
+  .gfc-dark-stepper-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;}
+  .gfc-dark-stepper-btn{width:40px;height:40px;border-radius:11px;border:1px solid #D8DAE0;background:#fff;color:#F97316;font-size:19px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
+  .gfc-dark-stepper-btn.plus{color:#22C55E;}
+  .gfc-dark-value{flex:1;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;color:#1F2937;}
+  .gfc-dark-value-input{flex:1;min-width:0;width:100%;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;color:#1F2937;background:#fff;border:1.5px solid #D8DAE0;border-radius:10px;padding:6px 4px;box-sizing:border-box;-moz-appearance:textfield;}
+  .gfc-dark-value-input:focus{outline:none;border-color:#A21CAF;}
+  .gfc-dark-value-input::-webkit-outer-spin-button,
+  .gfc-dark-value-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .gfc-dark-filtro-label{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:12px;color:#6B7280;margin-bottom:7px;}
+  .gfc-dark-filtros{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .gfc-dark-filtros .gfc-dark-input-wrap{flex:1 1 28%;min-width:64px;}
+  .gfc-dark-input-wrap{flex:1;min-width:0;position:relative;}
+  .gfc-dark-input-wrap input{width:100%;box-sizing:border-box;padding:7px 4px;border-radius:8px;border:1.5px solid #D8DAE0;background:#fff;color:#1F2937;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;transition:background .12s ease,border-color .12s ease,color .12s ease;}
+  .gfc-dark-input-wrap input:focus{outline:none;border-color:#A21CAF;}
+  .gfc-dark-input-wrap input:not(:placeholder-shown){background:#F3E8FF;border-color:#A21CAF;color:#4C1D95;}
+  .gfc-dark-input-wrap span{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;color:#9CA3AF;pointer-events:none;transition:all .12s ease;}
+  .gfc-dark-input-wrap input:focus + span,
+  .gfc-dark-input-wrap input:not(:placeholder-shown) + span{
+    left:8px;right:auto;top:-7px;transform:none;text-align:left;font-size:9.5px;color:#A21CAF;background:#F3F4F6;padding:0 4px;
+  }
+  .gfc-dark-btn{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#A21CAF,#86198F);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:14px;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;}
+  .stat-note-dark{font-size:11.5px;color:#2563EB;margin-bottom:12px;line-height:1.5;}
   .subtab-row{
     display:flex;
     gap:6px;
@@ -334,6 +512,72 @@ document.addEventListener('selectstart', e=>{
     background:#fff;
     color:var(--violet-deep);
     box-shadow:0 2px 6px rgba(76,29,149,.15);
+  }
+  #subtabFalha.active{
+    background:linear-gradient(135deg,var(--magenta),var(--violet));
+    color:#fff;
+  }
+  #subtabMoldura.active{
+    background:linear-gradient(135deg,var(--magenta),var(--violet));
+    color:#fff;
+  }
+  #subtabGerar.active{
+    background:linear-gradient(135deg,var(--magenta),var(--violet));
+    color:#fff;
+  }
+  #subtabTrios.active{
+    background:linear-gradient(135deg,var(--magenta),var(--violet));
+    color:#fff;
+  }
+  #subtabFalhas.active{
+    background:linear-gradient(135deg,var(--magenta),var(--violet));
+    color:#fff;
+  }
+  #subtabQuente.active{
+    background:linear-gradient(135deg,var(--magenta),var(--violet));
+    color:#fff;
+  }
+  #subtabManual.active{
+    background:linear-gradient(135deg,var(--magenta),var(--violet));
+    color:#fff;
+  }
+  .manual-dezena-input{
+    color:#111827;
+    background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);
+  }
+  @keyframes shakeInvalido{
+    10%,90%{transform:translateX(-2px);}
+    20%,80%{transform:translateX(4px);}
+    30%,50%,70%{transform:translateX(-6px);}
+    40%,60%{transform:translateX(6px);}
+  }
+  .manual-dezena-input.shake-invalido{
+    animation:shakeInvalido .5s;
+    border-color:#DC2626 !important;
+  }
+  @keyframes girarAtualizar{
+    from{transform:rotate(0deg);}
+    to{transform:rotate(360deg);}
+  }
+  #gerarQtdAtualizarIcon.girando{
+    animation:girarAtualizar .7s linear infinite;
+  }
+  @keyframes girarBtn{
+    from{transform:rotate(0deg);}
+    to{transform:rotate(360deg);}
+  }
+  @keyframes bolaSorteada{
+    0%{transform:translateY(-20px) scale(1,1);}
+    45%{transform:translateY(0) scale(1,1);}
+    52%{transform:translateY(2px) scale(1.14,0.84);}
+    62%{transform:translateY(-9px) scale(0.95,1.05);}
+    72%{transform:translateY(0) scale(1,1);}
+    80%{transform:translateY(1px) scale(1.05,0.95);}
+    88%{transform:translateY(-3px) scale(0.98,1.02);}
+    100%{transform:translateY(0) scale(1,1);}
+  }
+  #sorteio2Bola.bola-animando{
+    animation:bolaSorteada .7s cubic-bezier(.36,.07,.19,.97);
   }
   /* o toggle Sortear/Manual do conferidor usa as mesmas classes, mas tem só 2 opções
      e deve continuar dividindo a largura toda igualmente, sem rolagem */
@@ -950,6 +1194,12 @@ document.addEventListener('selectstart', e=>{
     font-weight:700;
     color:var(--violet-deep);
     margin-top:10px;
+    display:inline-block;
+    padding:4px 18px;
+    border:2px solid #fff;
+    border-radius:10px;
+    background:linear-gradient(135deg,#D9F99D,#4ADE80);
+    box-shadow:0 3px 10px rgba(74,222,128,.35);
   }
   .stepper-row{
     display:flex;
@@ -1115,6 +1365,12 @@ document.addEventListener('selectstart', e=>{
     border-radius:12px;
     padding:10px 12px;
     margin-bottom:8px;
+    opacity:0;
+    animation:tendRowEntrada .7s ease forwards;
+  }
+  @keyframes tendRowEntrada{
+    from{opacity:0;transform:translateX(-14px) translateY(-16px);}
+    to{opacity:1;transform:translateX(0) translateY(0);}
   }
   .tend-row .tend-ball{
     width:34px;height:34px;flex:none;
@@ -1148,6 +1404,50 @@ document.addEventListener('selectstart', e=>{
   .tend-row.tend-top1 .tend-ball{
     background:linear-gradient(160deg,#E3A91C,#C9971F);
     box-shadow:0 3px 10px rgba(201,151,31,.35);
+  }
+  .centro-legenda{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    margin-bottom:12px;
+  }
+  .centro-legenda-item{
+    padding:10px 14px;
+    border-radius:8px;
+    color:#fff;
+    font-family:'Baloo 2',sans-serif;
+    font-size:14px;font-weight:700;
+    box-shadow:0 2px 6px rgba(0,0,0,.16);
+  }
+  .centro-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(32px,1fr));
+    gap:5px;
+    margin-bottom:6px;
+  }
+  .centro-cel{
+    aspect-ratio:1;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    box-shadow:0 1px 4px rgba(0,0,0,.2);
+    opacity:0;
+    animation:centroCelEntrada .5s ease forwards;
+  }
+  @keyframes centroCelEntrada{
+    from{opacity:0;transform:translateY(10px) scale(.6);}
+    to{opacity:1;transform:translateY(0) scale(1);}
+  }
+  .centro-cel .centro-num{
+    font-family:'Baloo 2',sans-serif;
+    font-size:9px;font-weight:700;
+    line-height:1;
+  }
+  .centro-cel.sem-dados{
+    background:#C7C5D1 !important;
+    color:#fff;
   }
   .tend-tag{
     display:inline-flex;
@@ -1284,15 +1584,15 @@ document.addEventListener('selectstart', e=>{
   }
   .conf-ball:disabled{opacity:.35;cursor:not-allowed;}
   .escolhida-ball{
-    width:30px;
-    height:30px;
+    width:24px;
+    height:24px;
     border-radius:50%;
     display:inline-flex;
     align-items:center;
     justify-content:center;
     font-family:'Baloo 2',sans-serif;
     font-weight:700;
-    font-size:12px;
+    font-size:10px;
     border:1.5px solid var(--line);
     background:#fff;
     color:var(--ink);
@@ -1323,7 +1623,7 @@ document.addEventListener('selectstart', e=>{
     font-weight:600;
     cursor:pointer;
   }
-  .btn-conferir{background:var(--violet);color:#fff;border:none;}
+  .btn-conferir{background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;border:none;}
   .btn-conferir:disabled{opacity:.45;cursor:not-allowed;}
   .btn-limpar-conf{background:#fff;color:var(--violet-deep);border:1.5px solid var(--violet);}
   .conf-result{
@@ -1355,10 +1655,13 @@ document.addEventListener('selectstart', e=>{
   </header>
 
   <section style="display:none;">
-    <div class="card">
+    <div class="card" style="position:relative;">
       <div class="slider-block">
-        <div class="slider-hint" id="sliderHint">0 dezenas</div>
-        <div style="display:flex;align-items:center;gap:12px;">
+        <div class="slider-hint" id="sliderHint" style="position:absolute;top:12px;right:14px;display:flex;align-items:center;gap:6px;">
+          <input type="number" id="sliderHintInput" min="0" max="100" value="0" inputmode="numeric" style="width:56px;text-align:center;border:2px solid #fff;border-radius:8px;padding:3px 4px;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:inherit;color:#fff;background:linear-gradient(160deg,var(--magenta),var(--violet));box-shadow:0 3px 10px rgba(109,40,217,.35);">
+          <span>dezenas</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:34px;">
           <button type="button" class="stepper-btn" id="qtdSliderMinus" style="flex:none;">−</button>
           <input type="range" id="qtdSlider" min="0" max="100" value="0" step="1" style="flex:1;">
           <button type="button" class="stepper-btn" id="qtdSliderPlus" style="flex:none;">+</button>
@@ -1372,14 +1675,9 @@ document.addEventListener('selectstart', e=>{
         <button id="btnFixarModo" style="width:100%;padding:10px 16px;border-radius:10px;border:1.5px solid #8C1010;background:#fff;color:#8C1010;font-family:'Baloo 2',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;">📌 FIXAR DEZENAS MARCADAS</button>
       </div>
       <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-        <button class="primary-btn btn-gerar" id="btnGerar" disabled style="padding:8px 16px;font-size:11.5px;">GERAR</button>
-        <button id="btnLimparSelecao" style="padding:8px 16px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;">🧹 LIMPAR</button>
+        <button class="primary-btn btn-gerar" id="btnGerar" disabled style="padding:8px 16px;font-size:11.5px;border:2px solid #fff;"><span id="btnGerarSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="btnGerarLabel">GERAR</span></button>
+        <button id="btnLimparSelecao" style="padding:8px 16px;border-radius:9px;border:2px solid #fff;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;">🧹 LIMPAR</button>
       </div>
-      <div class="total-row">
-        <span class="label">TOTAL SELECIONADO</span>
-        <span class="value" id="totalCount">0</span>
-      </div>
-      <div class="note" id="statusHint" style="margin-top:10px;"></div>
     </div>
 
     <div class="card">
@@ -1404,7 +1702,6 @@ document.addEventListener('selectstart', e=>{
       <button id="backToSelection" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0;">←</button>
       <div style="flex:1;min-width:0;">
         <h1 style="font-size:16px;margin:0;">Jogos Desdobrados</h1>
-        <div id="gamesCountLabel" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:11px;margin-top:2px;background:linear-gradient(90deg,#9BE12F,#4C9A2A);-webkit-background-clip:text;background-clip:text;color:transparent;"></div>
       </div>
       <a id="floatingSave" title="Baixar todos os jogos (.txt)" style="width:24px;height:24px;border-radius:50%;background:var(--violet);color:#fff;border:none;font-size:10px;box-shadow:0 3px 8px rgba(76,29,149,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;flex:none;">💾</a>
       <a id="floatingExcel" title="Salvar no Excel" style="width:24px;height:24px;border-radius:50%;background:var(--good);color:#fff;border:none;font-size:10px;box-shadow:0 3px 8px rgba(31,157,116,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;flex:none;">📊</a>
@@ -1423,17 +1720,38 @@ document.addEventListener('selectstart', e=>{
         <div class="conf-title">Conferidor de resultado</div>
 
         <div class="subtab-row" id="confSubtabRow" style="margin-bottom:12px;">
-          <button class="subtab-btn active" id="subtabConfSorteio">Sortear</button>
+          <button class="subtab-btn active" id="subtabConfSorteio2">Sortear</button>
           <button class="subtab-btn" id="subtabConfManual">Manual</button>
           <button class="subtab-btn" id="subtabConfOficial">Oficial</button>
         </div>
 
-        <div id="confSorteioPanel">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-            <label for="qtdSorteio" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">Sortear</label>
-            <input type="number" id="qtdSorteio" value="15" min="1" max="20" style="width:56px;padding:8px;border-radius:8px;border:1.5px solid var(--violet);text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;">
-            <label for="qtdSorteio" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">dezenas</label>
-            <button id="btnSorteioAuto" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">🎲 SORTEAR</button>
+        <div id="confSorteioPanel2">
+          <div id="sorteio2Setup" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <label for="qtdSorteio2" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">Sortear</label>
+            <input type="number" id="qtdSorteio2" value="15" min="1" max="20" inputmode="numeric" enterkeyhint="done" style="width:56px;padding:8px;border-radius:8px;border:none;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;background:linear-gradient(135deg,#9CA3AF,#4B5563);color:#fff;">
+            <label for="qtdSorteio2" style="font-size:12px;color:var(--muted,#666);white-space:nowrap;">dezenas</label>
+            <button id="btnSorteioIniciar2" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">🎲 SORTEAR</button>
+          </div>
+
+          <div id="sorteio2Anim" style="display:none;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;">
+              <label for="sorteio2QtdBadge" style="font-size:13px;color:var(--muted,#666);white-space:nowrap;">Sortear</label>
+              <input type="number" id="sorteio2QtdBadge" value="15" min="1" max="20" inputmode="numeric" enterkeyhint="done" style="width:56px;padding:8px;border-radius:10px;border:none;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;background:linear-gradient(135deg,#9CA3AF,#4B5563);color:#fff;">
+              <label for="sorteio2QtdBadge" style="font-size:13px;color:var(--muted,#666);white-space:nowrap;">dezenas</label>
+            </div>
+            <div id="sorteio2Progresso" style="text-align:center;font-family:'Baloo 2',sans-serif;font-weight:800;color:var(--violet-deep);font-size:13px;margin-bottom:8px;">Sorteando (0/15)</div>
+            <div style="background:var(--bg,#F0EAFA);border-radius:16px;padding:22px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+              <div id="sorteio2Bola" style="width:84px;height:84px;border-radius:50%;position:relative;background:radial-gradient(circle at 32% 26%, #ffffff 0%, #EDEDEF 22%, #CBCBCF 55%, #9C9CA2 100%);box-shadow:0 10px 18px rgba(0,0,0,.2), inset 0 -8px 14px rgba(0,0,0,.1), inset 0 6px 10px rgba(255,255,255,.6);">
+                <div id="sorteio2BolaMiolo" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:50%;background:#ffffff;box-shadow:inset 0 2px 4px rgba(0,0,0,.18), inset 0 -2px 3px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;">
+                  <span id="sorteio2BolaNum" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:21px;color:#222;">–</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button id="btnSorteioBola2" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#F5B942,#D9860F);color:#3A2600;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">BOLA 1</button>
+              <button id="btnSorteioRestantes2" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#FF7A45,#D9430F);color:#fff;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">SORTEAR RESTANTES (14)</button>
+            </div>
+            <div id="sorteio2Toast" style="display:none;margin-top:8px;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:12px;color:#1F9D74;">✅ Sorteio completo!</div>
           </div>
         </div>
 
@@ -1467,9 +1785,13 @@ document.addEventListener('selectstart', e=>{
         <div class="conf-count">Selecionadas: <strong id="confCount">0</strong> / 20</div>
         <div class="conf-actions">
           <button class="btn-limpar-conf" id="btnLimparConf">LIMPAR</button>
-          <button class="btn-conferir" id="btnConferir" disabled>CONFERIR</button>
+          <button class="btn-conferir" id="btnConferir" disabled><span id="btnConferirSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="btnConferirLabel">CONFERIR</span></button>
         </div>
         <div class="conf-result" id="confResult"></div>
+      </div>
+
+      <div style="display:inline-block;border:2px solid #fff;border-radius:8px;background:linear-gradient(135deg,var(--magenta),var(--violet));padding:6px 12px;margin-bottom:12px;box-shadow:0 3px 10px rgba(109,40,217,.35);">
+        <div id="gamesCountLabel2" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:12px;color:#fff;"></div>
       </div>
 
       <div id="gamesList"></div>
@@ -1507,7 +1829,7 @@ document.addEventListener('selectstart', e=>{
 
     <div class="modal-actions">
       <button class="btn-cancel" id="modalCancel">CANCELAR</button>
-      <button class="btn-confirm" id="modalConfirm">CONFIRMAR</button>
+      <button class="btn-confirm" id="modalConfirm" style="background:linear-gradient(135deg,#D9F99D,#4ADE80);border:2px solid #fff;color:var(--violet-deep);box-shadow:0 3px 10px rgba(74,222,128,.35);"><span id="modalConfirmSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(109,40,217,.4);border-top-color:var(--violet-deep);border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="modalConfirmLabel">CONFIRMAR</span></button>
     </div>
   </div>
 </div>
@@ -1518,7 +1840,17 @@ document.addEventListener('selectstart', e=>{
     <div class="modal-info" id="trioProbInfo">Preparando…</div>
     <div id="trioProbConteudo" style="padding:4px 18px 6px;"></div>
     <div class="modal-actions">
-      <button class="btn-confirm" id="trioProbFechar" style="width:100%;">FECHAR</button>
+      <button class="btn-confirm" id="trioProbFechar" style="width:auto;min-width:140px;margin:0 auto;display:block;padding:10px 22px;border-radius:999px;background:linear-gradient(135deg,var(--magenta),var(--violet));">FECHAR</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlayCentroDezena">
+  <div class="modal">
+    <div class="modal-head" id="centroDezenaHead">DEZENA 00</div>
+    <div id="centroDezenaConteudo" style="padding:4px 18px 6px;"></div>
+    <div class="modal-actions">
+      <button class="btn-confirm" id="centroDezenaFechar" style="width:auto;min-width:140px;margin:0 auto;display:block;padding:10px 22px;border-radius:999px;background:linear-gradient(135deg,#D9F99D,#4ADE80);border:2px solid #fff;color:var(--violet-deep);box-shadow:0 3px 10px rgba(74,222,128,.35);">FECHAR</button>
     </div>
   </div>
 </div>
@@ -1579,7 +1911,10 @@ document.addEventListener('selectstart', e=>{
   <div class="drawer-section-label">Lotofácil</div>
   <button class="drawer-item" id="menuSortear"><span class="ic">🍀</span> Sortear / Gerar jogos</button>
   <button class="drawer-item" id="menuHistorico"><span class="ic">💾</span> Histórico salvo</button>
-  <button class="drawer-item" id="menuTendencia"><span class="ic">📈</span> Tendência</button>
+  <button class="drawer-item" id="menuTendencia"><span class="ic">📈</span> Estatísticas</button>
+
+  <div class="drawer-hr"></div>
+  <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
 
 </div>
 
@@ -1668,7 +2003,7 @@ document.addEventListener('selectstart', e=>{
   <div class="home-free-banner">
     <div class="hfb-spark">✨</div>
     <div class="hfb-txt">
-      <strong>Fechamento gratuito</strong>
+      <strong>Fechamento personalizado</strong>
       <p>Monte suas dezenas e gere jogos com garantia total ou reduzida</p>
     </div>
     <button class="home-upgrade-btn" id="btnAbrirFechamentoAtalho">Gerar</button>
@@ -1699,7 +2034,7 @@ document.addEventListener('selectstart', e=>{
         <option value="50">Últimos 50 concursos</option>
         <option value="100">Últimos 100 concursos</option>
       </select>
-      <button class="btn-confirm" id="altaQuedaAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">ATUALIZAR</button>
+      <button class="btn-confirm" id="altaQuedaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
     </div>
     <div id="altaQuedaConteudo"></div>
   </div>
@@ -1727,56 +2062,63 @@ document.addEventListener('selectstart', e=>{
 </div>
 
 <div class="overlay-full" id="overlayTendencia" style="z-index:76;">
-  <header class="top" style="border-radius:0;display:flex;align-items:center;gap:12px;">
-    <button id="tendenciaVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
-    <h1 style="font-size:19px;" id="tendenciaTitulo">Tendência</h1>
+  <header class="top" style="border-radius:0;display:flex;align-items:center;gap:10px;padding:12px 16px 14px;">
+    <button id="tendenciaVoltar" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;padding:0;">←</button>
+    <h1 style="font-size:15px;" id="tendenciaTitulo">Estatísticas</h1>
   </header>
   <div class="home-tabs" id="tendGameTabs" style="padding:14px 16px 4px;"></div>
   <div style="padding:0 16px;">
-    <div class="card" id="tendUltimoResultado" style="margin-bottom:16px;padding:13px;"></div>
+    <div class="card" id="tendUltimoResultado" style="margin-bottom:12px;padding:10px;"></div>
   </div>
   <div style="padding:16px 16px 40px;">
     <div class="subtab-row" id="tendSubtabRow">
-      <button class="subtab-btn active" id="subtabTendencia">Tendência</button>
-      <button class="subtab-btn" id="subtabFalha">Pode falhar</button>
+      <button class="subtab-btn active" id="subtabTendencia">Estatísticas</button>
+      <button class="subtab-btn" id="subtabFalha">Centro</button>
+      <button class="subtab-btn" id="subtabMoldura">Moldura</button>
       <button class="subtab-btn" id="subtabGerar">Gerar</button>
       <button class="subtab-btn" id="subtabTrios">Trios</button>
       <button class="subtab-btn" id="subtabFalhas">Falhas</button>
       <button class="subtab-btn" id="subtabQuente">Quente</button>
+      <button class="subtab-btn" id="subtabManual">Manual</button>
     </div>
 
-    <div id="tendPanel">
+    <div id="tendPanel" class="stat-dark-wrap">
       <div class="card">
-        <select id="tendQtdSelect" class="qtd-pill">
-          <option value="5" selected>Últimos 5 concursos</option>
+        <select id="tendQtdSelect" class="qtd-pill" style="font-size:11.5px;padding:7px 26px 7px 30px;background-size:11px 11px, 9px 9px;background-position:11px center, right 11px center;">
+          <option value="5">Últimos 5 concursos</option>
           <option value="10">Últimos 10 concursos</option>
-          <option value="25">Últimos 25 concursos</option>
+          <option value="25" selected>Últimos 25 concursos</option>
           <option value="50">Últimos 50 concursos</option>
           <option value="100">Últimos 100 concursos</option>
         </select>
-        <button class="btn-confirm" id="tendAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">ATUALIZAR</button>
+        <button class="btn-confirm" id="tendAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
       </div>
       <div id="tendConteudo"></div>
     </div>
 
     <div id="falhaPanel" style="display:none;">
       <div class="card">
-        <select id="falhaQtdSelect" class="qtd-pill">
-          <option value="25">Últimos 25 concursos</option>
-          <option value="50" selected>Últimos 50 concursos</option>
-          <option value="100">Últimos 100 concursos</option>
-          <option value="200">Últimos 200 concursos</option>
-        </select>
-        <button class="btn-confirm" id="falhaAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">ATUALIZAR</button>
+        <label class="field-label" for="centroQtdInput">Analisar quantos últimos concursos?</label>
+        <input type="number" id="centroQtdInput" min="2" max="500" value="10" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
+        <button class="btn-confirm" id="falhaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
       </div>
       <div id="falhaConteudo"></div>
+    </div>
+
+    <div id="molduraPanel" style="display:none;">
+      <div class="card">
+        <label class="field-label" for="molduraQtdInput">Analisar quantos últimos concursos?</label>
+        <input type="number" id="molduraQtdInput" min="2" max="500" value="10" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
+        <button class="btn-confirm" id="molduraAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+      </div>
+      <div id="molduraConteudo"></div>
     </div>
 
     <div id="gerarPanel" style="display:none;">
       <div class="card">
         <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Analisa as dezenas com <strong>maior potencial de falhar</strong> (não repetir) no próximo concurso e monta grupos com elas.</div>
         <label class="field-label" for="gerarTamanhoSelect">Gerar</label>
-        <select id="gerarTamanhoSelect" class="qtd-pill" style="margin-bottom:12px;">
+        <select id="gerarTamanhoSelect" class="qtd-pill" style="margin-bottom:9px;font-size:11.5px;padding:7px 26px 7px 30px;background-size:11px 11px, 9px 9px;background-position:11px center, right 11px center;">
           <option value="2" selected>Duplas (2 dezenas)</option>
           <option value="3">Trios (3 dezenas)</option>
           <option value="4">Quadras (4 dezenas)</option>
@@ -1793,9 +2135,12 @@ document.addEventListener('selectstart', e=>{
           <option value="15">Conjunto de 15 dezenas</option>
         </select>
         <label class="field-label" for="gerarQtdInput">Baseado em quantos concursos (3 a 100)</label>
-        <input type="number" id="gerarQtdInput" min="3" max="100" value="10" inputmode="numeric">
-        <label class="field-label" for="gerarTopoSelect" style="margin-top:12px;">Usar quantas dezenas (as de maior potencial de falha)</label>
-        <select id="gerarTopoSelect" class="qtd-pill">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="number" id="gerarQtdInput" min="3" max="100" value="10" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:70px;padding:6px 8px;font-size:11.5px;">
+          <button type="button" id="gerarQtdAtualizarBtn" style="padding:6px 11px;border:none;border-radius:999px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:10.5px;cursor:pointer;"><span id="gerarQtdAtualizarIcon" style="display:inline-block;">🔄</span> Atualizar</button>
+        </div>
+        <label class="field-label" for="gerarTopoSelect" style="margin-top:9px;">Usar quantas dezenas (as de maior potencial de falha)</label>
+        <select id="gerarTopoSelect" class="qtd-pill" style="font-size:11.5px;padding:7px 26px 7px 30px;background-size:11px 11px, 9px 9px;background-position:11px center, right 11px center;">
           <option value="4">Top 4 dezenas</option>
           <option value="5">Top 5 dezenas</option>
           <option value="6" selected>Top 6 dezenas</option>
@@ -1804,7 +2149,8 @@ document.addEventListener('selectstart', e=>{
           <option value="12">Top 12 dezenas</option>
           <option value="15">Top 15 dezenas</option>
         </select>
-        <button class="btn-confirm" id="gerarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">GERAR DUPLAS</button>
+        <div id="gerarTopoPreview" style="margin-top:10px;"></div>
+        <button class="btn-confirm" id="gerarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">GERAR DUPLAS</button>
       </div>
       <div id="gerarConteudo"></div>
     </div>
@@ -1825,7 +2171,7 @@ document.addEventListener('selectstart', e=>{
           <option value="30">Últimos 30 concursos</option>
           <option value="50">Últimos 50 concursos</option>
         </select>
-        <button class="btn-confirm" id="trioAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">ATUALIZAR</button>
+        <button class="btn-confirm" id="trioAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
       </div>
       <div id="trioConteudo"></div>
     </div>
@@ -1853,7 +2199,7 @@ document.addEventListener('selectstart', e=>{
           <option value="30">Últimos 30 concursos</option>
           <option value="50">Últimos 50 concursos</option>
         </select>
-        <button class="btn-confirm" id="falhasAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">ATUALIZAR</button>
+        <button class="btn-confirm" id="falhasAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
       </div>
       <div id="falhasConteudo"></div>
     </div>
@@ -1877,9 +2223,32 @@ document.addEventListener('selectstart', e=>{
           <option value="12">Top 12 dezenas</option>
           <option value="15">Top 15 dezenas</option>
         </select>
-        <button class="btn-confirm" id="quenteAtualizarBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;">ATUALIZAR</button>
+        <button class="btn-confirm" id="quenteAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
       </div>
       <div id="quenteConteudo"></div>
+    </div>
+
+    <div id="manualPanel" style="display:none;">
+      <div class="card">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Digite de 1 a 9 dezenas à sua escolha. Com 1 dezena, calculamos o atraso dela sozinha; com 2 ou mais, calculamos o atraso combinado entre elas.</div>
+        <label class="field-label">Digite de 1 a 9 dezenas</label>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 14px;justify-content:center;">
+          <input type="text" id="manualDezena1" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+          <input type="text" id="manualDezena2" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+          <input type="text" id="manualDezena3" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+          <input type="text" id="manualDezena4" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+          <input type="text" id="manualDezena5" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+          <input type="text" id="manualDezena6" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+          <input type="text" id="manualDezena7" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+          <input type="text" id="manualDezena8" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+          <input type="text" id="manualDezena9" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
+        </div>
+        <div style="display:flex;gap:10px;margin-top:12px;">
+          <button class="btn-confirm" id="manualAtualizarBtn" style="flex:1;padding:6px;border-radius:8px;border:none;font-size:11px;">CALCULAR</button>
+          <button type="button" id="manualLimparBtn" style="flex:1;padding:6px;border-radius:8px;border:1.5px solid var(--violet);background:#fff;color:var(--violet-deep);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">LIMPAR</button>
+        </div>
+      </div>
+      <div id="manualConteudo"></div>
     </div>
   </div>
 </div>
@@ -1901,14 +2270,79 @@ document.addEventListener('selectstart', e=>{
     <h1 style="font-size:19px;" id="geradorFiltroTitulo">Loteria</h1>
   </header>
   <div style="padding:16px 16px 40px;">
-    <div class="card">
-      <label class="field-label" for="geradorFiltroQtd">Filtro de sorteio — analisar quantos concursos?</label>
-      <input type="number" id="geradorFiltroQtd" value="10" min="5" max="500" inputmode="numeric" style="width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:1.5px solid var(--violet);text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;margin:10px 0 14px;">
-      <button id="geradorFiltroGerarBtn" style="width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#4C1D95,#6D28D9);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">🎲 GERAR 50 JOGOS</button>
-    </div>
     <div class="card" id="geradorFiltroUltimoResultado" style="margin-bottom:16px;padding:13px;"></div>
-    <div class="spinner" id="geradorFiltroSpinner" style="display:none;">Calculando…</div>
-    <div id="geradorFiltroResultado"></div>
+    <div class="card" id="geradorFiltroAnalise" style="margin-bottom:16px;padding:13px;"></div>
+
+    <div class="gfc-tabs" id="geradorFiltroTabs" style="display:flex;gap:6px;margin-bottom:14px;">
+      <button type="button" class="gfc-tab-btn active" id="geradorFiltroTabConfig" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:#4C1D95;color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Palpites</button>
+      <button type="button" class="gfc-tab-btn" id="geradorFiltroTabJogos" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:#fff;color:#4C1D95;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Jogos gerados</button>
+    </div>
+
+    <div id="geradorFiltroTabPanelConfig">
+      <div class="gfc-dark-card" id="geradorFiltroConfigAvancada">
+        <div class="gfc-dark-title">Configurações avançadas</div>
+
+        <div class="gfc-dark-label">Número de dezenas por jogo</div>
+        <div class="gfc-dark-stepper-row">
+          <button type="button" class="gfc-dark-stepper-btn" id="gfcDezenasMenos">−</button>
+          <input type="number" inputmode="numeric" class="gfc-dark-value-input" id="gfcDezenasValor" value="15">
+          <button type="button" class="gfc-dark-stepper-btn plus" id="gfcDezenasMais">+</button>
+        </div>
+
+        <div class="gfc-dark-label">Repetidas do concurso anterior</div>
+        <div class="gfc-dark-stepper-row">
+          <button type="button" class="gfc-dark-stepper-btn" id="gfcRepMenos">−</button>
+          <input type="number" inputmode="numeric" class="gfc-dark-value-input" id="gfcRepValor" value="9">
+          <button type="button" class="gfc-dark-stepper-btn plus" id="gfcRepMais">+</button>
+        </div>
+
+        <div class="gfc-dark-label">Quantidade de jogos (1-5000)</div>
+        <div class="gfc-dark-stepper-row">
+          <button type="button" class="gfc-dark-stepper-btn" id="gfcQtdMenos">−</button>
+          <input type="number" inputmode="numeric" class="gfc-dark-value-input" id="gfcQtdValor" value="10">
+          <button type="button" class="gfc-dark-stepper-btn plus" id="gfcQtdMais">+</button>
+        </div>
+
+        <div class="gfc-dark-label">🛠️ Filtros personalizados</div>
+        <div class="gfc-dark-filtros">
+          <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroPares" placeholder=" ">
+            <span>Pares</span>
+          </div>
+          <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroImpares" placeholder=" ">
+            <span>Ímpares</span>
+          </div>
+          <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroPrimos" placeholder=" ">
+            <span>Primos</span>
+          </div>
+          <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroFib" placeholder=" ">
+            <span>Fibonacci</span>
+          </div>
+          <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroMoldura" placeholder=" ">
+            <span>Moldura</span>
+          </div>
+          <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroCentro" placeholder=" ">
+            <span>Centro</span>
+          </div>
+          <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroMult3" placeholder=" ">
+            <span>Múlt. de 3</span>
+          </div>
+        </div>
+
+        <button type="button" class="gfc-dark-btn" id="geradorFiltroGerarBtn"><span id="geradorFiltroGerarSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="geradorFiltroGerarLabel">Gerar jogos</span></button>
+      </div>
+    </div>
+
+    <div id="geradorFiltroTabPanelJogos" style="display:none;">
+      <div class="spinner" id="geradorFiltroSpinner" style="display:none;">Calculando…</div>
+      <div id="geradorFiltroResultado"></div>
+    </div>
   </div>
 </div>
 
@@ -1919,6 +2353,18 @@ const PRIMES = new Set([2,3,5,7,11,13,17,19,23]);
 const MOLDURA = new Set([1,2,3,4,5,6,10,11,15,16,20,21,22,23,24,25]);
 const RETRATO = new Set([7,8,9,12,13,14,17,18,19]);
 
+// liga/desliga a bolinha girando dentro de um botão "ATUALIZAR" enquanto ele carrega
+function setBtnLoading(btnId, loading, textoCarregando){
+  const btn = document.getElementById(btnId);
+  if(!btn) return;
+  if(loading){
+    if(btn.dataset.originalHtml === undefined) btn.dataset.originalHtml = btn.innerHTML;
+    btn.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span>${textoCarregando || 'ATUALIZANDO...'}`;
+  } else if(btn.dataset.originalHtml !== undefined){
+    btn.innerHTML = btn.dataset.originalHtml;
+  }
+}
+
 let selected = new Set();
 let fixedNums = new Set();
 let targetCount = 0;
@@ -1927,6 +2373,7 @@ let guaranteeLevel = 14;
 let lastGames = []; // for download
 let confResult = new Set(); // dezenas sorteadas marcadas no conferidor (reflete a aba ativa: Sortear ou Manual)
 let confResultSorteio = new Set(); // resultado guardado só da aba Sortear
+let confResultSorteio2 = new Set(); // resultado guardado só da 2ª aba Sortear
 let confResultManual = new Set(); // resultado guardado só da aba Manual
 let confResultOficial = new Set(); // resultado guardado só da aba Oficial (vindo da API da Caixa)
 let oficialCarregando = false; // true enquanto uma busca de resultado oficial está em andamento
@@ -2079,7 +2526,7 @@ function recalcularConfManual(){
 
 // sub-abas: Sortear (automático) x Manual (bolinhas)
 const CONF_SUBTABS = [
-  {btn:'subtabConfSorteio', panel:'confSorteioPanel'},
+  {btn:'subtabConfSorteio2', panel:'confSorteioPanel2'},
   {btn:'subtabConfManual', panel:'confManualPanel'},
   {btn:'subtabConfOficial', panel:'confOficialPanel'}
 ];
@@ -2093,7 +2540,7 @@ function ativarConfSubtab(idAtivo){
   // arrastar o resultado sorteado automaticamente (ou o oficial) pras outras abas
   if(idAtivo === 'subtabConfManual') confResult = confResultManual;
   else if(idAtivo === 'subtabConfOficial') confResult = confResultOficial;
-  else confResult = confResultSorteio;
+  else confResult = confResultSorteio2;
   conferenceDone = false;
   confResultBox.style.display='none';
   refreshConfUI();
@@ -2105,8 +2552,9 @@ function ativarConfSubtab(idAtivo){
     buscarResultadoOficial(null);
   }
 }
-document.getElementById('subtabConfSorteio').addEventListener('click', ()=>{
-  ativarConfSubtab('subtabConfSorteio');
+document.getElementById('subtabConfSorteio2').addEventListener('click', ()=>{
+  ativarConfSubtab('subtabConfSorteio2');
+  iniciarSorteio2();
 });
 document.getElementById('subtabConfManual').addEventListener('click', ()=>{
   ativarConfSubtab('subtabConfManual');
@@ -2204,24 +2652,32 @@ document.getElementById('btnOficialProximo').addEventListener('click', ()=>{
 });
 
 function syncQtdSorteio(){
-  const qtdInput = document.getElementById('qtdSorteio');
-  if(!qtdInput) return;
   const limite = Math.min(CONF_MAX, selected.size || CONF_MAX);
-  qtdInput.max = limite;
-  let v = parseInt(qtdInput.value, 10);
-  if(isNaN(v) || v < 1) v = 1;
-  if(v > limite) v = limite;
-  qtdInput.value = v;
+  ['qtdSorteio','qtdSorteio2'].forEach(id=>{
+    const qtdInput = document.getElementById(id);
+    if(!qtdInput) return;
+    qtdInput.max = limite;
+    let v = parseInt(qtdInput.value, 10);
+    if(isNaN(v) || v < 1) v = 1;
+    if(v > limite) v = limite;
+    qtdInput.value = v;
+  });
 }
 
+// paleta de cores no estilo "bola de bilhar" pras bolinhas da lista de dezenas sorteadas
+const CORES_BOLINHA_LISTA = [
+  'radial-gradient(circle at 32% 24%, #ffffff 0%, #A6F09E 12%, #33B233 50%, #146614 100%)'
+];
 function renderConfLista(){
   if(confResult.size === 0){
     confListaEl.innerHTML = '<span style="font-size:12.5px;color:var(--muted,#888);">Nenhuma dezena sorteada ainda.</span>';
     return;
   }
   const ordenadas = Array.from(confResult).sort((a,b)=>a-b);
-  confListaEl.innerHTML = ordenadas.map(n=>`
-    <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:linear-gradient(160deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:12px;">${n.toString().padStart(2,'0')}</span>
+  confListaEl.innerHTML = ordenadas.map((n,i)=>`
+    <span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:${CORES_BOLINHA_LISTA[i % CORES_BOLINHA_LISTA.length]};box-shadow:0 3px 6px rgba(0,0,0,.25), inset 0 -3px 5px rgba(0,0,0,.15), inset 0 3px 4px rgba(255,255,255,.5);">
+      <span style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:13px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);">${n.toString().padStart(2,'0')}</span>
+    </span>
   `).join('');
 }
 
@@ -2268,12 +2724,14 @@ function pintarDezenasEscolhidas(){
 function resetConferidor(){
   confResult = new Set();
   confResultSorteio = new Set();
+  confResultSorteio2 = new Set();
   confResultManual = new Set();
   confResultOficial = new Set();
   manualBallsOn = new Set();
   conferenceDone = false;
   confResultBox.style.display='none';
   limparCaixinhasManuais();
+  resetarSorteio2UI();
   setOficialInfo('');
   oficialConcursoAtual = null;
   const oficialInput = document.getElementById('oficialConcursoInput');
@@ -2287,7 +2745,92 @@ document.getElementById('btnLimparConf').addEventListener('click', ()=>{
   renderGameCards();
 });
 
-document.getElementById('btnSorteioAuto').addEventListener('click', ()=>{
+// ---------- 2ª aba "Sortear": sorteio animado bola a bola ----------
+let sorteio2Pool = [];
+let sorteio2Qtd = 0;
+let sorteio2Drawn = [];
+let sorteio2Animando = false;
+
+// --- sons do sorteio (gerados via Web Audio API, sem precisar de arquivo) ---
+let sorteioAudioCtx = null;
+function getSorteioAudioCtx(){
+  if(!sorteioAudioCtx){
+    try{ sorteioAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; }
+  }
+  if(sorteioAudioCtx.state === 'suspended') sorteioAudioCtx.resume();
+  return sorteioAudioCtx;
+}
+function tocarSomTick(){
+  const ctx = getSorteioAudioCtx();
+  if(!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'square';
+  osc.frequency.value = 520;
+  gain.gain.setValueAtTime(0.06, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.05);
+}
+function tocarSomBolaSorteada(){
+  const ctx = getSorteioAudioCtx();
+  if(!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(660, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(990, ctx.currentTime + 0.12);
+  gain.gain.setValueAtTime(0.001, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.14, ctx.currentTime + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.35);
+}
+function tocarSomSorteioCompleto(){
+  const ctx = getSorteioAudioCtx();
+  if(!ctx) return;
+  [523.25, 659.25, 783.99].forEach((freq, i)=>{
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    const start = ctx.currentTime + i * 0.11;
+    gain.gain.setValueAtTime(0.001, start);
+    gain.gain.exponentialRampToValueAtTime(0.16, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.3);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + 0.3);
+  });
+}
+
+function atualizarUISorteio2(){
+  const restante = sorteio2Qtd - sorteio2Drawn.length;
+  const progresso = document.getElementById('sorteio2Progresso');
+  const btnBola = document.getElementById('btnSorteioBola2');
+  const btnRestantes = document.getElementById('btnSorteioRestantes2');
+  if(progresso) progresso.textContent = `Sorteando (${sorteio2Drawn.length}/${sorteio2Qtd})`;
+  if(restante <= 0){
+    if(btnBola) btnBola.textContent = 'NOVO SORTEIO';
+    if(btnRestantes) btnRestantes.textContent = 'NOVO SORTEIO';
+  } else {
+    if(btnBola) btnBola.textContent = `BOLA ${sorteio2Drawn.length+1}`;
+    if(btnRestantes) btnRestantes.textContent = `SORTEAR RESTANTES (${restante})`;
+  }
+}
+
+function mostrarToastSorteio2Completo(){
+  const toast = document.getElementById('sorteio2Toast');
+  if(toast) toast.style.display = 'block';
+}
+
+function iniciarSorteio2(){
+  corBolaSorteioIndex = 0;
   // usa as dezenas escolhidas nesta sessão (selected) OU, se estiverem vazias
   // (ex: jogo aberto do histórico/salvos), usa as dezenas que aparecem nos jogos gerados
   const poolBase = selected.size > 0 ? selected : new Set(lastGames.flat());
@@ -2295,45 +2838,268 @@ document.getElementById('btnSorteioAuto').addEventListener('click', ()=>{
     alert('Escolha as dezenas na tela inicial antes de sortear.');
     return;
   }
-  const qtdInput = document.getElementById('qtdSorteio');
-  let qtd = parseInt(qtdInput.value, 10);
-  if(isNaN(qtd) || qtd < 1) qtd = 1;
-  const limite = Math.min(CONF_MAX, poolBase.size);
-  if(qtd > limite) qtd = limite;
-  qtdInput.value = qtd;
 
-  const manualAtual = confResultManual; // dezenas marcadas no conferidor manual (só pra evitar sortear o mesmo grupo)
+  const qtdInput2 = document.getElementById('qtdSorteio2');
+  let qtd2 = parseInt(qtdInput2.value, 10);
+  if(isNaN(qtd2) || qtd2 < 1) qtd2 = 1;
+  const limite2 = Math.min(CONF_MAX, poolBase.size);
+  if(qtd2 > limite2) qtd2 = limite2;
+  qtdInput2.value = qtd2;
 
-  function sortearUmaVez(){
-    const pool = Array.from(poolBase);
-    for(let i=pool.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
-    }
-    return pool.slice(0, qtd);
+  sorteio2Pool = Array.from(poolBase);
+  for(let i=sorteio2Pool.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [sorteio2Pool[i], sorteio2Pool[j]] = [sorteio2Pool[j], sorteio2Pool[i]];
   }
+  sorteio2Qtd = qtd2;
+  sorteio2Drawn = [];
+  confResultSorteio2 = new Set();
+  confResult = confResultSorteio2; // 2ª aba Sortear está ativa quando isso roda — não mexe nas outras abas
+  conferenceDone = false;
+  confResultBox.style.display = 'none';
 
-  function igualAoManual(arr){
-    if(arr.length !== manualAtual.size) return false;
-    return arr.every(n=>manualAtual.has(n));
+  const bolaEl = document.getElementById('sorteio2Bola');
+  const bolaNumEl = document.getElementById('sorteio2BolaNum');
+  if(bolaNumEl) bolaNumEl.textContent = '–';
+  if(bolaEl){
+    bolaEl.style.background = 'radial-gradient(circle at 32% 26%, #ffffff 0%, #EDEDEF 22%, #CBCBCF 55%, #9C9CA2 100%)';
+    bolaEl.style.boxShadow = '0 10px 18px rgba(0,0,0,.2), inset 0 -8px 14px rgba(0,0,0,.1), inset 0 6px 10px rgba(255,255,255,.6)';
   }
+  const toast = document.getElementById('sorteio2Toast');
+  if(toast) toast.style.display = 'none';
+  const qtdRef = document.getElementById('sorteio2QtdBadge');
+  if(qtdRef) qtdRef.value = qtd2;
 
-  let sorteados = sortearUmaVez();
-  let tentativas = 1;
-  const maxTentativas = 200;
-  // se o resultado saiu idêntico ao que está marcado no conferidor manual, tenta de novo
-  while(manualAtual.size > 0 && igualAoManual(sorteados) && tentativas < maxTentativas){
-    sorteados = sortearUmaVez();
-    tentativas++;
-  }
-
-  confResultSorteio = new Set(sorteados);
-  confResult = confResultSorteio; // aba Sortear está ativa quando isso roda — não mexe no resultado da aba Manual
-  conferenceDone = false; // a faixa de premiação e a lista filtrada só aparecem ao apertar CONFERIR
-  confResultBox.style.display='none';
+  document.getElementById('sorteio2Setup').style.display = 'none';
+  document.getElementById('sorteio2Anim').style.display = 'block';
+  atualizarUISorteio2();
   refreshConfUI();
   renderGameCards();
-  pintarDezenasEscolhidas(); // as bolinhas de "suas dezenas escolhidas" pintam na hora, mesmo sem confirmar
+  pintarDezenasEscolhidas();
+}
+
+function finalizarBolaSorteio2(numero, onDepoisDeAnimar){
+  const bolaEl = document.getElementById('sorteio2Bola');
+  const bolaNumEl = document.getElementById('sorteio2BolaNum');
+  if(bolaNumEl) bolaNumEl.textContent = numero.toString().padStart(2,'0');
+  if(bolaEl){
+    bolaEl.classList.remove('bola-animando');
+    void bolaEl.offsetWidth; // força reiniciar a animação mesmo em bolas seguidas
+    bolaEl.classList.add('bola-animando');
+  }
+  tocarSomBolaSorteada();
+  sorteio2Drawn.push(numero);
+  confResultSorteio2 = new Set(sorteio2Drawn);
+  confResult = confResultSorteio2;
+  atualizarUISorteio2();
+  refreshConfUI();
+  renderGameCards();
+  pintarDezenasEscolhidas();
+  sorteio2Animando = false;
+  if(sorteio2Drawn.length >= sorteio2Qtd){
+    mostrarToastSorteio2Completo();
+    setTimeout(tocarSomSorteioCompleto, 150);
+  }
+  if(typeof onDepoisDeAnimar === 'function') onDepoisDeAnimar();
+}
+
+// paleta de cores que a bolinha do sorteio vai passando: uma cor nova a cada bola sorteada
+// (estilo esfera 3D suave: brilho definido no canto superior esquerdo, degradê macio até a cor mais forte na borda)
+const SOMBRA_BOLA_SORTEIO = '0 10px 18px rgba(0,0,0,.22), inset 0 -8px 14px rgba(0,0,0,.14), inset 0 6px 10px rgba(255,255,255,.55)';
+const CORES_BOLA_SORTEIO = [
+  'radial-gradient(circle at 32% 24%, #ffffff 0%, #FF9E90 12%, #F4402E 50%, #B4160B 100%)'
+];
+let corBolaSorteioIndex = 0;
+function sortearProximaBola2(onDepoisDeAnimar){
+  if(sorteio2Animando || sorteio2Drawn.length >= sorteio2Qtd) return;
+  sorteio2Animando = true;
+  const bolaEl = document.getElementById('sorteio2Bola');
+  const toast = document.getElementById('sorteio2Toast');
+  if(toast) toast.style.display = 'none';
+  if(bolaEl){
+    bolaEl.style.background = CORES_BOLA_SORTEIO[corBolaSorteioIndex % CORES_BOLA_SORTEIO.length];
+    bolaEl.style.boxShadow = SOMBRA_BOLA_SORTEIO;
+    corBolaSorteioIndex++;
+  }
+  const numeroFinal = sorteio2Pool[sorteio2Drawn.length];
+  let ticks = 0;
+  const maxTicks = 10;
+  const interval = setInterval(()=>{
+    if(bolaEl){
+      const r = sorteio2Pool[Math.floor(Math.random()*sorteio2Pool.length)];
+      const bolaNumEl = document.getElementById('sorteio2BolaNum');
+      if(bolaNumEl) bolaNumEl.textContent = r.toString().padStart(2,'0');
+    }
+    tocarSomTick();
+    ticks++;
+    if(ticks >= maxTicks){
+      clearInterval(interval);
+      finalizarBolaSorteio2(numeroFinal, onDepoisDeAnimar);
+    }
+  }, 70);
+}
+
+// "SORTEAR RESTANTES": sorteia bola por bola, uma atrás da outra, até completar
+function sortearRestantes2(){
+  if(sorteio2Animando || sorteio2Drawn.length >= sorteio2Qtd) return;
+  function proximaDaFila(){
+    if(sorteio2Drawn.length >= sorteio2Qtd) return;
+    sortearProximaBola2(()=>{
+      setTimeout(proximaDaFila, 180);
+    });
+  }
+  proximaDaFila();
+}
+
+function resetarSorteio2UI(){
+  const animEl = document.getElementById('sorteio2Anim');
+  const jaEstavaNaAnimacao = animEl && animEl.style.display === 'block';
+
+  const toast = document.getElementById('sorteio2Toast');
+  if(toast) toast.style.display = 'none';
+  const bolaEl = document.getElementById('sorteio2Bola');
+  const bolaNumEl = document.getElementById('sorteio2BolaNum');
+  if(bolaNumEl) bolaNumEl.textContent = '–';
+  if(bolaEl){
+    bolaEl.style.background = 'radial-gradient(circle at 32% 26%, #ffffff 0%, #EDEDEF 22%, #CBCBCF 55%, #9C9CA2 100%)';
+    bolaEl.style.boxShadow = '0 10px 18px rgba(0,0,0,.2), inset 0 -8px 14px rgba(0,0,0,.1), inset 0 6px 10px rgba(255,255,255,.6)';
+  }
+  sorteio2Drawn = [];
+  // apaga o resultado do sorteio antigo desta aba
+  confResultSorteio2 = new Set();
+  confResult = confResultSorteio2;
+  conferenceDone = false;
+  confResultBox.style.display = 'none';
+
+  if(jaEstavaNaAnimacao){
+    // LIMPAR/estado já em andamento: fica na mesma tela, só zera o progresso
+    const poolBase = selected.size > 0 ? selected : new Set(lastGames.flat());
+    if(poolBase.size > 0){
+      const limite = Math.min(CONF_MAX, poolBase.size);
+      if(!sorteio2Qtd) sorteio2Qtd = parseInt(document.getElementById('qtdSorteio2').value, 10) || 1;
+      sorteio2Qtd = Math.min(sorteio2Qtd, limite);
+      sorteio2Pool = Array.from(poolBase);
+      for(let i=sorteio2Pool.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [sorteio2Pool[i], sorteio2Pool[j]] = [sorteio2Pool[j], sorteio2Pool[i]];
+      }
+      const qtdBadge = document.getElementById('sorteio2QtdBadge');
+      if(qtdBadge) qtdBadge.value = sorteio2Qtd;
+    } else {
+      sorteio2Pool = [];
+      sorteio2Qtd = 0;
+    }
+    atualizarUISorteio2();
+  } else {
+    // ainda não tinha começado: mantém a tela de configuração
+    sorteio2Pool = [];
+    sorteio2Qtd = 0;
+  }
+
+  refreshConfUI();
+  renderGameCards();
+  pintarDezenasEscolhidas();
+}
+
+// "NOVO SORTEIO": reinicia o sorteio (mesma quantidade) SEM sair da tela de animação
+function novoSorteio2(){
+  corBolaSorteioIndex = 0;
+  const poolBase = selected.size > 0 ? selected : new Set(lastGames.flat());
+  if(poolBase.size === 0){
+    alert('Escolha as dezenas na tela inicial antes de sortear.');
+    return;
+  }
+  const qtdAnterior = sorteio2Qtd || parseInt(document.getElementById('qtdSorteio2').value, 10) || 1;
+  const limite = Math.min(CONF_MAX, poolBase.size);
+  sorteio2Qtd = Math.min(qtdAnterior, limite);
+
+  sorteio2Pool = Array.from(poolBase);
+  for(let i=sorteio2Pool.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [sorteio2Pool[i], sorteio2Pool[j]] = [sorteio2Pool[j], sorteio2Pool[i]];
+  }
+  sorteio2Drawn = [];
+  confResultSorteio2 = new Set();
+  confResult = confResultSorteio2;
+  conferenceDone = false;
+  confResultBox.style.display = 'none';
+
+  const bolaEl = document.getElementById('sorteio2Bola');
+  const bolaNumEl = document.getElementById('sorteio2BolaNum');
+  if(bolaNumEl) bolaNumEl.textContent = '–';
+  if(bolaEl){
+    bolaEl.style.background = 'radial-gradient(circle at 32% 26%, #ffffff 0%, #EDEDEF 22%, #CBCBCF 55%, #9C9CA2 100%)';
+    bolaEl.style.boxShadow = '0 10px 18px rgba(0,0,0,.2), inset 0 -8px 14px rgba(0,0,0,.1), inset 0 6px 10px rgba(255,255,255,.6)';
+  }
+  const toast = document.getElementById('sorteio2Toast');
+  if(toast) toast.style.display = 'none';
+  const qtdBadge = document.getElementById('sorteio2QtdBadge');
+  if(qtdBadge) qtdBadge.value = sorteio2Qtd;
+  const qtdInput = document.getElementById('qtdSorteio2');
+  if(qtdInput) qtdInput.value = sorteio2Qtd;
+
+  atualizarUISorteio2();
+  refreshConfUI();
+  renderGameCards();
+  pintarDezenasEscolhidas();
+}
+
+document.getElementById('btnSorteioIniciar2').addEventListener('click', iniciarSorteio2);
+
+document.getElementById('sorteio2QtdBadge').addEventListener('input', (e)=>{
+  if(sorteio2Animando) return; // não muda a quantidade no meio de uma animação em andamento
+  const poolBase = selected.size > 0 ? selected.size : new Set(lastGames.flat()).size;
+  const limiteMax = Math.min(CONF_MAX, poolBase || CONF_MAX);
+  let v = parseInt(e.target.value, 10);
+  if(isNaN(v)) return;
+  if(v < sorteio2Drawn.length) v = sorteio2Drawn.length || 1; // não pode ficar menor que o já sorteado
+  if(v > limiteMax) v = limiteMax;
+  if(v < 1) v = 1;
+  sorteio2Qtd = v;
+  atualizarUISorteio2();
+});
+// tenta esconder a barra de endereço do navegador junto com o teclado,
+// forçando um pequeno scroll (funciona na maioria dos navegadores mobile Android)
+function esconderBarraDoNavegador(){
+  window.scrollTo(0, 1);
+  setTimeout(()=> window.scrollTo(0, 1), 50);
+  setTimeout(()=> window.scrollTo(0, 1), 300);
+}
+['sorteio2QtdBadge','qtdSorteio2'].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('focus', esconderBarraDoNavegador);
+});
+
+document.getElementById('sorteio2QtdBadge').addEventListener('blur', (e)=>{
+  e.target.value = sorteio2Qtd;
+});
+document.getElementById('sorteio2QtdBadge').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    e.target.blur();
+  }
+});
+document.getElementById('qtdSorteio2').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    e.target.blur();
+  }
+});
+
+document.getElementById('btnSorteioBola2').addEventListener('click', ()=>{
+  if(sorteio2Drawn.length >= sorteio2Qtd){
+    novoSorteio2();
+    return;
+  }
+  sortearProximaBola2();
+});
+
+document.getElementById('btnSorteioRestantes2').addEventListener('click', ()=>{
+  if(sorteio2Drawn.length >= sorteio2Qtd){
+    novoSorteio2();
+    return;
+  }
+  sortearRestantes2();
 });
 
 function atualizarConferencia(){
@@ -2381,9 +3147,19 @@ function atualizarConferencia(){
 }
 
 btnConferir.addEventListener('click', ()=>{
-  conferenceDone = true;
-  atualizarConferencia();
-  confResultBox.scrollIntoView({behavior:'smooth', block:'nearest'});
+  const spinner = document.getElementById('btnConferirSpinner');
+  const label = document.getElementById('btnConferirLabel');
+  spinner.style.display = 'inline-block';
+  label.textContent = 'CONFERINDO...';
+  btnConferir.disabled = true;
+  setTimeout(()=>{
+    conferenceDone = true;
+    atualizarConferencia();
+    confResultBox.scrollIntoView({behavior:'smooth', block:'nearest'});
+    spinner.style.display = 'none';
+    label.textContent = 'CONFERIR';
+    btnConferir.disabled = false;
+  }, 50);
 });
 
 function toggleBall(n, el){
@@ -2422,7 +3198,7 @@ document.getElementById('btnLimparSelecao').addEventListener('click', ()=>{
   ballGrid.querySelectorAll('.ball').forEach(b=>b.classList.remove('on','fixed'));
   targetCount = 0;
   slider.value = 0;
-  sliderHint.textContent = '0 dezenas';
+  sliderHintInput.value = 0;
   refreshUI();
 });
 
@@ -2640,7 +3416,7 @@ async function carregarTendencia(gameParam){
   const qtd = qtdEl ? parseInt(qtdEl.value,10) : 25;
   const cont = document.getElementById('tendConteudo');
   const btn = document.getElementById('tendAtualizarBtn');
-  if(btn) btn.disabled = true;
+  if(btn){ btn.disabled = true; setBtnLoading('tendAtualizarBtn', true); }
   if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
   const min = game.range.min, max = game.range.max;
   try{
@@ -2689,33 +3465,244 @@ async function carregarTendencia(gameParam){
 
     tendCarregouUmaVez = true;
     tendCacheCarregou[game.slug] = true;
-    renderTendencia(linhas, total, numeroUltimo);
+    renderTendencia(validos, min, max, total, numeroUltimo, presenca, atraso);
   }catch(e){
     console.error('carregarTendencia falhou:', e);
     if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
   }finally{
-    if(btn) btn.disabled = false;
+    if(btn){ btn.disabled = false; setBtnLoading('tendAtualizarBtn', false); }
   }
 }
 
-function renderTendencia(linhas, total, numeroUltimo){
+function isPrimoNum(n){
+  if(n < 2) return false;
+  for(let i=2; i*i<=n; i++){ if(n % i === 0) return false; }
+  return true;
+}
+
+function renderTendencia(validos, min, max, total, numeroUltimo, presenca, atraso){
   const cont = document.getElementById('tendConteudo');
-  const rows = linhas.map((l,i)=>`
-    <div class="tend-row${i===0 ? ' tend-top1':''}">
-      <div class="tend-ball">${l.n.toString().padStart(2,'0')}</div>
-      <div class="tend-info">
-        <div class="tend-pct">${l.pct.toFixed(1)}% de falha</div>
-        <div class="tend-bar-bg"><div class="tend-bar-fill" style="width:${l.pct}%"></div></div>
-        <div class="tend-sub">Saiu em ${l.presenca} de ${total} concursos · sem sair há ${l.atraso} concurso${l.atraso===1?'':'s'}</div>
-      </div>
-    </div>`).join('');
+  if(!cont) return;
+  if(!validos || !validos.length){
+    cont.innerHTML = `<div class="res-error">Sem dados suficientes para calcular as estatísticas.</div>`;
+    return;
+  }
+
+  const draws = validos.map(v => (v.dezenas||[]).map(d=>parseInt(d,10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b));
+  const qtdSorteada = draws[0] ? draws[0].length : 0;
+
+  const media = arr => arr.length ? arr.reduce((a,b)=>a+b,0) / arr.length : 0;
+  const desvio = (arr, m) => arr.length < 2 ? 0 : Math.sqrt(arr.reduce((a,b)=>a+(b-m)*(b-m),0) / arr.length);
+  const pct1 = (v,t) => t>0 ? (v/t*100) : 0;
+  const f1 = v => v.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+
+  function linhaBarra(label, count, totalRef, escala, destacar){
+    const p = pct1(count, totalRef);
+    const largura = escala ? Math.min(100, p*escala) : p;
+    const classeLinha = destacar ? ' stat-line-highlight' : '';
+    const classeBarra = destacar ? ' stat-bar-fill-highlight' : '';
+    return `<div class="stat-line${classeLinha}">${label}: ${count}x (${f1(p)}%)</div><div class="stat-bar-bg"><div class="stat-bar-fill${classeBarra}" style="width:${largura}%"></div></div>`;
+  }
+
+  // 1) Análise de repetição (dezenas repetidas em relação ao concurso imediatamente anterior)
+  const repCounts = [];
+  for(let i=0; i<draws.length-1; i++){
+    const atualSet = new Set(draws[i]);
+    let rep = 0;
+    draws[i+1].forEach(n=>{ if(atualSet.has(n)) rep++; });
+    repCounts.push(rep);
+  }
+  const repMedia = media(repCounts);
+  const repDist = {};
+  for(let k=0;k<=qtdSorteada;k++) repDist[k]=0;
+  repCounts.forEach(r=> repDist[r] = (repDist[r]||0)+1);
+  const repRows = Object.keys(repDist).map(Number).sort((a,b)=>a-b)
+    .map(k => linhaBarra(`${k} repetidas`, repDist[k], repCounts.length, undefined, repDist[k] > 0)).join('');
+
+  // 2) Pares e ímpares
+  const paresArr = draws.map(d => d.filter(n=>n%2===0).length);
+  const paresMedia = media(paresArr);
+  const imparesMedia = qtdSorteada - paresMedia;
+  const paresStd = desvio(paresArr, paresMedia);
+  const paresRecMin = Math.max(0, Math.round(paresMedia-paresStd));
+  const paresRecMax = Math.min(qtdSorteada, Math.round(paresMedia+paresStd));
+  const paresDist = {};
+  paresArr.forEach(p=> paresDist[p] = (paresDist[p]||0)+1);
+  const paresRows = Object.keys(paresDist).map(Number).sort((a,b)=>a-b)
+    .map(k => linhaBarra(`${k} pares`, paresDist[k], paresArr.length)).join('');
+
+  // 3) Números primos
+  const primosArr = draws.map(d => d.filter(isPrimoNum).length);
+  const primosMedia = media(primosArr);
+  const primosStd = desvio(primosArr, primosMedia);
+  const primosRecMin = Math.max(0, Math.round(primosMedia-primosStd));
+  const primosRecMax = Math.min(qtdSorteada, Math.round(primosMedia+primosStd));
+  const primosDist = {};
+  primosArr.forEach(p=> primosDist[p] = (primosDist[p]||0)+1);
+  const primosRows = Object.keys(primosDist).map(Number).sort((a,b)=>a-b)
+    .map(k => linhaBarra(`${k} primos`, primosDist[k], primosArr.length)).join('');
+
+  // 4) Análise de somas
+  const somasArr = draws.map(d => d.reduce((a,b)=>a+b,0));
+  const somaMin = Math.min(...somasArr);
+  const somaMax = Math.max(...somasArr);
+  const somaMedia = media(somasArr);
+  const somaStd = desvio(somasArr, somaMedia);
+  const somaRecMin = Math.round(somaMedia-somaStd);
+  const somaRecMax = Math.round(somaMedia+somaStd);
+  const somaDist = {};
+  somasArr.forEach(s=>{ const b = Math.floor(s/10)*10; somaDist[b] = (somaDist[b]||0)+1; });
+  const somaRows = Object.keys(somaDist).map(Number).sort((a,b)=>a-b)
+    .map(b => linhaBarra(`${b}-${b+9}`, somaDist[b], somasArr.length)).join('');
+
+  // 5) Mais/menos atrasados
+  const numerosList = [];
+  for(let n=min;n<=max;n++) numerosList.push(n);
+  const atrasoMedio = media(numerosList.map(n=>atraso[n]));
+  const maisAtrasados = numerosList.slice().sort((a,b)=> atraso[b]-atraso[a] || a-b).slice(0,5);
+  const menosAtrasados = numerosList.slice().sort((a,b)=> atraso[a]-atraso[b] || a-b).slice(0,5);
+  const linhaAtraso = n => `<div class="stat-line">${n.toString().padStart(2,'0')}: ${atraso[n]} concurso${atraso[n]===1?'':'s'}</div>`;
+
+  // 6) Mais/menos frequentes
+  const maisFrequentes = numerosList.slice().sort((a,b)=> presenca[b]-presenca[a] || a-b).slice(0,5);
+  const menosFrequentes = numerosList.slice().sort((a,b)=> presenca[a]-presenca[b] || a-b).slice(0,5);
+  const linhaFreq = n => `<div class="stat-line">${n.toString().padStart(2,'0')}: ${presenca[n]}x (${f1(pct1(presenca[n], total))}%)</div>`;
+
+  // 7) Sequências (maior sequência de dezenas consecutivas em cada concurso)
+  function maiorSequencia(nums){
+    let melhor=1, atualSeq=1;
+    for(let i=1;i<nums.length;i++){
+      if(nums[i] === nums[i-1]+1){ atualSeq++; if(atualSeq>melhor) melhor=atualSeq; }
+      else atualSeq=1;
+    }
+    return nums.length ? melhor : 0;
+  }
+  const seqArr = draws.map(maiorSequencia);
+  const seqMedia = media(seqArr);
+  const seqDist = {};
+  seqArr.forEach(s=> seqDist[s] = (seqDist[s]||0)+1);
+  const seqRows = Object.keys(seqDist).map(Number).sort((a,b)=>a-b)
+    .map(k => linhaBarra(`Sequência de ${k}`, seqDist[k], seqArr.length)).join('');
+
+  // 8) Distribuição por faixas
+  let faixas;
+  if(min===1 && max===25){
+    faixas = [{ini:1,fim:9},{ini:10,fim:19},{ini:20,fim:25}];
+  } else {
+    const tam = Math.ceil((max-min+1)/3);
+    faixas = [
+      {ini:min, fim:Math.min(max, min+tam-1)},
+      {ini:min+tam, fim:Math.min(max, min+2*tam-1)},
+      {ini:min+2*tam, fim:max},
+    ];
+  }
+  const faixasStats = faixas.map(f=>{
+    const contagens = draws.map(d => d.filter(n=> n>=f.ini && n<=f.fim).length);
+    const m = media(contagens);
+    const s = desvio(contagens, m);
+    const tamFaixa = f.fim-f.ini+1;
+    return {...f, media:m, recMin:Math.max(0,Math.round(m-s)), recMax:Math.min(tamFaixa,Math.round(m+s))};
+  });
+
+  // 9) Finais mais comuns
+  const finaisCount = new Array(10).fill(0);
+  let totalOcorrencias = 0;
+  draws.forEach(d => d.forEach(n=>{ finaisCount[n%10]++; totalOcorrencias++; }));
+  const finaisOrdenados = finaisCount.map((c,i)=>({final:i,count:c})).sort((a,b)=> b.count-a.count);
+  const finaisMaxPct = pct1(finaisOrdenados[0].count, totalOcorrencias) || 1;
+  const finaisRows = finaisOrdenados.map(f=>{
+    const p = pct1(f.count, totalOcorrencias);
+    const largura = Math.min(100, (p/finaisMaxPct)*100);
+    return `<div class="stat-line">Final ${f.final}: ${f.count}x (${f1(p)}%)</div><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${largura}%"></div></div>`;
+  }).join('');
+
+  // 10) Melhores padrões
+  const primosHits = primosArr.filter(p=> p>=primosRecMin && p<=primosRecMax).length;
+  const paresHits = paresArr.filter(p=> p>=paresRecMin && p<=paresRecMax).length;
+  const somaHits = somasArr.filter(s=> s>=somaRecMin && s<=somaRecMax).length;
+  const padroes = [
+    {desc:`${primosRecMin}..${primosRecMax} números primos`, hits:primosHits},
+    {desc:`${paresRecMin}..${paresRecMax} pares e ${qtdSorteada-paresRecMax}..${qtdSorteada-paresRecMin} ímpares`, hits:paresHits},
+    {desc:`Soma entre ${somaRecMin} e ${somaRecMax}`, hits:somaHits},
+  ].sort((a,b)=> b.hits-a.hits);
+  const padroesRows = padroes.map((p,i)=> `<div class="stat-line" style="margin-bottom:8px;"><strong>${i+1}.</strong> ${p.desc}<br><span style="color:#2563EB;">${p.hits} vezes (${f1(pct1(p.hits,total))}%)</span></div>`).join('');
 
   cont.innerHTML = `
-    <div class="note" style="margin:14px 0;">
-      Com base nos últimos <strong>${total}</strong> concursos (até o Nº ${numeroUltimo}), ordenado da dezena que <strong>mais deixou de sair</strong> para a que menos deixou.<br>
-      <span style="font-size:11.5px;">Cada sorteio é independente — isso é apenas estatística histórica, não é garantia de resultado futuro.</span>
+    <div class="stat-note-dark">Baseado nos últimos <strong style="color:#1D4ED8;">${total}</strong> concursos (até o Nº ${numeroUltimo}). Cada sorteio é independente — isso é apenas estatística histórica, não é garantia de resultado futuro.</div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">🔄 Análise de repetição</div>
+      <div class="stat-line">Média de repetição: ${f1(repMedia)}</div>
+      <div class="stat-sub-title">Distribuição:</div>
+      ${repRows}
     </div>
-    ${rows}`;
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">⚖️ Pares e ímpares</div>
+      <div class="stat-line">Média de pares: ${f1(paresMedia)}</div>
+      <div class="stat-line">Média de ímpares: ${f1(imparesMedia)}</div>
+      <div class="stat-line">Faixa recomendada: ${paresRecMin}..${paresRecMax} pares</div>
+      <div class="stat-sub-title">Distribuição:</div>
+      ${paresRows}
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">🔢 Números primos</div>
+      <div class="stat-line">Média de primos: ${f1(primosMedia)}</div>
+      <div class="stat-line">Faixa recomendada: ${primosRecMin}..${primosRecMax} primos</div>
+      <div class="stat-sub-title">Distribuição:</div>
+      ${primosRows}
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">➕ Análise de somas</div>
+      <div class="stat-line">Soma mínima: ${somaMin}</div>
+      <div class="stat-line">Soma máxima: ${somaMax}</div>
+      <div class="stat-line">Média: ${f1(somaMedia)}</div>
+      <div class="stat-line">Faixa recomendada: ${somaRecMin}..${somaRecMax}</div>
+      <div class="stat-sub-title">Distribuição:</div>
+      ${somaRows}
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">⏰ Mais atrasados</div>
+      <div class="stat-line">Atraso médio: ${f1(atrasoMedio)} concursos</div>
+      <div class="stat-sub-title">Mais atrasados:</div>
+      ${maisAtrasados.map(linhaAtraso).join('')}
+      <div class="stat-sub-title">Menos atrasados:</div>
+      ${menosAtrasados.map(linhaAtraso).join('')}
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">🔥 Mais frequentes</div>
+      <div class="stat-sub-title">Mais frequentes:</div>
+      ${maisFrequentes.map(linhaFreq).join('')}
+      <div class="stat-sub-title">Menos frequentes:</div>
+      ${menosFrequentes.map(linhaFreq).join('')}
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">📊 Sequências</div>
+      <div class="stat-line">Média de sequência máxima: ${f1(seqMedia)}</div>
+      ${seqRows}
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">📦 Distribuição por faixas</div>
+      ${faixasStats.map(f=> `<div class="stat-line">Faixa ${f.ini}-${f.fim}: média ${f1(f.media)} números</div>`).join('')}
+      <div style="height:6px;"></div>
+      ${faixasStats.map(f=> `<div class="stat-line">${f.ini}-${f.fim}: ${f.recMin}..${f.recMax} números recomendados</div>`).join('')}
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title" style="color:#1D4ED8;">🔚 Finais mais comuns</div>
+      ${finaisRows}
+    </div>
+
+    <div class="stat-card destaque">
+      <div class="stat-card-title" style="color:#1D4ED8;">🏆 Melhores padrões</div>
+      ${padroesRows}
+    </div>`;
 }
 
 // ---------- tela separada: Dezenas em alta e em queda (agora segue a loteria escolhida na home) ----------
@@ -2756,7 +3743,7 @@ async function carregarAltaQueda(){
     return;
   }
 
-  if(btn) btn.disabled = true;
+  if(btn){ btn.disabled = true; setBtnLoading('altaQuedaAtualizarBtn', true); }
   if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos de ${game.nome}…</div>`;
   const min = game.range.min, max = game.range.max;
   try{
@@ -2798,7 +3785,7 @@ async function carregarAltaQueda(){
     console.error('carregarAltaQueda falhou:', e);
     if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
   }finally{
-    if(btn) btn.disabled = false;
+    if(btn){ btn.disabled = false; setBtnLoading('altaQuedaAtualizarBtn', false); }
   }
 }
 
@@ -2850,7 +3837,7 @@ async function carregarQuente(gameParam){
   const topo = topoEl ? parseInt(topoEl.value,10) : 8;
   const cont = document.getElementById('quenteConteudo');
   const btn = document.getElementById('quenteAtualizarBtn');
-  if(btn) btn.disabled = true;
+  if(btn){ btn.disabled = true; setBtnLoading('quenteAtualizarBtn', true); }
   if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
   const min = game.range.min, max = game.range.max;
   try{
@@ -2910,7 +3897,7 @@ async function carregarQuente(gameParam){
     console.error('carregarQuente falhou:', e);
     if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
   }finally{
-    if(btn) btn.disabled = false;
+    if(btn){ btn.disabled = false; setBtnLoading('quenteAtualizarBtn', false); }
   }
 }
 
@@ -2925,10 +3912,10 @@ function renderQuente(trios, maisAtrasadas, total, numeroUltimo){
   const exibidos = trios.slice(0, capExibicao);
   quenteExibidosAtual = {items: exibidos, total, numeroUltimo};
   const rows = exibidos.map((item,i)=>{
-    const bolas = item.trio.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:30px;height:30px;border-radius:50%;margin-right:4px;background:linear-gradient(160deg,#F0932B,#D9770B);color:#fff;border-color:transparent;">${n.toString().padStart(2,'0')}</span>`).join('');
+    const bolas = item.trio.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:24px;height:24px;border-radius:50%;margin-right:4px;font-size:11px;background:linear-gradient(160deg,#F0932B,#D9770B);color:#fff;border-color:transparent;">${n.toString().padStart(2,'0')}</span>`).join('');
     const detalhes = item.infos.map(l=>`${l.n.toString().padStart(2,'0')}: sem sair há ${l.atraso} concurso${l.atraso===1?'':'s'}`).join(' · ');
     return `
-    <div class="tend-row trio-clickable${i===0 ? ' tend-top1':''}" data-idx="${i}" style="cursor:pointer;">
+    <div class="tend-row trio-clickable${i===0 ? ' tend-top1':''}" data-idx="${i}" style="cursor:pointer;animation-delay:${Math.min(i,20)*280}ms;">
       <div style="display:flex;align-items:center;gap:2px;margin-right:10px;">${bolas}</div>
       <div class="tend-info">
         <div class="tend-pct">🔥 Atraso combinado: ${item.somaAtraso} concursos (média ${item.mediaAtraso.toFixed(1)})</div>
@@ -2959,12 +3946,331 @@ function renderQuente(trios, maisAtrasadas, total, numeroUltimo){
   });
 }
 
+// ---------- Manual: usuário digita de 1 a 3 dezenas e calculamos há quantos concursos elas não saem (sozinha, em dupla ou juntas as 3) ----------
+let manualCarregouUmaVez = false;
+const MANUAL_CHUNK = 50;
+const MANUAL_MAX_CONCURSOS = 300; // limite de busca pra não travar o app numa loteria com histórico enorme
+
+async function carregarManual(gameParam){
+  const game = gameParam || tendGameAtual;
+  const min = game.range.min, max = game.range.max;
+  const cont = document.getElementById('manualConteudo');
+  const btn = document.getElementById('manualAtualizarBtn');
+
+  const brutos = [
+    document.getElementById('manualDezena1').value,
+    document.getElementById('manualDezena2').value,
+    document.getElementById('manualDezena3').value,
+    document.getElementById('manualDezena4').value,
+    document.getElementById('manualDezena5').value,
+    document.getElementById('manualDezena6').value,
+    document.getElementById('manualDezena7').value,
+    document.getElementById('manualDezena8').value,
+    document.getElementById('manualDezena9').value
+  ];
+  // ignora campos vazios — calcula com as dezenas que foram realmente preenchidas (1 a 9)
+  const dezenasDigitadas = brutos
+    .filter(v=> v !== '' && v !== null && v !== undefined)
+    .map(v=> parseInt(v,10));
+
+  if(dezenasDigitadas.length === 0){
+    if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">Digite pelo menos 1 dezena para calcular o atraso.</div>`;
+    return;
+  }
+  if(dezenasDigitadas.some(n=>isNaN(n))){
+    if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">Digite dezenas válidas nos campos preenchidos.</div>`;
+    return;
+  }
+  if(dezenasDigitadas.some(n=> n<min || n>max)){
+    if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">Digite dezenas entre ${min.toString().padStart(2,'0')} e ${max.toString().padStart(2,'0')} para esta loteria.</div>`;
+    return;
+  }
+  if(new Set(dezenasDigitadas).size !== dezenasDigitadas.length){
+    if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">Digite dezenas diferentes.</div>`;
+    return;
+  }
+
+  if(btn){ btn.disabled = true; setBtnLoading('manualAtualizarBtn', true); }
+  const msgBuscando = dezenasDigitadas.length === 1
+    ? 'Procurando a última vez que essa dezena saiu…'
+    : 'Procurando a última vez que essas dezenas saíram juntas…';
+  if(cont) cont.innerHTML = `<div class="res-loading">${msgBuscando}</div>`;
+
+  try{
+    const ultimo = await fetchConcursoLoteria(game);
+    if(!ultimo || !ultimo.concurso || !Array.isArray(ultimo.dezenas)){
+      throw new Error('resposta inválida da API');
+    }
+    const numeroUltimo = ultimo.concurso;
+    const calcularFalhaConjunta = dezenasDigitadas.length >= 1;
+
+    const cache = {0: ultimo}; // i concursos atrás do último -> dados do concurso
+    let atrasoEncontrado = null; // i (concursos atrás) em que a dezena (ou todas as dezenas) saíram
+    let falhaConjuntaEncontrada = null; // i (concursos atrás) em que as 3 dezenas faltaram JUNTAS (nenhuma saiu) — só p/ 3 dezenas
+    let totalAnalisado = 0;
+    let inicio = 0;
+
+    function aindaPrecisaBuscar(){
+      const faltaAtraso = atrasoEncontrado === null;
+      const faltaFalha = calcularFalhaConjunta && falhaConjuntaEncontrada === null;
+      return faltaAtraso || faltaFalha;
+    }
+
+    while(aindaPrecisaBuscar() && inicio < MANUAL_MAX_CONCURSOS && (numeroUltimo - inicio) > 0){
+      const fim = Math.min(inicio + MANUAL_CHUNK, MANUAL_MAX_CONCURSOS, numeroUltimo);
+      const pendentes = [];
+      for(let i=inicio;i<fim;i++){
+        if(cache[i] !== undefined) continue;
+        const numeroConcurso = numeroUltimo - i;
+        if(numeroConcurso <= 0) continue;
+        pendentes.push(
+          fetchConcursoLoteria(game, numeroConcurso).then(data=>{ cache[i] = data; }).catch(()=>{ cache[i] = null; })
+        );
+      }
+      await Promise.all(pendentes);
+
+      for(let i=inicio;i<fim;i++){
+        const data = cache[i];
+        totalAnalisado = i+1;
+        if(data && Array.isArray(data.dezenas)){
+          const dezenas = data.dezenas.map(d=>parseInt(d,10));
+          if(atrasoEncontrado === null && dezenasDigitadas.every(n=>dezenas.includes(n))){
+            atrasoEncontrado = i;
+          }
+          if(calcularFalhaConjunta && falhaConjuntaEncontrada === null && dezenasDigitadas.every(n=>!dezenas.includes(n))){
+            falhaConjuntaEncontrada = i;
+          }
+        }
+        if(!aindaPrecisaBuscar()) break;
+      }
+      inicio = fim;
+    }
+
+    manualCarregouUmaVez = true;
+    renderManual(dezenasDigitadas, atrasoEncontrado, totalAnalisado, numeroUltimo, calcularFalhaConjunta ? falhaConjuntaEncontrada : undefined);
+  }catch(e){
+    console.error('carregarManual falhou:', e);
+    if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "CALCULAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
+  }finally{
+    if(btn){ btn.disabled = false; setBtnLoading('manualAtualizarBtn', false); }
+  }
+}
+
+function renderManual(dezenas, atraso, totalAnalisado, numeroUltimo, falhaConjunta){
+  const cont = document.getElementById('manualConteudo');
+  const bolas = dezenas.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:34px;height:34px;border-radius:50%;margin-right:6px;background:linear-gradient(160deg,#F0932B,#D9770B);color:#fff;border-color:transparent;font-weight:700;">${n.toString().padStart(2,'0')}</span>`).join('');
+  const sozinha = dezenas.length === 1;
+  const sujeito = sozinha ? 'Essa dezena' : 'Essas dezenas';
+  const verboJuntas = sozinha ? '' : ' juntas';
+
+  let mensagem;
+  if(atraso === null){
+    mensagem = `${sujeito} não sa${sozinha?'iu':'íram'}${verboJuntas} nos últimos <strong>${totalAnalisado}</strong> concursos analisados (até o Nº ${numeroUltimo}).`;
+  } else if(atraso === 0){
+    mensagem = `${sujeito} sa${sozinha?'iu':'íram'}${verboJuntas} no <strong>último concurso</strong> (Nº ${numeroUltimo}).`;
+  } else {
+    mensagem = `${sujeito} não sa${sozinha?'i':'em'}${verboJuntas} há <strong>${atraso}</strong> concurso${atraso===1?'':'s'} — a última vez que sa${sozinha?'iu':'íram'}${verboJuntas} foi no concurso Nº ${numeroUltimo - atraso}.`;
+  }
+
+  // segundo bloco: aparece sempre — quantos concursos seguidos elas (ou ela, se só 1) NÃO
+  // falham juntas (ou seja, há quanto tempo não acontece de faltarem todas no mesmo sorteio)
+  let blocoFalha = '';
+  if(falhaConjunta !== undefined){
+    const nenhumaDelas = sozinha ? 'ela não saiu' : 'nenhuma delas saiu';
+    const verboFalhaPassado = sozinha ? 'falhou' : 'falharam';
+    const verboFalhaPresente = sozinha ? 'falha' : 'falham';
+    const faltaVerbo = sozinha ? 'faltou' : 'faltaram';
+    let mensagemFalha;
+    if(falhaConjunta === null){
+      mensagemFalha = `${sujeito} não ${verboFalhaPassado}${verboJuntas} nos últimos <strong>${totalAnalisado}</strong> concursos analisados (até o Nº ${numeroUltimo}) — em todos eles, ${sozinha ? 'ela saiu' : 'pelo menos uma saiu'}.`;
+    } else if(falhaConjunta === 0){
+      mensagemFalha = `${sujeito} ${verboFalhaPassado}${verboJuntas} no <strong>último concurso</strong> (Nº ${numeroUltimo}) — ${nenhumaDelas}.`;
+    } else {
+      mensagemFalha = `${sujeito} não ${verboFalhaPresente}${verboJuntas} há <strong>${falhaConjunta}</strong> concurso${falhaConjunta===1?'':'s'} — a última vez que ${faltaVerbo}${verboJuntas} (${nenhumaDelas}) foi no concurso Nº ${numeroUltimo - falhaConjunta}.`;
+    }
+    blocoFalha = `
+    <div class="tend-row" style="margin-top:12px;">
+      <div style="display:flex;align-items:center;gap:2px;margin-right:10px;">${bolas}</div>
+      <div class="tend-info">
+        <div class="tend-pct">🧊 ${mensagemFalha}</div>
+      </div>
+    </div>`;
+  }
+
+  cont.innerHTML = `
+    <div class="tend-row">
+      <div style="display:flex;align-items:center;gap:2px;margin-right:10px;">${bolas}</div>
+      <div class="tend-info">
+        <div class="tend-pct">🔥 ${mensagem}</div>
+      </div>
+    </div>${blocoFalha}`;
+}
+
 // ---------- Gerador multi-loteria: escolher loteria -> filtro (últimos N concursos) -> 50 jogos ----------
 // dezenas por jogo (padrão oficial mínimo de cada loteria). Lotomania (50 dezenas por jogo) e
 // Super Sete (funciona por colunas, não por dezenas) não entram nesse gerador.
 const GERADOR_APOSTA_SIZE = {MS:6, LF:15, QN:5, DIA:7, TM:10, DS:6};
 const GERADOR_GAMES = GAMES.filter(g => GERADOR_APOSTA_SIZE[g.code]);
 let geradorGameAtual = null;
+
+// ---------- configurações avançadas do fechamento personalizado ----------
+const gfc = { dezenas: null, repetidas: null, qtd: 10 };
+
+function gfcClamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+function gfcAtualizarTela(){
+  const elD = document.getElementById('gfcDezenasValor');
+  const elR = document.getElementById('gfcRepValor');
+  const elQ = document.getElementById('gfcQtdValor');
+  if(elD) elD.value = gfc.dezenas;
+  if(elR) elR.value = gfc.repetidas;
+  if(elQ) elQ.value = gfc.qtd;
+}
+
+function gfcInicializar(g){
+  const depSize = GERADOR_APOSTA_SIZE[g.code];
+  const rangeSize = g.range.max - g.range.min + 1;
+  gfc.dezenas = depSize;
+  gfc.repetidas = gfcClamp(Math.round((depSize*depSize)/rangeSize), 0, depSize);
+  gfc.qtd = 10;
+  gfcAtualizarTela();
+  ['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  const analiseEl = document.getElementById('geradorFiltroAnalise');
+  if(analiseEl) analiseEl.innerHTML = '';
+}
+
+document.getElementById('gfcDezenasMenos').addEventListener('click', ()=>{
+  if(!geradorGameAtual) return;
+  const rangeSize = geradorGameAtual.range.max - geradorGameAtual.range.min + 1;
+  gfc.dezenas = gfcClamp(gfc.dezenas - 1, 2, rangeSize);
+  gfc.repetidas = gfcClamp(gfc.repetidas, 0, gfc.dezenas);
+  gfcAtualizarTela();
+});
+document.getElementById('gfcDezenasMais').addEventListener('click', ()=>{
+  if(!geradorGameAtual) return;
+  const rangeSize = geradorGameAtual.range.max - geradorGameAtual.range.min + 1;
+  gfc.dezenas = gfcClamp(gfc.dezenas + 1, 2, rangeSize);
+  gfc.repetidas = gfcClamp(gfc.repetidas, 0, gfc.dezenas);
+  gfcAtualizarTela();
+});
+document.getElementById('gfcRepMenos').addEventListener('click', ()=>{
+  gfc.repetidas = gfcClamp(gfc.repetidas - 1, 0, gfc.dezenas || 99);
+  gfcAtualizarTela();
+});
+document.getElementById('gfcRepMais').addEventListener('click', ()=>{
+  gfc.repetidas = gfcClamp(gfc.repetidas + 1, 0, gfc.dezenas || 99);
+  gfcAtualizarTela();
+});
+document.getElementById('gfcQtdMenos').addEventListener('click', ()=>{
+  gfc.qtd = gfcClamp(gfc.qtd - 1, 1, 5000);
+  gfcAtualizarTela();
+});
+document.getElementById('gfcQtdMais').addEventListener('click', ()=>{
+  gfc.qtd = gfcClamp(gfc.qtd + 1, 1, 5000);
+  gfcAtualizarTela();
+});
+
+// ---------- permite digitar os valores diretamente, sem precisar usar +/- ----------
+function gfcLigarEdicaoManual(el, onChange){
+  if(!el) return;
+  el.addEventListener('change', ()=>{
+    const v = parseInt(el.value, 10);
+    onChange(isNaN(v) ? 0 : v);
+    gfcAtualizarTela();
+  });
+  el.addEventListener('keydown', e=>{ if(e.key === 'Enter') el.blur(); });
+}
+gfcLigarEdicaoManual(document.getElementById('gfcDezenasValor'), v=>{
+  const rangeSize = geradorGameAtual ? (geradorGameAtual.range.max - geradorGameAtual.range.min + 1) : 99;
+  gfc.dezenas = gfcClamp(v, 2, rangeSize);
+  gfc.repetidas = gfcClamp(gfc.repetidas, 0, gfc.dezenas);
+});
+gfcLigarEdicaoManual(document.getElementById('gfcRepValor'), v=>{
+  gfc.repetidas = gfcClamp(v, 0, gfc.dezenas || 99);
+});
+gfcLigarEdicaoManual(document.getElementById('gfcQtdValor'), v=>{
+  gfc.qtd = gfcClamp(v, 1, 5000);
+});
+
+// gera um jogo respeitando: quantas dezenas repetem do último concurso, e as
+// contagens opcionais de pares / ímpares / primos (null = sem filtro nessa contagem)
+function gerarJogoPersonalizado(min, max, dezenasPorJogo, ultimoSet, repetidasAlvo, filtroPares, filtroImpares, filtroPrimos, filtrosExtra){
+  const fibSet = (filtrosExtra && filtrosExtra.fibSet) || new Set();
+  const molduraSet = (filtrosExtra && filtrosExtra.molduraSet) || new Set();
+  const centroSet = (filtrosExtra && filtrosExtra.centroSet) || new Set();
+  const filtroFib = (filtrosExtra && filtrosExtra.fib !== undefined) ? filtrosExtra.fib : null;
+  const filtroMoldura = (filtrosExtra && filtrosExtra.moldura !== undefined) ? filtrosExtra.moldura : null;
+  const filtroCentro = (filtrosExtra && filtrosExtra.centro !== undefined) ? filtrosExtra.centro : null;
+  const filtroMult3 = (filtrosExtra && filtrosExtra.mult3 !== undefined) ? filtrosExtra.mult3 : null;
+
+  const todosNums = [];
+  for(let n=min;n<=max;n++) todosNums.push(n);
+  const doUltimo = todosNums.filter(n=>ultimoSet.has(n));
+  const outros = todosNums.filter(n=>!ultimoSet.has(n));
+
+  const repAlvo = gfcClamp(repetidasAlvo, 0, Math.min(dezenasPorJogo, doUltimo.length));
+  const restantesAlvo = dezenasPorJogo - repAlvo;
+  if(restantesAlvo > outros.length) return null; // impossível com esses parâmetros
+
+  function embaralhar(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  let ultimaTentativa = null;
+  const maxTentativas = 60;
+  for(let t=0;t<maxTentativas;t++){
+    const partA = embaralhar(doUltimo).slice(0, repAlvo);
+    const partB = embaralhar(outros).slice(0, restantesAlvo);
+    const jogo = partA.concat(partB).sort((a,b)=>a-b);
+    ultimaTentativa = jogo;
+    const pares = jogo.filter(n=>n%2===0).length;
+    const impares = jogo.length - pares;
+    const primos = jogo.filter(isPrimoNum).length;
+    const fib = jogo.filter(n=>fibSet.has(n)).length;
+    const moldura = jogo.filter(n=>molduraSet.has(n)).length;
+    const centro = jogo.filter(n=>centroSet.has(n)).length;
+    const mult3 = jogo.filter(n=>n%3===0).length;
+    if(filtroPares!==null && pares!==filtroPares) continue;
+    if(filtroImpares!==null && impares!==filtroImpares) continue;
+    if(filtroPrimos!==null && primos!==filtroPrimos) continue;
+    if(filtroFib!==null && fib!==filtroFib) continue;
+    if(filtroMoldura!==null && moldura!==filtroMoldura) continue;
+    if(filtroCentro!==null && centro!==filtroCentro) continue;
+    if(filtroMult3!==null && mult3!==filtroMult3) continue;
+    return jogo;
+  }
+  // não achou combinação que bata exatamente nos filtros dentro do limite de tentativas —
+  // devolve a última tentativa mesmo assim (best-effort) pra não travar a geração
+  return ultimaTentativa;
+}
+
+function renderGeradorAnalise(g, ultimo, anterior, repMedia, faixaMin, faixaMax, quentes, atrasados){
+  const el = document.getElementById('geradorFiltroAnalise');
+  if(!el) return;
+  const numsUltimo = (ultimo.dezenas||[]).map(d=>parseInt(d,10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b);
+  const numsAnterior = anterior ? (anterior.dezenas||[]).map(d=>parseInt(d,10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b) : [];
+  const setAnterior = new Set(numsAnterior);
+  const repetidas = numsUltimo.filter(n=>setAnterior.has(n));
+
+  const ballRep = n => `<span class="gfc-ball gfc-ball-rep">${n.toString().padStart(2,'0')}</span>`;
+
+  const gridRepetidas = repetidas.length
+    ? repetidas.map(ballRep).join('')
+    : `<span style="font-size:12.5px;color:#6B7280;">Nenhuma dezena repetida.</span>`;
+
+  el.innerHTML = `
+    <div class="stat-sub-title" style="color:#A21CAF;margin-top:0;">Repetiu do concurso ${anterior ? anterior.concurso : '—'} pro ${ultimo.concurso}</div>
+    <div style="margin:4px 0 0;">${gridRepetidas}</div>
+  `;
+}
 
 // faixas oficiais de premiação de cada loteria (quantidade EXATA de acertos que premia,
 // da maior pra menor) — usadas pra marcar os jogos gerados como premiados de verdade
@@ -2984,6 +4290,38 @@ function faixaPremioGerador(code, hits){
 
 let geradorUltimoResultado = null; // {gameCode, concurso, dezenas:Set} — resultado oficial mostrado agora no card
 let geradorUltimoJogosCtx = null;  // dados dos últimos 50 jogos gerados, pra re-conferir quando o resultado oficial mudar (Anterior/Próximo)
+
+// ---------- salva os jogos gerados no aparelho, por loteria, pra continuarem lá
+// mesmo se o usuário mudar de tela e voltar (ou fechar e abrir o app de novo) ----------
+const GERADOR_ESTADO_KEY = 'tl_gerador_estado_v1';
+
+function carregarTodosGeradorEstados(){
+  try{
+    const bruto = localStorage.getItem(GERADOR_ESTADO_KEY);
+    const obj = bruto ? JSON.parse(bruto) : {};
+    return (obj && typeof obj === 'object') ? obj : {};
+  }catch(e){ return {}; }
+}
+
+function salvarGeradorEstado(code, estado){
+  try{
+    const todos = carregarTodosGeradorEstados();
+    todos[code] = estado;
+    localStorage.setItem(GERADOR_ESTADO_KEY, JSON.stringify(todos));
+  }catch(e){}
+}
+
+function carregarGeradorEstado(code){
+  return carregarTodosGeradorEstados()[code] || null;
+}
+
+function limparGeradorEstado(code){
+  try{
+    const todos = carregarTodosGeradorEstados();
+    delete todos[code];
+    localStorage.setItem(GERADOR_ESTADO_KEY, JSON.stringify(todos));
+  }catch(e){}
+}
 
 function abrirGeradorLoteria(){
   fecharModaisGlobais('overlayGeradorLoteria');
@@ -3006,7 +4344,7 @@ function abrirGeradorFiltro(code){
   // "escolher loteria" aberta por baixo, senão o botão de voltar (← ou físico) pula
   // direto pro início em vez de voltar pra lista de loterias
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
-    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer'];
+    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.classList.remove('show');
@@ -3014,8 +4352,24 @@ function abrirGeradorFiltro(code){
   const drawerOv = document.getElementById('drawerOverlay');
   if(drawerOv) drawerOv.classList.remove('show');
   document.getElementById('geradorFiltroTitulo').textContent = geradorGameAtual.nome;
-  document.getElementById('geradorFiltroResultado').innerHTML = '';
-  geradorUltimoJogosCtx = null;
+
+  const estadoSalvo = carregarGeradorEstado(geradorGameAtual.code);
+  if(estadoSalvo && Array.isArray(estadoSalvo.jogos) && estadoSalvo.jogos.length){
+    geradorUltimoJogosCtx = {
+      g: geradorGameAtual, jogos: estadoSalvo.jogos,
+      maisAtrasadas: estadoSalvo.maisAtrasadas||[], maisSairam: estadoSalvo.maisSairam||[],
+      totalConcursos: estadoSalvo.totalConcursos||0, numeroUltimo: estadoSalvo.numeroUltimo||0,
+      depSize: estadoSalvo.depSize||0
+    };
+    renderGeradorResultado(geradorGameAtual, estadoSalvo.jogos, estadoSalvo.maisAtrasadas||[],
+      estadoSalvo.maisSairam||[], estadoSalvo.totalConcursos||0, estadoSalvo.numeroUltimo||0, estadoSalvo.depSize||0);
+  } else {
+    document.getElementById('geradorFiltroResultado').innerHTML = '';
+    document.getElementById('geradorFiltroTabJogos').textContent = 'Jogos gerados';
+    gfcMostrarTab('config');
+    geradorUltimoJogosCtx = null;
+  }
+  gfcInicializar(geradorGameAtual);
   document.getElementById('overlayGeradorFiltro').classList.add('show');
   resetScroll();
   carregarUltimoResultadoGerador(geradorGameAtual);
@@ -3053,7 +4407,7 @@ function renderUltimoResultadoGerador(g, data){
   const maisRecente = concursoMaisRecentePorJogo[g.slug];
   const podeAvancar = maisRecente && data.concurso < maisRecente;
   box.innerHTML = `
-    <div class="res-card-title" style="margin-bottom:6px;font-size:12.5px;">Último resultado — ${g.nome}</div>
+    <div class="res-card-title" style="margin-bottom:6px;font-size:12.5px;">Resultado — ${g.nome}</div>
     <div class="res-nav-row" style="margin-bottom:6px;">
       <button class="res-nav-btn" id="geradorResAnterior" style="padding:6px 9px;font-size:10.5px;">← Anterior</button>
       <div class="res-concurso-num" style="font-size:16px;">Nº ${data.concurso}</div>
@@ -3077,6 +4431,15 @@ function renderUltimoResultadoGerador(g, data){
       geradorUltimoJogosCtx.numeroUltimo, geradorUltimoJogosCtx.depSize
     );
   }
+
+  // mostra logo abaixo do sorteio, automaticamente, as dezenas repetidas em relação ao concurso anterior
+  const analiseEl = document.getElementById('geradorFiltroAnalise');
+  if(analiseEl) analiseEl.innerHTML = '';
+  fetchConcursoLoteria(g, data.concurso-1).then(anteriorData=>{
+    if(!geradorGameAtual || geradorGameAtual.code !== g.code) return;
+    if(!geradorUltimoResultado || geradorUltimoResultado.concurso !== data.concurso) return; // usuário já navegou pra outro concurso
+    renderGeradorAnalise(g, data, anteriorData, 0, 0, 0, [], []);
+  }).catch(()=>{});
 }
 
 document.getElementById('geradorLoteriaVoltar').addEventListener('click', ()=>{
@@ -3086,41 +4449,87 @@ document.getElementById('geradorFiltroVoltar').addEventListener('click', ()=>{
   document.getElementById('overlayGeradorFiltro').classList.remove('show');
 });
 
+// ---------- abas "Configurações" / "Jogos gerados" dentro da tela do gerador ----------
+function gfcMostrarTab(tab){
+  const painelConfig = document.getElementById('geradorFiltroTabPanelConfig');
+  const painelJogos = document.getElementById('geradorFiltroTabPanelJogos');
+  const btnConfig = document.getElementById('geradorFiltroTabConfig');
+  const btnJogos = document.getElementById('geradorFiltroTabJogos');
+  const ativa = { background:'#4C1D95', color:'#fff' };
+  const inativa = { background:'#fff', color:'#4C1D95' };
+  if(tab === 'jogos'){
+    painelConfig.style.display = 'none';
+    painelJogos.style.display = 'block';
+    Object.assign(btnJogos.style, ativa);
+    Object.assign(btnConfig.style, inativa);
+  } else {
+    painelConfig.style.display = 'block';
+    painelJogos.style.display = 'none';
+    Object.assign(btnConfig.style, ativa);
+    Object.assign(btnJogos.style, inativa);
+  }
+}
+document.getElementById('geradorFiltroTabConfig').addEventListener('click', ()=> gfcMostrarTab('config'));
+document.getElementById('geradorFiltroTabJogos').addEventListener('click', ()=> gfcMostrarTab('jogos'));
+
 document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async ()=>{
   const g = geradorGameAtual;
   if(!g) return;
-  const depSize = GERADOR_APOSTA_SIZE[g.code];
 
-  const qtdEl = document.getElementById('geradorFiltroQtd');
-  let qtdConcursos = parseInt(qtdEl.value, 10);
-  if(isNaN(qtdConcursos) || qtdConcursos < 5) qtdConcursos = 5;
-  if(qtdConcursos > 500) qtdConcursos = 500;
-  qtdEl.value = qtdConcursos;
+  const dezenasPorJogo = gfc.dezenas;
+  const repetidasAlvo = gfc.repetidas;
+  const qtdJogos = gfc.qtd;
+  const parseFiltro = id => {
+    const v = document.getElementById(id).value;
+    return v==='' ? null : gfcClamp(parseInt(v,10), 0, dezenasPorJogo);
+  };
+  const filtroPares = parseFiltro('gfcFiltroPares');
+  const filtroImpares = parseFiltro('gfcFiltroImpares');
+  const filtroPrimos = parseFiltro('gfcFiltroPrimos');
+  const filtroFib = parseFiltro('gfcFiltroFib');
+  const filtroMoldura = parseFiltro('gfcFiltroMoldura');
+  const filtroCentro = parseFiltro('gfcFiltroCentro');
+  const filtroMult3 = parseFiltro('gfcFiltroMult3');
+
+  const centroArr = centroDoJogo(g) || [];
+  const molduraArr = molduraDoJogo(g) || [];
+  const filtrosExtra = {
+    fib: filtroFib, moldura: filtroMoldura, centro: filtroCentro, mult3: filtroMult3,
+    fibSet: FIB, molduraSet: new Set(molduraArr), centroSet: new Set(centroArr)
+  };
+
+  const qtdConcursos = 10;
 
   const btn = document.getElementById('geradorFiltroGerarBtn');
+  const btnSpinner = document.getElementById('geradorFiltroGerarSpinner');
   const spinner = document.getElementById('geradorFiltroSpinner');
   const out = document.getElementById('geradorFiltroResultado');
   btn.disabled = true;
+  if(btnSpinner) btnSpinner.style.display = 'inline-block';
   spinner.style.display = 'block';
   out.innerHTML = '';
+  gfcMostrarTab('jogos');
 
   try{
     const min = g.range.min, max = g.range.max;
+    // "ultimo" aqui é o concurso ATUAL — usado só pra exibir na tela (título, "concurso X"),
+    // nunca entra como base de cálculo/geração dos jogos.
     const ultimo = await fetchConcursoLoteria(g);
     if(!ultimo || !ultimo.concurso || !Array.isArray(ultimo.dezenas)) throw new Error('resposta inválida da API');
     const numeroUltimo = ultimo.concurso;
 
+    // janela de concursos ANTERIORES ao atual (nunca inclui numeroUltimo)
     const numerosConcursos = [];
-    for(let c = numeroUltimo; c > numeroUltimo - qtdConcursos && c > 0; c--) numerosConcursos.push(c);
+    for(let c = numeroUltimo - 1; c > numeroUltimo - 1 - qtdConcursos && c > 0; c--) numerosConcursos.push(c);
 
     const concursos = new Array(numerosConcursos.length);
-    concursos[0] = ultimo;
-    const pendentes = numerosConcursos.slice(1).map((c, idx)=>
-      fetchConcursoLoteria(g, c).then(data=>{ concursos[idx+1] = data; }).catch(()=>{ concursos[idx+1] = null; })
+    const pendentes = numerosConcursos.map((c, idx)=>
+      fetchConcursoLoteria(g, c).then(data=>{ concursos[idx] = data; }).catch(()=>{ concursos[idx] = null; })
     );
     await Promise.all(pendentes);
     const validos = concursos.filter(Boolean);
     if(validos.length === 0) throw new Error('sem dados suficientes');
+    const anterior = validos[0] || null; // concurso imediatamente anterior ao atual — base real da geração
 
     const presenca = {}, atraso = {};
     for(let n=min;n<=max;n++){ presenca[n]=0; atraso[n]=null; }
@@ -3147,48 +4556,64 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
     const porPresenca = todos.filter(x=>!idsAtrasadas.has(x.n)).sort((a,b)=> b.presenca - a.presenca || a.n - b.n);
     const maisSairam = porPresenca.slice(0, 15);
 
-    const pool = maisAtrasadas.concat(maisSairam).map(x=>x.n).sort((a,b)=>a-b);
-
-    if(pool.length < depSize){
-      out.innerHTML = `<div class="res-error">Não há dezenas suficientes pra montar jogos de ${depSize} dezenas com esse filtro.</div>`;
-      return;
+    // média/faixa recomendada de repetição concurso-a-concurso, com base no histórico buscado
+    const drawsHist = validos.map(v=>(v.dezenas||[]).map(d=>parseInt(d,10)).filter(n=>!isNaN(n)));
+    const repCountsHist = [];
+    for(let i=0;i<drawsHist.length-1;i++){
+      const setA = new Set(drawsHist[i]);
+      let rep = 0;
+      drawsHist[i+1].forEach(n=>{ if(setA.has(n)) rep++; });
+      repCountsHist.push(rep);
     }
+    const repMediaHist = repCountsHist.length ? repCountsHist.reduce((a,b)=>a+b,0)/repCountsHist.length : 0;
+    const repStdHist = repCountsHist.length<2 ? 0 : Math.sqrt(repCountsHist.reduce((a,b)=>a+(b-repMediaHist)*(b-repMediaHist),0)/repCountsHist.length);
+    const drawSizeUltimo = (ultimo.dezenas||[]).length;
+    const faixaMin = Math.max(0, Math.round(repMediaHist-repStdHist));
+    const faixaMax = Math.min(drawSizeUltimo, Math.round(repMediaHist+repStdHist));
 
-    // sorteia 50 jogos únicos, cada um com "depSize" dezenas, sempre dentro dessas 25 dezenas
+    renderGeradorAnalise(g, ultimo, anterior, repMediaHist, faixaMin, faixaMax,
+      maisSairam.slice(0,5).map(x=>x.n), maisAtrasadas.slice(0,5).map(x=>x.n));
+
+    // gera os jogos: dezenas por jogo, quantas repetem do concurso anterior (nunca do atual), e os
+    // filtros opcionais de pares/ímpares/primos — tudo vindo das configurações avançadas
+    if(!anterior || !Array.isArray(anterior.dezenas)) throw new Error('sem concurso anterior suficiente pra gerar');
+    const numsAnteriorBase = anterior.dezenas.map(d=>parseInt(d,10)).filter(n=>!isNaN(n));
+    const ultimoSet = new Set(numsAnteriorBase);
     const seen = new Set();
     const jogos = [];
     let tries = 0;
-    const maxTries = 50*40 + 800;
-    while(jogos.length < 50 && tries < maxTries){
+    const maxTries = qtdJogos*80 + 800;
+    while(jogos.length < qtdJogos && tries < maxTries){
       tries++;
-      const embaralhado = pool.slice();
-      for(let i=embaralhado.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [embaralhado[i], embaralhado[j]] = [embaralhado[j], embaralhado[i]];
+      const jogo = gerarJogoPersonalizado(min, max, dezenasPorJogo, ultimoSet, repetidasAlvo, filtroPares, filtroImpares, filtroPrimos, filtrosExtra);
+      if(!jogo){
+        out.innerHTML = `<div class="res-error">Não é possível montar jogos de ${dezenasPorJogo} dezenas com ${repetidasAlvo} repetidas do concurso anterior. Ajuste as configurações avançadas.</div>`;
+        return;
       }
-      const jogo = embaralhado.slice(0, depSize).sort((a,b)=>a-b);
       const key = jogo.join(',');
       if(!seen.has(key)){ seen.add(key); jogos.push(jogo); }
     }
 
-    geradorUltimoJogosCtx = { g, jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize };
-    renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, validos.length, numeroUltimo, depSize);
+    if(jogos.length === 0){
+      out.innerHTML = `<div class="res-error">Não foi possível gerar jogos com esses filtros. Tente ajustar pares/ímpares/primos nas configurações avançadas.</div>`;
+      return;
+    }
+
+    geradorUltimoJogosCtx = { g, jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo };
+    salvarGeradorEstado(g.code, { jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo });
+    renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, validos.length, numeroUltimo, dezenasPorJogo);
   }catch(e){
     console.error('gerador multi-loteria falhou:', e);
     out.innerHTML = `<div class="res-error">Não foi possível calcular agora.<br>Verifique sua internet e toque em "GERAR" pra tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
   }finally{
     btn.disabled = false;
+    if(btnSpinner) btnSpinner.style.display = 'none';
     spinner.style.display = 'none';
   }
 });
 
 function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcursos, numeroUltimo, depSize){
   const out = document.getElementById('geradorFiltroResultado');
-
-  const bola = (n, corA, corB) => `<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;margin:2px;background:linear-gradient(160deg,${corA},${corB});color:#fff;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:700;">${n.toString().padStart(2,'0')}</span>`;
-
-  const bolasAtrasadas = maisAtrasadas.map(x=>bola(x.n, '#F0932B', '#D9770B')).join('');
-  const bolasQuentes = maisSairam.map(x=>bola(x.n, '#38BDF8', '#1D4ED8')).join('');
 
   // confere cada jogo contra o resultado oficial mostrado no card acima (se for da mesma loteria)
   const conferindo = geradorUltimoResultado && geradorUltimoResultado.gameCode === g.code;
@@ -3219,34 +4644,31 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     </div>`;
   }).join('');
 
-  const conferenciaResumoHtml = conferindo
-    ? `<div class="note" style="margin-bottom:10px;${totalPremiados>0 ? 'border-color:#1F9D74;' : ''}">Conferido com o resultado oficial <strong>Nº ${geradorUltimoResultado.concurso}</strong> de ${g.nome}.<br>${totalPremiados>0 ? `🏆 <strong>${totalPremiados}</strong> jogo${totalPremiados===1?'':'s'} premiado${totalPremiados===1?'':'s'}!` : 'Nenhum jogo bateu a premiação mínima dessa vez.'}</div>`
-    : '';
-
   out.innerHTML = `
-    <div class="note" style="margin:14px 0;">
-      Baseado nos últimos <strong>${totalConcursos}</strong> concursos de ${g.nome} (até o Nº ${numeroUltimo}):<br>
-      <strong>10 dezenas mais atrasadas</strong> (há mais tempo sem sair):
-      <div style="margin:6px 0 10px;">${bolasAtrasadas}</div>
-      <strong>15 dezenas que mais saíram</strong>:
-      <div style="margin:6px 0;">${bolasQuentes}</div>
-      <span style="font-size:11.5px;">Cada sorteio é independente — isso é estatística histórica, não garante resultado futuro.</span>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <button id="geradorLimparBtn" class="download-btn" style="display:block;flex:1;margin-top:0;padding:7px;font-size:12px;background:#fff;color:#B91C1C;border:1.5px solid #B91C1C;"><span id="geradorLimparSpinner" style="display:none;width:11px;height:11px;border:2px solid rgba(185,28,28,.35);border-top-color:#B91C1C;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="geradorLimparLabel">Limpar jogos</span></button>
+      <a id="geradorJogarOnlineBtn" class="download-btn" href="https://loterias.caixa.gov.br/Paginas/${g.officialSlug}.aspx" target="_blank" rel="noopener" style="display:block;flex:1;margin-top:0;padding:7px;font-size:12px;text-align:center;text-decoration:none;box-sizing:border-box;">Jogar online</a>
     </div>
-    <div class="note" style="margin-bottom:10px;"><strong>${jogos.length}</strong> jogos gerados, ${depSize} dezenas cada, sorteados dentro dessas 25 dezenas.</div>
-    ${conferenciaResumoHtml}
     ${listaJogosHtml}
-    <button id="geradorBaixarBtn" class="download-btn" style="margin-top:14px;">Baixar jogos (.txt)</button>
   `;
 
-  document.getElementById('geradorBaixarBtn').addEventListener('click', ()=>{
-    const text = jogos.map((j,i)=> `Jogo ${i+1}: ${j.map(n=>n.toString().padStart(2,'0')).join(' - ')}`).join('\n');
-    const blob = new Blob([text], {type:'text/plain'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${g.slug}-50-jogos.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+  // atualiza o nome da aba com a quantidade de jogos e já leva o usuário pra ela
+  const tabJogosBtn = document.getElementById('geradorFiltroTabJogos');
+  if(tabJogosBtn) tabJogosBtn.textContent = `Jogos gerados (${jogos.length})`;
+  gfcMostrarTab('jogos');
+
+  document.getElementById('geradorLimparBtn').addEventListener('click', function(){
+    const limparBtn = this;
+    const limparSpinner = document.getElementById('geradorLimparSpinner');
+    limparBtn.disabled = true;
+    if(limparSpinner) limparSpinner.style.display = 'inline-block';
+    setTimeout(()=>{
+      out.innerHTML = '';
+      geradorUltimoJogosCtx = null;
+      limparGeradorEstado(g.code);
+      if(tabJogosBtn) tabJogosBtn.textContent = 'Jogos gerados';
+      gfcMostrarTab('config');
+    }, 350);
   });
 }
 
@@ -3265,7 +4687,7 @@ function abrirQuenteProb(item, total, numeroUltimo){
     <div class="tend-row">
       <div class="tend-ball">${l.n.toString().padStart(2,'0')}</div>
       <div class="tend-info">
-        <div class="tend-pct">${pctSair.toFixed(1)}% de chance de sair no próximo sorteio</div>
+        <div class="tend-pct">${pctExibicao(pctSair)}% de chance de sair no próximo sorteio</div>
         <div class="tend-bar-bg"><div class="tend-bar-fill" style="width:${pctSair}%"></div></div>
         <div class="tend-sub">Saiu em ${l.presenca} de ${total} concursos · sem sair há ${l.atraso} concurso${l.atraso===1?'':'s'}</div>
       </div>
@@ -3276,65 +4698,96 @@ function abrirQuenteProb(item, total, numeroUltimo){
   overlay.classList.add('show');
 }
 
+const CENTRO_QTD_PADRAO = 10; // valor padrão do campo de filtro (o usuário pode digitar outro)
+const CENTRO_QTD_MAX = 500;   // limite de segurança pra não travar com um número absurdo
+
+// ---------- dezenas do "centro" (miolo) do volante físico de cada loteria ----------
+// Cada volante é impresso em grade (linhas x colunas). O "miolo" são as dezenas que
+// caem nas linhas e colunas internas, sem tocar a borda (moldura) da cartela.
+// Nº de colunas de cada volante oficial (confirmado nas cartelas da Caixa):
+//   Mega-Sena 10 · Quina 10 · Timemania 8 · Lotofácil 5 · Lotomania 10 · Dupla Sena 10
+//   Dia de Sorte: volante de 31 números (dias do mês) — layout tipo calendário de 7 colunas (estimativa,
+//   ajuste GRID_COLS_POR_JOGO.DIA se a cartela real usar outra quantidade de colunas).
+const GRID_COLS_POR_JOGO = {
+  MS:10, QN:10, TM:8, LF:5, LM:10, DS:10, DIA:7
+};
+
+function centroDoJogo(game){
+  const cols = GRID_COLS_POR_JOGO[game.code];
+  if(!cols || !game.range) return null;
+  const min = game.range.min, max = game.range.max;
+  const total = max - min + 1;
+  const rows = Math.ceil(total / cols);
+  const centro = [];
+  for(let n = min; n <= max; n++){
+    const idx = n - min;
+    const row = Math.floor(idx / cols);
+    const col = idx % cols;
+    const bordaLinha = (row === 0 || row === rows - 1);
+    const bordaColuna = (col === 0 || col === cols - 1);
+    if(!bordaLinha && !bordaColuna) centro.push(n);
+  }
+  return centro;
+}
+
+// dezenas da "moldura" (borda) do volante — o complemento do centro/miolo
+function molduraDoJogo(game){
+  const centro = centroDoJogo(game);
+  if(!centro || !game.range) return null;
+  const centroSet = new Set(centro);
+  const moldura = [];
+  for(let n = game.range.min; n <= game.range.max; n++){
+    if(!centroSet.has(n)) moldura.push(n);
+  }
+  return moldura;
+}
+
 let falhaCarregouUmaVez = false;
 let ultimoRankingFalha = [];
 let ultimoRankingFalhaInfo = null;
+
+// mistura azul (0% de falha) -> vermelho (100% de falha) proporcional ao pct de falha
+function corCentroPorPct(pct){
+  if(pct===null) return null;
+  if(pct >= 50){
+    // vermelho em degradê: quanto maior a chance de falhar, mais escuro/forte o vermelho;
+    // quanto menor a chance, mais claro o vermelho
+    const t = Math.max(0, Math.min(1, (pct - 50) / 50));
+    const claro = [254, 202, 202]; // #FECACA
+    const escuro = [127, 29, 29];  // #7F1D1D
+    const rgb = claro.map((v,i)=> Math.round(v + (escuro[i]-v)*t));
+    return `linear-gradient(160deg, rgb(${rgb[0]},${rgb[1]},${rgb[2]}), rgb(${Math.max(0,rgb[0]-15)},${Math.max(0,rgb[1]-15)},${Math.max(0,rgb[2]-15)}))`;
+  }
+  // azul em degradê: quanto maior a chance de vir, mais escuro/forte o azul;
+  // quanto menor a chance, mais claro o azul
+  const chanceVem = 100 - pct; // 50..100
+  const t = Math.max(0, Math.min(1, (chanceVem - 50) / 50));
+  const claro = [191, 219, 254];  // #BFDBFE
+  const escuro = [30, 58, 138];   // #1E3A8A
+  const rgb = claro.map((v,i)=> Math.round(v + (escuro[i]-v)*t));
+  return `linear-gradient(160deg, rgb(${rgb[0]},${rgb[1]},${rgb[2]}), rgb(${Math.max(0,rgb[0]-15)},${Math.max(0,rgb[1]-15)},${Math.max(0,rgb[2]-15)}))`;
+}
+
 async function carregarFalha(gameParam){
   const game = gameParam || tendGameAtual;
-  const qtdEl = document.getElementById('falhaQtdSelect');
-  const qtd = qtdEl ? parseInt(qtdEl.value,10) : 50;
+  const qtdEl = document.getElementById('centroQtdInput');
+  let qtd = qtdEl ? parseInt(qtdEl.value, 10) : CENTRO_QTD_PADRAO;
+  if(!Number.isFinite(qtd) || qtd < 2) qtd = CENTRO_QTD_PADRAO;
+  if(qtd > CENTRO_QTD_MAX) qtd = CENTRO_QTD_MAX;
+  if(qtdEl) qtdEl.value = qtd; // reflete o valor corrigido/limitado no campo
   const cont = document.getElementById('falhaConteudo');
   const btn = document.getElementById('falhaAtualizarBtn');
-  if(btn) btn.disabled = true;
+
+  const centro = centroDoJogo(game);
+  if(!centro || !centro.length){
+    if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">O formato do ${game.nome} não tem um "centro" de volante definido para essa análise.</div>`;
+    return;
+  }
+
+  if(btn){ btn.disabled = true; setBtnLoading('falhaAtualizarBtn', true); }
   if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd+1} concursos…</div>`;
   try{
-    const ultimo = await fetchConcursoLoteria(game);
-    if(!ultimo || !ultimo.concurso || !Array.isArray(ultimo.dezenas)){
-      throw new Error('resposta inválida da API');
-    }
-    const numeroUltimo = ultimo.concurso;
-    // busca 1 concurso a mais que "qtd" — precisamos de "qtd" pares (concurso anterior -> concurso seguinte)
-    const totalBuscar = qtd + 1;
-    const numeros = [];
-    for(let c = numeroUltimo; c > numeroUltimo - totalBuscar && c > 0; c--) numeros.push(c);
-
-    const concursos = new Array(numeros.length);
-    concursos[0] = ultimo;
-    const pendentes = numeros.slice(1).map((c, idx)=>
-      fetchConcursoLoteria(game, c).then(data=>{ concursos[idx+1] = data; }).catch(()=>{ concursos[idx+1] = null; })
-    );
-    await Promise.all(pendentes);
-
-    if(!concursos[0]) throw new Error('sem dados do último concurso');
-
-    // taxa histórica: de todas as vezes que uma dezena saiu, em quantas ela repetiu no concurso seguinte
-    const repetiu = {}, apareceu = {};
-    let pares = 0;
-    for(let i=1;i<concursos.length;i++){
-      const anterior = concursos[i];       // concurso mais antigo do par
-      const seguinte = concursos[i-1];     // concurso imediatamente seguinte
-      if(!anterior || !seguinte) continue;
-      const dezAnterior = (anterior.dezenas||[]).map(d=>parseInt(d,10));
-      const dezSeguinte = (seguinte.dezenas||[]).map(d=>parseInt(d,10));
-      pares++;
-      dezAnterior.forEach(n=>{
-        apareceu[n] = (apareceu[n]||0) + 1;
-        repetiu[n] = repetiu[n] || 0;
-        if(dezSeguinte.includes(n)) repetiu[n]++;
-      });
-    }
-
-    const dezenasUltimoConcurso = (concursos[0].dezenas||[]).map(d=>parseInt(d,10));
-    const linhas = dezenasUltimoConcurso.map(n=>{
-      const base = apareceu[n];
-      const pct = base > 0 ? (1 - repetiu[n]/base) * 100 : null;
-      return {n, repetiu: repetiu[n], apareceu: base, pct};
-    });
-    linhas.sort((a,b)=>{
-      if(a.pct===null) return 1;
-      if(b.pct===null) return -1;
-      return b.pct - a.pct;
-    });
+    const {linhas, pares, numeroUltimo} = await calcularFalhaDezenas(centro, qtd, game);
 
     falhaCarregouUmaVez = true;
     ultimoRankingFalha = linhas;
@@ -3344,36 +4797,86 @@ async function carregarFalha(gameParam){
     console.error('carregarFalha falhou:', e);
     if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
   }finally{
-    if(btn) btn.disabled = false;
+    if(btn){ btn.disabled = false; setBtnLoading('falhaAtualizarBtn', false); }
   }
 }
 
+// nunca exibe 0% nem 100% — sempre entre 1% e 99%, pra nunca soar como certeza absoluta
+const pctExibicao = v => Math.max(1, Math.min(99, Math.round(v)));
+
+let centroDadosPorN = {}; // n -> {n, repetiu, apareceu, pct, atraso} — usado no modal de detalhe da bolinha
+
 function renderFalha(linhas, pares, numeroUltimo){
   const cont = document.getElementById('falhaConteudo');
-  const qtdDezenas = linhas.length;
-  const rows = linhas.map((l,i)=>{
-    const pctTxt = l.pct===null ? 'sem dados' : `${l.pct.toFixed(1)}% de chance de falhar`;
-    const largura = l.pct===null ? 0 : l.pct;
-    const sub = l.apareceu > 0
-      ? `Historicamente repetiu em ${l.repetiu} de ${l.apareceu} vez${l.apareceu===1?'':'es'} em que saiu`
-      : `Não apareceu no período analisado`;
+
+  centroDadosPorN = {};
+  linhas.forEach(l=>{ centroDadosPorN[l.n] = l; });
+
+  const celulas = linhas.map((l,i)=>{
+    const cor = corCentroPorPct(l.pct);
+    const semDados = l.pct===null;
+    const pctVem = l.pct===null ? null : 100 - l.pct;
+    const estilo = (semDados ? '' : `background:${cor};`) + `animation-delay:${i*330}ms;`;
     return `
-    <div class="tend-row${i===0 ? ' tend-top1':''}">
-      <div class="tend-ball">${l.n.toString().padStart(2,'0')}</div>
-      <div class="tend-info">
-        <div class="tend-pct">${pctTxt}</div>
-        <div class="tend-bar-bg"><div class="tend-bar-fill" style="width:${largura}%"></div></div>
-        <div class="tend-sub">${sub}</div>
-      </div>
+    <div class="centro-cel${semDados ? ' sem-dados' : ''}" style="${estilo}" onclick="abrirCentroDezena(${l.n})" title="${l.n.toString().padStart(2,'0')}: ${semDados ? 'sem dados no período — essa dezena não saiu nos últimos 10 concursos analisados' : (l.pct>=50 ? pctExibicao(l.pct)+'% de chance de falhar' : pctExibicao(pctVem)+'% de chance de vir no próximo concurso')}">
+      <div class="centro-num">${l.n.toString().padStart(2,'0')}</div>
     </div>`;
   }).join('');
 
-  cont.innerHTML = `
-    <div class="note" style="margin:14px 0;">
-      Baseado no concurso Nº <strong>${numeroUltimo}</strong>: das <strong>${qtdDezenas}</strong> dezenas sorteadas nele, esta lista mostra — pelo histórico dos últimos <strong>${pares}</strong> concursos — quais delas <strong>mais costumam falhar</strong> (não repetir) no concurso seguinte, da maior para a menor chance.<br>
-      <span style="font-size:11.5px;">Cada sorteio é independente — isso é apenas estatística histórica, não é garantia de resultado futuro.</span>
-    </div>
-    ${rows}`;
+  cont.innerHTML = `<div class="centro-grid">${celulas}</div>`;
+}
+
+let molduraCarregouUmaVez = false;
+
+async function carregarMoldura(gameParam){
+  const game = gameParam || tendGameAtual;
+  const qtdEl = document.getElementById('molduraQtdInput');
+  let qtd = qtdEl ? parseInt(qtdEl.value, 10) : CENTRO_QTD_PADRAO;
+  if(!Number.isFinite(qtd) || qtd < 2) qtd = CENTRO_QTD_PADRAO;
+  if(qtd > CENTRO_QTD_MAX) qtd = CENTRO_QTD_MAX;
+  if(qtdEl) qtdEl.value = qtd; // reflete o valor corrigido/limitado no campo
+  const cont = document.getElementById('molduraConteudo');
+  const btn = document.getElementById('molduraAtualizarBtn');
+
+  const moldura = molduraDoJogo(game);
+  if(!moldura || !moldura.length){
+    if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">O formato do ${game.nome} não tem uma "moldura" de volante definida para essa análise.</div>`;
+    return;
+  }
+
+  if(btn){ btn.disabled = true; setBtnLoading('molduraAtualizarBtn', true); }
+  if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd+1} concursos…</div>`;
+  try{
+    const {linhas, pares, numeroUltimo} = await calcularFalhaDezenas(moldura, qtd, game);
+
+    molduraCarregouUmaVez = true;
+    renderMoldura(linhas, pares, numeroUltimo);
+  }catch(e){
+    console.error('carregarMoldura falhou:', e);
+    if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
+  }finally{
+    if(btn){ btn.disabled = false; setBtnLoading('molduraAtualizarBtn', false); }
+  }
+}
+
+function renderMoldura(linhas, pares, numeroUltimo){
+  const cont = document.getElementById('molduraConteudo');
+
+  // usa o mesmo mapa/modal de detalhe da bolinha do Centro — só um painel fica visível por vez
+  linhas.forEach(l=>{ centroDadosPorN[l.n] = l; });
+
+  const celulas = linhas.map((l,i)=>{
+    const cor = corCentroPorPct(l.pct);
+    const semDados = l.pct===null;
+    const pctVem = l.pct===null ? null : 100 - l.pct;
+    const estilo = (semDados ? '' : `background:${cor};`) + `animation-delay:${i*330}ms;`;
+    return `
+    <div class="centro-cel${semDados ? ' sem-dados' : ''}" style="${estilo}" onclick="abrirCentroDezena(${l.n})" title="${l.n.toString().padStart(2,'0')}: ${semDados ? 'sem dados no período — essa dezena não saiu nos últimos 10 concursos analisados' : (l.pct>=50 ? pctExibicao(l.pct)+'% de chance de falhar' : pctExibicao(pctVem)+'% de chance de vir no próximo concurso')}">
+      <div class="centro-num">${l.n.toString().padStart(2,'0')}</div>
+    </div>`;
+  }).join('');
+
+  cont.innerHTML = `<div class="centro-grid">${celulas}</div>`;
 }
 
 // ---------- grupos (duplas a conjuntos de 15) gerados a partir das dezenas com maior potencial de falha (3 a 100 concursos) ----------
@@ -3440,6 +4943,76 @@ function atualizarLabelGerarBtn(){
   btn.textContent = `GERAR ${nomeGrupo(tamanho, true).toUpperCase()}`;
 }
 
+let gerarTopoPreviewToken = 0; // evita que uma busca antiga sobrescreva uma mais nova
+async function atualizarTopoPreview(){
+  const preview = document.getElementById('gerarTopoPreview');
+  if(!preview) return;
+  const qtdEl = document.getElementById('gerarQtdInput');
+  const topoEl = document.getElementById('gerarTopoSelect');
+
+  let qtd = qtdEl ? parseInt(qtdEl.value,10) : 10;
+  if(isNaN(qtd) || qtd < 3) qtd = 3;
+  if(qtd > 100) qtd = 100;
+  const topoN = topoEl ? parseInt(topoEl.value,10) : 6;
+
+  const meuToken = ++gerarTopoPreviewToken;
+  preview.innerHTML = `<div class="res-loading" style="padding:6px 0;">Calculando dezenas…</div>`;
+
+  try{
+    const g = tendGameAtual;
+    const todosNumeros = Array.from({length:g.range.max-g.range.min+1},(_,i)=>i+g.range.min);
+    const {linhas} = await calcularFalhaDezenas(todosNumeros, qtd, g);
+    if(meuToken !== gerarTopoPreviewToken) return; // uma busca mais recente já está em andamento
+
+    const disponiveis = linhas.filter(l=>l.pct!==null).sort((a,b)=> b.pct - a.pct);
+    const top = disponiveis.slice(0, topoN);
+
+    if(!top.length){
+      preview.innerHTML = `<div style="font-size:12px;color:var(--muted);">Não foi possível calcular as dezenas agora.</div>`;
+      return;
+    }
+
+    const bolasOrdenadas = [...top].sort((a,b)=> a.n - b.n);
+    // azul mais escuro = maior chance de falhar; vai clareando conforme a chance cai
+    const AZUL_ESCURO = [29, 78, 216];   // #1D4ED8
+    const AZUL_CLARO  = [191, 219, 254]; // #BFDBFE
+    const corPorRank = (rank, total) => {
+      const t = total > 1 ? rank / (total - 1) : 0;
+      const rgb = AZUL_ESCURO.map((c0,i)=> Math.round(c0 + (AZUL_CLARO[i]-c0)*t));
+      return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+    };
+    const bolas = bolasOrdenadas.map(l=>{
+      const rank = top.findIndex(t=>t.n===l.n); // posição na ordem de maior p/ menor chance de falha
+      const cor = corPorRank(rank, top.length);
+      const corTexto = rank < top.length/2 ? '#fff' : 'var(--ink)';
+      return `<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:28px;height:28px;border-radius:50%;margin-right:4px;margin-bottom:4px;background:${cor};color:${corTexto};border-color:transparent;">${l.n.toString().padStart(2,'0')}</span>`;
+    }).join('');
+
+    const listaPct = top.map(l=>`
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="width:22px;height:22px;border-radius:7px;padding:1.5px;background:linear-gradient(135deg,#FCA5A5,#DC2626);flex:none;">
+          <div style="width:100%;height:100%;border-radius:5.5px;background:linear-gradient(135deg,#FEE2E2,#FCA5A5);display:flex;align-items:center;justify-content:center;">
+            <span style="font-family:'Baloo 2',sans-serif;font-weight:700;font-size:10px;color:#991B1B;">${l.n.toString().padStart(2,'0')}</span>
+          </div>
+        </div>
+        <div style="flex:1;height:4px;border-radius:3px;background:var(--ball-off);overflow:hidden;">
+          <div style="height:100%;border-radius:3px;width:${pctExibicao(l.pct)}%;background:linear-gradient(90deg,var(--magenta),var(--violet));"></div>
+        </div>
+        <span style="font-size:11px;font-weight:700;color:var(--violet-deep);width:30px;flex:none;text-align:right;">${pctExibicao(l.pct)}%</span>
+      </div>`).join('');
+
+    preview.innerHTML = `
+      <div style="font-size:11.5px;color:var(--muted);margin-bottom:6px;">Dezenas selecionadas com esse filtro (em ordem sequencial — azul mais escuro = maior chance de falhar):</div>
+      <div style="display:flex;align-items:center;flex-wrap:wrap;margin-bottom:12px;">${bolas}</div>
+      <div style="font-size:11.5px;color:var(--muted);margin-bottom:6px;">Chance de falha — da maior para a menor:</div>
+      <div>${listaPct}</div>`;
+  }catch(e){
+    if(meuToken !== gerarTopoPreviewToken) return;
+    console.error('atualizarTopoPreview falhou:', e);
+    preview.innerHTML = `<div style="font-size:12px;color:var(--muted);">Não foi possível calcular as dezenas agora.</div>`;
+  }
+}
+
 function renderGerarDuplas(itens, top, info){
   const cont = document.getElementById('gerarConteudo');
   const topo = itens[0];
@@ -3455,7 +5028,7 @@ function renderGerarDuplas(itens, top, info){
       <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
         ${topo.grupo.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:${bolaSize}px;height:${bolaSize}px;border-radius:50%;background:linear-gradient(160deg,#38BDF8,#1D4ED8);color:#fff;border-color:transparent;">${n.toString().padStart(2,'0')}</span>`).join('')}
       </div>
-      <div style="font-size:13.5px;color:var(--ink);">Chance média de falha: <strong>${topo.pctMedia.toFixed(1)}%</strong></div>
+      <div style="font-size:13.5px;color:var(--ink);">Chance média de falha: <strong>${pctExibicao(topo.pctMedia)}%</strong></div>
     </div>` : '';
 
   const rows = itens.map((item,i)=>{
@@ -3468,10 +5041,10 @@ function renderGerarDuplas(itens, top, info){
       ? `<div style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:999px;background:linear-gradient(120deg,#38BDF8,#1D4ED8);color:#fff;font-size:10.5px;font-weight:700;">⚠ MAIOR CHANCE DE FALHAR</div>`
       : '';
     return `
-    <div class="tend-row trio-clickable${emDestaque ? ' tend-top1':''}" data-trio="${item.grupo.join(',')}" style="${destaqueEstilo}cursor:pointer;">
+    <div class="tend-row trio-clickable${emDestaque ? ' tend-top1':''}" data-trio="${item.grupo.join(',')}" style="${destaqueEstilo}cursor:pointer;animation-delay:${Math.min(i,20)*280}ms;">
       <div style="display:flex;align-items:center;flex-wrap:wrap;gap:2px;margin-right:10px;">${bolas}</div>
       <div class="tend-info">
-        <div class="tend-pct">Chance média de falha: <strong>${item.pctMedia.toFixed(1)}%</strong></div>
+        <div class="tend-pct">Chance média de falha: <strong>${pctExibicao(item.pctMedia)}%</strong></div>
         ${falhaTag}
         <div style="font-size:11px;color:var(--violet);margin-top:4px;">Toque para ver a chance de falha de cada dezena →</div>
       </div>
@@ -3483,10 +5056,6 @@ function renderGerarDuplas(itens, top, info){
     ? `<br><span style="font-size:11.5px;">Mostrando as ${itens.length} melhores combinações de ${info.totalCombinacoes} possíveis, ordenadas pela maior chance média de falha.</span>`
     : '';
   cont.innerHTML = `
-    <div class="note" style="margin:14px 0;">
-      ${nomePlural.charAt(0).toUpperCase()+nomePlural.slice(1)} montad${tamanho===2?'as':(tamanho===3?'as':'os')} combinando as <strong>${top.length}</strong> dezenas com maior potencial de falhar no próximo concurso${infoTxt}, ordenad${tamanho===2||tamanho===3?'as':'os'} da maior para a menor chance média de falha.<br>
-      <span style="font-size:11.5px;">Estes grupos não necessariamente já saíram juntos — são combinações geradas a partir das dezenas individuais mais propensas a falhar.</span>${limitTxt}
-    </div>
     ${cardDestaque}
     ${rows}`;
 
@@ -3536,7 +5105,7 @@ async function carregarTrios(gameParam){
   const qtd = qtdEl ? parseInt(qtdEl.value,10) : 4;
   const cont = document.getElementById('trioConteudo');
   const btn = document.getElementById('trioAtualizarBtn');
-  if(btn) btn.disabled = true;
+  if(btn){ btn.disabled = true; setBtnLoading('trioAtualizarBtn', true); }
   if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
   try{
     const ultimo = await fetchConcursoLoteria(game);
@@ -3603,7 +5172,7 @@ async function carregarTrios(gameParam){
     console.error('carregarTrios falhou:', e);
     if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
   }finally{
-    if(btn) btn.disabled = false;
+    if(btn){ btn.disabled = false; setBtnLoading('trioAtualizarBtn', false); }
   }
 }
 
@@ -3632,13 +5201,13 @@ function renderTrios(repetidas, validos, numeroUltimo, trioDestaque){
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
         ${trioDestaque.trio.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:32px;height:32px;border-radius:50%;background:linear-gradient(160deg,#38BDF8,#1D4ED8);color:#fff;border-color:transparent;">${n.toString().padStart(2,'0')}</span>`).join('')}
       </div>
-      <div style="font-size:13.5px;color:var(--ink);">Chance média de falha: <strong>${trioDestaque.pctMedia.toFixed(1)}%</strong> (baseado nos últimos 10 concursos)</div>
+      <div style="font-size:13.5px;color:var(--ink);">Chance média de falha: <strong>${pctExibicao(trioDestaque.pctMedia)}%</strong> (baseado nos últimos 10 concursos)</div>
     </div>` : '';
 
   const rows = repetidas.map((item,i)=>{
     const perfeita = item.count === validos.length;
     const emDestaque = destaqueChave === item.trio.join(',');
-    const bolas = item.trio.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:30px;height:30px;border-radius:50%;margin-right:4px;${perfeita ? 'background:linear-gradient(160deg,#FF5F6D,#B7191F);color:#fff;border-color:transparent;' : ''}">${n.toString().padStart(2,'0')}</span>`).join('');
+    const bolas = item.trio.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:24px;height:24px;border-radius:50%;margin-right:4px;font-size:11px;${perfeita ? 'background:linear-gradient(160deg,#FF5F6D,#B7191F);color:#fff;border-color:transparent;' : ''}">${n.toString().padStart(2,'0')}</span>`).join('');
     const concursosTxt = item.concursos.map(c=>`Nº ${c}`).join(' e ');
     const destaqueEstilo = perfeita
       ? 'background:linear-gradient(120deg,rgba(255,95,109,.14),rgba(183,25,31,.10));border:1px solid rgba(183,25,31,.35);border-radius:12px;'
@@ -3650,9 +5219,9 @@ function renderTrios(repetidas, validos, numeroUltimo, trioDestaque){
       ? `<div style="display:inline-block;margin-top:4px;margin-left:4px;padding:2px 8px;border-radius:999px;background:linear-gradient(120deg,#38BDF8,#1D4ED8);color:#fff;font-size:10.5px;font-weight:700;">⚠ MAIOR CHANCE DE FALHAR</div>`
       : '';
     const pctTxt = item.pctMedia!==undefined && item.pctMedia!==null
-      ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;">Chance média de falha: ${item.pctMedia.toFixed(1)}%</div>` : '';
+      ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;">Chance média de falha: ${pctExibicao(item.pctMedia)}%</div>` : '';
     return `
-    <div class="tend-row trio-clickable${i===0 ? ' tend-top1':''}" data-trio="${item.trio.join(',')}" style="${destaqueEstilo}cursor:pointer;">
+    <div class="tend-row trio-clickable${i===0 ? ' tend-top1':''}" data-trio="${item.trio.join(',')}" style="${destaqueEstilo}cursor:pointer;animation-delay:${Math.min(i,20)*280}ms;">
       <div style="display:flex;align-items:center;gap:2px;margin-right:10px;">${bolas}</div>
       <div class="tend-info">
         <div class="tend-pct"${perfeita ? ' style="color:#B7191F;"' : ''}>Saíram juntas em ${item.count} de ${validos.length} concursos</div>
@@ -3697,8 +5266,8 @@ async function calcularFalhaDezenas(numerosAlvo, qtd, gameParam){
   );
   await Promise.all(pendentes);
 
-  const repetiu = {}, apareceu = {};
-  numerosAlvo.forEach(n=>{ repetiu[n]=0; apareceu[n]=0; });
+  const repetiu = {}, apareceu = {}, atraso = {};
+  numerosAlvo.forEach(n=>{ repetiu[n]=0; apareceu[n]=0; atraso[n]=null; });
   let pares = 0;
   for(let i=1;i<concursos.length;i++){
     const anterior = concursos[i];
@@ -3715,14 +5284,64 @@ async function calcularFalhaDezenas(numerosAlvo, qtd, gameParam){
     });
   }
 
+  // atraso = há quantos concursos (dentro da janela buscada) a dezena não sai,
+  // contando a partir do concurso mais recente (índice 0)
+  concursos.forEach((data, i)=>{
+    if(!data) return;
+    const dezenas = (data.dezenas||[]).map(d=>parseInt(d,10));
+    numerosAlvo.forEach(n=>{
+      if(atraso[n]===null && dezenas.includes(n)) atraso[n] = i;
+    });
+  });
+  numerosAlvo.forEach(n=>{ if(atraso[n]===null) atraso[n] = concursos.length; });
+
   const linhas = numerosAlvo.map(n=>{
     const base = apareceu[n];
     const pct = base > 0 ? (1 - repetiu[n]/base) * 100 : null;
-    return {n, repetiu: repetiu[n], apareceu: base, pct};
+    return {n, repetiu: repetiu[n], apareceu: base, pct, atraso: atraso[n]};
   });
 
   return {linhas, pares, numeroUltimo};
 }
+
+function abrirCentroDezena(n){
+  const dados = centroDadosPorN[n];
+  const head = document.getElementById('centroDezenaHead');
+  const cont = document.getElementById('centroDezenaConteudo');
+  const overlay = document.getElementById('overlayCentroDezena');
+  if(!dados){
+    head.textContent = `DEZENA ${n.toString().padStart(2,'0')}`;
+    cont.innerHTML = `<div class="note" style="margin:14px 0;">Sem dados calculados para essa dezena ainda.</div>`;
+    overlay.classList.add('show');
+    return;
+  }
+
+  const semDados = dados.pct === null;
+  head.textContent = `DEZENA ${n.toString().padStart(2,'0')}`;
+
+  if(semDados){
+    cont.innerHTML = `
+      <div class="note" style="margin:14px 0;">
+        Essa dezena não saiu em nenhum dos últimos concursos analisados — por isso ainda não há probabilidade calculada para ela.<br><br>
+        Atraso: sem sair há <strong>${dados.atraso}</strong> concurso${dados.atraso===1?'':'s'}.
+      </div>`;
+  }else{
+    const chanceVir = pctExibicao(100 - dados.pct);
+    const chanceFalhar = 100 - chanceVir;
+    cont.innerHTML = `
+      <div class="note" style="margin:14px 0;">
+        <strong>Chance de vir</strong> no próximo concurso: <span style="color:#2563EB;font-weight:700;">${chanceVir}%</span><br>
+        <strong>Chance de falhar</strong> no próximo concurso: <span style="color:#DC2626;font-weight:700;">${chanceFalhar}%</span><br><br>
+        Saiu <strong>${dados.apareceu}</strong> vez${dados.apareceu===1?'':'es'} no período analisado, e repetiu no concurso seguinte em <strong>${dados.repetiu}</strong> dessas vezes.<br><br>
+        Atraso: sem sair há <strong>${dados.atraso}</strong> concurso${dados.atraso===1?'':'s'}.
+      </div>`;
+  }
+  overlay.classList.add('show');
+}
+
+document.getElementById('centroDezenaFechar').addEventListener('click', ()=>{
+  document.getElementById('overlayCentroDezena').classList.remove('show');
+});
 
 async function abrirTrioProb(trio){
   const overlay = document.getElementById('overlayTrioProb');
@@ -3739,7 +5358,7 @@ async function abrirTrioProb(trio){
     info.innerHTML = `${rotulo} <strong>${trioTxt}</strong> · baseado nos últimos <strong>${pares}</strong> concursos (até Nº ${numeroUltimo})`;
 
     const rows = linhas.map(l=>{
-      const pctTxt = l.pct===null ? 'sem dados' : `${l.pct.toFixed(1)}% de chance de falhar`;
+      const pctTxt = l.pct===null ? 'sem dados' : `${pctExibicao(l.pct)}% de chance de falhar`;
       const largura = l.pct===null ? 0 : l.pct;
       const sub = l.apareceu > 0
         ? `Historicamente repetiu em ${l.repetiu} de ${l.apareceu} vez${l.apareceu===1?'':'es'} em que saiu`
@@ -3778,7 +5397,7 @@ async function carregarFalhas(gameParam){
   const qtd = qtdEl ? parseInt(qtdEl.value,10) : 4;
   const cont = document.getElementById('falhasConteudo');
   const btn = document.getElementById('falhasAtualizarBtn');
-  if(btn) btn.disabled = true;
+  if(btn){ btn.disabled = true; setBtnLoading('falhasAtualizarBtn', true); }
   if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
   try{
     const ultimo = await fetchConcursoLoteria(game);
@@ -3841,7 +5460,7 @@ async function carregarFalhas(gameParam){
     console.error('carregarFalhas falhou:', e);
     if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
   }finally{
-    if(btn) btn.disabled = false;
+    if(btn){ btn.disabled = false; setBtnLoading('falhasAtualizarBtn', false); }
   }
 }
 
@@ -3872,13 +5491,13 @@ function renderFalhas(repetidos, validos, numeroUltimo, tamanho){
       <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:6px;">
         ${topo.grupo.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:32px;height:32px;border-radius:50%;background:linear-gradient(160deg,#38BDF8,#1D4ED8);color:#fff;border-color:transparent;">${n.toString().padStart(2,'0')}</span>`).join('')}
       </div>
-      <div style="font-size:13.5px;color:var(--ink);">Chance média de falha: <strong>${topo.pctMedia.toFixed(1)}%</strong> (baseado nos últimos 10 concursos)</div>
+      <div style="font-size:13.5px;color:var(--ink);">Chance média de falha: <strong>${pctExibicao(topo.pctMedia)}%</strong> (baseado nos últimos 10 concursos)</div>
     </div>` : '';
 
   const rows = repetidos.map((item,i)=>{
     const perfeita = item.count === validos.length;
     const emDestaque = i===0 && topo.pctMedia!==null && topo.pctMedia!==undefined;
-    const bolas = item.grupo.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:30px;height:30px;border-radius:50%;margin-right:4px;${perfeita ? 'background:linear-gradient(160deg,#FF5F6D,#B7191F);color:#fff;border-color:transparent;' : ''}">${n.toString().padStart(2,'0')}</span>`).join('');
+    const bolas = item.grupo.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:24px;height:24px;border-radius:50%;margin-right:4px;font-size:11px;${perfeita ? 'background:linear-gradient(160deg,#FF5F6D,#B7191F);color:#fff;border-color:transparent;' : ''}">${n.toString().padStart(2,'0')}</span>`).join('');
     const concursosTxt = item.concursos.map(c=>`Nº ${c}`).join(' e ');
     const destaqueEstilo = perfeita
       ? 'background:linear-gradient(120deg,rgba(255,95,109,.14),rgba(183,25,31,.10));border:1px solid rgba(183,25,31,.35);border-radius:12px;'
@@ -3890,9 +5509,9 @@ function renderFalhas(repetidos, validos, numeroUltimo, tamanho){
       ? `<div style="display:inline-block;margin-top:4px;margin-left:4px;padding:2px 8px;border-radius:999px;background:linear-gradient(120deg,#38BDF8,#1D4ED8);color:#fff;font-size:10.5px;font-weight:700;">⚠ MAIOR CHANCE DE FALHAR</div>`
       : '';
     const pctTxt = item.pctMedia!==undefined && item.pctMedia!==null
-      ? `<div class="tend-pct" style="margin-bottom:2px;">Chance média de falha: <strong>${item.pctMedia.toFixed(1)}%</strong></div>` : '';
+      ? `<div class="tend-pct" style="margin-bottom:2px;">Chance média de falha: <strong>${pctExibicao(item.pctMedia)}%</strong></div>` : '';
     return `
-    <div class="tend-row trio-clickable${i===0 && emDestaque ? ' tend-top1':''}" data-trio="${item.grupo.join(',')}" style="${destaqueEstilo}cursor:pointer;flex-wrap:wrap;">
+    <div class="tend-row trio-clickable${i===0 && emDestaque ? ' tend-top1':''}" data-trio="${item.grupo.join(',')}" style="${destaqueEstilo}cursor:pointer;flex-wrap:wrap;animation-delay:${Math.min(i,20)*280}ms;">
       <div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-right:10px;max-width:110px;">${bolas}</div>
       <div class="tend-info" style="min-width:160px;">
         ${pctTxt}
@@ -3999,7 +5618,7 @@ function mudarJogoTendencia(g){
   });
 
   const titulo = document.getElementById('tendenciaTitulo');
-  if(titulo) titulo.textContent = g.code === LOTOFACIL_GAME.code ? 'Tendência' : `Tendência · ${g.nome}`;
+  if(titulo) titulo.textContent = g.code === LOTOFACIL_GAME.code ? 'Estatísticas' : `Estatísticas · ${g.nome}`;
 
   atualizarUltimoResultadoTend(g);
 
@@ -4016,6 +5635,7 @@ function mudarJogoTendencia(g){
   if(falhasTipoEl) falhasTipoEl.value = faixaGrande ? '2' : '3';
 
   falhaCarregouUmaVez = false;
+  molduraCarregouUmaVez = false;
   trioCarregouUmaVez = false;
   falhasCarregouUmaVez = false;
   quenteCarregouUmaVez = false;
@@ -4059,20 +5679,20 @@ function renderUltimoResultadoTend(g, data){
   if(!box) return;
   const nums = (data.dezenas||[]).map(d=>parseInt(d,10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b);
   const ballsHtml = nums.length
-    ? `<div class="result-balls" style="justify-content:center;flex-wrap:wrap;gap:5px;margin-bottom:6px;">${nums.map(n=>`<div class="result-ball-sm">${n.toString().padStart(2,'0')}</div>`).join('')}</div>`
+    ? `<div class="result-balls" style="justify-content:center;flex-wrap:wrap;gap:4px;margin-bottom:5px;">${nums.map(n=>`<div class="result-ball-sm" style="width:21px;height:21px;font-size:8.5px;">${n.toString().padStart(2,'0')}</div>`).join('')}</div>`
     : '';
   const maisRecente = concursoMaisRecentePorJogo[g.slug];
   const podeAvancar = maisRecente && data.concurso < maisRecente;
   tendVendoUltimo = !podeAvancar; // só true quando o concurso mostrado é de fato o mais recente conhecido
   box.innerHTML = `
-    <div class="res-card-title" style="margin-bottom:6px;font-size:12.5px;">Último resultado</div>
-    <div class="res-nav-row" style="margin-bottom:6px;">
-      <button class="res-nav-btn" id="tendResAnterior" style="padding:6px 9px;font-size:10.5px;">← Anterior</button>
-      <div class="res-concurso-num" style="font-size:16px;">Nº ${data.concurso}</div>
-      <button class="res-nav-btn" id="tendResProximo" style="padding:6px 9px;font-size:10.5px;" ${podeAvancar ? '' : 'disabled'}>Próximo →</button>
+    <div class="res-card-title" style="margin-bottom:4px;font-size:11px;">Último resultado</div>
+    <div class="res-nav-row" style="margin-bottom:4px;">
+      <button class="res-nav-btn" id="tendResAnterior" style="padding:4px 7px;font-size:9px;">← Anterior</button>
+      <div class="res-concurso-num" style="font-size:13px;">Nº ${data.concurso}</div>
+      <button class="res-nav-btn" id="tendResProximo" style="padding:4px 7px;font-size:9px;" ${podeAvancar ? '' : 'disabled'}>Próximo →</button>
     </div>
     ${ballsHtml}
-    <div class="res-local" style="font-size:10.5px;">${data.local ? `Sorteio em ${data.local} • ` : ''}${data.data || '—'}</div>`;
+    <div class="res-local" style="font-size:9px;">${data.local ? `Sorteio em ${data.local} • ` : ''}${data.data || '—'}</div>`;
 
   document.getElementById('tendResAnterior').addEventListener('click', ()=> atualizarUltimoResultadoTend(g, data.concurso-1));
   const btnProx = document.getElementById('tendResProximo');
@@ -4287,12 +5907,13 @@ document.getElementById('listaResultadosVoltar').addEventListener('click', openD
 // ---------- slider ----------
 const slider = document.getElementById('qtdSlider');
 const sliderHint = document.getElementById('sliderHint');
+const sliderHintInput = document.getElementById('sliderHintInput');
 
 function applySliderCount(n){
   n = Math.max(parseInt(slider.min,10), Math.min(parseInt(slider.max,10), n));
   targetCount = n;
   slider.value = n;
-  sliderHint.textContent = `${n} dezenas`;
+  sliderHintInput.value = n;
   // as dezenas fixadas nunca saem da seleção, mesmo mexendo no slider;
   // ele só completa/ajusta o restante com as próximas dezenas em sequência (1..N)
   const novaSelecao = new Set(fixedNums);
@@ -4312,9 +5933,18 @@ slider.addEventListener('change', ()=>{
   applySliderCount(parseInt(slider.value,10));
 });
 slider.addEventListener('input', ()=>{
-  sliderHint.textContent = `${slider.value} dezenas`;
+  sliderHintInput.value = slider.value;
 });
-sliderHint.textContent = `${targetCount} dezenas`;
+sliderHintInput.value = targetCount;
+sliderHintInput.addEventListener('input', ()=>{
+  // já pinta os quadradinhos na hora, a cada dígito digitado — sem esperar sair do campo
+  const n = parseInt(sliderHintInput.value,10);
+  if(!isNaN(n)) applySliderCount(n);
+});
+sliderHintInput.addEventListener('change', ()=>{
+  const n = parseInt(sliderHintInput.value,10);
+  applySliderCount(isNaN(n) ? targetCount : n);
+});
 
 document.getElementById('qtdSliderMinus').addEventListener('click', ()=>{
   applySliderCount(parseInt(slider.value,10) - 1);
@@ -4476,7 +6106,7 @@ function fecharOutrasOverlaysDeAba(manter){
 // uma janela antiga escondendo a tela nova por trás
 function fecharModaisGlobais(manter){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
-    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer',
+    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
     'overlayGeradorLoteria','overlayGeradorFiltro'];
   modalIds.forEach(id=>{
     if(id === manter) return;
@@ -4489,7 +6119,7 @@ function fecharModaisGlobais(manter){
 
 function goHome(){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
-    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer',
+    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
     'overlayGeradorLoteria','overlayGeradorFiltro'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
@@ -4507,7 +6137,7 @@ function goHome(){
 
 function irParaSelecao(){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
-    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay','drawer',
+    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
     'overlayGeradorLoteria','overlayGeradorFiltro','overlayListaResultados'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
@@ -4600,6 +6230,11 @@ function abrirTendencia(){
   setActiveTab('tabAnalise');
 }
 document.getElementById('menuTendencia').addEventListener('click', abrirTendencia);
+document.getElementById('menuSairLogin').addEventListener('click', ()=>{
+  if(confirm('Sair deste usuário neste aparelho? Você vai precisar digitar usuário e senha de novo.')){
+    sairDoLogin();
+  }
+});
 document.getElementById('tendenciaVoltar').addEventListener('click', ()=>{
   document.getElementById('overlayTendencia').classList.remove('show');});
 document.getElementById('tendAtualizarBtn').addEventListener('click', ()=>{
@@ -4607,18 +6242,95 @@ document.getElementById('tendAtualizarBtn').addEventListener('click', ()=>{
   carregarTendencia(tendGameAtual);
 });
 document.getElementById('falhaAtualizarBtn').addEventListener('click', ()=>carregarFalha(tendGameAtual));
+document.getElementById('molduraAtualizarBtn').addEventListener('click', ()=>carregarMoldura(tendGameAtual));
 document.getElementById('trioAtualizarBtn').addEventListener('click', ()=>carregarTrios(tendGameAtual));
 document.getElementById('falhasAtualizarBtn').addEventListener('click', ()=>carregarFalhas(tendGameAtual));
 document.getElementById('quenteAtualizarBtn').addEventListener('click', ()=>carregarQuente(tendGameAtual));
+document.getElementById('manualAtualizarBtn').addEventListener('click', ()=>carregarManual(tendGameAtual));
+document.getElementById('manualLimparBtn').addEventListener('click', ()=>{
+  ['manualDezena1','manualDezena2','manualDezena3','manualDezena4','manualDezena5','manualDezena6','manualDezena7','manualDezena8','manualDezena9'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  const cont = document.getElementById('manualConteudo');
+  if(cont) cont.innerHTML = '';
+  const primeiro = document.getElementById('manualDezena1');
+  if(primeiro) primeiro.focus();
+});
+(function(){
+  const campos = ['manualDezena1','manualDezena2','manualDezena3','manualDezena4','manualDezena5','manualDezena6','manualDezena7','manualDezena8','manualDezena9'];
+  const timers = {}; // id -> timeout pendente de avanço rápido (dezena de 1 dígito só)
+
+  function validarDezenaCampo(el){
+    const game = (typeof tendGameAtual !== 'undefined' && tendGameAtual) ? tendGameAtual : null;
+    if(!game || !game.range) return;
+    const val = parseInt(el.value, 10);
+    if(isNaN(val)) return;
+    if(val < game.range.min || val > game.range.max){
+      el.classList.remove('shake-invalido');
+      // força reflow pra reiniciar a animação mesmo se ela já tiver rodado antes
+      void el.offsetWidth;
+      el.classList.add('shake-invalido');
+      if(navigator.vibrate) navigator.vibrate(200);
+      setTimeout(()=> el.classList.remove('shake-invalido'), 500);
+    }
+  }
+
+  function cancelarTimer(id){
+    if(timers[id]){ clearTimeout(timers[id]); delete timers[id]; }
+  }
+
+  campos.forEach((id, idx)=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('input', ()=>{
+      // mantém só dígitos, no máximo 2
+      el.value = el.value.replace(/\D/g,'').slice(0,2);
+      cancelarTimer(id);
+
+      if(el.value.length >= 2){
+        validarDezenaCampo(el);
+        if(idx < campos.length-1){
+          const proximo = document.getElementById(campos[idx+1]);
+          // espera uma piscada da barra (cursor) no campo atual antes de avançar
+          timers[id] = setTimeout(()=>{
+            delete timers[id];
+            if(proximo){ proximo.focus(); proximo.select(); }
+          }, 530);
+        }
+      } else if(el.value.length === 1){
+        // dezena de 1 dígito só (ex.: "1", "5", "9") — não espera um 2º dígito
+        // por muito tempo, pula rápido pro próximo quadradinho
+        if(idx < campos.length-1){
+          const proximo = document.getElementById(campos[idx+1]);
+          timers[id] = setTimeout(()=>{
+            delete timers[id];
+            validarDezenaCampo(el);
+            if(proximo){ proximo.focus(); proximo.select(); }
+          }, 400);
+        }
+      }
+    });
+    el.addEventListener('blur', ()=>{ cancelarTimer(id); validarDezenaCampo(el); });
+    el.addEventListener('keydown', (e)=>{
+      if(e.key === 'Backspace' && el.value === '' && idx > 0){
+        const anterior = document.getElementById(campos[idx-1]);
+        if(anterior){ anterior.focus(); }
+      }
+    });
+  });
+})();
 
 // ---------- sub-abas dentro de Tendência (Tendência / Pode falhar / Trios / Falhas) ----------
 const TEND_SUBTABS = [
   {btn:'subtabTendencia', panel:'tendPanel'},
   {btn:'subtabFalha', panel:'falhaPanel'},
+  {btn:'subtabMoldura', panel:'molduraPanel'},
   {btn:'subtabGerar', panel:'gerarPanel'},
   {btn:'subtabTrios', panel:'trioPanel'},
   {btn:'subtabFalhas', panel:'falhasPanel'},
-  {btn:'subtabQuente', panel:'quentePanel'}
+  {btn:'subtabQuente', panel:'quentePanel'},
+  {btn:'subtabManual', panel:'manualPanel'}
 ];
 function ativarSubtabTendencia(idAtivo){
   TEND_SUBTABS.forEach(s=>{
@@ -4634,6 +6346,7 @@ document.getElementById('subtabTendencia').addEventListener('click', ()=>{
 });
 document.getElementById('subtabGerar').addEventListener('click', ()=>{
   ativarSubtabTendencia('subtabGerar');
+  atualizarTopoPreview();
 });
 document.getElementById('gerarBtn').addEventListener('click', gerarDuplas);
 const gerarTamanhoSelectEl = document.getElementById('gerarTamanhoSelect');
@@ -4641,9 +6354,29 @@ if(gerarTamanhoSelectEl){
   gerarTamanhoSelectEl.addEventListener('change', atualizarLabelGerarBtn);
   atualizarLabelGerarBtn();
 }
+const gerarQtdInputEl = document.getElementById('gerarQtdInput');
+if(gerarQtdInputEl) gerarQtdInputEl.addEventListener('change', atualizarTopoPreview);
+const gerarQtdAtualizarBtnEl = document.getElementById('gerarQtdAtualizarBtn');
+if(gerarQtdAtualizarBtnEl) gerarQtdAtualizarBtnEl.addEventListener('click', async ()=>{
+  const icon = document.getElementById('gerarQtdAtualizarIcon');
+  if(icon) icon.classList.add('girando');
+  gerarQtdAtualizarBtnEl.disabled = true;
+  try{
+    await atualizarTopoPreview();
+  }finally{
+    if(icon) icon.classList.remove('girando');
+    gerarQtdAtualizarBtnEl.disabled = false;
+  }
+});
+const gerarTopoSelectEl = document.getElementById('gerarTopoSelect');
+if(gerarTopoSelectEl) gerarTopoSelectEl.addEventListener('change', atualizarTopoPreview);
 document.getElementById('subtabFalha').addEventListener('click', ()=>{
   ativarSubtabTendencia('subtabFalha');
   if(!falhaCarregouUmaVez) carregarFalha(tendGameAtual);
+});
+document.getElementById('subtabMoldura').addEventListener('click', ()=>{
+  ativarSubtabTendencia('subtabMoldura');
+  if(!molduraCarregouUmaVez) carregarMoldura(tendGameAtual);
 });
 document.getElementById('subtabTrios').addEventListener('click', ()=>{
   ativarSubtabTendencia('subtabTrios');
@@ -4656,6 +6389,9 @@ document.getElementById('subtabFalhas').addEventListener('click', ()=>{
 document.getElementById('subtabQuente').addEventListener('click', ()=>{
   ativarSubtabTendencia('subtabQuente');
   if(!quenteCarregouUmaVez) carregarQuente(tendGameAtual);
+});
+document.getElementById('subtabManual').addEventListener('click', ()=>{
+  ativarSubtabTendencia('subtabManual');
 });
 
 // (barra de abas inferior removida — navegação agora só pelo menu ☰ do cabeçalho e pelo menu lateral)
@@ -4843,14 +6579,13 @@ document.getElementById('historicoFechar').addEventListener('click', ()=>{
   document.getElementById('overlayHistorico').classList.remove('show');
 });
 document.getElementById('historicoLimpar').addEventListener('click', ()=>{
-  if(confirm('Apagar todo o histórico salvo neste aparelho?')){
-    localStorage.removeItem(HIST_KEY);
-    renderHistorico();
-  }
+  localStorage.removeItem(HIST_KEY);
+  renderHistorico();
 });
 
 function refreshUI(){
-  document.getElementById('totalCount').textContent = selected.size;
+  const totalCountEl = document.getElementById('totalCount');
+  if(totalCountEl) totalCountEl.textContent = selected.size;
   computeStats();
   updateFixarBtnState();
   syncQtdSorteio();
@@ -4859,7 +6594,7 @@ function refreshUI(){
   targetCount = n;
   if(typeof slider !== 'undefined'){
     slider.value = n;
-    sliderHint.textContent = `${n} dezenas`;
+    sliderHintInput.value = n;
   }
   const ok = n >= 3;
   document.getElementById('btnGerar').disabled = !ok;
@@ -4867,17 +6602,19 @@ function refreshUI(){
   if(btnDesd) btnDesd.disabled = !ok;
 
   const hint = document.getElementById('statusHint');
-  const fixaTxt = fixedNums.size > 0
-    ? ` <strong style="color:#8C1010;">${fixedNums.size} dezena${fixedNums.size===1?'':'s'} fixa${fixedNums.size===1?'':'s'}</strong> (clique duas vezes numa dezena vermelha para desfixar).`
-    : ' Dica: clique duas vezes numa dezena para fixá-la em todos os jogos gerados.';
-  if(n === 0){
-    hint.textContent = 'Toque nas bolinhas acima para escolher suas dezenas (mínimo 3).';
-  } else if(n < 3){
-    hint.textContent = `Faltam ${3-n} dezena(s) — o mínimo para gerar é 3.`;
-  } else if(n < gameSize){
-    hint.innerHTML = `Você marcou ${n} dezenas — os botões já estão liberados, mas cada jogo precisa de ${gameSize} dezenas (veja o controle acima), então com menos de ${gameSize} nenhum jogo completo será formado.${fixaTxt}`;
-  } else {
-    hint.innerHTML = `Pronto! Você marcou ${n} dezenas — os botões abaixo já estão liberados.${fixaTxt}`;
+  if(hint){
+    const fixaTxt = fixedNums.size > 0
+      ? ` <strong style="color:#8C1010;">${fixedNums.size} dezena${fixedNums.size===1?'':'s'} fixa${fixedNums.size===1?'':'s'}</strong> (clique duas vezes numa dezena vermelha para desfixar).`
+      : ' Dica: clique duas vezes numa dezena para fixá-la em todos os jogos gerados.';
+    if(n === 0){
+      hint.textContent = 'Toque nas bolinhas acima para escolher suas dezenas (mínimo 3).';
+    } else if(n < 3){
+      hint.textContent = `Faltam ${3-n} dezena(s) — o mínimo para gerar é 3.`;
+    } else if(n < gameSize){
+      hint.innerHTML = `Você marcou ${n} dezenas — os botões já estão liberados, mas cada jogo precisa de ${gameSize} dezenas (veja o controle acima), então com menos de ${gameSize} nenhum jogo completo será formado.${fixaTxt}`;
+    } else {
+      hint.innerHTML = `Pronto! Você marcou ${n} dezenas — os botões abaixo já estão liberados.${fixaTxt}`;
+    }
   }
   hideOutputs();
 }
@@ -4908,14 +6645,19 @@ function showResultsScreen(summaryHtml, games, skipHistorico){
   lastGames = games;
   document.getElementById('summaryBox2').innerHTML = summaryHtml;
   const countLbl = document.getElementById('gamesCountLabel');
-  if(countLbl) countLbl.textContent = `${games.length} jogo${games.length===1?'':'s'} gerado${games.length===1?'':'s'}`;
+  const countLbl2 = document.getElementById('gamesCountLabel2');
+  const dezenasPorJogo = games.length ? games[0].length : 0;
+  const textoContagem = `${games.length} jogo${games.length===1?'':'s'} gerado${games.length===1?'':'s'} de ${dezenasPorJogo} dezena${dezenasPorJogo===1?'':'s'} cada`;
+  if(countLbl) countLbl.textContent = textoContagem;
+  if(countLbl2) countLbl2.textContent = textoContagem;
   resetConferidor();
   mostrarDezenasEscolhidas();
   renderGameCards();
+  iniciarSorteio2(); // abre a tela de jogos já direto no sorteio com a bolinha, pulando a tela de configuração
   // fecha qualquer overlay/tela que esteja aberta por cima (Tendência, Histórico, etc.)
   // pra tela de resultados não ficar escondida atrás dela
   ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
-    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlay',
+    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay',
     'drawer','overlayListaResultados'].forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.classList.remove('show');
@@ -4925,7 +6667,7 @@ function showResultsScreen(summaryHtml, games, skipHistorico){
   document.querySelector('.app > section:not(#resultsSection)').style.display='none';
   document.getElementById('resultsSection').style.display='block';
   window.scrollTo(0,0);
-  if(!skipHistorico) saveToHistorico(summaryHtml, games);
+  // não salva mais automaticamente no histórico ao gerar — só quando o usuário aperta "Salvar"
 }
 
 function renderGameCards(){
@@ -5133,9 +6875,17 @@ function sortGames(games, mode){
 // sempre abre o modal de amostragem (dezenas por cartão + quantidade de jogos),
 // igual pra qualquer quantidade de dezenas selecionadas.
 document.getElementById('btnGerar').addEventListener('click', ()=>{
-  hideOutputs();
-  const nums = [...selected].sort((a,b)=>a-b);
-  openSamplerModal(nums);
+  const spinner = document.getElementById('btnGerarSpinner');
+  const label = document.getElementById('btnGerarLabel');
+  spinner.style.display = 'inline-block';
+  label.textContent = 'GERANDO...';
+  setTimeout(()=>{
+    hideOutputs();
+    const nums = [...selected].sort((a,b)=>a-b);
+    openSamplerModal(nums);
+    spinner.style.display = 'none';
+    label.textContent = 'GERAR';
+  }, 400);
 });
 
 // ---------- modal: amostragem para fechamentos grandes ----------
@@ -5211,10 +6961,22 @@ document.getElementById('modalCancel').addEventListener('click', ()=>{
 });
 
 document.getElementById('modalConfirm').addEventListener('click', ()=>{
-  const dpc = parseInt(dezenasPorCartaoSlider.value,10);
-  const qtd = parseInt(qtdJogosSlider.value,10);
-  overlay.classList.remove('show');
-  generateSampledCartoes(modalNums, dpc, qtd);
+  const spinner = document.getElementById('modalConfirmSpinner');
+  const label = document.getElementById('modalConfirmLabel');
+  const btn = document.getElementById('modalConfirm');
+  spinner.style.display = 'inline-block';
+  label.textContent = 'GERANDO...';
+  btn.disabled = true;
+  // pequeno delay pra garantir que a bolinha apareça na tela antes do cálculo pesado começar
+  setTimeout(()=>{
+    const dpc = parseInt(dezenasPorCartaoSlider.value,10);
+    const qtd = parseInt(qtdJogosSlider.value,10);
+    overlay.classList.remove('show');
+    generateSampledCartoes(modalNums, dpc, qtd);
+    spinner.style.display = 'none';
+    label.textContent = 'CONFIRMAR';
+    btn.disabled = false;
+  }, 50);
 });
 
 function generateSampledCartoes(nums, dpc, qtd){
@@ -5491,7 +7253,7 @@ refreshUI();
 (function(){
   // ordem de prioridade ao fechar: o que estiver mais "por cima"/mais aninhado primeiro
   const MODAL_IDS = [
-    'overlayNomeJogo','overlayFotoFull','drawer','overlay','overlayTrioProb','overlayProb',
+    'overlayNomeJogo','overlayFotoFull','drawer','overlay','overlayTrioProb','overlayCentroDezena','overlayProb',
     'overlayHistorico','overlayErreX','overlayGaleria',
     'overlayGeradorFiltro','overlayGeradorLoteria',
     'overlayAltaQueda','overlayResultado','overlayTendencia'
@@ -5588,10 +7350,59 @@ refreshUI();
   });
 })();
 
-// ---------- PWA: registro do service worker ----------
+// ---------- PWA: registro do service worker + aviso de nova versão disponível ----------
+function mostrarBannerAtualizacaoApp(registration){
+  if(document.getElementById('appUpdateBanner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'appUpdateBanner';
+  banner.style.cssText = 'position:fixed;left:12px;right:12px;bottom:14px;z-index:100000;background:linear-gradient(135deg,#4C1D95,#6D28D9);color:#fff;border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);font-family:"Baloo 2",sans-serif;';
+  banner.innerHTML = `
+    <span style="font-size:13.5px;font-weight:600;flex:1;">🔄 Nova versão do app disponível!</span>
+    <button id="appUpdateBtn" style="background:#fff;color:#4C1D95;border:none;border-radius:9px;padding:9px 14px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;">ATUALIZAR</button>
+  `;
+  document.body.appendChild(banner);
+  document.getElementById('appUpdateBtn').addEventListener('click', ()=>{
+    const btn = document.getElementById('appUpdateBtn');
+    btn.textContent = '...';
+    btn.disabled = true;
+    let jaRecarregou = false;
+    function recarregar(){
+      if(jaRecarregou) return;
+      jaRecarregou = true;
+      location.reload();
+    }
+    if(registration && registration.waiting){
+      registration.waiting.postMessage({type:'SKIP_WAITING'});
+    }
+    navigator.serviceWorker.addEventListener('controllerchange', recarregar, {once:true});
+    // caso o sw.js ainda não trate essa mensagem, recarrega mesmo assim depois de um tempinho
+    setTimeout(recarregar, 1200);
+  });
+}
+
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
+    navigator.serviceWorker.register('sw.js').then(registration=>{
+      // já tinha uma versão nova baixada esperando (ex: usuário abriu o app de novo)
+      if(registration.waiting && navigator.serviceWorker.controller){
+        mostrarBannerAtualizacaoApp(registration);
+      }
+      registration.addEventListener('updatefound', ()=>{
+        const novoWorker = registration.installing;
+        if(!novoWorker) return;
+        novoWorker.addEventListener('statechange', ()=>{
+          if(novoWorker.state === 'installed' && navigator.serviceWorker.controller){
+            // só avisa se já havia uma versão anterior rodando (não na primeira instalação)
+            mostrarBannerAtualizacaoApp(registration);
+          }
+        });
+      });
+      // confere no GitHub se tem versão nova: a cada 60s e sempre que o usuário volta pro app
+      setInterval(()=> registration.update().catch(()=>{}), 60000);
+      document.addEventListener('visibilitychange', ()=>{
+        if(document.visibilityState === 'visible') registration.update().catch(()=>{});
+      });
+    }).catch(()=>{});
   });
 }
 </script>
