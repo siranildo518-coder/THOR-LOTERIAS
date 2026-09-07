@@ -1,6 +1,6 @@
 // Mude esse número TODA VEZ que você atualizar o index.html e subir pro GitHub.
 // É essa mudança que faz o navegador do cliente perceber que existe versão nova.
-const CACHE_NAME = 'thor-loterias-v3';
+const CACHE_NAME = 'thor-loterias-v4';
 
 const CACHE_FILES = [
   './index.html',
