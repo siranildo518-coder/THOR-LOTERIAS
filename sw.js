@@ -1,13 +1,13 @@
 // Esse número é gerado automaticamente (data + hora) toda vez que o Claude
 // entrega uma atualização do index.html. Não precisa mudar isso na mão:
 // é essa mudança que faz o navegador do cliente perceber a versão nova.
-const CACHE_NAME = 'thor-loterias-2026-09-07-1808';
+const CACHE_NAME = 'thor-loterias-2026-09-07-2056';
 
 const CACHE_FILES = [
   './index.html',
   './manifest.json',
-  './icone-192.png',
-  './icone-512.png'
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
