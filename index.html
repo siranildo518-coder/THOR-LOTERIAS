@@ -1584,24 +1584,33 @@ document.addEventListener('selectstart', e=>{
   }
   .conf-ball:disabled{opacity:.35;cursor:not-allowed;}
   .escolhida-ball{
-    width:24px;
-    height:24px;
+    width:28px;
+    height:28px;
     border-radius:50%;
     display:inline-flex;
     align-items:center;
     justify-content:center;
     font-family:'Baloo 2',sans-serif;
     font-weight:700;
-    font-size:10px;
-    border:1.5px solid var(--line);
-    background:#fff;
-    color:var(--ink);
+    font-size:10.5px;
+    border:none;
+    background:radial-gradient(circle at 32% 28%, #fff6d6 0%, #ffe388 12%, #f3c445 32%, #d9a02a 55%, #a9700f 78%, #7a4e08 100%);
+    color:#4a3105;
+    text-shadow:0 1px 0 rgba(255,255,255,.45);
+    box-shadow:
+      inset -3px -4px 5px rgba(0,0,0,.4),
+      inset 2px 2px 3px rgba(255,255,255,.75),
+      0 2px 5px rgba(0,0,0,.35);
   }
   .escolhida-ball.hit{
-    background:linear-gradient(160deg,var(--magenta),var(--violet));
-    border-color:transparent;
+    background:radial-gradient(circle at 32% 28%, #ffb3b3 0%, #ff6b6b 14%, #e63535 34%, #c50f0f 58%, #8a0000 82%, #5c0000 100%);
     color:#fff;
-    box-shadow:0 3px 10px rgba(109,40,217,.35);
+    text-shadow:0 1px 1px rgba(0,0,0,.35);
+    border:0.75px solid #fff;
+    box-shadow:
+      inset -3px -4px 5px rgba(0,0,0,.45),
+      inset 2px 2px 3px rgba(255,255,255,.6),
+      0 3px 8px rgba(139,0,0,.5);
   }
   .conf-count{
     font-size:11px;
@@ -1741,9 +1750,9 @@ document.addEventListener('selectstart', e=>{
             </div>
             <div id="sorteio2Progresso" style="text-align:center;font-family:'Baloo 2',sans-serif;font-weight:800;color:var(--violet-deep);font-size:13px;margin-bottom:8px;">Sorteando (0/15)</div>
             <div style="background:var(--bg,#F0EAFA);border-radius:16px;padding:22px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
-              <div id="sorteio2Bola" style="width:84px;height:84px;border-radius:50%;position:relative;background:radial-gradient(circle at 32% 26%, #ffffff 0%, #EDEDEF 22%, #CBCBCF 55%, #9C9CA2 100%);box-shadow:0 10px 18px rgba(0,0,0,.2), inset 0 -8px 14px rgba(0,0,0,.1), inset 0 6px 10px rgba(255,255,255,.6);">
-                <div id="sorteio2BolaMiolo" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:50%;background:#ffffff;box-shadow:inset 0 2px 4px rgba(0,0,0,.18), inset 0 -2px 3px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;">
-                  <span id="sorteio2BolaNum" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:21px;color:#222;">–</span>
+              <div id="sorteio2Bola" style="width:84px;height:84px;border-radius:50%;position:relative;background:radial-gradient(circle at 30% 24%, #ff9a9a 0%, #ff4d4d 18%, #e00000 40%, #b30000 65%, #6e0000 100%);box-shadow:0 10px 18px rgba(0,0,0,.35), inset -6px -8px 12px rgba(0,0,0,.35), inset 6px 8px 10px rgba(255,255,255,.55);">
+                <div id="sorteio2BolaMiolo" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:#ffffff;box-shadow:inset 0 2px 4px rgba(0,0,0,.18), inset 0 -2px 3px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;">
+                  <span id="sorteio2BolaNum" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:21px;color:#1a1a1a;">–</span>
                 </div>
               </div>
             </div>
