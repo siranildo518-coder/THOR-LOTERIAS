@@ -563,6 +563,17 @@ document.addEventListener('selectstart', e=>{
     from{transform:rotate(0deg);}
     to{transform:rotate(360deg);}
   }
+  @keyframes bolaSorteada{
+    0%{transform:scale(1) rotate(0deg);}
+    20%{transform:scale(1.15) rotate(-8deg);}
+    40%{transform:scale(0.95) rotate(6deg);}
+    60%{transform:scale(1.08) rotate(-4deg);}
+    80%{transform:scale(0.98) rotate(2deg);}
+    100%{transform:scale(1) rotate(0deg);}
+  }
+  #sorteio2Bola.bola-animando{
+    animation:bolaSorteada .6s ease;
+  }
   /* o toggle Sortear/Manual do conferidor usa as mesmas classes, mas tem só 2 opções
      e deve continuar dividindo a largura toda igualmente, sem rolagem */
   #confSubtabRow{
@@ -2914,7 +2925,13 @@ function iniciarSorteio2(){
 
 function finalizarBolaSorteio2(numero, onDepoisDeAnimar){
   const bolaEl = document.getElementById('sorteio2Bola');
-  if(bolaEl){ bolaEl.textContent = numero.toString().padStart(2,'0'); bolaEl.style.color = '#2b2b2b'; }
+  if(bolaEl){
+    bolaEl.textContent = numero.toString().padStart(2,'0');
+    bolaEl.style.color = '#2b2b2b';
+    bolaEl.classList.remove('bola-animando');
+    void bolaEl.offsetWidth; // força reiniciar a animação mesmo em bolas seguidas
+    bolaEl.classList.add('bola-animando');
+  }
   tocarSomBolaSorteada();
   sorteio2Drawn.push(numero);
   confResultSorteio2 = new Set(sorteio2Drawn);
@@ -7362,10 +7379,59 @@ refreshUI();
   });
 })();
 
-// ---------- PWA: registro do service worker ----------
+// ---------- PWA: registro do service worker + aviso de nova versão disponível ----------
+function mostrarBannerAtualizacaoApp(registration){
+  if(document.getElementById('appUpdateBanner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'appUpdateBanner';
+  banner.style.cssText = 'position:fixed;left:12px;right:12px;bottom:14px;z-index:100000;background:linear-gradient(135deg,#4C1D95,#6D28D9);color:#fff;border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);font-family:"Baloo 2",sans-serif;';
+  banner.innerHTML = `
+    <span style="font-size:13.5px;font-weight:600;flex:1;">🔄 Nova versão do app disponível!</span>
+    <button id="appUpdateBtn" style="background:#fff;color:#4C1D95;border:none;border-radius:9px;padding:9px 14px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;">ATUALIZAR</button>
+  `;
+  document.body.appendChild(banner);
+  document.getElementById('appUpdateBtn').addEventListener('click', ()=>{
+    const btn = document.getElementById('appUpdateBtn');
+    btn.textContent = '...';
+    btn.disabled = true;
+    let jaRecarregou = false;
+    function recarregar(){
+      if(jaRecarregou) return;
+      jaRecarregou = true;
+      location.reload();
+    }
+    if(registration && registration.waiting){
+      registration.waiting.postMessage({type:'SKIP_WAITING'});
+    }
+    navigator.serviceWorker.addEventListener('controllerchange', recarregar, {once:true});
+    // caso o sw.js ainda não trate essa mensagem, recarrega mesmo assim depois de um tempinho
+    setTimeout(recarregar, 1200);
+  });
+}
+
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
+    navigator.serviceWorker.register('sw.js').then(registration=>{
+      // já tinha uma versão nova baixada esperando (ex: usuário abriu o app de novo)
+      if(registration.waiting && navigator.serviceWorker.controller){
+        mostrarBannerAtualizacaoApp(registration);
+      }
+      registration.addEventListener('updatefound', ()=>{
+        const novoWorker = registration.installing;
+        if(!novoWorker) return;
+        novoWorker.addEventListener('statechange', ()=>{
+          if(novoWorker.state === 'installed' && navigator.serviceWorker.controller){
+            // só avisa se já havia uma versão anterior rodando (não na primeira instalação)
+            mostrarBannerAtualizacaoApp(registration);
+          }
+        });
+      });
+      // confere no GitHub se tem versão nova: a cada 60s e sempre que o usuário volta pro app
+      setInterval(()=> registration.update().catch(()=>{}), 60000);
+      document.addEventListener('visibilitychange', ()=>{
+        if(document.visibilityState === 'visible') registration.update().catch(()=>{});
+      });
+    }).catch(()=>{});
   });
 }
 </script>
