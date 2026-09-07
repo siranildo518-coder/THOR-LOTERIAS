@@ -1,6 +1,7 @@
-// Mude esse número TODA VEZ que você atualizar o index.html e subir pro GitHub.
-// É essa mudança que faz o navegador do cliente perceber que existe versão nova.
-const CACHE_NAME = 'thor-loterias-v4';
+// Esse número é gerado automaticamente (data + hora) toda vez que o Claude
+// entrega uma atualização do index.html. Não precisa mudar isso na mão:
+// é essa mudança que faz o navegador do cliente perceber a versão nova.
+const CACHE_NAME = 'thor-loterias-2026-09-07-1709';
 
 const CACHE_FILES = [
   './index.html',
@@ -58,4 +59,3 @@ self.addEventListener('fetch', (event) => {
     caches.match(req).then((res) => res || fetch(req))
   );
 });
-
