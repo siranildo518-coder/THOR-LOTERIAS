@@ -73,6 +73,7 @@ const CREDENCIAIS_VALIDAS = [
   '1vescdu', // Thor (senha 142580)
   '4bedkb', // Taty (senha 142580)
   '1bduswi', // Tatyy (senha 142580)
+  '16ccr0r', // Pai (senha 142580)
 ];
 
 const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
@@ -146,7 +147,10 @@ function montarTelaLogin(){
         <h2 style="font-family:'Baloo 2',sans-serif;text-align:center;color:#4C1D95;margin:0 0 4px;font-size:20px;">THOR LOTERIAS</h2>
         <p style="text-align:center;color:#8B80A3;font-size:13px;margin:0 0 18px;">Digite seu usuário e senha para entrar.</p>
         <input id="loginUsuario" placeholder="Usuário" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:10px;font-size:14.5px;">
-        <input id="loginSenha" type="password" placeholder="Senha" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:6px;font-size:14.5px;">
+        <div style="position:relative;margin-bottom:6px;">
+          <input id="loginSenha" type="password" placeholder="Senha" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px 44px 12px 14px;border-radius:10px;border:1px solid #E7DFF5;font-size:14.5px;">
+          <button type="button" id="loginTogglePwd" aria-label="Mostrar senha" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:none;background:transparent;cursor:pointer;font-size:18px;line-height:1;color:#8B80A3;">👁️</button>
+        </div>
         <div id="loginErro" style="color:#B7791F;font-size:12.5px;min-height:16px;margin-bottom:8px;"></div>
         <button id="loginBtn" style="width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#4C1D95,#6D28D9);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">ENTRAR</button>
       </div>
@@ -191,6 +195,16 @@ function montarTelaLogin(){
 
   overlay.querySelectorAll('#formLogin input').forEach(inp=>{
     inp.addEventListener('keydown', e=>{ if(e.key==='Enter') tentarEntrar(); });
+  });
+
+  // olho de mostrar/esconder senha, pra conferir o que foi digitado antes de enviar
+  const toggleBtn = document.getElementById('loginTogglePwd');
+  const senhaInput = document.getElementById('loginSenha');
+  toggleBtn.addEventListener('click', ()=>{
+    const mostrando = senhaInput.type === 'text';
+    senhaInput.type = mostrando ? 'password' : 'text';
+    toggleBtn.textContent = mostrando ? '👁️' : '🙈';
+    toggleBtn.setAttribute('aria-label', mostrando ? 'Mostrar senha' : 'Esconder senha');
   });
 }
 
