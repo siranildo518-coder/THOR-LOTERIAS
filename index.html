@@ -1366,6 +1366,123 @@ document.addEventListener('selectstart', e=>{
     color:#2a2a2a;
     box-shadow:inset -2px -2px 3px rgba(0,0,0,.35), inset 2px 2px 2px rgba(255,255,255,.55), 0 2px 8px rgba(31,157,116,.35);
   }
+  .roleta-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:18px 0 6px;
+  }
+  .roleta-stage{
+    position:relative;
+    width:260px;
+    height:260px;
+    margin-bottom:18px;
+  }
+  .roleta-pointer{
+    position:absolute;
+    top:-6px;
+    left:50%;
+    transform:translateX(-50%);
+    width:0;height:0;
+    border-left:14px solid transparent;
+    border-right:14px solid transparent;
+    border-top:24px solid #D6336C;
+    filter:drop-shadow(0 3px 4px rgba(0,0,0,.35));
+    z-index:3;
+  }
+  .roleta-wheel{
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    position:relative;
+    border:6px solid #fff;
+    box-shadow:0 8px 20px rgba(0,0,0,.28), inset 0 0 0 2px rgba(0,0,0,.06);
+    transition:transform 4.5s cubic-bezier(.17,.67,.2,1);
+  }
+  .roleta-label{
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:0;
+    height:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .roleta-label span{
+    display:inline-block;
+    transform:translateX(72px);
+    color:#fff;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    text-shadow:0 1px 3px rgba(0,0,0,.5);
+  }
+  .roleta-hub{
+    position:absolute;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    width:44px;height:44px;
+    border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, #fff 0%, #E7DFF5 60%, #C9B8EA 100%);
+    box-shadow:0 3px 8px rgba(0,0,0,.3), inset 0 0 0 3px #fff;
+    z-index:2;
+  }
+  .roleta-girar-btn{
+    width:100%;
+    padding:13px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(135deg,var(--magenta),var(--violet));
+    color:#fff;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    box-shadow:0 4px 12px rgba(109,40,217,.35);
+  }
+  .roleta-girar-btn:disabled{ opacity:.6; cursor:default; }
+  .roleta-resultado{
+    text-align:center;
+    margin:4px 0 16px;
+    font-family:'Baloo 2',sans-serif;
+  }
+  .roleta-resultado .rr-label{ font-size:12.5px; color:var(--muted); }
+  .roleta-resultado .rr-num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:56px;height:56px;
+    border-radius:50%;
+    margin-top:6px;
+    font-size:22px;
+    font-weight:700;
+    color:#fff;
+    background:radial-gradient(circle at 32% 28%, #ffd699 0%, #ff9d2e 32%, #f57c00 58%, #c25e00 85%, #a34d00 100%);
+    box-shadow:inset -2px -2px 4px rgba(0,0,0,.35), inset 2px 2px 3px rgba(255,255,255,.55), 0 3px 10px rgba(0,0,0,.3);
+  }
+  .roleta-legenda{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    justify-content:center;
+    margin-bottom:6px;
+  }
+  .roleta-legenda .rl-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:4px 9px;
+    border-radius:999px;
+    background:var(--bg);
+    font-size:11px;
+    color:var(--ink);
+  }
+  .roleta-legenda .rl-dot{
+    width:9px;height:9px;
+    border-radius:50%;
+    flex:none;
+  }
   .gc-badge{
     display:inline-block;
     margin-left:6px;
@@ -1937,7 +2054,7 @@ document.addEventListener('selectstart', e=>{
   </div>
 
   <div class="drawer-section-label">Navegação</div>
-  <button class="drawer-item" id="menuAnalise"><span class="ic">📊</span> Análise</button>
+  <button class="drawer-item" id="menuAnalise"><span class="ic">📊</span> Roleta da Falha</button>
   <button class="drawer-item" id="menuSimular"><span class="ic">🧪</span> Simular</button>
   <button class="drawer-item" id="menuJogos"><span class="ic">🎟️</span> Jogos</button>
 
@@ -2286,6 +2403,38 @@ document.addEventListener('selectstart', e=>{
         </div>
       </div>
       <div id="manualConteudo"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay-full" id="overlayRoletaFalha" style="z-index:76;">
+  <header class="top" style="border-radius:0;display:flex;align-items:center;gap:10px;padding:12px 16px 14px;">
+    <button id="roletaFalhaVoltar" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;padding:0;">←</button>
+    <h1 style="font-size:15px;">Roleta da Falha</h1>
+  </header>
+  <div style="padding:16px 16px 40px;">
+    <div class="card">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Gira entre as dezenas com <strong>maior chance de falhar</strong> (que menos saíram) nos últimos concursos analisados.</div>
+      <label class="field-label" for="roletaFalhaQtdSelect">Analisar quantos últimos concursos?</label>
+      <select id="roletaFalhaQtdSelect" class="qtd-pill" style="margin-bottom:12px;">
+        <option value="5">Últimos 5 concursos</option>
+        <option value="10">Últimos 10 concursos</option>
+        <option value="25" selected>Últimos 25 concursos</option>
+        <option value="50">Últimos 50 concursos</option>
+        <option value="100">Últimos 100 concursos</option>
+      </select>
+      <label class="field-label" for="roletaFalhaTopoSelect">Quantas dezenas mostrar na roleta</label>
+      <select id="roletaFalhaTopoSelect" class="qtd-pill">
+        <option value="6">Top 6 dezenas</option>
+        <option value="8" selected>Top 8 dezenas</option>
+        <option value="10">Top 10 dezenas</option>
+        <option value="12">Top 12 dezenas</option>
+        <option value="15">Top 15 dezenas</option>
+      </select>
+      <button class="btn-confirm" id="roletaFalhaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">CALCULAR</button>
+    </div>
+    <div id="roletaFalhaConteudo">
+      <div class="res-loading">Escolha os filtros e toque em "CALCULAR" para montar a roleta.</div>
     </div>
   </div>
 </div>
@@ -3742,8 +3891,214 @@ function renderTendencia(validos, min, max, total, numeroUltimo, presenca, atras
     </div>`;
 }
 
-// ---------- tela separada: Dezenas em alta e em queda (agora segue a loteria escolhida na home) ----------
-let altaQuedaCarregouUmaVez = false;
+// ---------- Roleta da Falha: sorteia entre as dezenas com maior chance de falhar ----------
+const ROLETA_CORES = ['#D6336C','#8B2FC9','#4C6EF5','#1D9D74','#F0932B','#E8590C','#0B7285','#C2185B','#5F3DC4','#2B8A3E','#B7791F','#1864AB','#A61E4D','#0CA678','#862E9C'];
+let roletaFalhaCarregouUmaVez = false;
+let roletaFalhaDados = []; // [{n, pct, atraso, cor, anguloIni, anguloFim}]
+let roletaGirando = false;
+let roletaRotacaoAtual = 0;
+
+// ---------- sons da roleta (gerados na hora via Web Audio, sem precisar de arquivo externo) ----------
+let roletaAudioCtx = null;
+function getRoletaAudioCtx(){
+  if(!roletaAudioCtx){
+    try{ roletaAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; }
+  }
+  if(roletaAudioCtx.state === 'suspended'){ roletaAudioCtx.resume().catch(()=>{}); }
+  return roletaAudioCtx;
+}
+function tocarTiqueRoleta(){
+  const ctx = getRoletaAudioCtx();
+  if(!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'square';
+  osc.frequency.value = 900;
+  gain.gain.setValueAtTime(0.16, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.045);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.05);
+}
+function tocarResultadoRoleta(){
+  const ctx = getRoletaAudioCtx();
+  if(!ctx) return;
+  const notas = [523.25, 659.25, 783.99]; // dó-mi-sol, tipo "tcharam" de vitória
+  notas.forEach((freq, i)=>{
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    const inicio = ctx.currentTime + i*0.11;
+    gain.gain.setValueAtTime(0.0001, inicio);
+    gain.gain.exponentialRampToValueAtTime(0.22, inicio + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, inicio + 0.35);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(inicio);
+    osc.stop(inicio + 0.36);
+  });
+}
+function easeOutQuartRoleta(x){ return 1 - Math.pow(1-x, 4); }
+function agendarTiquesRoleta(duracaoMs, numFatias, voltas){
+  const totalTiques = Math.min(voltas * numFatias, 60);
+  for(let i=1;i<=totalTiques;i++){
+    const t = duracaoMs * easeOutQuartRoleta(i/totalTiques);
+    setTimeout(tocarTiqueRoleta, t);
+  }
+}
+
+async function carregarRoletaFalha(){
+  const game = LOTOFACIL_GAME;
+  const qtdEl = document.getElementById('roletaFalhaQtdSelect');
+  const topoEl = document.getElementById('roletaFalhaTopoSelect');
+  const qtd = qtdEl ? parseInt(qtdEl.value,10) : 25;
+  const topo = topoEl ? parseInt(topoEl.value,10) : 8;
+  const cont = document.getElementById('roletaFalhaConteudo');
+  const btn = document.getElementById('roletaFalhaAtualizarBtn');
+  if(btn){ btn.disabled = true; setBtnLoading('roletaFalhaAtualizarBtn', true, 'CALCULANDO...'); }
+  if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
+  const min = game.range.min, max = game.range.max;
+  try{
+    const ultimo = await fetchConcursoLoteria(game);
+    if(!ultimo || !ultimo.concurso || !Array.isArray(ultimo.dezenas)){
+      throw new Error('resposta inválida da API');
+    }
+    const numeroUltimo = ultimo.concurso;
+    const numeros = [];
+    for(let c = numeroUltimo; c > numeroUltimo - qtd && c > 0; c--) numeros.push(c);
+
+    const concursos = new Array(numeros.length);
+    concursos[0] = ultimo;
+    const pendentes = numeros.slice(1).map((c, idx)=>
+      fetchConcursoLoteria(game, c).then(data=>{ concursos[idx+1] = data; }).catch(()=>{ concursos[idx+1] = null; })
+    );
+    await Promise.all(pendentes);
+
+    const validos = concursos.filter(Boolean);
+    if(validos.length === 0) throw new Error('sem dados');
+
+    const presenca = {};
+    const atraso = {};
+    for(let n=min;n<=max;n++){ presenca[n]=0; atraso[n]=null; }
+    validos.forEach((data, i)=>{
+      const dezenas = (data.dezenas||[]).map(d=>parseInt(d,10));
+      for(let n=min;n<=max;n++){
+        if(dezenas.includes(n)){
+          presenca[n]++;
+          if(atraso[n]===null) atraso[n] = i;
+        }
+      }
+    });
+    for(let n=min;n<=max;n++){ if(atraso[n]===null) atraso[n] = validos.length; }
+
+    const total = validos.length;
+    const linhas = [];
+    for(let n=min;n<=max;n++){
+      const falhas = total - presenca[n];
+      const pct = total > 0 ? (falhas/total*100) : 0;
+      linhas.push({n, presenca:presenca[n], falhas, pct, atraso:atraso[n]});
+    }
+    linhas.sort((a,b)=> b.pct - a.pct || b.atraso - a.atraso);
+
+    const topN = linhas.slice(0, Math.min(topo, linhas.length));
+    // garante um peso mínimo pra toda dezena ter uma fatia visível, mesmo se pct for 0
+    const pesoMinimo = 3;
+    const pesos = topN.map(l => Math.max(l.pct, pesoMinimo));
+    const somaPesos = pesos.reduce((a,b)=>a+b, 0);
+    let anguloAcumulado = 0;
+    roletaFalhaDados = topN.map((l, i)=>{
+      const fatia = (pesos[i]/somaPesos) * 360;
+      const item = { ...l, cor: ROLETA_CORES[i % ROLETA_CORES.length], anguloIni: anguloAcumulado, anguloFim: anguloAcumulado + fatia };
+      anguloAcumulado += fatia;
+      return item;
+    });
+
+    roletaFalhaCarregouUmaVez = true;
+    renderRoletaFalha(numeroUltimo, total);
+  }catch(e){
+    console.error('carregarRoletaFalha falhou:', e);
+    if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "CALCULAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
+  }finally{
+    if(btn){ btn.disabled = false; setBtnLoading('roletaFalhaAtualizarBtn', false); }
+  }
+}
+
+function renderRoletaFalha(numeroUltimo, total){
+  const cont = document.getElementById('roletaFalhaConteudo');
+  if(!cont || roletaFalhaDados.length === 0) return;
+
+  const conic = roletaFalhaDados.map(d=> `${d.cor} ${d.anguloIni}deg ${d.anguloFim}deg`).join(', ');
+  const labels = roletaFalhaDados.map(d=>{
+    const meio = (d.anguloIni + d.anguloFim)/2;
+    return `<div class="roleta-label" style="transform:translate(-50%,-50%) rotate(${meio - 90}deg);"><span>${d.n.toString().padStart(2,'0')}</span></div>`;
+  }).join('');
+
+  const legenda = roletaFalhaDados.map(d=>
+    `<span class="rl-chip"><span class="rl-dot" style="background:${d.cor};"></span>${d.n.toString().padStart(2,'0')} · ${d.pct.toFixed(0)}%</span>`
+  ).join('');
+
+  cont.innerHTML = `
+    <div class="roleta-wrap">
+      <div class="roleta-stage">
+        <div class="roleta-pointer"></div>
+        <div class="roleta-wheel" id="roletaWheelEl" style="background:conic-gradient(${conic});transform:rotate(0deg);">
+          ${labels}
+          <div class="roleta-hub"></div>
+        </div>
+      </div>
+      <div class="roleta-resultado" id="roletaResultadoEl" style="visibility:hidden;">
+        <div class="rr-label">Caiu na dezena</div>
+        <div class="rr-num" id="roletaResultadoNum">00</div>
+      </div>
+      <button class="roleta-girar-btn" id="roletaGirarBtn">GIRAR A ROLETA</button>
+      <div class="roleta-legenda">${legenda}</div>
+      <div class="stat-note-dark" style="margin-top:10px;">Baseado nos últimos <strong style="color:#1D4ED8;">${total}</strong> concursos (até o Nº ${numeroUltimo}). Fatias maiores = dezenas que mais falharam. Cada sorteio é independente — isso é apenas estatística histórica, não é garantia de resultado futuro.</div>
+    </div>`;
+
+  roletaRotacaoAtual = 0;
+  document.getElementById('roletaGirarBtn').addEventListener('click', girarRoletaFalha);
+}
+
+function girarRoletaFalha(){
+  if(roletaGirando || roletaFalhaDados.length === 0) return;
+  roletaGirando = true;
+  const btn = document.getElementById('roletaGirarBtn');
+  const wheelEl = document.getElementById('roletaWheelEl');
+  const resEl = document.getElementById('roletaResultadoEl');
+  if(btn) btn.disabled = true;
+  if(resEl) resEl.style.visibility = 'hidden';
+
+  // sorteia um ângulo dentro do espaço total de fatias (0-360), respeitando o peso de cada uma
+  const alvoAngulo = Math.random() * 360;
+  const alvo = roletaFalhaDados.find(d=> alvoAngulo >= d.anguloIni && alvoAngulo < d.anguloFim) || roletaFalhaDados[0];
+
+  // gira algumas voltas completas + o suficiente pra trazer o meio da fatia sorteada até o ponteiro (topo)
+  const voltas = 5 + Math.floor(Math.random()*3);
+  const anguloAlvoNoTopo = 360 - alvoAngulo;
+  roletaRotacaoAtual += voltas*360 + ((anguloAlvoNoTopo - (roletaRotacaoAtual % 360)) + 360) % 360;
+
+  wheelEl.style.transform = `rotate(${roletaRotacaoAtual}deg)`;
+  agendarTiquesRoleta(4500, roletaFalhaDados.length, voltas);
+
+  setTimeout(()=>{
+    tocarResultadoRoleta();
+    roletaGirando = false;
+    if(btn) btn.disabled = false;
+    if(resEl){
+      resEl.style.visibility = 'visible';
+      document.getElementById('roletaResultadoNum').textContent = alvo.n.toString().padStart(2,'0');
+    }
+  }, 4600);
+}
+
+function abrirRoletaFalha(){
+  closeDrawer();
+  fecharModaisGlobais('overlayRoletaFalha');
+  document.getElementById('overlayRoletaFalha').classList.add('show');
+  if(!roletaFalhaCarregouUmaVez) carregarRoletaFalha();
+}
+
+
 let altaQuedaGameCarregado = null; // code da loteria que está exibida agora nessa tela
 
 function abrirAltaQueda(){
@@ -6144,7 +6499,7 @@ function fecharOutrasOverlaysDeAba(manter){
 function fecharModaisGlobais(manter){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
-    'overlayGeradorLoteria','overlayGeradorFiltro'];
+    'overlayGeradorLoteria','overlayGeradorFiltro','overlayRoletaFalha'];
   modalIds.forEach(id=>{
     if(id === manter) return;
     const el = document.getElementById(id);
@@ -6157,7 +6512,7 @@ function fecharModaisGlobais(manter){
 function goHome(){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
-    'overlayGeradorLoteria','overlayGeradorFiltro'];
+    'overlayGeradorLoteria','overlayGeradorFiltro','overlayRoletaFalha'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.classList.remove('show');
@@ -6175,7 +6530,7 @@ function goHome(){
 function irParaSelecao(){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
-    'overlayGeradorLoteria','overlayGeradorFiltro','overlayListaResultados'];
+    'overlayGeradorLoteria','overlayGeradorFiltro','overlayRoletaFalha','overlayListaResultados'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.classList.remove('show');
@@ -6198,7 +6553,7 @@ function irParaResultados(){
 
 
 
-document.getElementById('menuAnalise').addEventListener('click', abrirTendencia);
+document.getElementById('menuAnalise').addEventListener('click', abrirRoletaFalha);
 document.getElementById('menuSimular').addEventListener('click', ()=>{
   closeDrawer();
   fecharOutrasOverlaysDeAba('overlayProb');
@@ -6272,6 +6627,9 @@ document.getElementById('menuSairLogin').addEventListener('click', ()=>{
 });
 document.getElementById('tendenciaVoltar').addEventListener('click', ()=>{
   document.getElementById('overlayTendencia').classList.remove('show');});
+document.getElementById('roletaFalhaVoltar').addEventListener('click', ()=>{
+  document.getElementById('overlayRoletaFalha').classList.remove('show');});
+document.getElementById('roletaFalhaAtualizarBtn').addEventListener('click', carregarRoletaFalha);
 document.getElementById('tendAtualizarBtn').addEventListener('click', ()=>{
   atualizarUltimoResultadoTend(tendGameAtual); // busca de novo o card "Último resultado" no topo
   carregarTendencia(tendGameAtual);
@@ -7291,7 +7649,7 @@ refreshUI();
     'overlayNomeJogo','overlayFotoFull','drawer','overlay','overlayTrioProb','overlayCentroDezena','overlayProb',
     'overlayHistorico','overlayErreX','overlayGaleria',
     'overlayGeradorFiltro','overlayGeradorLoteria',
-    'overlayAltaQueda','overlayResultado','overlayTendencia'
+    'overlayAltaQueda','overlayResultado','overlayTendencia','overlayRoletaFalha'
   ];
 
   function isModalOpen(id){
