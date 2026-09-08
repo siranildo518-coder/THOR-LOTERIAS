@@ -1238,6 +1238,14 @@ document.addEventListener('selectstart', e=>{
     border-radius:10px;
     background:linear-gradient(135deg,#D9F99D,#4ADE80);
     box-shadow:0 3px 10px rgba(74,222,128,.35);
+    width:78px;
+    box-sizing:border-box;
+    -moz-appearance:textfield;
+  }
+  .modal-card .mc-value::-webkit-outer-spin-button,
+  .modal-card .mc-value::-webkit-inner-spin-button{
+    -webkit-appearance:none;
+    margin:0;
   }
   .stepper-row{
     display:flex;
@@ -1989,7 +1997,7 @@ document.addEventListener('selectstart', e=>{
       <input type="range" id="dezenasPorCartaoSlider" min="3" max="60" value="15" step="1">
       <div class="stepper-row">
         <button class="stepper-btn" id="dpcMinus">−</button>
-        <div class="mc-value" id="dezenasPorCartaoValue" style="margin:0;">15</div>
+        <input type="number" inputmode="numeric" class="mc-value" id="dezenasPorCartaoValue" style="margin:0;" value="15">
         <button class="stepper-btn" id="dpcPlus">+</button>
       </div>
     </div>
@@ -1999,7 +2007,7 @@ document.addEventListener('selectstart', e=>{
       <input type="range" id="qtdJogosSlider" min="1" max="1200" value="1" step="1">
       <div class="stepper-row">
         <button class="stepper-btn" id="qtdMinus">←</button>
-        <div class="mc-value" id="qtdJogosValue" style="margin:0;">1</div>
+        <input type="number" inputmode="numeric" class="mc-value" id="qtdJogosValue" style="margin:0;" value="1">
         <button class="stepper-btn" id="qtdPlus">→</button>
       </div>
       <div class="price-row" id="priceRow">R$ 3,00</div>
@@ -5848,10 +5856,42 @@ GAMES.forEach(g=>{
     tab.classList.add('active');
     tab.querySelector('.clover-wrap').innerHTML = g.iconActive;
     combinacoesGameAtual = g;
+    aplicarFaixaCombinacoes(g);
   });
   combinacoesTabRefs.push({tab, g});
   combinacoesTabs.appendChild(tab);
 });
+
+// mostra só as bolinhas dentro da faixa de números da loteria escolhida
+// (ex: Lotofácil = 01 a 25, Mega-Sena = 01 a 60, Quina = 01 a 80, Dia de Sorte = 01 a 31)
+function aplicarFaixaCombinacoes(g){
+  const max = (g.range && g.range.max) ? g.range.max : 100;
+  const min = (g.range && g.range.min) ? Math.max(1, g.range.min) : 1;
+
+  ballGrid.querySelectorAll('.ball').forEach(b=>{
+    const n = parseInt(b.dataset.n,10);
+    b.style.display = (n>=min && n<=max) ? '' : 'none';
+  });
+
+  slider.max = max;
+  sliderHintInput.max = max;
+
+  // remove da seleção qualquer dezena que ficou fora da nova faixa
+  let mudou = false;
+  [selected, fixedNums, excludedNums].forEach(set=>{
+    [...set].forEach(n=>{ if(n<min || n>max){ set.delete(n); mudou = true; } });
+  });
+  if(mudou){
+    ballGrid.querySelectorAll('.ball').forEach(b=>{
+      const bn = parseInt(b.dataset.n,10);
+      b.classList.toggle('on', selected.has(bn));
+      b.classList.toggle('fixed', fixedNums.has(bn));
+      b.classList.toggle('excluded', excludedNums.has(bn));
+    });
+  }
+
+  applySliderCount(Math.min(targetCount, max));
+}
 
 // ---------- Tendência: faixa de loterias no topo (troca as falhas exibidas, sem navegar) ----------
 const tendGameTabs = document.getElementById('tendGameTabs');
@@ -6176,7 +6216,8 @@ function applySliderCount(n){
   // as dezenas fixadas nunca saem da seleção, mesmo mexendo no slider;
   // ele só completa/ajusta o restante com as próximas dezenas em sequência (1..N)
   const novaSelecao = new Set(fixedNums);
-  for(let i=1; novaSelecao.size < targetCount && i<=100; i++){
+  const limiteAtual = parseInt(slider.max,10) || 100;
+  for(let i=1; novaSelecao.size < targetCount && i<=limiteAtual; i++){
     if(excludedNums.has(i)) continue;
     novaSelecao.add(i);
   }
@@ -6213,6 +6254,9 @@ document.getElementById('qtdSliderMinus').addEventListener('click', ()=>{
 document.getElementById('qtdSliderPlus').addEventListener('click', ()=>{
   applySliderCount(parseInt(slider.value,10) + 1);
 });
+
+// aplica a faixa de números da loteria já selecionada por padrão (Lotofácil = 01 a 25)
+aplicarFaixaCombinacoes(combinacoesGameAtual);
 
 // guaranteeLevel fica fixo em 14 pontos (garantia mais alta disponível para gameSize=15)
 
@@ -7176,7 +7220,7 @@ function openSamplerModal(nums){
 
 function updateModal(){
   const dpc = parseInt(dezenasPorCartaoSlider.value,10);
-  dezenasPorCartaoValue.textContent = dpc;
+  dezenasPorCartaoValue.value = dpc;
 
   const fixedCount = modalNums.filter(x=>fixedNums.has(x)).length;
   const restCount = modalNums.length - fixedCount;
@@ -7193,7 +7237,7 @@ function updateModal(){
   qtdJogosSlider.max = Math.max(1, cap);
   if(parseInt(qtdJogosSlider.value,10) > cap) qtdJogosSlider.value = Math.max(1, cap);
   qtdJogosTitle.textContent = `Quantidade de jogos: 1 – ${Math.max(1, cap)}`;
-  qtdJogosValue.textContent = qtdJogosSlider.value;
+  qtdJogosValue.value = qtdJogosSlider.value;
 
   const costPerCartao = nCr(dpc,gameSize) * 3.00;
   const qtd = parseInt(qtdJogosSlider.value,10);
@@ -7209,6 +7253,19 @@ document.getElementById('dpcPlus').addEventListener('click', ()=>{
   dezenasPorCartaoSlider.value = Math.min(parseInt(dezenasPorCartaoSlider.max,10), parseInt(dezenasPorCartaoSlider.value,10)+1);
   updateModal();
 });
+// digitar direto no campo "dezenas por cartão" também move o slider e atualiza tudo
+dezenasPorCartaoValue.addEventListener('input', ()=>{
+  const n = parseInt(dezenasPorCartaoValue.value,10);
+  if(isNaN(n)) return;
+  const min = parseInt(dezenasPorCartaoSlider.min,10);
+  const max = parseInt(dezenasPorCartaoSlider.max,10);
+  dezenasPorCartaoSlider.value = Math.max(min, Math.min(max, n));
+  updateModal();
+});
+dezenasPorCartaoValue.addEventListener('change', ()=>{
+  // ao sair do campo, garante que o número mostrado bate com o valor já ajustado/travado
+  dezenasPorCartaoValue.value = dezenasPorCartaoSlider.value;
+});
 qtdJogosSlider.addEventListener('input', updateModal);
 document.getElementById('qtdMinus').addEventListener('click', ()=>{
   qtdJogosSlider.value = Math.max(1, parseInt(qtdJogosSlider.value,10)-1);
@@ -7217,6 +7274,17 @@ document.getElementById('qtdMinus').addEventListener('click', ()=>{
 document.getElementById('qtdPlus').addEventListener('click', ()=>{
   qtdJogosSlider.value = Math.min(parseInt(qtdJogosSlider.max,10), parseInt(qtdJogosSlider.value,10)+1);
   updateModal();
+});
+// digitar direto no campo "quantidade de jogos" também move o slider e atualiza tudo
+qtdJogosValue.addEventListener('input', ()=>{
+  const n = parseInt(qtdJogosValue.value,10);
+  if(isNaN(n)) return;
+  const max = parseInt(qtdJogosSlider.max,10);
+  qtdJogosSlider.value = Math.max(1, Math.min(max, n));
+  updateModal();
+});
+qtdJogosValue.addEventListener('change', ()=>{
+  qtdJogosValue.value = qtdJogosSlider.value;
 });
 document.getElementById('modalCancel').addEventListener('click', ()=>{
   overlay.classList.remove('show');
