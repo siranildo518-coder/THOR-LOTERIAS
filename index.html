@@ -301,6 +301,17 @@ document.addEventListener('selectstart', e=>{
     top:0;
     z-index:50;
     background:linear-gradient(160deg,var(--home-green-1),var(--home-green-2) 70%);
+    padding:10px 12px 12px;
+    border-radius:0;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -4px 6px rgba(0,0,0,.18), 0 6px 12px rgba(0,0,0,.25);
+  }
+  #appHeader h1{
+    font-size:15px;
+  }
+  #appHeader .hamburger-btn{
+    width:26px;height:26px;
+    font-size:13px;
+    border-radius:8px;
   }
   header.top h1{
     font-family:'Baloo 2',sans-serif;
@@ -333,12 +344,14 @@ document.addEventListener('selectstart', e=>{
   .ball{
     width:24px;
     aspect-ratio:1;
-    border-radius:7px;
-    border:1.5px solid var(--line);
-    background:#fff;
-    color:var(--ink);
+    border-radius:50%;
+    border:none;
+    position:relative;
+    background:radial-gradient(circle at 32% 26%, #ffffff 0%, #f2f3f5 26%, #d9dade 52%, #b8bac0 76%, #9a9ca3 100%);
+    box-shadow:inset -3px -3px 4px rgba(0,0,0,.28), inset 3px 3px 3px rgba(255,255,255,.85), 0 2px 4px rgba(0,0,0,.3);
+    color:#2e2e2e;
     font-family:'Inter',sans-serif;
-    font-size:8px;
+    font-size:10px;
     font-weight:600;
     cursor:pointer;
     display:flex;
@@ -348,12 +361,12 @@ document.addEventListener('selectstart', e=>{
   }
   .ball:active{transform:scale(0.92);}
   .ball.on{
-    background:linear-gradient(160deg,var(--magenta),var(--violet));
-    border-color:#fff;
-    border-width:2px;
+    background:radial-gradient(circle at 30% 22%, #8b8ff5 0%, #4c4de0 20%, #2a1fb8 42%, #150f7a 68%, #08052e 100%);
+    border-color:transparent;
     color:#fff;
-    box-shadow:0 3px 10px rgba(109,40,217,.35);
+    box-shadow:inset -3px -3px 5px rgba(0,0,0,.5), inset 3px 4px 5px rgba(255,255,255,.4), 0 3px 8px rgba(20,10,80,.5);
   }
+  .ball.on span{position:relative;z-index:1;color:#fff;}
   .ball.fixed{
     background:linear-gradient(160deg,#F04B4B,#8C1010);
     border-color:transparent;
@@ -1260,6 +1273,27 @@ document.addEventListener('selectstart', e=>{
   }
   .btn-cancel{background:#fff;border:1.5px solid var(--line);color:var(--muted);}
   .btn-confirm{background:var(--violet);border:none;color:#fff;}
+  /* Botão 3D em relevo, gradiente azul-roxo, para o ATUALIZAR da aba Falhas */
+  .btn-3d-falhas{
+    background:linear-gradient(160deg,#38DDF0,#7C3AED 55%,#C026D3);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.5),
+      inset 0 -3px 4px rgba(0,0,0,.28),
+      0 4px 0 #5B189E,
+      0 7px 12px rgba(92,20,158,.45);
+    text-shadow:0 1px 2px rgba(0,0,0,.3);
+    letter-spacing:.03em;
+    transform:translateY(0);
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .btn-3d-falhas:active{
+    transform:translateY(3px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.35),
+      inset 0 -2px 3px rgba(0,0,0,.28),
+      0 1px 0 #5B189E,
+      0 2px 5px rgba(92,20,158,.4);
+  }
 
   /* ---- game cards (Jogos Desdobrados) ---- */
   .game-card{
@@ -1308,21 +1342,13 @@ document.addEventListener('selectstart', e=>{
     width:26px;height:26px;
     border-radius:50%;
     position:relative;
-    background:radial-gradient(circle at 32% 28%, #ffd699 0%, #ff9d2e 32%, #f57c00 58%, #c25e00 85%, #a34d00 100%);
-    box-shadow:inset -2px -2px 3px rgba(0,0,0,.35), inset 2px 2px 2px rgba(255,255,255,.55), 0 1px 3px rgba(0,0,0,.35);
-    color:#2a2a2a;
+    background:radial-gradient(circle at 32% 28%, #ffffff 0%, #f3f4f6 30%, #d9dade 55%, #c2c3c8 78%, #aeb0b6 100%);
+    box-shadow:inset -2px -2px 3px rgba(0,0,0,.18), inset 2px 2px 2px rgba(255,255,255,.75), 0 1px 3px rgba(0,0,0,.25);
+    color:#3a3a3a;
     font-family:'Baloo 2',sans-serif;
     font-size:10.5px;
     font-weight:700;
     display:flex;align-items:center;justify-content:center;
-  }
-  .gc-ball::before{
-    content:'';
-    position:absolute;
-    width:60%;height:60%;
-    border-radius:50%;
-    background:#fff;
-    box-shadow:inset 0 1px 2px rgba(0,0,0,.18);
   }
   .gc-ball span{position:relative;z-index:1;}
   .gc-stats{
@@ -1550,6 +1576,74 @@ document.addEventListener('selectstart', e=>{
     background:linear-gradient(160deg,#E3A91C,#C9971F);
     box-shadow:0 3px 10px rgba(201,151,31,.35);
   }
+  /* Bola 3D brilhante (estilo bola de sinuca) usada na tela de atraso/falha combinados das Estatísticas */
+  .stat-ball-3d{
+    width:34px;height:34px;flex:none;
+    border-radius:50%;
+    position:relative;
+    background:radial-gradient(circle at 32% 28%, #8CFFCB 0%, #34D399 32%, #0E9E6E 58%, #0B7A54 85%, #085C40 100%);
+    box-shadow:inset -2px -2px 4px rgba(0,0,0,.35), inset 2px 2px 3px rgba(255,255,255,.55), 0 2px 6px rgba(0,0,0,.35);
+    display:inline-flex;align-items:center;justify-content:center;
+    margin-right:6px;
+  }
+  .stat-ball-3d span{
+    position:relative;z-index:1;
+    color:#fff;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:14px;
+  }
+  /* Bola 3D azul/roxa com número em círculo branco, usada no destaque da aba Falhas */
+  .falha-ball-3d{
+    width:32px;height:32px;flex:none;
+    border-radius:50%;
+    position:relative;
+    background:radial-gradient(circle at 30% 25%, #7dd3fc 0%, #38bdf8 25%, #7c3aed 60%, #a21caf 85%, #86198f 100%);
+    box-shadow:inset -2px -2px 4px rgba(0,0,0,.35), inset 2px 2px 3px rgba(255,255,255,.55), 0 2px 6px rgba(0,0,0,.35);
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .falha-ball-3d span{
+    position:relative;z-index:1;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:#fff;
+  }
+  /* Bola 3D laranja com número em círculo branco, usada na linha em destaque (top1) da aba Falhas */
+  .falha-ball-orange-3d{
+    width:24px;height:24px;flex:none;
+    border-radius:50%;
+    position:relative;
+    background:radial-gradient(circle at 32% 28%, #ffb066 0%, #ff8a1e 32%, #f2660a 58%, #c24e00 85%, #a34100 100%);
+    box-shadow:inset -2px -2px 3px rgba(0,0,0,.35), inset 2px 2px 2px rgba(255,255,255,.55), 0 1px 4px rgba(0,0,0,.35);
+    display:inline-flex;align-items:center;justify-content:center;
+    margin-right:4px;
+  }
+  .falha-ball-orange-3d span{
+    position:relative;z-index:1;
+    color:#fff;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:10px;
+  }
+  /* Bola de vidro verde brilhante, usada nas linhas normais (não destacadas) da aba Falhas */
+  .falha-ball-purple-3d{
+    width:24px;height:24px;flex:none;
+    border-radius:50%;
+    position:relative;
+    background:radial-gradient(circle at 35% 25%, #eaffb0 0%, #b6e838 20%, #7ac923 42%, #4c9a1f 68%, #2f6b12 100%);
+    box-shadow:inset -3px -3px 5px rgba(0,50,0,.4), inset 3px 3px 4px rgba(255,255,255,.65), 0 1px 4px rgba(0,0,0,.3);
+    display:inline-flex;align-items:center;justify-content:center;
+    margin-right:4px;
+  }
+  .falha-ball-purple-3d span{
+    position:relative;z-index:1;
+    color:#fff;
+    text-shadow:0 1px 2px rgba(0,0,0,.35);
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:10px;
+  }
   .centro-legenda{
     display:flex;
     flex-direction:column;
@@ -1770,16 +1864,43 @@ document.addEventListener('selectstart', e=>{
     gap:8px;
   }
   .conf-actions button{
-    padding:9px;
-    border-radius:10px;
+    padding:7px;
+    border-radius:9px;
     font-family:'Baloo 2',sans-serif;
-    font-size:12.5px;
+    font-size:11.5px;
     font-weight:600;
     cursor:pointer;
   }
   .btn-conferir{background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;border:none;}
   .btn-conferir:disabled{opacity:.45;cursor:not-allowed;}
   .btn-limpar-conf{background:#fff;color:var(--violet-deep);border:1.5px solid var(--violet);}
+  /* Botões 3D em relevo da tela de sorteio/conferidor */
+  .btn-3d-gold{
+    background:linear-gradient(160deg,#F9D77E,#D9860F 65%,#B5690A);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55), inset 0 -3px 4px rgba(0,0,0,.22), 0 4px 0 #8A4F07, 0 7px 10px rgba(138,79,7,.4);
+    color:#3A2600;text-shadow:0 1px 1px rgba(255,255,255,.3);
+    transform:translateY(0);transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .btn-3d-gold:active{transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.4), inset 0 -2px 3px rgba(0,0,0,.22), 0 1px 0 #8A4F07, 0 2px 4px rgba(138,79,7,.35);}
+  .btn-3d-orange{
+    background:linear-gradient(160deg,#FF9A6B,#D9430F 65%,#A6330B);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.45), inset 0 -3px 4px rgba(0,0,0,.28), 0 4px 0 #7C2607, 0 7px 10px rgba(124,38,7,.4);
+    color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3);
+    transform:translateY(0);transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .btn-3d-orange:active{transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 3px rgba(0,0,0,.28), 0 1px 0 #7C2607, 0 2px 4px rgba(124,38,7,.35);}
+  .btn-3d-conferir{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.4), inset 0 -3px 4px rgba(0,0,0,.25), 0 4px 0 #4C1D95, 0 7px 10px rgba(76,29,149,.4);
+    text-shadow:0 1px 2px rgba(0,0,0,.25);
+    transform:translateY(0);transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .btn-3d-conferir:active{transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.3), inset 0 -2px 3px rgba(0,0,0,.25), 0 1px 0 #4C1D95, 0 2px 4px rgba(76,29,149,.35);}
+  .btn-3d-conferir:disabled{transform:none;}
+  .btn-3d-limpar{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 4px 0 #C9C1DE, 0 6px 9px rgba(76,29,149,.18);
+    transform:translateY(0);transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .btn-3d-limpar:active{transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 1px 0 #C9C1DE, 0 2px 4px rgba(76,29,149,.15);}
   .conf-result{
     display:none;
     margin-top:10px;
@@ -1811,14 +1932,14 @@ document.addEventListener('selectstart', e=>{
   <section style="display:none;">
     <div class="card" style="position:relative;">
       <div class="slider-block">
-        <div class="slider-hint" id="sliderHint" style="position:absolute;top:12px;right:14px;display:flex;align-items:center;gap:6px;">
-          <input type="number" id="sliderHintInput" min="0" max="100" value="0" inputmode="numeric" style="width:56px;text-align:center;border:2px solid #fff;border-radius:8px;padding:3px 4px;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:inherit;color:#fff;background:linear-gradient(160deg,var(--magenta),var(--violet));box-shadow:0 3px 10px rgba(109,40,217,.35);">
-          <span>dezenas</span>
+        <div class="slider-hint" id="sliderHint" style="position:absolute;top:12px;right:14px;display:flex;align-items:center;gap:5px;">
+          <input type="number" id="sliderHintInput" min="0" max="100" value="0" inputmode="numeric" style="width:34px;text-align:center;border:1.2px solid #fff;border-radius:6px;padding:1px 2px;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;color:#fff;background:linear-gradient(160deg,var(--magenta),var(--violet));box-shadow:0 2px 5px rgba(109,40,217,.35);">
+          <span style="font-size:10.5px;">dezenas</span>
         </div>
         <div style="display:flex;align-items:center;gap:12px;margin-top:34px;">
-          <button type="button" class="stepper-btn" id="qtdSliderMinus" style="flex:none;">−</button>
+          <button type="button" class="stepper-btn" id="qtdSliderMinus" style="flex:none;width:24px;height:24px;font-size:12px;">−</button>
           <input type="range" id="qtdSlider" min="0" max="100" value="0" step="1" style="flex:1;">
-          <button type="button" class="stepper-btn" id="qtdSliderPlus" style="flex:none;">+</button>
+          <button type="button" class="stepper-btn" id="qtdSliderPlus" style="flex:none;width:24px;height:24px;font-size:12px;">+</button>
         </div>
       </div>
     </div>
@@ -1902,8 +2023,8 @@ document.addEventListener('selectstart', e=>{
               </div>
             </div>
             <div style="display:flex;gap:8px;">
-              <button id="btnSorteioBola2" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#F5B942,#D9860F);color:#3A2600;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">BOLA 1</button>
-              <button id="btnSorteioRestantes2" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#FF7A45,#D9430F);color:#fff;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">SORTEAR RESTANTES (14)</button>
+              <button id="btnSorteioBola2" class="btn-3d-gold" style="flex:1;padding:7px;border-radius:9px;border:none;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">BOLA 1</button>
+              <button id="btnSorteioRestantes2" class="btn-3d-orange" style="flex:1;padding:7px;border-radius:9px;border:none;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">SORTEAR RESTANTES (14)</button>
             </div>
             <div id="sorteio2Toast" style="display:none;margin-top:8px;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:12px;color:#1F9D74;">✅ Sorteio completo!</div>
           </div>
@@ -1938,8 +2059,8 @@ document.addEventListener('selectstart', e=>{
         </div>
         <div class="conf-count">Selecionadas: <strong id="confCount">0</strong> / 20</div>
         <div class="conf-actions">
-          <button class="btn-limpar-conf" id="btnLimparConf">LIMPAR</button>
-          <button class="btn-conferir" id="btnConferir" disabled><span id="btnConferirSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="btnConferirLabel">CONFERIR</span></button>
+          <button class="btn-limpar-conf btn-3d-limpar" id="btnLimparConf">LIMPAR</button>
+          <button class="btn-conferir btn-3d-conferir" id="btnConferir" disabled><span id="btnConferirSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="btnConferirLabel">CONFERIR</span></button>
         </div>
         <div class="conf-result" id="confResult"></div>
       </div>
@@ -2353,7 +2474,7 @@ document.addEventListener('selectstart', e=>{
           <option value="30">Últimos 30 concursos</option>
           <option value="50">Últimos 50 concursos</option>
         </select>
-        <button class="btn-confirm" id="falhasAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
+        <button class="btn-confirm btn-3d-falhas" id="falhasAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
       </div>
       <div id="falhasConteudo"></div>
     </div>
@@ -2573,7 +2694,7 @@ const ballClickTimer = new Map();
 for(let n=1;n<=100;n++){
   const b = document.createElement('button');
   b.className='ball';
-  b.textContent = n.toString().padStart(2,'0');
+  b.innerHTML = `<span>${n.toString().padStart(2,'0')}</span>`;
   b.dataset.n = n;
   b.addEventListener('click', ()=>{
     if(ballClickTimer.has(n)){
@@ -4450,7 +4571,7 @@ async function carregarManual(gameParam){
 
 function renderManual(dezenas, atraso, totalAnalisado, numeroUltimo, falhaConjunta){
   const cont = document.getElementById('manualConteudo');
-  const bolas = dezenas.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:34px;height:34px;border-radius:50%;margin-right:6px;background:linear-gradient(160deg,#F0932B,#D9770B);color:#fff;border-color:transparent;font-weight:700;">${n.toString().padStart(2,'0')}</span>`).join('');
+  const bolas = dezenas.map(n=>`<span class="stat-ball-3d"><span>${n.toString().padStart(2,'0')}</span></span>`).join('');
   const sozinha = dezenas.length === 1;
   const sujeito = sozinha ? 'Essa dezena' : 'Essas dezenas';
   const verboJuntas = sozinha ? '' : ' juntas';
@@ -5881,7 +6002,7 @@ function renderFalhas(repetidos, validos, numeroUltimo, tamanho){
     <div style="margin:14px 0;padding:14px;border-radius:14px;background:linear-gradient(120deg,rgba(37,99,235,.12),rgba(56,189,248,.08));border:1px solid rgba(37,99,235,.35);">
       <div style="font-size:11.5px;font-weight:700;color:#1D4ED8;letter-spacing:.02em;margin-bottom:6px;">${rotuloSingular.toUpperCase()} COM MAIOR CHANCE DE FALHAR NO PRÓXIMO CONCURSO</div>
       <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:6px;">
-        ${topo.grupo.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:32px;height:32px;border-radius:50%;background:linear-gradient(160deg,#38BDF8,#1D4ED8);color:#fff;border-color:transparent;">${n.toString().padStart(2,'0')}</span>`).join('')}
+        ${topo.grupo.map(n=>`<span class="falha-ball-3d"><span>${n.toString().padStart(2,'0')}</span></span>`).join('')}
       </div>
       <div style="font-size:13.5px;color:var(--ink);">Chance média de falha: <strong>${pctExibicao(topo.pctMedia)}%</strong> (baseado nos últimos 10 concursos)</div>
     </div>` : '';
@@ -5889,7 +6010,12 @@ function renderFalhas(repetidos, validos, numeroUltimo, tamanho){
   const rows = repetidos.map((item,i)=>{
     const perfeita = item.count === validos.length;
     const emDestaque = i===0 && topo.pctMedia!==null && topo.pctMedia!==undefined;
-    const bolas = item.grupo.map(n=>`<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:24px;height:24px;border-radius:50%;margin-right:4px;font-size:11px;${perfeita ? 'background:linear-gradient(160deg,#FF5F6D,#B7191F);color:#fff;border-color:transparent;' : ''}">${n.toString().padStart(2,'0')}</span>`).join('');
+    const bolas = item.grupo.map(n=> (i===0 && emDestaque)
+      ? `<span class="falha-ball-orange-3d"><span>${n.toString().padStart(2,'0')}</span></span>`
+      : (perfeita
+        ? `<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:24px;height:24px;border-radius:50%;margin-right:4px;font-size:11px;background:linear-gradient(160deg,#FF5F6D,#B7191F);color:#fff;border-color:transparent;">${n.toString().padStart(2,'0')}</span>`
+        : `<span class="falha-ball-purple-3d"><span>${n.toString().padStart(2,'0')}</span></span>`)
+    ).join('');
     const concursosTxt = item.concursos.map(c=>`Nº ${c}`).join(' e ');
     const destaqueEstilo = perfeita
       ? 'background:linear-gradient(120deg,rgba(255,95,109,.14),rgba(183,25,31,.10));border:1px solid rgba(183,25,31,.35);border-radius:12px;'
