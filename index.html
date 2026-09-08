@@ -6268,9 +6268,7 @@ function abrirTendencia(){
 }
 document.getElementById('menuTendencia').addEventListener('click', abrirTendencia);
 document.getElementById('menuSairLogin').addEventListener('click', ()=>{
-  if(confirm('Você deseja sair?')){
-    sairDoLogin();
-  }
+  sairDoLogin();
 });
 document.getElementById('tendenciaVoltar').addEventListener('click', ()=>{
   document.getElementById('overlayTendencia').classList.remove('show');});
