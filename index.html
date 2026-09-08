@@ -1304,15 +1304,26 @@ document.addEventListener('selectstart', e=>{
     margin-bottom:6px;
   }
   .gc-ball{
-    width:19px;height:19px;
+    width:26px;height:26px;
     border-radius:50%;
-    background:var(--ball-off);
-    color:var(--ball-off-ink);
+    position:relative;
+    background:radial-gradient(circle at 32% 28%, #ffd699 0%, #ff9d2e 32%, #f57c00 58%, #c25e00 85%, #a34d00 100%);
+    box-shadow:inset -2px -2px 3px rgba(0,0,0,.35), inset 2px 2px 2px rgba(255,255,255,.55), 0 1px 3px rgba(0,0,0,.35);
+    color:#2a2a2a;
     font-family:'Baloo 2',sans-serif;
-    font-size:8.5px;
+    font-size:10.5px;
     font-weight:700;
     display:flex;align-items:center;justify-content:center;
   }
+  .gc-ball::before{
+    content:'';
+    position:absolute;
+    width:60%;height:60%;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.18);
+  }
+  .gc-ball span{position:relative;z-index:1;}
   .gc-stats{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -1340,19 +1351,19 @@ document.addEventListener('selectstart', e=>{
     color:var(--violet-deep);
   }
   .gc-ball.hit{
-    background:linear-gradient(160deg,var(--good),#0E7A5A);
-    color:#fff;
-    box-shadow:0 2px 8px rgba(31,157,116,.35);
+    background:radial-gradient(circle at 32% 28%, #8CFFCB 0%, #34D399 32%, #0E9E6E 58%, #0B7A54 85%, #085C40 100%);
+    color:#2a2a2a;
+    box-shadow:inset -2px -2px 3px rgba(0,0,0,.35), inset 2px 2px 2px rgba(255,255,255,.55), 0 2px 8px rgba(31,157,116,.35);
   }
   .gc-ball.fixed{
-    background:linear-gradient(160deg,#E7E7EC,#C7C7D1);
-    color:#5A5A66;
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
+    background:radial-gradient(circle at 32% 28%, #F5F5F7 0%, #D6D6DE 32%, #ADADB8 58%, #83838F 85%, #5F5F6B 100%);
+    color:#2a2a2a;
+    box-shadow:inset -2px -2px 3px rgba(0,0,0,.25), inset 2px 2px 2px rgba(255,255,255,.5), inset 0 0 0 1px rgba(0,0,0,.06);
   }
   .gc-ball.fixed.hit{
-    background:linear-gradient(160deg,var(--good),#0E7A5A);
-    color:#fff;
-    box-shadow:0 2px 8px rgba(31,157,116,.35);
+    background:radial-gradient(circle at 32% 28%, #8CFFCB 0%, #34D399 32%, #0E9E6E 58%, #0B7A54 85%, #085C40 100%);
+    color:#2a2a2a;
+    box-shadow:inset -2px -2px 3px rgba(0,0,0,.35), inset 2px 2px 2px rgba(255,255,255,.55), 0 2px 8px rgba(31,157,116,.35);
   }
   .gc-badge{
     display:inline-block;
@@ -6714,7 +6725,7 @@ function renderGameCards(){
     card.className = 'game-card' + (premiado ? ' premiado':'') + (isTopScore ? ' top-score':'');
     card.innerHTML = `
       <div class="gc-index">Jogo ${i+1}${badge}${topTag}</div>
-      <div class="gc-balls">${g.map(n=>`<div class="gc-ball${conferindo && confResult.has(n) ? ' hit':''}${fixedNums.has(n) ? ' fixed':''}">${n.toString().padStart(2,'0')}</div>`).join('')}</div>
+      <div class="gc-balls">${g.map(n=>`<div class="gc-ball${conferindo && confResult.has(n) ? ' hit':''}${fixedNums.has(n) ? ' fixed':''}"><span>${n.toString().padStart(2,'0')}</span></div>`).join('')}</div>
       <div class="gc-stats">
         <div class="s"><div class="k">PAR</div><div class="v">${st.par}</div></div>
         <div class="s"><div class="k">ÍMPAR</div><div class="v">${st.impar}</div></div>
