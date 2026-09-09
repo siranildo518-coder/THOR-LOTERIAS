@@ -240,8 +240,12 @@ document.addEventListener('selectstart', e=>{
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
+  /* Fonte do app inteiro: Calibri, sobrepondo as fontes usadas em cada elemento/estilo inline */
+  *, *::before, *::after{
+    font-family: Calibri, 'Trebuchet MS', 'Segoe UI', sans-serif !important;
+  }
   :root{
     --bg:#F6F2FB;
     --surface:#FFFFFF;
@@ -348,7 +352,7 @@ document.addEventListener('selectstart', e=>{
     border-radius:50%;
     border:none;
     position:relative;
-    background:radial-gradient(circle at 32% 26%, #ffffff 0%, #f2f3f5 26%, #d9dade 52%, #b8bac0 76%, #9a9ca3 100%);
+    background:radial-gradient(circle at 32% 26%, #ffffff 0%, #ffffff 45%, #fdfdfe 70%, #f7f8f9 100%);
     box-shadow:inset -3px -3px 4px rgba(0,0,0,.28), inset 3px 3px 3px rgba(255,255,255,.85), 0 2px 4px rgba(0,0,0,.3);
     color:#2e2e2e;
     font-family:'Inter',sans-serif;
@@ -552,7 +556,54 @@ document.addEventListener('selectstart', e=>{
     color:var(--violet-deep);
     box-shadow:0 2px 6px rgba(76,29,149,.15);
   }
+  #tendSubtabRow{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    grid-template-rows:repeat(2, auto);
+    gap:8px;
+    overflow:visible;
+  }
+  #tendSubtabRow .subtab-btn{
+    width:100%;
+    min-width:0;
+    text-align:center;
+    padding:12px 6px;
+    border-radius:12px;
+    background:#F3F4F6;
+    font-family:'Montserrat',sans-serif;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.9),
+      0 4px 0 #D1D5DB,
+      0 6px 10px rgba(76,29,149,.12);
+    transform:translateY(0);
+    transition:transform .09s ease-out, box-shadow .09s ease-out;
+  }
+  #tendSubtabRow .subtab-btn:active, #tendSubtabRow .subtab-btn.is-pressed{
+    transform:translateY(3px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.7),
+      0 1px 0 #D1D5DB,
+      0 2px 4px rgba(76,29,149,.1);
+  }
+  #tendSubtabRow .subtab-btn.active{
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.4),
+      inset 0 -2px 3px rgba(0,0,0,.2),
+      0 4px 0 #4C1D95,
+      0 7px 10px rgba(76,29,149,.4);
+  }
+  #tendSubtabRow .subtab-btn.active:active, #tendSubtabRow .subtab-btn.active.is-pressed{
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.3),
+      inset 0 -2px 3px rgba(0,0,0,.2),
+      0 1px 0 #4C1D95,
+      0 2px 4px rgba(76,29,149,.35);
+  }
   #subtabFalha.active{
+    background:linear-gradient(135deg,var(--magenta),var(--violet));
+    color:#fff;
+  }
+  #subtabTendencia.active{
     background:linear-gradient(135deg,var(--magenta),var(--violet));
     color:#fff;
   }
@@ -579,6 +630,118 @@ document.addEventListener('selectstart', e=>{
   #subtabManual.active{
     background:linear-gradient(135deg,var(--magenta),var(--violet));
     color:#fff;
+  }
+  #subtabCiclo.active{
+    background:linear-gradient(135deg,var(--magenta),var(--violet));
+    color:#fff;
+  }
+  #cicloTipoRow{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    grid-template-rows:repeat(2, auto);
+    gap:8px;
+    overflow-x:visible;
+    margin-bottom:12px;
+  }
+  #cicloTipoRow .subtab-btn{
+    width:100%;
+    min-width:0;
+    padding:9px 4px;
+    background:#F3F4F6;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.9),
+      0 4px 0 #D1D5DB,
+      0 6px 10px rgba(76,29,149,.12);
+    transform:translateY(0);
+    transition:transform .09s ease-out, box-shadow .09s ease-out, background .09s ease-out, color .09s ease-out;
+  }
+  #cicloTipoRow .subtab-btn:active, #cicloTipoRow .subtab-btn.is-pressed{
+    transform:translateY(3px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.7),
+      0 1px 0 #D1D5DB,
+      0 2px 4px rgba(76,29,149,.1);
+  }
+  #cicloTipoRow .subtab-btn.active{
+    background:linear-gradient(160deg,#4ADE80,#16A34A);
+    color:#fff;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.4),
+      inset 0 -2px 3px rgba(0,0,0,.2),
+      0 4px 0 #15803D,
+      0 7px 10px rgba(21,128,61,.4);
+  }
+  #cicloTipoRow .subtab-btn.active:active, #cicloTipoRow .subtab-btn.active.is-pressed{
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.3),
+      inset 0 -2px 3px rgba(0,0,0,.2),
+      0 1px 0 #15803D,
+      0 2px 4px rgba(21,128,61,.35);
+  }
+  .centro-cel.ciclo-saiu{
+    background:linear-gradient(160deg,#34D399,#047857) !important;
+    color:#fff;
+  }
+  .centro-cel.ciclo-falta{
+    background:linear-gradient(160deg,#E5E7EB,#9CA3AF) !important;
+    color:#6B7280;
+  }
+  .ciclo-legenda{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    margin-top:10px;
+    font-size:11.5px;
+    color:var(--muted);
+  }
+  .ciclo-legenda-bola{
+    display:inline-block;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    margin-right:5px;
+    vertical-align:middle;
+  }
+  .ciclo-legenda-bola.saiu{
+    background:linear-gradient(160deg,#34D399,#047857);
+  }
+  .ciclo-legenda-bola.falta{
+    background:linear-gradient(160deg,#E5E7EB,#9CA3AF);
+  }
+  .centro-cel.falha-saiu{
+    background:linear-gradient(160deg,#FEF2F2,#FECACA) !important;
+    color:#B91C1C;
+  }
+  .centro-cel.falha-falta{
+    background:linear-gradient(160deg,#34D399,#047857) !important;
+    color:#fff;
+  }
+  .ciclo-legenda-bola.falha-saiu{
+    background:linear-gradient(160deg,#FEF2F2,#FECACA);
+  }
+  .ciclo-legenda-bola.falha-falta{
+    background:linear-gradient(160deg,#34D399,#047857);
+  }
+  .ciclo-hist-wrap{
+    margin-top:16px;
+    padding-top:12px;
+    border-top:1px solid var(--line);
+  }
+  .ciclo-hist-titulo{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    color:var(--violet-deep);
+    margin-bottom:8px;
+  }
+  .ciclo-hist-linha{
+    font-size:12px;
+    color:var(--muted);
+    padding:7px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .ciclo-hist-linha:last-child{
+    border-bottom:none;
   }
   .manual-dezena-input{
     color:#111827;
@@ -1303,13 +1466,58 @@ document.addEventListener('selectstart', e=>{
     transform:translateY(0);
     transition:transform .08s ease, box-shadow .08s ease;
   }
-  .btn-3d-falhas:active{
+  .btn-3d-falhas:active, .btn-3d-falhas.is-pressed{
+    border:2px solid #fff;
     transform:translateY(3px);
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,.35),
       inset 0 -2px 3px rgba(0,0,0,.28),
       0 1px 0 #5B189E,
       0 2px 5px rgba(92,20,158,.4);
+  }
+
+  /* Botão 3D em relevo para o ATUALIZAR da aba Quente */
+  .btn-3d-quente{
+    background:linear-gradient(160deg,#E85D9E,#8B2FC9 55%,#5B189E);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.5),
+      inset 0 -3px 4px rgba(0,0,0,.28),
+      0 4px 0 #4A1080,
+      0 7px 12px rgba(74,16,128,.45);
+    text-shadow:0 1px 2px rgba(0,0,0,.3);
+    letter-spacing:.03em;
+    transform:translateY(0) scale(1);
+    transition:transform .12s ease-out, box-shadow .12s ease-out;
+  }
+  .btn-3d-quente:active, .btn-3d-quente.is-pressed{
+    border:2px solid #fff;
+    transform:translateY(4px) scale(.97);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.35),
+      inset 0 -2px 3px rgba(0,0,0,.28),
+      0 1px 0 #4A1080,
+      0 2px 5px rgba(74,16,128,.4);
+  }
+
+  /* Botão 3D genérico (afunda suavemente ao pressionar e volta) — funciona com qualquer cor de fundo */
+  .btn-3d{
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.4),
+      inset 0 -3px 4px rgba(0,0,0,.25),
+      0 4px 0 rgba(0,0,0,.28),
+      0 6px 10px rgba(0,0,0,.25);
+    text-shadow:0 1px 2px rgba(0,0,0,.25);
+    transform:translateY(0) scale(1);
+    transition:transform .12s ease-out, box-shadow .12s ease-out;
+  }
+  .btn-3d:active, .btn-3d.is-pressed{
+    border:2px solid #fff;
+    transform:translateY(4px) scale(.97);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.3),
+      inset 0 -2px 3px rgba(0,0,0,.25),
+      0 1px 0 rgba(0,0,0,.28),
+      0 2px 5px rgba(0,0,0,.2);
   }
 
   /* ---- game cards (Jogos Desdobrados) ---- */
@@ -1791,26 +1999,26 @@ document.addEventListener('selectstart', e=>{
     color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3);
     transform:translateY(0);transition:transform .08s ease, box-shadow .08s ease;
   }
-  .btn-3d-orange:active{transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 3px rgba(0,0,0,.28), 0 1px 0 #7C2607, 0 2px 4px rgba(124,38,7,.35);}
+  .btn-3d-orange:active, .btn-3d-orange.is-pressed{border:2px solid #fff;transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 3px rgba(0,0,0,.28), 0 1px 0 #7C2607, 0 2px 4px rgba(124,38,7,.35);}
   .btn-3d-conferir{
     box-shadow:inset 0 1px 0 rgba(255,255,255,.4), inset 0 -3px 4px rgba(0,0,0,.25), 0 4px 0 #4C1D95, 0 7px 10px rgba(76,29,149,.4);
     text-shadow:0 1px 2px rgba(0,0,0,.25);
     transform:translateY(0);transition:transform .08s ease, box-shadow .08s ease;
   }
-  .btn-3d-conferir:active{transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.3), inset 0 -2px 3px rgba(0,0,0,.25), 0 1px 0 #4C1D95, 0 2px 4px rgba(76,29,149,.35);}
+  .btn-3d-conferir:active, .btn-3d-conferir.is-pressed{border:2px solid #fff;transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.3), inset 0 -2px 3px rgba(0,0,0,.25), 0 1px 0 #4C1D95, 0 2px 4px rgba(76,29,149,.35);}
   .btn-3d-conferir:disabled{transform:none;}
   .btn-3d-limpar{
     box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 4px 0 #C9C1DE, 0 6px 9px rgba(76,29,149,.18);
     transform:translateY(0);transition:transform .08s ease, box-shadow .08s ease;
   }
-  .btn-3d-limpar:active{transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 1px 0 #C9C1DE, 0 2px 4px rgba(76,29,149,.15);}
+  .btn-3d-limpar:active, .btn-3d-limpar.is-pressed{border:2px solid #fff;transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 1px 0 #C9C1DE, 0 2px 4px rgba(76,29,149,.15);}
   /* Botão 3D em relevo verde (GERAR jogos, tela de seleção de números) */
   .btn-3d-gerar{
     box-shadow:inset 0 1px 0 rgba(255,255,255,.5), inset 0 -3px 4px rgba(0,0,0,.18), 0 4px 0 #4C7A2E, 0 7px 10px rgba(76,122,46,.35);
     text-shadow:0 1px 1px rgba(255,255,255,.25);
     transform:translateY(0);transition:transform .08s ease, box-shadow .08s ease;
   }
-  .btn-3d-gerar:active{transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.4), inset 0 -2px 3px rgba(0,0,0,.18), 0 1px 0 #4C7A2E, 0 2px 4px rgba(76,122,46,.3);}
+  .btn-3d-gerar:active, .btn-3d-gerar.is-pressed{border:2px solid #fff;transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.4), inset 0 -2px 3px rgba(0,0,0,.18), 0 1px 0 #4C7A2E, 0 2px 4px rgba(76,122,46,.3);}
   .btn-3d-gerar:disabled{transform:none;}
   .conf-result{
     display:none;
@@ -2084,7 +2292,7 @@ document.addEventListener('selectstart', e=>{
 
     <div class="modal-actions">
       <button class="btn-cancel" id="probFechar">FECHAR</button>
-      <button class="btn-confirm" id="probCalcular">CALCULAR</button>
+      <button class="btn-confirm btn-3d" id="probCalcular">CALCULAR</button>
     </div>
   </div>
 </div>
@@ -2231,7 +2439,7 @@ document.addEventListener('selectstart', e=>{
         <option value="50">Últimos 50 concursos</option>
         <option value="100">Últimos 100 concursos</option>
       </select>
-      <button class="btn-confirm" id="altaQuedaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
+      <button class="btn-confirm btn-3d" id="altaQuedaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
     </div>
     <div id="altaQuedaConteudo"></div>
   </div>
@@ -2277,6 +2485,7 @@ document.addEventListener('selectstart', e=>{
       <button class="subtab-btn" id="subtabFalhas">Falhas</button>
       <button class="subtab-btn" id="subtabQuente">Quente</button>
       <button class="subtab-btn" id="subtabManual">Manual</button>
+      <button class="subtab-btn" id="subtabCiclo">Ciclo</button>
     </div>
 
     <div id="tendPanel" class="stat-dark-wrap">
@@ -2288,7 +2497,7 @@ document.addEventListener('selectstart', e=>{
           <option value="50">Últimos 50 concursos</option>
           <option value="100">Últimos 100 concursos</option>
         </select>
-        <button class="btn-confirm" id="tendAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
+        <button class="btn-confirm btn-3d" id="tendAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
       </div>
       <div id="tendConteudo"></div>
     </div>
@@ -2297,7 +2506,7 @@ document.addEventListener('selectstart', e=>{
       <div class="card">
         <label class="field-label" for="centroQtdInput">Analisar quantos últimos concursos?</label>
         <input type="number" id="centroQtdInput" min="2" max="500" value="10" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
-        <button class="btn-confirm" id="falhaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+        <button class="btn-confirm btn-3d" id="falhaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
       </div>
       <div id="falhaConteudo"></div>
     </div>
@@ -2306,7 +2515,7 @@ document.addEventListener('selectstart', e=>{
       <div class="card">
         <label class="field-label" for="molduraQtdInput">Analisar quantos últimos concursos?</label>
         <input type="number" id="molduraQtdInput" min="2" max="500" value="10" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
-        <button class="btn-confirm" id="molduraAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+        <button class="btn-confirm btn-3d" id="molduraAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
       </div>
       <div id="molduraConteudo"></div>
     </div>
@@ -2334,7 +2543,7 @@ document.addEventListener('selectstart', e=>{
         <label class="field-label" for="gerarQtdInput">Baseado em quantos concursos (3 a 100)</label>
         <div style="display:flex;align-items:center;gap:8px;">
           <input type="number" id="gerarQtdInput" min="3" max="100" value="10" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:70px;padding:6px 8px;font-size:11.5px;">
-          <button type="button" id="gerarQtdAtualizarBtn" style="padding:6px 11px;border:none;border-radius:999px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:10.5px;cursor:pointer;"><span id="gerarQtdAtualizarIcon" style="display:inline-block;">🔄</span> Atualizar</button>
+          <button type="button" id="gerarQtdAtualizarBtn" class="btn-3d" style="padding:6px 11px;border:none;border-radius:999px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:10.5px;cursor:pointer;"><span id="gerarQtdAtualizarIcon" style="display:inline-block;">🔄</span> Atualizar</button>
         </div>
         <label class="field-label" for="gerarTopoSelect" style="margin-top:9px;">Usar quantas dezenas (as de maior potencial de falha)</label>
         <select id="gerarTopoSelect" class="qtd-pill" style="font-size:11.5px;padding:7px 26px 7px 30px;background-size:11px 11px, 9px 9px;background-position:11px center, right 11px center;">
@@ -2368,7 +2577,7 @@ document.addEventListener('selectstart', e=>{
           <option value="30">Últimos 30 concursos</option>
           <option value="50">Últimos 50 concursos</option>
         </select>
-        <button class="btn-confirm" id="trioAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
+        <button class="btn-confirm btn-3d" id="trioAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
       </div>
       <div id="trioConteudo"></div>
     </div>
@@ -2420,7 +2629,7 @@ document.addEventListener('selectstart', e=>{
           <option value="12">Top 12 dezenas</option>
           <option value="15">Top 15 dezenas</option>
         </select>
-        <button class="btn-confirm" id="quenteAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
+        <button class="btn-confirm btn-3d-quente" id="quenteAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
       </div>
       <div id="quenteConteudo"></div>
     </div>
@@ -2441,11 +2650,60 @@ document.addEventListener('selectstart', e=>{
           <input type="text" id="manualDezena9" class="manual-dezena-input" inputmode="numeric" pattern="[0-9]*" maxlength="2" style="width:44px;box-sizing:border-box;text-align:center;padding:9px 2px;border-radius:9px;border:1.5px solid var(--violet);background-image:linear-gradient(160deg,#F3F4F6,#D1D5DB);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;">
         </div>
         <div style="display:flex;gap:10px;margin-top:12px;">
-          <button class="btn-confirm" id="manualAtualizarBtn" style="flex:1;padding:6px;border-radius:8px;border:none;font-size:11px;">CALCULAR</button>
+          <button class="btn-confirm btn-3d-quente" id="manualAtualizarBtn" style="flex:1;padding:6px;border-radius:8px;border:none;font-size:11px;">CALCULAR</button>
           <button type="button" id="manualLimparBtn" style="flex:1;padding:6px;border-radius:8px;border:1.5px solid var(--violet);background:#fff;color:var(--violet-deep);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">LIMPAR</button>
         </div>
       </div>
       <div id="manualConteudo"></div>
+    </div>
+
+    <div id="cicloPanel" style="display:none;">
+      <div class="subtab-row" id="cicloTipoRow">
+        <button class="subtab-btn active" id="cicloTipoSairBtn">Falta sair</button>
+        <button class="subtab-btn" id="cicloTipoFalhaBtn">Falta falhar</button>
+        <button class="subtab-btn" id="cicloTipoImparBtn">Ímpares</button>
+        <button class="subtab-btn" id="cicloTipoParBtn">Pares</button>
+      </div>
+
+      <div id="cicloSairBox">
+        <div class="card">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Mostra quais dezenas já saíram no <strong>ciclo atual</strong> (desde o último fechamento, quando todas as dezenas da faixa já apareceram) e quais ainda faltam sair.</div>
+          <label class="field-label" for="cicloQtdInput">Analisar quantos últimos concursos?</label>
+          <input type="number" id="cicloQtdInput" min="2" max="500" value="20" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
+          <button class="btn-confirm btn-3d" id="cicloAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+        </div>
+        <div id="cicloConteudo"></div>
+      </div>
+
+      <div id="cicloFalhaBox" style="display:none;">
+        <div class="card">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Mesma lógica de fechamento de ciclo, mas contando <strong>falhas</strong>: uma dezena "falha" quando sai em um concurso e não repete no seguinte. Mostra quais dezenas já falharam no ciclo de falha atual e quais ainda faltam falhar para fechá-lo.</div>
+          <label class="field-label" for="cicloFalhaQtdInput">Analisar quantos últimos concursos?</label>
+          <input type="number" id="cicloFalhaQtdInput" min="2" max="500" value="20" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
+          <button class="btn-confirm btn-3d" id="cicloFalhaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+        </div>
+        <div id="cicloFalhaConteudo"></div>
+      </div>
+
+      <div id="cicloImparBox" style="display:none;">
+        <div class="card">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Mesma lógica de ciclo, mas considerando só as dezenas <strong>ímpares</strong> da faixa. Mostra quais dezenas ímpares já saíram no ciclo atual e quais ainda faltam sair.</div>
+          <label class="field-label" for="cicloImparQtdInput">Analisar quantos últimos concursos?</label>
+          <input type="number" id="cicloImparQtdInput" min="2" max="500" value="20" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
+          <button class="btn-confirm btn-3d" id="cicloImparAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+        </div>
+        <div id="cicloImparConteudo"></div>
+      </div>
+
+      <div id="cicloParBox" style="display:none;">
+        <div class="card">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Mesma lógica de ciclo, mas considerando só as dezenas <strong>pares</strong> da faixa. Mostra quais dezenas pares já saíram no ciclo atual e quais ainda faltam sair.</div>
+          <label class="field-label" for="cicloParQtdInput">Analisar quantos últimos concursos?</label>
+          <input type="number" id="cicloParQtdInput" min="2" max="500" value="20" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
+          <button class="btn-confirm btn-3d" id="cicloParAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+        </div>
+        <div id="cicloParConteudo"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -3553,7 +3811,7 @@ const GAMES = [
   {code:'QN',  slug:'quina',        altSlug:'quina',      nome:'Quina',        color:'#1D4ED8', icon:'🍀', officialSlug:'Quina',       range:{min:1,max:80}},
   {code:'DIA', slug:'dia-de-sorte', altSlug:'diadesorte', nome:'Dia de Sorte', color:'#7A5211', icon:'🍀', officialSlug:'Dia_de_Sorte', range:{min:1,max:31}},
   {code:'LM',  slug:'lotomania',    altSlug:'lotomania',  nome:'Lotomania',    color:'#D2691E', icon:'🍀', officialSlug:'Lotomania',   range:{min:0,max:99}},
-  {code:'S7',  slug:'super-sete',   altSlug:'supersete',  nome:'Super Sete',   color:'#0E9488', icon:'🍀', officialSlug:'Super_Sete',  noFalha:true},
+  {code:'S7',  slug:'super-sete',   altSlug:'supersete',  nome:'Super Sete',   color:'#0E9488', icon:'🍀', officialSlug:'Super_Sete',  noFalha:true, range:{min:0,max:9}},
   {code:'TM',  slug:'timemania',    altSlug:'timemania',  nome:'Timemania',    color:'#C2185B', icon:'🍀', officialSlug:'Timemania',   range:{min:1,max:80}},
   {code:'DS',  slug:'dupla-sena',   altSlug:'duplasena',  nome:'Dupla Sena',   color:'#0891B2', icon:'🍀', officialSlug:'Dupla_Sena',  range:{min:1,max:50}},
 ];
@@ -5135,6 +5393,371 @@ function renderMoldura(linhas, pares, numeroUltimo){
   cont.innerHTML = `<div class="centro-grid">${celulas}</div>`;
 }
 
+// ---------- Ciclo: quais dezenas já saíram (e quais faltam) no fechamento de ciclo atual ----------
+let cicloCarregouUmaVez = false;
+
+async function carregarCiclo(gameParam){
+  const game = gameParam || tendGameAtual;
+  const qtdEl = document.getElementById('cicloQtdInput');
+  let qtd = qtdEl ? parseInt(qtdEl.value, 10) : 20;
+  if(!Number.isFinite(qtd) || qtd < 2) qtd = 20;
+  if(qtd > CENTRO_QTD_MAX) qtd = CENTRO_QTD_MAX;
+  if(qtdEl) qtdEl.value = qtd; // reflete o valor corrigido/limitado no campo
+  const cont = document.getElementById('cicloConteudo');
+  const btn = document.getElementById('cicloAtualizarBtn');
+
+  if(!game.range){
+    if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">O formato do ${game.nome} não tem uma faixa fixa de dezenas para calcular ciclo.</div>`;
+    return;
+  }
+
+  if(btn){ btn.disabled = true; setBtnLoading('cicloAtualizarBtn', true); }
+  if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
+  try{
+    const {jaSairam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico} = await calcularCiclo(game, qtd);
+    cicloCarregouUmaVez = true;
+    renderCiclo(jaSairam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico, game);
+  }catch(e){
+    console.error('carregarCiclo falhou:', e);
+    if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
+  }finally{
+    if(btn){ btn.disabled = false; setBtnLoading('cicloAtualizarBtn', false); }
+  }
+}
+
+// varre os últimos "qtd" concursos em ordem cronológica (mais antigo -> mais recente)
+// somando as dezenas sorteadas; toda vez que a soma completa a faixa inteira do jogo,
+// um ciclo "fecha" ali e a contagem reinicia do zero. O que sobra no final (sem ter
+// fechado ainda) é o ciclo atual, em andamento.
+async function calcularCiclo(game, qtd, paridade){
+  const ultimo = await fetchConcursoLoteria(game);
+  if(!ultimo || !ultimo.concurso) throw new Error('resposta inválida da API');
+  const numeroUltimo = ultimo.concurso;
+  const numeros = [];
+  for(let c = numeroUltimo; c > numeroUltimo - qtd && c > 0; c--) numeros.push(c);
+
+  const concursos = new Array(numeros.length);
+  concursos[0] = ultimo;
+  const pendentes = numeros.slice(1).map((c, idx)=>
+    fetchConcursoLoteria(game, c).then(data=>{ concursos[idx+1] = data; }).catch(()=>{ concursos[idx+1] = null; })
+  );
+  await Promise.all(pendentes);
+
+  const cronologico = concursos.filter(Boolean).slice().reverse(); // mais antigo primeiro
+  const bateParidade = (n)=> !paridade || (paridade==='impar' ? n%2!==0 : n%2===0);
+  const totalFaixa = [];
+  for(let n = game.range.min; n <= game.range.max; n++) if(bateParidade(n)) totalFaixa.push(n);
+
+  let seen = new Set();
+  let fechouNaJanela = false;
+  let concursoFechou = null; // nº do concurso que fechou o último ciclo completo dentro da janela
+  let inicioIdx = 0; // índice (na janela) de onde o ciclo em andamento começou
+  let concursoComecou = cronologico.length ? cronologico[0].concurso : null; // nº do concurso em que o ciclo em andamento começou
+  const historico = []; // cada fechamento de ciclo encontrado dentro da janela, do mais antigo pro mais novo
+  cronologico.forEach((data, idx)=>{
+    const dezenas = (data.dezenas||[]).map(d=>parseInt(d,10));
+    dezenas.forEach(n=>{
+      if(n>=game.range.min && n<=game.range.max && bateParidade(n)) seen.add(n);
+    });
+    if(seen.size === totalFaixa.length){
+      historico.push({
+        concurso: data.concurso,
+        concursoComecou: concursoComecou,
+        concursosNoCiclo: idx - inicioIdx + 1,
+        completo: inicioIdx > 0 // o primeiro fechamento da janela pode ter começado antes do início analisado
+      });
+      seen = new Set(); // ciclo fechou aqui — o próximo concurso já começa um ciclo novo, zerado
+      fechouNaJanela = true;
+      concursoFechou = data.concurso;
+      inicioIdx = idx + 1;
+      concursoComecou = data.concurso + 1;
+    }
+  });
+
+  const jaSairam = totalFaixa.filter(n=>seen.has(n));
+  const faltam = totalFaixa.filter(n=>!seen.has(n));
+
+  return {jaSairam, faltam, numeroUltimo, concursosAnalisados: cronologico.length, fechouNaJanela, concursoFechou, historico: historico.slice().reverse()};
+}
+
+function renderCiclo(jaSairam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico, game){
+  const cont = document.getElementById('cicloConteudo');
+  const totalFaixa = game.range.max - game.range.min + 1;
+  const jaSet = new Set(jaSairam);
+
+  const aviso = fechouNaJanela ? '' : `<div class="note" style="margin:0 0 10px;">Não encontramos nenhum fechamento de ciclo completo dentro dos últimos ${concursosAnalisados} concursos analisados — aumente a quantidade acima para um resultado mais confiável.</div>`;
+
+  const infoFechamento = fechouNaJanela
+    ? `<div style="font-size:12.5px;color:var(--violet-deep);font-weight:700;margin-bottom:6px;">Último ciclo fechou no concurso Nº ${concursoFechou} — o ciclo atual começou no concurso Nº ${concursoFechou + 1}.</div>`
+    : '';
+
+  const celulas = [];
+  for(let n = game.range.min; n <= game.range.max; n++){
+    const saiu = jaSet.has(n);
+    celulas.push(`
+    <div class="centro-cel ${saiu ? 'ciclo-saiu' : 'ciclo-falta'}" title="${n.toString().padStart(2,'0')}: ${saiu ? 'já saiu neste ciclo' : 'ainda falta sair neste ciclo'}">
+      <div class="centro-num">${n.toString().padStart(2,'0')}</div>
+    </div>`);
+  }
+
+  const historicoHtml = renderHistoricoCiclo(historico, 'Ciclo', 'concursos');
+
+  cont.innerHTML = `
+    ${aviso}
+    ${infoFechamento}
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">
+      Já saíram <strong>${jaSairam.length}</strong> de <strong>${totalFaixa}</strong> dezenas no ciclo atual (até o concurso Nº ${numeroUltimo}). Faltam <strong>${faltam.length}</strong> para fechar o ciclo.
+    </div>
+    <div class="centro-grid">${celulas.join('')}</div>
+    <div class="ciclo-legenda">
+      <span><span class="ciclo-legenda-bola saiu"></span>já saiu</span>
+      <span><span class="ciclo-legenda-bola falta"></span>falta sair</span>
+    </div>
+    ${historicoHtml}`;
+}
+
+// ---------- Ciclo (ímpares/pares): mesma lógica do Ciclo, mas só dentro do subconjunto de dezenas ímpares ou pares ----------
+let cicloImparCarregouUmaVez = false;
+let cicloParCarregouUmaVez = false;
+
+async function carregarCicloImpar(gameParam){
+  const game = gameParam || tendGameAtual;
+  const qtdEl = document.getElementById('cicloImparQtdInput');
+  let qtd = qtdEl ? parseInt(qtdEl.value, 10) : 20;
+  if(!Number.isFinite(qtd) || qtd < 2) qtd = 20;
+  if(qtd > CENTRO_QTD_MAX) qtd = CENTRO_QTD_MAX;
+  if(qtdEl) qtdEl.value = qtd;
+  const cont = document.getElementById('cicloImparConteudo');
+  const btn = document.getElementById('cicloImparAtualizarBtn');
+
+  if(!game.range){
+    if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">O formato do ${game.nome} não tem uma faixa fixa de dezenas para calcular ciclo.</div>`;
+    return;
+  }
+
+  if(btn){ btn.disabled = true; setBtnLoading('cicloImparAtualizarBtn', true); }
+  if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
+  try{
+    const {jaSairam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico} = await calcularCiclo(game, qtd, 'impar');
+    cicloImparCarregouUmaVez = true;
+    renderCicloParidade('cicloImparConteudo', jaSairam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico, game, 'impar', 'Ciclo de ímpares');
+  }catch(e){
+    console.error('carregarCicloImpar falhou:', e);
+    if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
+  }finally{
+    if(btn){ btn.disabled = false; setBtnLoading('cicloImparAtualizarBtn', false); }
+  }
+}
+
+async function carregarCicloPar(gameParam){
+  const game = gameParam || tendGameAtual;
+  const qtdEl = document.getElementById('cicloParQtdInput');
+  let qtd = qtdEl ? parseInt(qtdEl.value, 10) : 20;
+  if(!Number.isFinite(qtd) || qtd < 2) qtd = 20;
+  if(qtd > CENTRO_QTD_MAX) qtd = CENTRO_QTD_MAX;
+  if(qtdEl) qtdEl.value = qtd;
+  const cont = document.getElementById('cicloParConteudo');
+  const btn = document.getElementById('cicloParAtualizarBtn');
+
+  if(!game.range){
+    if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">O formato do ${game.nome} não tem uma faixa fixa de dezenas para calcular ciclo.</div>`;
+    return;
+  }
+
+  if(btn){ btn.disabled = true; setBtnLoading('cicloParAtualizarBtn', true); }
+  if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
+  try{
+    const {jaSairam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico} = await calcularCiclo(game, qtd, 'par');
+    cicloParCarregouUmaVez = true;
+    renderCicloParidade('cicloParConteudo', jaSairam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico, game, 'par', 'Ciclo de pares');
+  }catch(e){
+    console.error('carregarCicloPar falhou:', e);
+    if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
+  }finally{
+    if(btn){ btn.disabled = false; setBtnLoading('cicloParAtualizarBtn', false); }
+  }
+}
+
+function renderCicloParidade(containerId, jaSairam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico, game, paridade, rotulo){
+  const cont = document.getElementById(containerId);
+  const bateParidade = (n)=> paridade==='impar' ? n%2!==0 : n%2===0;
+  const faixaLista = [];
+  for(let n = game.range.min; n <= game.range.max; n++) if(bateParidade(n)) faixaLista.push(n);
+  const totalFaixa = faixaLista.length;
+  const jaSet = new Set(jaSairam);
+
+  const aviso = fechouNaJanela ? '' : `<div class="note" style="margin:0 0 10px;">Não encontramos nenhum fechamento de ciclo completo dentro dos últimos ${concursosAnalisados} concursos analisados — aumente a quantidade acima para um resultado mais confiável.</div>`;
+
+  const infoFechamento = fechouNaJanela
+    ? `<div style="font-size:12.5px;color:var(--violet-deep);font-weight:700;margin-bottom:6px;">Último ${rotulo.toLowerCase()} fechou no concurso Nº ${concursoFechou} — o ${rotulo.toLowerCase()} atual começou no concurso Nº ${concursoFechou + 1}.</div>`
+    : '';
+
+  const celulas = faixaLista.map(n=>{
+    const saiu = jaSet.has(n);
+    return `
+    <div class="centro-cel ${saiu ? 'ciclo-saiu' : 'ciclo-falta'}" title="${n.toString().padStart(2,'0')}: ${saiu ? 'já saiu neste ciclo' : 'ainda falta sair neste ciclo'}">
+      <div class="centro-num">${n.toString().padStart(2,'0')}</div>
+    </div>`;
+  }).join('');
+
+  const historicoHtml = renderHistoricoCiclo(historico, rotulo, 'concursos');
+
+  cont.innerHTML = `
+    ${aviso}
+    ${infoFechamento}
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">
+      Já saíram <strong>${jaSairam.length}</strong> de <strong>${totalFaixa}</strong> dezenas ${paridade==='impar' ? 'ímpares' : 'pares'} no ciclo atual (até o concurso Nº ${numeroUltimo}). Faltam <strong>${faltam.length}</strong> para fechar o ciclo.
+    </div>
+    <div class="centro-grid">${celulas}</div>
+    <div class="ciclo-legenda">
+      <span><span class="ciclo-legenda-bola saiu"></span>já saiu</span>
+      <span><span class="ciclo-legenda-bola falta"></span>falta sair</span>
+    </div>
+    ${historicoHtml}`;
+}
+
+// monta a lista de histórico de fechamentos (usada tanto pelo Ciclo quanto pelo Ciclo de Falha) —
+// mais recente primeiro; o mais antigo da janela vem marcado como possivelmente incompleto,
+// porque não sabemos o que aconteceu antes do início do período analisado
+function renderHistoricoCiclo(historico, rotulo, unidade){
+  if(!historico || !historico.length) return '';
+  const linhas = historico.map(h=>{
+    return `<div class="ciclo-hist-linha">${rotulo} começou no concurso Nº <strong>${h.concursoComecou}</strong> e fechou no concurso Nº <strong>${h.concurso}</strong> (<strong>${h.concursosNoCiclo}</strong> ${unidade})</div>`;
+  }).join('');
+  return `
+    <div class="ciclo-hist-wrap">
+      <div class="ciclo-hist-titulo">Histórico de fechamentos nesta janela (${historico.length})</div>
+      ${linhas}
+    </div>`;
+}
+
+// ---------- Ciclo de Falha: mesmo fechamento de ciclo, mas contando dezenas que "falharam"
+// (saíram em um concurso e não repetiram no seguinte) em vez das que simplesmente saíram ----------
+let cicloFalhaCarregouUmaVez = false;
+
+async function carregarCicloFalha(gameParam){
+  const game = gameParam || tendGameAtual;
+  const qtdEl = document.getElementById('cicloFalhaQtdInput');
+  let qtd = qtdEl ? parseInt(qtdEl.value, 10) : 20;
+  if(!Number.isFinite(qtd) || qtd < 2) qtd = 20;
+  if(qtd > CENTRO_QTD_MAX) qtd = CENTRO_QTD_MAX;
+  if(qtdEl) qtdEl.value = qtd; // reflete o valor corrigido/limitado no campo
+  const cont = document.getElementById('cicloFalhaConteudo');
+  const btn = document.getElementById('cicloFalhaAtualizarBtn');
+
+  if(!game.range){
+    if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">O formato do ${game.nome} não tem uma faixa fixa de dezenas para calcular ciclo de falha.</div>`;
+    return;
+  }
+
+  if(btn){ btn.disabled = true; setBtnLoading('cicloFalhaAtualizarBtn', true); }
+  if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd+1} concursos…</div>`;
+  try{
+    const {jaFalharam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico} = await calcularCicloFalha(game, qtd);
+    cicloFalhaCarregouUmaVez = true;
+    renderCicloFalha(jaFalharam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico, game);
+  }catch(e){
+    console.error('carregarCicloFalha falhou:', e);
+    if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
+  }finally{
+    if(btn){ btn.disabled = false; setBtnLoading('cicloFalhaAtualizarBtn', false); }
+  }
+}
+
+// varre os últimos "qtd" pares de concursos consecutivos (mais antigo -> mais recente).
+// Uma dezena "falha" numa transição quando saiu no concurso anterior mas não repetiu no seguinte.
+// Toda vez que TODAS as dezenas da faixa já tiverem falhado pelo menos uma vez, o "ciclo de falha"
+// fecha ali e a contagem reinicia do zero — igual ao Ciclo normal, só que usando falhas em vez de saídas.
+async function calcularCicloFalha(game, qtd){
+  const ultimo = await fetchConcursoLoteria(game);
+  if(!ultimo || !ultimo.concurso) throw new Error('resposta inválida da API');
+  const numeroUltimo = ultimo.concurso;
+  const totalBuscar = qtd + 1; // precisa de 1 concurso a mais pra formar "qtd" transições (pares)
+  const numeros = [];
+  for(let c = numeroUltimo; c > numeroUltimo - totalBuscar && c > 0; c--) numeros.push(c);
+
+  const concursos = new Array(numeros.length);
+  concursos[0] = ultimo;
+  const pendentes = numeros.slice(1).map((c, idx)=>
+    fetchConcursoLoteria(game, c).then(data=>{ concursos[idx+1] = data; }).catch(()=>{ concursos[idx+1] = null; })
+  );
+  await Promise.all(pendentes);
+
+  const cronologico = concursos.filter(Boolean).slice().reverse(); // mais antigo primeiro
+  const totalFaixa = [];
+  for(let n = game.range.min; n <= game.range.max; n++) totalFaixa.push(n);
+
+  let seen = new Set();
+  let fechouNaJanela = false;
+  let concursoFechou = null;
+  let inicioIdx = 1; // a primeira transição possível é i=1 (entre cronologico[0] e cronologico[1])
+  let concursoComecou = cronologico.length ? cronologico[0].concurso : null; // nº do concurso em que o ciclo de falha em andamento começou
+  const historico = [];
+  for(let i=1;i<cronologico.length;i++){
+    const anterior = cronologico[i-1];
+    const seguinte = cronologico[i];
+    const dezAnterior = (anterior.dezenas||[]).map(d=>parseInt(d,10));
+    const dezSeguinte = new Set((seguinte.dezenas||[]).map(d=>parseInt(d,10)));
+    dezAnterior.forEach(n=>{
+      if(n>=game.range.min && n<=game.range.max && !dezSeguinte.has(n)) seen.add(n); // saiu e não repetiu = falhou
+    });
+    if(seen.size === totalFaixa.length){
+      historico.push({
+        concurso: seguinte.concurso,
+        concursoComecou: concursoComecou,
+        concursosNoCiclo: i - inicioIdx + 1,
+        completo: inicioIdx > 1 // o primeiro fechamento da janela pode ter começado antes do início analisado
+      });
+      seen = new Set(); // ciclo de falha fechou aqui — reinicia zerado
+      fechouNaJanela = true;
+      concursoFechou = seguinte.concurso;
+      inicioIdx = i + 1;
+      concursoComecou = seguinte.concurso + 1;
+    }
+  }
+
+  const jaFalharam = totalFaixa.filter(n=>seen.has(n));
+  const faltam = totalFaixa.filter(n=>!seen.has(n));
+
+  return {jaFalharam, faltam, numeroUltimo, concursosAnalisados: Math.max(0, cronologico.length-1), fechouNaJanela, concursoFechou, historico: historico.slice().reverse()};
+}
+
+function renderCicloFalha(jaFalharam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico, game){
+  const cont = document.getElementById('cicloFalhaConteudo');
+  const totalFaixa = game.range.max - game.range.min + 1;
+  const jaSet = new Set(jaFalharam);
+
+  const aviso = fechouNaJanela ? '' : `<div class="note" style="margin:0 0 10px;">Não encontramos nenhum fechamento de ciclo de falha completo dentro dos últimos ${concursosAnalisados} concursos analisados — aumente a quantidade acima para um resultado mais confiável.</div>`;
+
+  const infoFechamento = fechouNaJanela
+    ? `<div style="font-size:12.5px;color:var(--violet-deep);font-weight:700;margin-bottom:6px;">Último ciclo de falha fechou no concurso Nº ${concursoFechou} — o ciclo de falha atual começou no concurso Nº ${concursoFechou + 1}.</div>`
+    : '';
+
+  const celulas = [];
+  for(let n = game.range.min; n <= game.range.max; n++){
+    const falhou = jaSet.has(n);
+    celulas.push(`
+    <div class="centro-cel ${falhou ? 'falha-saiu' : 'falha-falta'}" title="${n.toString().padStart(2,'0')}: ${falhou ? 'já falhou (saiu e não repetiu) neste ciclo de falha' : 'ainda não falhou neste ciclo de falha'}">
+      <div class="centro-num">${n.toString().padStart(2,'0')}</div>
+    </div>`);
+  }
+
+  const historicoHtml = renderHistoricoCiclo(historico, 'Ciclo de falha', 'concursos');
+
+  cont.innerHTML = `
+    ${aviso}
+    ${infoFechamento}
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">
+      Já falharam <strong>${jaFalharam.length}</strong> de <strong>${totalFaixa}</strong> dezenas no ciclo de falha atual (até o concurso Nº ${numeroUltimo}). Faltam <strong>${faltam.length}</strong> falhar para fechar o ciclo.
+    </div>
+    <div class="centro-grid">${celulas.join('')}</div>
+    <div class="ciclo-legenda">
+      <span><span class="ciclo-legenda-bola falha-saiu"></span>já falhou</span>
+      <span><span class="ciclo-legenda-bola falha-falta"></span>ainda não falhou</span>
+    </div>
+    ${historicoHtml}`;
+}
+
 // ---------- grupos (duplas a conjuntos de 15) gerados a partir das dezenas com maior potencial de falha (3 a 100 concursos) ----------
 const GERAR_MAX_LINHAS = 300; // limite de combinações exibidas, para não travar a tela em conjuntos grandes
 
@@ -5949,23 +6572,41 @@ function mudarJogoTendencia(g){
   if(trioQtdEl) trioQtdEl.value = faixaGrande ? '20' : '4';
   if(falhasQtdEl) falhasQtdEl.value = faixaGrande ? '20' : '4';
   if(falhasTipoEl) falhasTipoEl.value = faixaGrande ? '2' : '3';
+  const cicloQtdEl = document.getElementById('cicloQtdInput');
+  if(cicloQtdEl) cicloQtdEl.value = faixaGrande ? '60' : '20';
+  const cicloFalhaQtdEl = document.getElementById('cicloFalhaQtdInput');
+  if(cicloFalhaQtdEl) cicloFalhaQtdEl.value = faixaGrande ? '60' : '20';
 
   falhaCarregouUmaVez = false;
   molduraCarregouUmaVez = false;
   trioCarregouUmaVez = false;
   falhasCarregouUmaVez = false;
   quenteCarregouUmaVez = false;
+  cicloCarregouUmaVez = false;
+  cicloFalhaCarregouUmaVez = false;
+  cicloImparCarregouUmaVez = false;
+  cicloParCarregouUmaVez = false;
 
   const subtabRow = document.getElementById('tendSubtabRow');
   const cont = document.getElementById('tendConteudo');
   if(g.noFalha){
-    // Super Sete sorteia 7 colunas de 0 a 9, formato que não se encaixa nessa análise por dezena
-    if(subtabRow) subtabRow.style.display = 'none';
-    ativarSubtabTendencia('subtabTendencia');
+    // Super Sete sorteia 7 colunas de 0 a 9: as análises por dezena não se encaixam, mas o
+    // Ciclo/Ciclo de falha funcionam normalmente juntando as 7 colunas numa faixa única 0-9.
+    if(subtabRow){
+      subtabRow.style.display = 'grid';
+      subtabRow.querySelectorAll('.subtab-btn').forEach(btnEl=>{
+        btnEl.style.display = (btnEl.id === 'subtabCiclo') ? '' : 'none';
+      });
+    }
     if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">O formato do ${g.nome} (colunas de 0 a 9) não se encaixa nessa análise de falhas por dezena.</div>`;
+    ativarSubtabTendencia('subtabCiclo');
+    if(!cicloCarregouUmaVez) carregarCiclo(g);
     return;
   }
-  if(subtabRow) subtabRow.style.display = 'flex';
+  if(subtabRow){
+    subtabRow.style.display = 'grid';
+    subtabRow.querySelectorAll('.subtab-btn').forEach(btnEl=>{ btnEl.style.display = ''; });
+  }
   ativarSubtabTendencia('subtabTendencia');
   carregarTendencia(g);
 }
@@ -6566,6 +7207,8 @@ document.getElementById('trioAtualizarBtn').addEventListener('click', ()=>carreg
 document.getElementById('falhasAtualizarBtn').addEventListener('click', ()=>carregarFalhas(tendGameAtual));
 document.getElementById('quenteAtualizarBtn').addEventListener('click', ()=>carregarQuente(tendGameAtual));
 document.getElementById('manualAtualizarBtn').addEventListener('click', ()=>carregarManual(tendGameAtual));
+document.getElementById('cicloAtualizarBtn').addEventListener('click', ()=>carregarCiclo(tendGameAtual));
+document.getElementById('cicloFalhaAtualizarBtn').addEventListener('click', ()=>carregarCicloFalha(tendGameAtual));
 document.getElementById('manualLimparBtn').addEventListener('click', ()=>{
   ['manualDezena1','manualDezena2','manualDezena3','manualDezena4','manualDezena5','manualDezena6','manualDezena7','manualDezena8','manualDezena9'].forEach(id=>{
     const el = document.getElementById(id);
@@ -6649,7 +7292,8 @@ const TEND_SUBTABS = [
   {btn:'subtabTrios', panel:'trioPanel'},
   {btn:'subtabFalhas', panel:'falhasPanel'},
   {btn:'subtabQuente', panel:'quentePanel'},
-  {btn:'subtabManual', panel:'manualPanel'}
+  {btn:'subtabManual', panel:'manualPanel'},
+  {btn:'subtabCiclo', panel:'cicloPanel'}
 ];
 function ativarSubtabTendencia(idAtivo){
   TEND_SUBTABS.forEach(s=>{
@@ -6711,6 +7355,43 @@ document.getElementById('subtabQuente').addEventListener('click', ()=>{
 });
 document.getElementById('subtabManual').addEventListener('click', ()=>{
   ativarSubtabTendencia('subtabManual');
+});
+document.getElementById('subtabCiclo').addEventListener('click', ()=>{
+  ativarSubtabTendencia('subtabCiclo');
+  if(!cicloCarregouUmaVez) carregarCiclo(tendGameAtual);
+});
+
+// toggle interno da aba Ciclo: "Falta sair" x "Falta falhar" x "Ímpares" x "Pares" — os
+// cálculos já existem, só alternamos qual caixa fica visível dentro do mesmo painel
+const CICLO_TIPO_BOTOES = {
+  sair:  {btn:'cicloTipoSairBtn',  box:'cicloSairBox'},
+  falha: {btn:'cicloTipoFalhaBtn', box:'cicloFalhaBox'},
+  impar: {btn:'cicloTipoImparBtn', box:'cicloImparBox'},
+  par:   {btn:'cicloTipoParBtn',   box:'cicloParBox'}
+};
+function ativarCicloTipo(tipo){
+  Object.keys(CICLO_TIPO_BOTOES).forEach(k=>{
+    const ativo = k === tipo;
+    const {btn, box} = CICLO_TIPO_BOTOES[k];
+    document.getElementById(btn).classList.toggle('active', ativo);
+    document.getElementById(box).style.display = ativo ? 'block' : 'none';
+  });
+}
+document.getElementById('cicloTipoSairBtn').addEventListener('click', ()=>{
+  ativarCicloTipo('sair');
+  if(!cicloCarregouUmaVez) carregarCiclo(tendGameAtual);
+});
+document.getElementById('cicloTipoFalhaBtn').addEventListener('click', ()=>{
+  ativarCicloTipo('falha');
+  if(!cicloFalhaCarregouUmaVez) carregarCicloFalha(tendGameAtual);
+});
+document.getElementById('cicloTipoImparBtn').addEventListener('click', ()=>{
+  ativarCicloTipo('impar');
+  if(!cicloImparCarregouUmaVez) carregarCicloImpar(tendGameAtual);
+});
+document.getElementById('cicloTipoParBtn').addEventListener('click', ()=>{
+  ativarCicloTipo('par');
+  if(!cicloParCarregouUmaVez) carregarCicloPar(tendGameAtual);
 });
 
 // (barra de abas inferior removida — navegação agora só pelo menu ☰ do cabeçalho e pelo menu lateral)
@@ -7740,6 +8421,57 @@ if('serviceWorker' in navigator){
     }).catch(()=>{});
   });
 }
+
+// Garante o efeito 3D de "afundar ao pressionar" em todos os botões, mesmo em navegadores
+// mobile onde o :active do CSS às vezes não é confiável.
+(function(){
+  // Aplica o efeito 3D "degrau" (igual GERAR/LIMPAR) em qualquer botão de ação que ainda não tenha um efeito 3D.
+  // Não mexe em abas, ícones, setas de voltar e botões transparentes/steppers (ficariam estranhos com sombra 3D).
+  const jaTem3d = ['btn-3d','btn-3d-quente','btn-3d-falhas','btn-3d-gerar','btn-3d-limpar','btn-3d-orange','btn-3d-conferir','btn-3d-gold'];
+  const classesExcluidas = ['bt-item','drawer-item','subtab-btn','res-nav-btn','stepper-btn','gfc-dark-stepper-btn','gfc-tab-btn','hamburger-btn','home-icon-btn','oficial-loteria-chip','foto-full-close','foto-full-apagar','foto-full-usar','gc-apagar','gc-pesquisar','btn-cancel','del','he-apagar','he-ver'];
+  function elegivelPara3d(b){
+    if(jaTem3d.some(c=>b.classList.contains(c))) return false;
+    if(classesExcluidas.some(c=>b.classList.contains(c))) return false;
+    const bg = getComputedStyle(b).backgroundImage;
+    const bgColor = getComputedStyle(b).backgroundColor;
+    const semFundo = bgColor === 'rgba(0, 0, 0, 0)' && (!bg || bg === 'none');
+    if(semFundo) return false; // botão transparente (ex: setas de voltar, "cancelar"/"salvar" em texto)
+    return true;
+  }
+  document.querySelectorAll('button').forEach(function(b){
+    if(elegivelPara3d(b)) b.classList.add('btn-3d');
+  });
+
+  const seletor = '.btn-3d, .btn-3d-quente, .btn-3d-falhas, .btn-3d-gerar, .btn-3d-limpar, .btn-3d-orange, .btn-3d-conferir, #tendSubtabRow .subtab-btn, #cicloTipoRow .subtab-btn';
+  function ligar(btn){
+    if(btn.dataset.press3dLigado) return;
+    btn.dataset.press3dLigado = '1';
+    const pressionar = ()=> btn.classList.add('is-pressed');
+    const soltar = ()=> btn.classList.remove('is-pressed');
+    btn.addEventListener('pointerdown', pressionar);
+    btn.addEventListener('pointerup', soltar);
+    btn.addEventListener('pointercancel', soltar);
+    btn.addEventListener('pointerleave', soltar);
+    btn.addEventListener('touchstart', pressionar, {passive:true});
+    btn.addEventListener('touchend', soltar);
+    btn.addEventListener('touchcancel', soltar);
+  }
+  document.querySelectorAll(seletor).forEach(ligar);
+  // cobre botões que possam ser inseridos dinamicamente depois
+  new MutationObserver((muts)=>{
+    muts.forEach(m=>{
+      m.addedNodes && m.addedNodes.forEach(n=>{
+        if(n.nodeType !== 1) return;
+        if(n.tagName === 'BUTTON' && elegivelPara3d(n)) n.classList.add('btn-3d');
+        n.querySelectorAll && n.querySelectorAll('button').forEach(function(b){
+          if(elegivelPara3d(b)) b.classList.add('btn-3d');
+        });
+        if(n.matches && n.matches(seletor)) ligar(n);
+        n.querySelectorAll && n.querySelectorAll(seletor).forEach(ligar);
+      });
+    });
+  }).observe(document.body, {childList:true, subtree:true});
+})();
 </script>
 </body>
 </html>
