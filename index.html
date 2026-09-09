@@ -78,6 +78,7 @@ const CREDENCIAIS_VALIDAS = [
   '7528mp', // Tava (senha 142580)
   '3a4w1r', // ZEZÉ (senha 142580)
   'u6jby2', // Laila (senha 142580)
+  '1e1isk2', // Marcos (senha 142580)
 ];
 
 const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
@@ -2903,6 +2904,20 @@ document.addEventListener('selectstart', e=>{
       <div style="padding:13px;">
         <div style="font-size:11px;color:var(--muted);margin-bottom:7px;font-weight:600;">⚙️ Quantos números deseja analisar?</div>
         <div id="freqQtdTabs" style="display:flex;gap:5px;overflow-x:auto;margin-bottom:13px;padding-bottom:2px;"></div>
+
+        <div style="font-size:11px;color:var(--muted);margin-bottom:7px;font-weight:600;">🗓️ Quais concursos deseja analisar?</div>
+        <div id="freqConcursoTabs" style="display:flex;gap:5px;overflow-x:auto;margin-bottom:8px;padding-bottom:2px;"></div>
+        <div id="freqConcursoCustomRow" style="display:none;gap:6px;margin-bottom:6px;">
+          <div style="flex:1;">
+            <label style="font-size:9.5px;color:var(--muted);font-weight:600;">Do concurso</label>
+            <input type="number" id="freqConcursoDe" inputmode="numeric" placeholder="1" style="width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;border:1.2px solid #E7DFF5;font-size:12.5px;margin-top:3px;">
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:9.5px;color:var(--muted);font-weight:600;">Até o concurso</label>
+            <input type="number" id="freqConcursoAte" inputmode="numeric" placeholder="mais recente" style="width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;border:1.2px solid #E7DFF5;font-size:12.5px;margin-top:3px;">
+          </div>
+        </div>
+        <div id="freqConcursoInfo" style="font-size:10px;color:var(--muted);margin-bottom:13px;"></div>
 
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <div style="font-size:11.5px;color:var(--ink);font-weight:600;">Selecione <span id="freqQtdLabel">5</span> números:</div>
@@ -7971,10 +7986,24 @@ function abrirTendencia(){
 // dezenas (5, 7, 9, 10 ou 11) já apareceu em TODA a história da Lotofácil ----------
 const FREQ_CACHE_KEY = 'tl_freq_historico_lotofacil_v1';
 const FREQ_FAVORITOS_KEY = 'tl_freq_favoritos_v1';
+
+// helpers "seguros": nunca travam a análise por causa de um elemento que não
+// foi encontrado na tela (ex: tela ainda não montada ou versão de página desatualizada)
+function freqSetText(id, texto){
+  const el = document.getElementById(id);
+  if(el) el.textContent = texto;
+  return el;
+}
+function freqSetHtml(id, html){
+  const el = document.getElementById(id);
+  if(el) el.innerHTML = html;
+  return el;
+}
 let freqQtd = 5;
 let freqSelecionados = new Set();
 let freqCarregandoHistorico = false;
 let freqUltimaAnalise = null; // {seq:[...], matches:[...], total}
+let freqConcursoModo = 'todos'; // 'todos' | '50' | '100' | '300' | 'custom'
 
 function renderFreqQtdTabs(){
   const cont = document.getElementById('freqQtdTabs');
@@ -7993,6 +8022,76 @@ function renderFreqQtdTabs(){
       esconderResultadoFreq();
     });
   });
+}
+
+const FREQ_CONCURSO_OPCOES = [
+  {id:'todos', label:'Todos'},
+  {id:'50', label:'Últimos 50'},
+  {id:'100', label:'Últimos 100'},
+  {id:'300', label:'Últimos 300'},
+  {id:'custom', label:'Personalizado'},
+];
+
+function renderFreqConcursoTabs(){
+  const cont = document.getElementById('freqConcursoTabs');
+  if(!cont) return;
+  cont.innerHTML = FREQ_CONCURSO_OPCOES.map(o=>
+    `<button type="button" class="freq-qtd-btn${o.id===freqConcursoModo?' active':''}" data-id="${o.id}">${o.label}</button>`
+  ).join('');
+  cont.querySelectorAll('.freq-qtd-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.id;
+      if(id === freqConcursoModo) return;
+      freqConcursoModo = id;
+      renderFreqConcursoTabs();
+      const customRow = document.getElementById('freqConcursoCustomRow');
+      if(customRow) customRow.style.display = (id === 'custom') ? 'flex' : 'none';
+      esconderResultadoFreq();
+    });
+  });
+  const customRow = document.getElementById('freqConcursoCustomRow');
+  if(customRow) customRow.style.display = (freqConcursoModo === 'custom') ? 'flex' : 'none';
+}
+
+function limitesConcursoFreq(dados){
+  if(!dados || !dados.length) return {min:1, max:1};
+  return {min:dados[0].c, max:dados[dados.length-1].c};
+}
+
+// aplica o filtro de concursos escolhido (todos, últimos N, ou intervalo
+// personalizado) sobre a lista completa de sorteios já carregada
+function filtrarDadosPorConcursoFreq(dados){
+  if(freqConcursoModo === 'todos') return dados;
+  if(freqConcursoModo === '50' || freqConcursoModo === '100' || freqConcursoModo === '300'){
+    const n = parseInt(freqConcursoModo, 10);
+    return dados.slice(-n);
+  }
+  if(freqConcursoModo === 'custom'){
+    const {min, max} = limitesConcursoFreq(dados);
+    const deInput = document.getElementById('freqConcursoDe');
+    const ateInput = document.getElementById('freqConcursoAte');
+    let de = parseInt(deInput ? deInput.value : '', 10);
+    let ate = parseInt(ateInput ? ateInput.value : '', 10);
+    if(isNaN(de)) de = min;
+    if(isNaN(ate)) ate = max;
+    if(de > ate){ const t = de; de = ate; ate = t; }
+    de = Math.max(min, de);
+    ate = Math.min(max, ate);
+    return dados.filter(d=> d.c >= de && d.c <= ate);
+  }
+  return dados;
+}
+
+function atualizarFreqConcursoInfoLabel(dadosOpcional){
+  const infoEl = document.getElementById('freqConcursoInfo');
+  if(!infoEl) return;
+  const dados = dadosOpcional || (carregarCacheHistoricoFreq()||{}).dados;
+  if(dados && dados.length){
+    const {min, max} = limitesConcursoFreq(dados);
+    infoEl.textContent = `Concursos disponíveis: #${min} a #${max} (${dados.length} sorteios no total)`;
+  } else {
+    infoEl.textContent = '';
+  }
 }
 
 function renderFreqNumGrid(){
@@ -8172,38 +8271,42 @@ document.getElementById('freqBtnFavorito').addEventListener('click', ()=>{
 
 document.getElementById('freqBtnVerTodos').addEventListener('click', ()=>{
   const lista = document.getElementById('freqListaSorteios');
+  if(!lista) return;
   const abrindo = lista.style.display === 'none';
   lista.style.display = abrindo ? 'block' : 'none';
   const n = freqUltimaAnalise ? freqUltimaAnalise.matches.length : 0;
-  document.getElementById('freqBtnVerTodos').innerHTML = (abrindo ? '▲ Ocultar sorteios (' : '☰ Ver todos os sorteios (') + n + ')';
+  freqSetHtml('freqBtnVerTodos', (abrindo ? '▲ Ocultar sorteios (' : '☰ Ver todos os sorteios (') + n + ')');
 });
 
 function renderResultadoFreq(selecionados, matches, total){
   const seq = selecionados.slice().sort((a,b)=>a-b);
-  document.getElementById('freqResSequencia').innerHTML = seq.map(n=>
+  freqSetHtml('freqResSequencia', seq.map(n=>
     `<span style="background:#fff;color:var(--violet-deep);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:13px;padding:6px 12px;border-radius:8px;">${n.toString().padStart(2,'0')}</span>`
-  ).join('');
-  document.getElementById('freqResAparicoes').textContent = matches.length;
+  ).join(''));
+  freqSetText('freqResAparicoes', matches.length);
   const pct = total>0 ? (matches.length/total*100) : 0;
-  document.getElementById('freqResPercentual').textContent = pct.toFixed(2).replace('.', ',') + '%';
-  document.getElementById('freqResTotal').textContent = total;
-  document.getElementById('freqVerTodosCount').textContent = matches.length;
-  document.getElementById('freqBtnVerTodos').innerHTML = `☰ Ver todos os sorteios (${matches.length})`;
+  freqSetText('freqResPercentual', pct.toFixed(2).replace('.', ',') + '%');
+  freqSetText('freqResTotal', total);
+  freqSetText('freqVerTodosCount', matches.length);
+  freqSetHtml('freqBtnVerTodos', `☰ Ver todos os sorteios (${matches.length})`);
 
   const lista = document.getElementById('freqListaSorteios');
-  lista.innerHTML = matches.map(d=>{
-    const nums = d.n.slice().sort((a,b)=>a-b);
-    const bolas = nums.map(n=>
-      `<span class="freq-mini-ball${seq.includes(n)?' match':''}">${n.toString().padStart(2,'0')}</span>`
-    ).join('');
-    return `<div class="freq-sorteio-card">
-      <div class="freq-sorteio-head"><span>🏆 Concurso #${d.c}</span><span style="color:var(--muted);font-weight:600;">${d.dt||''}</span></div>
-      <div class="freq-sorteio-nums">${bolas}</div>
-    </div>`;
-  }).join('');
-  lista.style.display = 'none';
+  if(lista){
+    lista.innerHTML = matches.map(d=>{
+      const nums = d.n.slice().sort((a,b)=>a-b);
+      const bolas = nums.map(n=>
+        `<span class="freq-mini-ball${seq.includes(n)?' match':''}">${n.toString().padStart(2,'0')}</span>`
+      ).join('');
+      return `<div class="freq-sorteio-card">
+        <div class="freq-sorteio-head"><span>🏆 Concurso #${d.c}</span><span style="color:var(--muted);font-weight:600;">${d.dt||''}</span></div>
+        <div class="freq-sorteio-nums">${bolas}</div>
+      </div>`;
+    }).join('');
+    lista.style.display = 'none';
+  }
 
-  document.getElementById('freqResultadoCard').style.display = 'block';
+  const card = document.getElementById('freqResultadoCard');
+  if(card) card.style.display = 'block';
   freqUltimaAnalise = {seq, matches, total};
   atualizarBotaoFavoritoFreq();
 }
@@ -8213,26 +8316,39 @@ document.getElementById('freqBtnAnalisar').addEventListener('click', async ()=>{
   const btn = document.getElementById('freqBtnAnalisar');
   const status = document.getElementById('freqStatusBox');
   freqCarregandoHistorico = true;
-  btn.disabled = true;
-  status.style.display = 'block';
-  status.innerHTML = `<div class="res-loading">Carregando a base de sorteios da Lotofácil…</div>`;
+  if(btn) btn.disabled = true;
+  if(status){
+    status.style.display = 'block';
+    status.innerHTML = `<div class="res-loading">Carregando a base de sorteios da Lotofácil…</div>`;
+  }
   esconderResultadoFreq();
   try{
     const dados = await obterHistoricoCompletoFreq((feito,totalFaltando)=>{
-      status.innerHTML = `<div class="res-loading">Carregando sorteios (${feito}/${totalFaltando})…<br><span style="font-size:11px;opacity:.75;">Isso só demora na primeira vez neste aparelho — depois fica salvo.</span></div>`;
+      if(status) status.innerHTML = `<div class="res-loading">Carregando sorteios (${feito}/${totalFaltando})…<br><span style="font-size:11px;opacity:.75;">Isso só demora na primeira vez neste aparelho — depois fica salvo.</span></div>`;
     });
-    status.style.display = 'none';
-    document.getElementById('freqBaseTotal').textContent = dados.length;
+    freqSetText('freqBaseTotal', dados.length);
+    atualizarFreqConcursoInfoLabel(dados);
+    const dadosFiltrados = filtrarDadosPorConcursoFreq(dados);
+    if(dadosFiltrados.length === 0){
+      if(status){
+        status.style.display = 'block';
+        status.innerHTML = `<div class="res-error">Nenhum concurso encontrado nesse intervalo. Ajuste o "Do concurso" / "Até o concurso" e tente de novo.</div>`;
+      }
+      return;
+    }
+    if(status) status.style.display = 'none';
     const selecionados = Array.from(freqSelecionados);
-    const matches = analisarSequenciaFreq(dados, selecionados);
-    renderResultadoFreq(selecionados, matches, dados.length);
+    const matches = analisarSequenciaFreq(dadosFiltrados, selecionados);
+    renderResultadoFreq(selecionados, matches, dadosFiltrados.length);
   }catch(e){
     console.error('busca de frequência falhou:', e);
-    status.style.display = 'block';
-    status.innerHTML = `<div class="res-error">Não foi possível buscar os sorteios agora.<br>Verifique sua internet e toque em "Analisar Frequência" pra tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e&&e.message)?e.message:''}</span></div>`;
+    if(status){
+      status.style.display = 'block';
+      status.innerHTML = `<div class="res-error">Não foi possível buscar os sorteios agora.<br>Verifique sua internet e toque em "Analisar Frequência" pra tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e&&e.message)?e.message:''}</span></div>`;
+    }
   }finally{
     freqCarregandoHistorico = false;
-    btn.disabled = freqSelecionados.size !== freqQtd;
+    if(btn) btn.disabled = freqSelecionados.size !== freqQtd;
   }
 });
 
@@ -8242,14 +8358,20 @@ document.getElementById('freqVoltar').addEventListener('click', ()=>{
 document.getElementById('freqBtnInicio').addEventListener('click', goHome);
 
 renderFreqQtdTabs();
+renderFreqConcursoTabs();
 renderFreqNumGrid();
 atualizarFreqSelecaoUI();
+['freqConcursoDe','freqConcursoAte'].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', esconderResultadoFreq);
+});
 
 document.getElementById('menuFrequencia').addEventListener('click', ()=>{
   closeDrawer();
   fecharModaisGlobais('overlayBuscaFrequencia');
   document.getElementById('overlayBuscaFrequencia').classList.add('show');
   atualizarFreqBaseTotalLabel();
+  atualizarFreqConcursoInfoLabel();
   setActiveTab('tabAnalise');
 });
 document.getElementById('menuSairLogin').addEventListener('click', ()=>{
