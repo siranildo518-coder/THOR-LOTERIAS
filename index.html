@@ -79,6 +79,7 @@ const CREDENCIAIS_VALIDAS = [
   '3a4w1r', // ZEZÉ (senha 142580)
   'u6jby2', // Laila (senha 142580)
   '1e1isk2', // Marcos (senha 142580)
+  '2meoqi', // João (senha 142580)
 ];
 
 const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
@@ -1355,24 +1356,24 @@ document.addEventListener('selectstart', e=>{
     color:var(--muted);font-size:12px;padding:8px 0 2px;
   }
   .home-free-banner{
-    margin:14px 16px 0;
+    margin:10px 16px 0;
     background:linear-gradient(135deg,var(--home-green-2),var(--home-green-1));
-    border-radius:16px;
-    padding:14px;
-    display:flex;align-items:center;gap:12px;
+    border-radius:13px;
+    padding:9px 10px;
+    display:flex;align-items:center;gap:8px;
     color:#fff;
   }
   .home-free-banner .hfb-spark{
-    width:36px;height:36px;border-radius:10px;flex:none;
+    width:28px;height:28px;border-radius:8px;flex:none;
     background:rgba(255,255,255,0.18);
-    display:flex;align-items:center;justify-content:center;font-size:15px;
+    display:flex;align-items:center;justify-content:center;font-size:13px;
   }
   .home-free-banner .hfb-txt{flex:1;min-width:0;}
-  .home-free-banner .hfb-txt strong{display:block;font-size:14px;margin-bottom:2px;}
-  .home-free-banner .hfb-txt p{margin:0;font-size:11px;line-height:1.4;color:#E4F4E8;}
+  .home-free-banner .hfb-txt strong{display:block;font-size:12px;margin-bottom:1px;}
+  .home-free-banner .hfb-txt p{margin:0;font-size:9.5px;line-height:1.25;color:#E4F4E8;}
   .home-upgrade-btn{
-    background:#fff;color:var(--home-green-1);font-weight:700;font-size:12px;
-    border:none;border-radius:999px;padding:9px 14px;white-space:nowrap;flex:none;
+    background:#fff;color:var(--home-green-1);font-weight:700;font-size:10px;
+    border:none;border-radius:999px;padding:7px 11px;white-space:nowrap;flex:none;
   }
   .home-hero{
     margin:16px 16px 0;
@@ -1404,11 +1405,36 @@ document.addEventListener('selectstart', e=>{
   .home-loading{padding:30px 20px;text-align:center;color:var(--muted);font-size:13.5px;}
   .home-premium-card{
     margin:16px 16px 0;
-    background:linear-gradient(135deg,var(--home-blue-1),var(--home-blue-2));
+    background:linear-gradient(160deg,#5B3FD6 0%,var(--home-blue-1) 36%,var(--home-blue-2) 100%);
     border-radius:20px;
     padding:20px 18px 24px;
     color:#fff;
     text-align:center;
+    border:1px solid rgba(255,255,255,.22);
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,.35),
+      inset 0 -5px 8px rgba(20,8,70,.38),
+      0 7px 0 #24145F,
+      0 12px 18px rgba(36,20,95,.34);
+    text-shadow:0 1px 2px rgba(0,0,0,.28);
+    transform:translateY(0);
+    transition:transform .09s ease-out, box-shadow .09s ease-out, filter .09s ease-out;
+  }
+  /* Efeito de botão afundando para dentro ao tocar em TENDÊNCIA */
+  #homePremiumCardTendencia{
+    transform:translateY(0) scale(1);
+    transform-origin:center;
+    transition:transform .10s cubic-bezier(.2,.8,.2,1), box-shadow .10s ease, filter .10s ease;
+  }
+  #homePremiumCardTendencia:active,
+  #homePremiumCardTendencia.is-pressed{
+    transform:translateY(7px) scale(.975);
+    box-shadow:
+      inset 0 5px 12px rgba(20,8,70,.48),
+      inset 0 1px 2px rgba(255,255,255,.16),
+      0 1px 0 #24145F,
+      0 2px 4px rgba(36,20,95,.22);
+    filter:brightness(.91);
   }
   .home-premium-tag{
     display:inline-block;background:rgba(255,255,255,0.15);
@@ -2421,8 +2447,9 @@ document.addEventListener('selectstart', e=>{
     <p>Gerador de jogos</p>
   </div>
 
+  <div class="drawer-hr"></div>
   <button class="drawer-item" id="menuFrequencia"><span class="ic">📊</span> Frequência</button>
-
+  <button class="drawer-item" id="menuMaisFrequentes"><span class="ic">🔥</span> Mais frequentes</button>
   <div class="drawer-hr"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
 
@@ -2848,125 +2875,477 @@ document.addEventListener('selectstart', e=>{
     </div>
 
     <div id="frequenciaPanel" style="display:none;">
-      <div class="card">
-        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Analisa os <strong>concursos anteriores</strong> e lista todas as dezenas da <strong>mais frequente pra menos frequente</strong> (quantas vezes cada uma saiu no período). Recalcula sozinha sempre que sai um concurso novo.</div>
-        <label class="field-label" for="frequenciaQtdInput">Analisar quantos últimos concursos?</label>
-        <input type="number" id="frequenciaQtdInput" min="2" max="500" value="20" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
-        <button class="btn-confirm btn-3d" id="frequenciaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+      <style>
+        #frequenciaTipoRow{display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,auto);gap:6px;margin-bottom:8px;}
+        .freq-tipo-btn{border:1.2px solid #D8CCF3;background:#fff;color:var(--violet-deep);padding:6px 6px;border-radius:8px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10px;cursor:pointer;box-shadow:0 2px 0 #C7B8E8;min-height:30px;}
+        .freq-tipo-btn.active{background:linear-gradient(135deg,var(--violet-deep),var(--violet));color:#fff;border-color:transparent;box-shadow:0 2px 0 #3B1578;}
+        .quina-freq-card{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:7px;}
+        .quina-freq-title{padding:7px 8px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:#374151;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:5px;}
+        .quina-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+        .quina-table{width:100%;border-collapse:collapse;min-width:475px;font-size:9px;}
+        .quina-table th{background:#F7F7FA;padding:6px 5px;text-align:left;color:#111827;font-weight:800;border-bottom:1px solid #E5E7EB;white-space:nowrap;}
+        .quina-table td{padding:6px 5px;border-bottom:1px solid #ECECF1;vertical-align:middle;}
+        .quina-table tr:nth-child(odd) td{background:#FAFAFB;}
+        .quina-bolas{display:flex;flex-wrap:nowrap;gap:3px;min-width:112px;}
+        .quina-bola{width:21px;height:21px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#8B5CF6,#5B21B6);color:#fff;font-weight:800;font-size:8px;box-shadow:inset 0 1px 2px rgba(255,255,255,.3);flex:0 0 21px;}
+        .quina-freq-badge{display:inline-flex;align-items:center;justify-content:center;min-width:25px;padding:3px 5px;border-radius:5px;background:#169B62;color:#fff;font-weight:800;font-size:8.5px;}
+        .quina-concursos{display:flex;flex-wrap:wrap;gap:2px;min-width:155px;}
+        .quina-concurso{display:inline-block;padding:2px 4px;border-radius:4px;background:#22C1DC;color:#fff;font-size:7px;font-weight:800;}
+      </style>
+
+      <div id="frequenciaTipoRow">
+        <button type="button" class="freq-tipo-btn active" id="frequenciaDezenasBtn">Dezenas</button>
+        <button type="button" class="freq-tipo-btn" id="frequenciaTernosBtn">Ternos</button>
+        <button type="button" class="freq-tipo-btn" id="frequenciaQuadrasBtn">Quadras</button>
+        <button type="button" class="freq-tipo-btn" id="frequenciaQuinasBtn">Quinas</button>
       </div>
-      <div id="frequenciaConteudo"></div>
+
+      <div id="frequenciaDezenasBox">
+        <div class="card">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Analisa os <strong>concursos anteriores</strong> e lista todas as dezenas da <strong>mais frequente pra menos frequente</strong> (quantas vezes cada uma saiu no período). Recalcula sozinha sempre que sai um concurso novo.</div>
+          <label class="field-label" for="frequenciaQtdInput">Analisar quantos últimos concursos?</label>
+          <input type="number" id="frequenciaQtdInput" min="2" max="500" value="20" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
+          <button class="btn-confirm btn-3d" id="frequenciaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+        </div>
+        <div id="frequenciaConteudo"></div>
+      </div>
+
+      <div id="frequenciaTernosBox" style="display:none;">
+        <div class="card">
+          <div style="font-size:10.5px;color:var(--muted);margin-bottom:7px;">Mostra os <strong>ternos (grupos de 3 dezenas)</strong> que mais apareceram juntos nos concursos analisados.</div>
+          <label class="field-label" for="frequenciaTernosQtdInput">Analisar quantos últimos concursos?</label>
+          <input type="number" id="frequenciaTernosQtdInput" min="2" max="500" value="120" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:72px;padding:6px 8px;font-size:11px;">
+          <button class="btn-confirm btn-3d" id="frequenciaTernosAtualizarBtn" style="width:100%;margin-top:7px;padding:7px;border-radius:8px;border:none;font-size:10.5px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;">ATUALIZAR TERNOS</button>
+        </div>
+        <div id="frequenciaTernosConteudo"></div>
+      </div>
+
+      <div id="frequenciaQuadrasBox" style="display:none;">
+        <div class="card">
+          <div style="font-size:10.5px;color:var(--muted);margin-bottom:7px;">Mostra as <strong>quadras (grupos de 4 dezenas)</strong> que mais apareceram juntas nos concursos analisados.</div>
+          <label class="field-label" for="frequenciaQuadrasQtdInput">Analisar quantos últimos concursos?</label>
+          <input type="number" id="frequenciaQuadrasQtdInput" min="2" max="500" value="120" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:72px;padding:6px 8px;font-size:11px;">
+          <button class="btn-confirm btn-3d" id="frequenciaQuadrasAtualizarBtn" style="width:100%;margin-top:7px;padding:7px;border-radius:8px;border:none;font-size:10.5px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;">ATUALIZAR QUADRAS</button>
+        </div>
+        <div id="frequenciaQuadrasConteudo"></div>
+      </div>
+
+      <div id="frequenciaQuinasBox" style="display:none;">
+        <div class="card">
+          <div style="font-size:10.5px;color:var(--muted);margin-bottom:7px;">Mostra as <strong>quinas (grupos de 5 dezenas)</strong> que mais apareceram juntas nos concursos analisados.</div>
+          <label class="field-label" for="frequenciaQuinasQtdInput">Analisar quantos últimos concursos?</label>
+          <input type="number" id="frequenciaQuinasQtdInput" min="2" max="500" value="120" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:72px;padding:6px 8px;font-size:11px;">
+          <button class="btn-confirm btn-3d" id="frequenciaQuinasAtualizarBtn" style="width:100%;margin-top:7px;padding:7px;border-radius:8px;border:none;font-size:10.5px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;">ATUALIZAR QUINAS</button>
+        </div>
+        <div id="frequenciaQuinasConteudo"></div>
+      </div>
     </div>
 
   </div>
 </div>
 
-<div class="overlay-full" id="overlayBuscaFrequencia" style="z-index:77;">
+<div class="overlay-full" id="overlayBuscaFrequencia" style="z-index:77;background:#fbf9fc;overflow-y:auto;">
   <style>
-    .freq-qtd-btn{flex:1;min-width:46px;padding:6px 3px;border-radius:8px;border:1.2px solid var(--violet);background:#fff;color:var(--violet);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:9.5px;cursor:pointer;text-align:center;white-space:nowrap;}
-    .freq-qtd-btn.active{background:linear-gradient(135deg,var(--violet-deep),var(--violet));color:#fff;border-color:transparent;box-shadow:0 2px 6px rgba(109,40,217,.35);}
-    #freqNumGrid.conf-grid{grid-template-columns:repeat(11,1fr);gap:3px;max-width:none;margin:0 0 12px;}
-    #freqNumGrid .conf-ball{aspect-ratio:1;font-size:9.5px;border-radius:6px;}
-    #freqNumGrid .conf-ball.freq-on{background:var(--good);border-color:transparent;color:#fff;box-shadow:0 2px 6px rgba(31,157,116,.4);}
-    #freqBtnAnalisar:disabled{opacity:.55;cursor:not-allowed;}
-    .freq-mini-ball{width:20px;height:20px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-weight:700;font-size:8.5px;background:#F3F0FA;color:#6B7280;}
-    .freq-mini-ball.match{background:var(--good);color:#fff;box-shadow:0 0 0 2px rgba(31,157,116,.35);}
-    .freq-sorteio-card{background:#fff;color:var(--ink);border-radius:10px;padding:9px;margin-bottom:8px;}
-    .freq-sorteio-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:10.5px;color:var(--violet-deep);font-weight:700;font-family:'Baloo 2',sans-serif;}
+    #overlayBuscaFrequencia *{box-sizing:border-box;}
+    #overlayBuscaFrequencia .freq-page-top{height:56px;background:linear-gradient(90deg,#5423c7,#8b2c91);display:flex;align-items:flex-end;padding:0 0 0;}
+    #overlayBuscaFrequencia .freq-breadcrumb{height:42px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;color:#666;font-size:13px;padding:0 16px;}
+    #overlayBuscaFrequencia .freq-shell{width:min(760px,calc(100% - 26px));margin:24px auto 50px;}
+    #overlayBuscaFrequencia .freq-hero{background:linear-gradient(90deg,#8e248f,#9b3f99);border-radius:4px 4px 0 0;padding:12px 16px;color:#fff;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;box-shadow:0 6px 16px rgba(0,0,0,.16);}
+    #overlayBuscaFrequencia .freq-hero-title{font-family:'Baloo 2',sans-serif;font-size:21px;line-height:1.1;font-weight:800;display:flex;align-items:center;gap:8px;}
+    #overlayBuscaFrequencia .freq-hero-sub{font-size:13px;margin-top:6px;opacity:.96;}
+    #overlayBuscaFrequencia .freq-home-btn{background:#fff;color:#222;border:1px solid #ddd;border-radius:4px;padding:8px 11px;font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;box-shadow:none;}
+    #overlayBuscaFrequencia .freq-intro-body{background:#fff;padding:16px;border-radius:0 0 4px 4px;box-shadow:0 6px 16px rgba(0,0,0,.16);margin-bottom:26px;}
+    #overlayBuscaFrequencia .freq-info{background:#cceff7;border:1px solid #bce7f0;color:#17697a;border-radius:4px;padding:13px 16px;font-size:14px;display:flex;align-items:center;gap:10px;}
+    #overlayBuscaFrequencia .freq-search-card{background:transparent;border:none;border-radius:4px;overflow:hidden;box-shadow:none;}
+    #overlayBuscaFrequencia .freq-search-head{background:#15905c;color:#fff;padding:11px 14px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:19px;display:flex;align-items:center;gap:8px;border:0;outline:0;box-shadow:none;}
+    #overlayBuscaFrequencia .freq-search-body{padding:17px 16px 16px;background:#fff;border:1px solid #ddd;border-top:0;border-radius:0 0 4px 4px;}
+    #overlayBuscaFrequencia .freq-label{font-size:14px;font-weight:700;color:#252525;margin-bottom:8px;}
+    #overlayBuscaFrequencia #freqQtdTabs{display:flex;gap:0;overflow:visible;margin:0 0 26px;padding:0;border:1px solid #999;border-radius:5px;}
+    #overlayBuscaFrequencia .freq-qtd-btn{flex:1;min-width:0;padding:10px 5px;border:0;border-right:1px solid #999;border-radius:0;background:#fff;color:#777;font-family:Arial,sans-serif;font-weight:400;font-size:14px;cursor:pointer;text-align:center;white-space:nowrap;box-shadow:none;}
+    #overlayBuscaFrequencia .freq-qtd-btn:last-child{border-right:0;}
+    #overlayBuscaFrequencia .freq-qtd-btn.active{background:#963098;color:#fff;border-color:#999;box-shadow:none;font-weight:500;}
+    #overlayBuscaFrequencia .freq-select-row{display:flex;justify-content:space-between;align-items:center;margin:0 0 9px;gap:10px;}
+    #overlayBuscaFrequencia .freq-count-pill{background:#16905c;color:#fff;border-radius:4px;padding:3px 8px;font-size:12px;font-weight:700;}
+    #overlayBuscaFrequencia .freq-actions-top{display:flex;gap:8px;margin-bottom:9px;}
+    #overlayBuscaFrequencia .freq-outline-btn{flex:1;padding:8px 7px;border-radius:4px;background:#fff;font-size:13px;cursor:pointer;}
+    #overlayBuscaFrequencia #freqBtnSelecionarTodos{border:1px solid #2f80d0;color:#2f80d0;}
+    #overlayBuscaFrequencia #freqBtnCompletarRestantes{border:1px solid #7ed9e8;color:#69cfe0;}
+    #overlayBuscaFrequencia #freqNumGrid.conf-grid{display:grid;grid-template-columns:repeat(11,1fr);gap:8px;max-width:none;margin:0 0 16px;}
+    #overlayBuscaFrequencia #freqNumGrid .conf-ball{aspect-ratio:1.2;border:1px solid #d6d6d6;background:#fff;color:#b0b0b0;border-radius:8px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;box-shadow:none;display:flex;align-items:center;justify-content:center;}
+    #overlayBuscaFrequencia #freqNumGrid .conf-ball.freq-on{background:#15905c;border-color:#15905c;color:#fff;box-shadow:none;}
+    #overlayBuscaFrequencia .freq-actions-bottom{display:flex;gap:8px;}
+    #overlayBuscaFrequencia #freqBtnAnalisar{flex:1;padding:11px 10px;border-radius:4px;border:none;background:#15905c;color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:600;cursor:pointer;box-shadow:none;}
+    #overlayBuscaFrequencia #freqBtnAnalisar:disabled{opacity:.58;cursor:not-allowed;}
+    #overlayBuscaFrequencia #freqBtnLimpar{flex:none;padding:11px 15px;border-radius:4px;border:none;background:#707983;color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+    #overlayBuscaFrequencia .freq-result{margin-top:25px;background:linear-gradient(145deg,#6675e6,#7356c9);border-radius:4px;padding:18px;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.10);}
+    #overlayBuscaFrequencia .freq-result-title{display:flex;align-items:center;gap:8px;font-family:Arial,sans-serif;font-size:18px;font-weight:500;margin-bottom:18px;}
+    #overlayBuscaFrequencia .freq-result-sub{font-size:13px;font-weight:700;margin-bottom:10px;}
+    #overlayBuscaFrequencia .freq-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin:17px 0;}
+    #overlayBuscaFrequencia .freq-stat{background:rgba(255,255,255,.18);border-radius:4px;padding:20px 8px;text-align:center;}
+    #overlayBuscaFrequencia .freq-stat strong{display:block;font-size:28px;line-height:1;font-family:Arial,sans-serif;margin-bottom:9px;}
+    #overlayBuscaFrequencia .freq-stat span{font-size:12px;opacity:.9;}
+    #overlayBuscaFrequencia .freq-result-btn{width:100%;padding:10px;border-radius:4px;border:none;background:#fff;color:#222;font-size:13px;cursor:pointer;margin-top:8px;}
+    #overlayBuscaFrequencia .freq-result-btn.secondary{border:0;background:#fff;color:#222;}
+    .freq-mini-ball{width:25px;height:23px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;font-weight:700;font-size:10px;background:#f3f3f3;color:#222;}
+    .freq-mini-ball.match{background:#15905c;color:#fff;box-shadow:none;}
+    .freq-sorteio-card{background:#fff;color:#222;border-radius:4px;padding:10px 12px;margin-bottom:10px;}
+    .freq-sorteio-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:12px;color:#8a2a8d;font-weight:700;font-family:Arial,sans-serif;}
     .freq-sorteio-nums{display:flex;flex-wrap:wrap;gap:4px;}
-  </style>
-  <header class="top" style="border-radius:0;display:flex;align-items:center;gap:10px;padding:10px 14px 12px;">
-    <button id="freqVoltar" style="background:none;border:none;color:#fff;font-size:15px;cursor:pointer;padding:0;">←</button>
-    <h1 style="font-size:14px;">Buscar Frequência</h1>
-  </header>
+    #overlayBuscaFrequencia .freq-hidden-filter{display:none!important;}
+    /* Versão mais compacta da tela Buscar Frequência */
+    #overlayBuscaFrequencia .freq-shell{width:min(650px,calc(100% - 34px));margin:16px auto 34px;}
+    #overlayBuscaFrequencia .freq-hero{padding:9px 12px;}
+    #overlayBuscaFrequencia .freq-hero-title{font-size:17px;}
+    #overlayBuscaFrequencia .freq-hero-sub{font-size:11px;margin-top:3px;}
+    #overlayBuscaFrequencia .freq-home-btn{padding:6px 9px;font-size:11px;}
+    #overlayBuscaFrequencia .freq-intro-body{padding:11px;margin-bottom:18px;}
+    #overlayBuscaFrequencia .freq-info{padding:9px 11px;font-size:11px;}
+    #overlayBuscaFrequencia .freq-search-head{padding:8px 11px;font-size:15px;}
+    #overlayBuscaFrequencia .freq-search-body{padding:12px 11px;}
+    #overlayBuscaFrequencia .freq-label{font-size:11px;margin-bottom:6px;}
+    #overlayBuscaFrequencia #freqQtdTabs{margin-bottom:17px;}
+    #overlayBuscaFrequencia .freq-qtd-btn{padding:7px 4px;font-size:11px;}
+    #overlayBuscaFrequencia .freq-select-row{margin-bottom:6px;}
+    #overlayBuscaFrequencia .freq-count-pill{padding:2px 6px;font-size:10px;}
+    #overlayBuscaFrequencia .freq-actions-top{gap:6px;margin-bottom:7px;}
+    #overlayBuscaFrequencia .freq-outline-btn{padding:6px 5px;font-size:10px;}
+    #overlayBuscaFrequencia #freqNumGrid.conf-grid{gap:5px;margin-bottom:11px;}
+    #overlayBuscaFrequencia #freqNumGrid .conf-ball{font-size:10px;border-radius:6px;}
+    #overlayBuscaFrequencia .freq-actions-bottom{gap:6px;}
+    #overlayBuscaFrequencia #freqBtnAnalisar,#overlayBuscaFrequencia #freqBtnLimpar{padding:8px 8px;font-size:11px;}
+    #overlayBuscaFrequencia .freq-result{margin-top:17px;padding:13px;}
+    #overlayBuscaFrequencia .freq-result-title{font-size:14px;margin-bottom:12px;}
+    #overlayBuscaFrequencia .freq-result-sub{font-size:11px;margin-bottom:7px;}
+    #overlayBuscaFrequencia .freq-stat-grid{gap:10px;margin:12px 0;}
+    #overlayBuscaFrequencia .freq-stat{padding:13px 6px;}
+    #overlayBuscaFrequencia .freq-stat strong{font-size:21px;margin-bottom:6px;}
+    #overlayBuscaFrequencia .freq-stat span{font-size:10px;}
+    @media(max-width:600px){
+      #overlayBuscaFrequencia .freq-page-top{height:44px;}
+      #overlayBuscaFrequencia .freq-breadcrumb{height:36px;padding:0 12px;font-size:11px;}
+      #overlayBuscaFrequencia .freq-shell{width:calc(100% - 24px);margin:14px auto 35px;}
+      #overlayBuscaFrequencia .freq-hero{padding:11px 12px;}
+      #overlayBuscaFrequencia .freq-hero-title{font-size:16px;}
+      #overlayBuscaFrequencia .freq-hero-sub{font-size:10px;}
+      #overlayBuscaFrequencia .freq-home-btn{font-size:10px;padding:7px 8px;}
+      #overlayBuscaFrequencia .freq-search-head{font-size:15px;padding:9px 11px;}
+      #overlayBuscaFrequencia .freq-search-body{padding:13px 11px;}
+      #overlayBuscaFrequencia .freq-label{font-size:12px;}
+      #overlayBuscaFrequencia .freq-qtd-btn{font-size:11px;padding:8px 2px;}
+      #overlayBuscaFrequencia #freqNumGrid.conf-grid{gap:5px;}
+      #overlayBuscaFrequencia #freqNumGrid .conf-ball{font-size:10px;border-radius:6px;}
+      #overlayBuscaFrequencia .freq-stat-grid{gap:8px;}
+      #overlayBuscaFrequencia .freq-stat strong{font-size:20px;}
+    }
+    /* Centralização completa da tela Buscar Frequência */
+    #overlayBuscaFrequencia .freq-hero{align-items:center;text-align:center;}
+    #overlayBuscaFrequencia .freq-hero > div:first-child{flex:1;text-align:center;}
+    #overlayBuscaFrequencia .freq-hero-title{justify-content:center;text-align:center;}
+    #overlayBuscaFrequencia .freq-hero-sub{text-align:center;}
+    #overlayBuscaFrequencia .freq-info{justify-content:center;text-align:center;}
+    #overlayBuscaFrequencia .freq-search-head{justify-content:center;text-align:center;}
+    #overlayBuscaFrequencia .freq-search-body{text-align:center;}
+    #overlayBuscaFrequencia .freq-label{text-align:center;}
+    #overlayBuscaFrequencia #freqQtdTabs{justify-content:center;margin-left:auto;margin-right:auto;}
+    #overlayBuscaFrequencia .freq-select-row{justify-content:center;flex-wrap:wrap;text-align:center;}
+    #overlayBuscaFrequencia .freq-actions-top,#overlayBuscaFrequencia .freq-actions-bottom{justify-content:center;}
+    #overlayBuscaFrequencia #freqNumGrid{justify-content:center;margin-left:auto;margin-right:auto;}
+    #overlayBuscaFrequencia .freq-result{text-align:center;}
+    #overlayBuscaFrequencia .freq-result-title{justify-content:center;text-align:center;}
+    #overlayBuscaFrequencia .freq-result-sub{text-align:center;}
+    #overlayBuscaFrequencia .freq-sorteio-head{justify-content:center;gap:12px;text-align:center;}
+    #overlayBuscaFrequencia .freq-sorteio-nums{justify-content:center;}
 
-  <div style="padding:12px 12px 32px;">
+    /* Ajuste final: referência visual sem sombras */
+    #overlayBuscaFrequencia{background:#fbf9fc;}
+    #overlayBuscaFrequencia .freq-page-top{height:56px;background:linear-gradient(90deg,#5523c8 0%,#8d2a8f 100%);}
+    #overlayBuscaFrequencia .freq-breadcrumb{height:42px;background:#fff;border-bottom:1px solid #e5e7eb;color:#666;font-size:13px;padding:0 16px;justify-content:flex-start;text-align:left;}
+    #overlayBuscaFrequencia .freq-shell{width:min(760px,calc(100% - 26px));margin:24px auto 50px;}
+    #overlayBuscaFrequencia .freq-hero{background:linear-gradient(90deg,#8e248f,#9b3f99);border-radius:4px 4px 0 0;padding:12px 16px;align-items:flex-start;text-align:left;box-shadow:none!important;}
+    #overlayBuscaFrequencia .freq-hero>div:first-child{flex:1;text-align:left;}
+    #overlayBuscaFrequencia .freq-hero-title{font-size:21px;justify-content:flex-start;text-align:left;}
+    #overlayBuscaFrequencia .freq-hero-sub{font-size:13px;margin-top:6px;text-align:left;}
+    #overlayBuscaFrequencia .freq-home-btn{padding:8px 11px;font-size:13px;border-radius:4px;box-shadow:none!important;}
+    #overlayBuscaFrequencia .freq-intro-body{padding:16px;margin-bottom:26px;box-shadow:none!important;border:1px solid #ddd;border-top:0;}
+    #overlayBuscaFrequencia .freq-info{padding:13px 16px;font-size:14px;justify-content:flex-start;text-align:left;}
+    #overlayBuscaFrequencia .freq-search-card{border:1px solid #ddd;border-radius:4px;box-shadow:none!important;}
+    #overlayBuscaFrequencia .freq-search-head{padding:11px 14px;font-size:19px;justify-content:flex-start;text-align:left;}
+    #overlayBuscaFrequencia .freq-search-body{padding:17px 16px 16px;text-align:left;}
+    #overlayBuscaFrequencia .freq-label{text-align:left;font-size:14px;margin-bottom:8px;}
+    #overlayBuscaFrequencia #freqQtdTabs{margin:0 0 26px;justify-content:flex-start;}
+    #overlayBuscaFrequencia .freq-qtd-btn{padding:10px 5px;font-size:14px;box-shadow:none!important;}
+    #overlayBuscaFrequencia .freq-select-row{justify-content:space-between;flex-wrap:nowrap;text-align:left;margin-bottom:9px;}
+    #overlayBuscaFrequencia .freq-actions-top,#overlayBuscaFrequencia .freq-actions-bottom{justify-content:flex-start;}
+    #overlayBuscaFrequencia .freq-outline-btn{padding:8px 7px;font-size:13px;box-shadow:none!important;}
+    #overlayBuscaFrequencia #freqNumGrid.conf-grid{gap:8px;margin:0 0 16px;justify-content:stretch;}
+    #overlayBuscaFrequencia #freqNumGrid .conf-ball{font-size:13px;border-radius:8px;box-shadow:none!important;}
+    #overlayBuscaFrequencia #freqBtnAnalisar,#overlayBuscaFrequencia #freqBtnLimpar{padding:11px 10px;font-size:14px;box-shadow:none!important;}
+    #overlayBuscaFrequencia .freq-result{margin-top:25px;padding:18px;text-align:left;box-shadow:none!important;}
+    #overlayBuscaFrequencia .freq-result-title{font-size:18px;margin-bottom:18px;justify-content:flex-start;text-align:left;}
+    #overlayBuscaFrequencia .freq-result-sub{text-align:left;font-size:13px;margin-bottom:10px;}
+    #overlayBuscaFrequencia .freq-stat-grid{gap:26px;margin:17px 0;}
+    #overlayBuscaFrequencia .freq-stat{padding:20px 8px;}
+    #overlayBuscaFrequencia .freq-stat strong{font-size:28px;margin-bottom:9px;}
+    #overlayBuscaFrequencia .freq-stat span{font-size:12px;}
+    #overlayBuscaFrequencia .freq-sorteio-head{justify-content:space-between;text-align:left;}
+    #overlayBuscaFrequencia .freq-sorteio-nums{justify-content:flex-start;}
+    #overlayBuscaFrequencia .freq-mini-ball.match{box-shadow:none!important;}
+    #overlayBuscaFrequencia *{text-shadow:none!important;}
 
-    <div style="background:linear-gradient(135deg,var(--violet-deep),var(--magenta));border-radius:13px;padding:13px;margin-bottom:11px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;box-shadow:0 5px 12px rgba(76,29,149,.25);">
-      <div style="display:flex;gap:8px;align-items:flex-start;">
-        <div style="font-size:18px;line-height:1;">🔍</div>
+    /* Botões inferiores mais estreitos/compactos */
+    #overlayBuscaFrequencia .freq-actions-bottom{gap:7px;}
+    #overlayBuscaFrequencia #freqBtnAnalisar{padding:7px 10px!important;font-size:12px!important;min-height:34px!important;}
+    #overlayBuscaFrequencia #freqBtnLimpar{padding:7px 12px!important;font-size:12px!important;min-height:34px!important;}
+
+    @media(max-width:600px){
+      #overlayBuscaFrequencia .freq-page-top{height:44px;}
+      #overlayBuscaFrequencia .freq-breadcrumb{height:36px;padding:0 12px;font-size:11px;}
+      #overlayBuscaFrequencia .freq-shell{width:calc(100% - 42px);max-width:520px;margin:18px auto 35px;}
+      #overlayBuscaFrequencia .freq-hero{padding:15px 14px;min-height:112px;}
+      #overlayBuscaFrequencia .freq-hero-title{font-size:19px;line-height:1.08;max-width:285px;}
+      #overlayBuscaFrequencia .freq-hero-sub{font-size:12px;line-height:1.35;max-width:360px;margin-top:9px;}
+      #overlayBuscaFrequencia .freq-home-btn{font-size:11px;padding:8px 10px;margin-top:1px;}
+      #overlayBuscaFrequencia .freq-intro-body{padding:13px;margin-bottom:24px;}
+      #overlayBuscaFrequencia .freq-info{padding:12px 13px;font-size:12px;}
+      #overlayBuscaFrequencia .freq-search-head{font-size:17px;padding:11px 14px;}
+      #overlayBuscaFrequencia .freq-search-body{padding:17px 14px 15px;}
+      #overlayBuscaFrequencia .freq-label{font-size:13px;margin-bottom:9px;}
+      #overlayBuscaFrequencia #freqQtdTabs{width:100%;margin-bottom:25px;}
+      #overlayBuscaFrequencia .freq-qtd-btn{font-size:12px;padding:9px 2px;white-space:nowrap;}
+      #overlayBuscaFrequencia .freq-select-row{margin-bottom:10px;}
+      #overlayBuscaFrequencia .freq-actions-top{gap:8px;margin-bottom:10px;}
+      #overlayBuscaFrequencia .freq-outline-btn{font-size:12px;padding:10px 5px;min-height:52px;line-height:1.2;}
+      #overlayBuscaFrequencia #freqNumGrid.conf-grid{gap:6px;margin-bottom:18px;}
+      #overlayBuscaFrequencia #freqNumGrid .conf-ball{font-size:11px;border-radius:7px;min-height:30px;}
+      #overlayBuscaFrequencia .freq-actions-bottom{gap:8px;}
+      #overlayBuscaFrequencia #freqBtnAnalisar{padding:9px 8px!important;font-size:12px!important;min-height:38px!important;}
+      #overlayBuscaFrequencia #freqBtnLimpar{padding:9px 12px!important;font-size:12px!important;min-height:38px!important;}
+      #overlayBuscaFrequencia .freq-stat-grid{gap:8px;}
+      #overlayBuscaFrequencia .freq-stat strong{font-size:20px;}
+    }
+
+    /* ESTILO FINAL — proporções da imagem de referência */
+    #overlayBuscaFrequencia .freq-shell{
+      width:min(760px,calc(100% - 32px))!important;
+      margin:24px auto 48px!important;
+    }
+    #overlayBuscaFrequencia .freq-hero{
+      padding:12px 16px!important;
+      min-height:auto!important;
+      border-radius:4px 4px 0 0!important;
+      box-shadow:none!important;
+    }
+    #overlayBuscaFrequencia .freq-hero-title{font-size:21px!important;line-height:1.1!important;max-width:none!important;}
+    #overlayBuscaFrequencia .freq-hero-sub{font-size:13px!important;line-height:1.3!important;max-width:none!important;margin-top:6px!important;}
+    #overlayBuscaFrequencia .freq-home-btn{font-size:13px!important;padding:8px 11px!important;margin:0!important;box-shadow:none!important;}
+    #overlayBuscaFrequencia .freq-intro-body{padding:16px!important;margin-bottom:26px!important;box-shadow:none!important;}
+    #overlayBuscaFrequencia .freq-info{padding:13px 16px!important;font-size:14px!important;}
+    #overlayBuscaFrequencia .freq-search-card{box-shadow:none!important;}
+    #overlayBuscaFrequencia .freq-search-head{padding:11px 14px!important;font-size:19px!important;}
+    #overlayBuscaFrequencia .freq-search-body{padding:17px 16px 16px!important;}
+    #overlayBuscaFrequencia .freq-label{font-size:14px!important;margin-bottom:8px!important;}
+    #overlayBuscaFrequencia #freqQtdTabs{margin-bottom:26px!important;width:100%!important;}
+    #overlayBuscaFrequencia .freq-qtd-btn{padding:10px 5px!important;font-size:14px!important;}
+    #overlayBuscaFrequencia .freq-actions-top{gap:8px!important;margin-bottom:9px!important;}
+    #overlayBuscaFrequencia .freq-outline-btn{padding:8px 7px!important;font-size:13px!important;min-height:auto!important;line-height:normal!important;}
+    #overlayBuscaFrequencia #freqNumGrid.conf-grid{gap:8px!important;margin-bottom:16px!important;}
+    #overlayBuscaFrequencia #freqNumGrid .conf-ball{font-size:13px!important;border-radius:8px!important;min-height:0!important;}
+    #overlayBuscaFrequencia .freq-actions-bottom{gap:8px!important;}
+    #overlayBuscaFrequencia #freqBtnAnalisar{padding:11px 10px!important;font-size:14px!important;min-height:auto!important;}
+    #overlayBuscaFrequencia #freqBtnLimpar{padding:11px 15px!important;font-size:14px!important;min-height:auto!important;}
+    #overlayBuscaFrequencia .freq-result{margin-top:25px!important;padding:18px!important;box-shadow:none!important;}
+    #overlayBuscaFrequencia .freq-result-title{font-size:18px!important;margin-bottom:18px!important;}
+    #overlayBuscaFrequencia .freq-result-sub{font-size:13px!important;margin-bottom:10px!important;}
+    #overlayBuscaFrequencia .freq-stat-grid{gap:26px!important;margin:17px 0!important;}
+    #overlayBuscaFrequencia .freq-stat{padding:20px 8px!important;}
+    #overlayBuscaFrequencia .freq-stat strong{font-size:28px!important;margin-bottom:9px!important;}
+    #overlayBuscaFrequencia .freq-stat span{font-size:12px!important;}
+    #overlayBuscaFrequencia .freq-result-btn{font-size:13px!important;padding:10px!important;box-shadow:none!important;}
+    #overlayBuscaFrequencia .freq-sorteio-card{box-shadow:none!important;}
+
+    @media(max-width:600px){
+      #overlayBuscaFrequencia .freq-shell{width:calc(100% - 26px)!important;max-width:none!important;margin:14px auto 35px!important;}
+      #overlayBuscaFrequencia .freq-hero{padding:10px 12px!important;min-height:auto!important;}
+      #overlayBuscaFrequencia .freq-hero-title{font-size:17px!important;}
+      #overlayBuscaFrequencia .freq-hero-sub{font-size:11px!important;margin-top:4px!important;}
+      #overlayBuscaFrequencia .freq-home-btn{font-size:10px!important;padding:7px 8px!important;}
+      #overlayBuscaFrequencia .freq-intro-body{padding:11px!important;margin-bottom:18px!important;}
+      #overlayBuscaFrequencia .freq-info{padding:9px 11px!important;font-size:11px!important;}
+      #overlayBuscaFrequencia .freq-search-head{font-size:15px!important;padding:8px 11px!important;}
+      #overlayBuscaFrequencia .freq-search-body{padding:12px 11px!important;}
+      #overlayBuscaFrequencia .freq-label{font-size:11px!important;margin-bottom:6px!important;}
+      #overlayBuscaFrequencia #freqQtdTabs{margin-bottom:17px!important;}
+      #overlayBuscaFrequencia .freq-qtd-btn{font-size:11px!important;padding:7px 3px!important;}
+      #overlayBuscaFrequencia .freq-outline-btn{font-size:10px!important;padding:6px 5px!important;min-height:auto!important;}
+      #overlayBuscaFrequencia #freqNumGrid.conf-grid{gap:5px!important;margin-bottom:11px!important;}
+      #overlayBuscaFrequencia #freqNumGrid .conf-ball{font-size:10px!important;border-radius:6px!important;}
+      #overlayBuscaFrequencia #freqBtnAnalisar,#overlayBuscaFrequencia #freqBtnLimpar{font-size:11px!important;padding:8px!important;}
+      #overlayBuscaFrequencia .freq-result{margin-top:17px!important;padding:13px!important;}
+      #overlayBuscaFrequencia .freq-result-title{font-size:14px!important;margin-bottom:12px!important;}
+      #overlayBuscaFrequencia .freq-result-sub{font-size:11px!important;}
+      #overlayBuscaFrequencia .freq-stat-grid{gap:10px!important;margin:12px 0!important;}
+      #overlayBuscaFrequencia .freq-stat{padding:13px 6px!important;}
+      #overlayBuscaFrequencia .freq-stat strong{font-size:21px!important;}
+      #overlayBuscaFrequencia .freq-stat span{font-size:10px!important;}
+    }
+
+      /* Largura móvel — ocupar praticamente toda a largura do telefone */
+    @media(max-width:600px){
+      #overlayBuscaFrequencia .freq-shell{
+        width:calc(100% - 8px)!important;
+        max-width:none!important;
+        margin:8px 4px 30px!important;
+      }
+      #overlayBuscaFrequencia .freq-search-head{
+        width:calc(100% + 8px)!important;
+        margin-left:-4px!important;
+        margin-right:-4px!important;
+        box-sizing:border-box!important;
+      }
+    }
+
+    /* Subir toda a aba Buscar Frequência até o topo */
+    #overlayBuscaFrequencia .freq-page-top,
+    #overlayBuscaFrequencia .freq-breadcrumb{display:none!important;}
+    #overlayBuscaFrequencia .freq-shell{margin-top:0!important;padding-top:0!important;}
+
+    /* Aproximar a faixa Nova Busca da área Base de análise / sorteios */
+    #overlayBuscaFrequencia .freq-intro-body{margin-bottom:5px!important;}
+    #overlayBuscaFrequencia .freq-search-card{margin-top:0!important;}
+    @media(max-width:600px){
+      #overlayBuscaFrequencia .freq-intro-body{margin-bottom:4px!important;}
+      #overlayBuscaFrequencia .freq-search-card{margin-top:0!important;}
+    }
+
+
+    /* ALINHAMENTO FINAL — todos os blocos dentro das mesmas bordas */
+    #overlayBuscaFrequencia .freq-shell{
+      width:min(760px,calc(100% - 26px))!important;
+      margin-left:auto!important;
+      margin-right:auto!important;
+      overflow:visible!important;
+    }
+    #overlayBuscaFrequencia .freq-hero,
+    #overlayBuscaFrequencia .freq-intro-body,
+    #overlayBuscaFrequencia .freq-search-card,
+    #overlayBuscaFrequencia .freq-search-head,
+    #overlayBuscaFrequencia .freq-search-body,
+    #overlayBuscaFrequencia .freq-result{
+      width:100%!important;
+      max-width:100%!important;
+      margin-left:0!important;
+      margin-right:0!important;
+      box-sizing:border-box!important;
+    }
+    #overlayBuscaFrequencia .freq-search-head{
+      position:relative!important;
+      left:0!important;
+      right:auto!important;
+    }
+    #overlayBuscaFrequencia .freq-search-body{overflow:hidden!important;}
+    #overlayBuscaFrequencia #freqQtdTabs,
+    #overlayBuscaFrequencia .freq-actions-top,
+    #overlayBuscaFrequencia #freqNumGrid,
+    #overlayBuscaFrequencia .freq-actions-bottom{
+      width:100%!important;
+      max-width:100%!important;
+      margin-left:0!important;
+      margin-right:0!important;
+      box-sizing:border-box!important;
+    }
+    /* Centralizar Resultado da Análise na mesma largura do conteúdo/botão Analisar Frequência */
+    #overlayBuscaFrequencia .freq-result{
+      width:calc(100% - 8px)!important;
+      margin-left:4px!important;
+      margin-right:4px!important;
+      box-sizing:border-box!important;
+    }
+    #overlayBuscaFrequencia .freq-qtd-btn{min-width:0!important;}
+    @media(max-width:600px){
+      #overlayBuscaFrequencia .freq-shell{
+        width:calc(100% - 26px)!important;
+        margin:0 13px 30px!important;
+      }
+      #overlayBuscaFrequencia .freq-search-head{
+        width:100%!important;
+        margin-left:0!important;
+        margin-right:0!important;
+      }
+      #overlayBuscaFrequencia .freq-search-body{padding-left:16px!important;padding-right:16px!important;}
+      #overlayBuscaFrequencia #freqNumGrid.conf-grid{grid-template-columns:repeat(11,minmax(0,1fr))!important;}
+    }
+
+</style>
+
+  <div class="freq-page-top"></div>
+  <div class="freq-breadcrumb"><span style="margin-right:6px;">⌕</span> Buscar Frequência</div>
+
+  <div class="freq-shell">
+    <section>
+      <div class="freq-hero">
         <div>
-          <div style="font-family:'Baloo 2',sans-serif;font-weight:700;font-size:13.5px;color:#fff;line-height:1.25;">Buscar Frequência de Sequências</div>
-          <div style="font-size:10.5px;color:rgba(255,255,255,.85);margin-top:4px;line-height:1.35;">Descubra quantas vezes sua sequência de números apareceu nos sorteios</div>
+          <div class="freq-hero-title"><span>⌕</span> Buscar Frequência de Sequências</div>
+          <div class="freq-hero-sub">Descubra quantas vezes sua sequência de números apareceu nos sorteios</div>
         </div>
+        <button id="freqBtnInicio" class="freq-home-btn">🏠 Início</button>
       </div>
-      <button id="freqBtnInicio" style="flex:none;background:#fff;color:var(--violet-deep);border:none;border-radius:8px;padding:6px 10px;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:10px;cursor:pointer;white-space:nowrap;">🏠 Início</button>
-    </div>
-
-    <div style="background:#DBF0FA;border-radius:10px;padding:9px 11px;margin-bottom:12px;display:flex;align-items:center;gap:7px;font-size:11px;color:#075985;line-height:1.35;">
-      <span style="font-size:12px;">ℹ️</span>
-      <span>Base de análise: <strong id="freqBaseTotal">…</strong> sorteios da Lotofácil</span>
-    </div>
-
-    <div class="card" style="padding:0;overflow:hidden;">
-      <div style="background:var(--good);color:#fff;padding:10px 13px;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:12.5px;display:flex;align-items:center;gap:7px;">
-        <span>🔢</span> Nova Busca
+      <div class="freq-intro-body">
+        <div class="freq-info"><span>●</span><span>Base de análise: <strong id="freqBaseTotal">…</strong> sorteios da Lotofácil</span></div>
       </div>
-      <div style="padding:13px;">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:7px;font-weight:600;">⚙️ Quantos números deseja analisar?</div>
-        <div id="freqQtdTabs" style="display:flex;gap:5px;overflow-x:auto;margin-bottom:13px;padding-bottom:2px;"></div>
+    </section>
 
-        <div style="font-size:11px;color:var(--muted);margin-bottom:7px;font-weight:600;">🗓️ Quais concursos deseja analisar?</div>
-        <div id="freqConcursoTabs" style="display:flex;gap:5px;overflow-x:auto;margin-bottom:8px;padding-bottom:2px;"></div>
-        <div id="freqConcursoCustomRow" style="display:none;gap:6px;margin-bottom:6px;">
-          <div style="flex:1;">
-            <label style="font-size:9.5px;color:var(--muted);font-weight:600;">Do concurso</label>
-            <input type="number" id="freqConcursoDe" inputmode="numeric" placeholder="1" style="width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;border:1.2px solid #E7DFF5;font-size:12.5px;margin-top:3px;">
-          </div>
-          <div style="flex:1;">
-            <label style="font-size:9.5px;color:var(--muted);font-weight:600;">Até o concurso</label>
-            <input type="number" id="freqConcursoAte" inputmode="numeric" placeholder="mais recente" style="width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;border:1.2px solid #E7DFF5;font-size:12.5px;margin-top:3px;">
-          </div>
-        </div>
-        <div id="freqConcursoInfo" style="font-size:10px;color:var(--muted);margin-bottom:13px;"></div>
+    <section class="freq-search-card">
+      <div class="freq-search-head"><span>▦</span> Nova Busca</div>
+      <div class="freq-search-body">
+        <div class="freq-label">⚙ Quantos números deseja analisar?</div>
+        <div id="freqQtdTabs"></div>
 
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <div style="font-size:11.5px;color:var(--ink);font-weight:600;">Selecione <span id="freqQtdLabel">5</span> números:</div>
-          <span id="freqSelCountLabel" style="background:var(--good);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:10px;padding:2px 8px;border-radius:999px;">0/5</span>
+        <div class="freq-hidden-filter">
+          <div>🗓️ Quais concursos deseja analisar?</div>
+          <div id="freqConcursoTabs"></div>
+          <div id="freqConcursoCustomRow" style="display:none;"><input type="text" id="freqConcursoLista" placeholder=""><div id="freqConcursoListaInfo"></div></div>
+          <div id="freqConcursoInfo"></div>
         </div>
 
-        <div style="display:flex;gap:6px;margin-bottom:10px;">
-          <button type="button" id="freqBtnSelecionarTodos" style="flex:1;padding:8px 6px;border-radius:8px;border:1.2px solid var(--violet);background:#fff;color:var(--violet);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:9.5px;cursor:pointer;">🔀 Selecionar Todos</button>
-          <button type="button" id="freqBtnCompletarRestantes" style="flex:1;padding:8px 6px;border-radius:8px;border:1.2px solid #38BDF8;background:#fff;color:#0284C7;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:9.5px;cursor:pointer;">➕ Completar (<span id="freqRestantesCount">5</span>)</button>
+        <div class="freq-select-row">
+          <div class="freq-label" style="margin:0;">Selecione <span id="freqQtdLabel">5</span> números:</div>
+          <span id="freqSelCountLabel" class="freq-count-pill">0/5</span>
+        </div>
+
+        <div class="freq-actions-top">
+          <button type="button" id="freqBtnSelecionarTodos" class="freq-outline-btn">🔀 Selecionar Todos</button>
+          <button type="button" id="freqBtnCompletarRestantes" class="freq-outline-btn">⊕ Completar Restantes (<span id="freqRestantesCount">5</span>)</button>
         </div>
 
         <div id="freqNumGrid" class="conf-grid"></div>
 
-        <div style="display:flex;gap:6px;">
-          <button type="button" id="freqBtnAnalisar" class="btn-3d" disabled style="flex:1;padding:10px;border-radius:9px;border:none;background:var(--good);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">📈 Analisar Frequência</button>
-          <button type="button" id="freqBtnLimpar" style="flex:none;padding:10px 13px;border-radius:9px;border:none;background:#4B5563;color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;cursor:pointer;">✕ Limpar</button>
+        <div class="freq-actions-bottom">
+          <button type="button" id="freqBtnAnalisar" disabled>⌁ Analisar Frequência</button>
+          <button type="button" id="freqBtnLimpar">✕ Limpar</button>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div id="freqStatusBox" style="display:none;margin-top:13px;"></div>
+    <div id="freqStatusBox" style="display:none;margin-top:18px;"></div>
 
-    <div id="freqResultadoCard" style="display:none;margin-top:13px;background:linear-gradient(160deg,var(--violet),#7C3AED);border-radius:13px;padding:14px;color:#fff;">
-      <div style="display:flex;align-items:center;gap:7px;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:12.5px;margin-bottom:10px;">📋 Resultado da Análise</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.85);margin-bottom:7px;">Sua Sequência:</div>
-      <div id="freqResSequencia" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:13px;"></div>
+    <section id="freqResultadoCard" class="freq-result" style="display:none;">
+      <div class="freq-result-title">☷ Resultado da Análise</div>
+      <div class="freq-result-sub">Sua Sequência (<span id="freqResQtdLabel">5</span> números):</div>
+      <div id="freqResSequencia" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;"></div>
 
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:11px;">
-        <div style="background:rgba(255,255,255,.16);border-radius:10px;padding:9px 4px;text-align:center;">
-          <div id="freqResAparicoes" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:17px;">0</div>
-          <div style="font-size:9px;color:rgba(255,255,255,.85);margin-top:2px;">Aparições</div>
-        </div>
-        <div style="background:rgba(255,255,255,.16);border-radius:10px;padding:9px 4px;text-align:center;">
-          <div id="freqResPercentual" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:17px;">0%</div>
-          <div style="font-size:9px;color:rgba(255,255,255,.85);margin-top:2px;">Frequência</div>
-        </div>
-        <div style="background:rgba(255,255,255,.16);border-radius:10px;padding:9px 4px;text-align:center;">
-          <div id="freqResTotal" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:17px;">0</div>
-          <div style="font-size:9px;color:rgba(255,255,255,.85);margin-top:2px;">Total Sorteios</div>
-        </div>
+      <div class="freq-stat-grid">
+        <div class="freq-stat"><strong id="freqResAparicoes">0</strong><span>Aparições</span></div>
+        <div class="freq-stat"><strong id="freqResPercentual">0%</strong><span>Frequência</span></div>
+        <div class="freq-stat"><strong id="freqResTotal">0</strong><span>Total Sorteios</span></div>
       </div>
 
-      <button type="button" id="freqBtnFavorito" style="width:100%;padding:9px;border-radius:9px;border:none;background:#fff;color:var(--violet-deep);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;cursor:pointer;margin-bottom:7px;">⭐ Salvar como Favorito</button>
-      <button type="button" id="freqBtnVerTodos" style="width:100%;padding:9px;border-radius:9px;border:1.2px solid rgba(255,255,255,.5);background:transparent;color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;cursor:pointer;">☰ Ver todos os sorteios (<span id="freqVerTodosCount">0</span>)</button>
-
+      <button type="button" id="freqBtnFavorito" class="freq-result-btn">★ Salvar como Favorito</button>
+      <button type="button" id="freqBtnVerTodos" class="freq-result-btn secondary">☷ Ver todos os sorteios (<span id="freqVerTodosCount">0</span>)</button>
       <div id="freqListaSorteios" style="display:none;margin-top:12px;max-height:460px;overflow-y:auto;"></div>
-    </div>
-
+    </section>
   </div>
+
+  <button id="freqVoltar" style="position:fixed;left:10px;top:8px;z-index:3;background:rgba(0,0,0,.18);border:0;color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;">←</button>
 </div>
 
 <div class="overlay-full" id="overlayGeradorLoteria" style="z-index:78;">
@@ -4671,7 +5050,18 @@ function abrirAltaQueda(){
     carregarAltaQueda();
   }
 }
-document.getElementById('homePremiumCardTendencia').addEventListener('click', abrirAltaQueda);
+// Mantém o efeito de afundar visível por um instante antes de abrir a próxima aba.
+const homePremiumCardTendencia = document.getElementById('homePremiumCardTendencia');
+homePremiumCardTendencia.addEventListener('click', ()=>{
+  if(homePremiumCardTendencia.dataset.abrindo === '1') return;
+  homePremiumCardTendencia.dataset.abrindo = '1';
+  homePremiumCardTendencia.classList.add('is-pressed');
+  setTimeout(()=>{
+    abrirAltaQueda();
+    homePremiumCardTendencia.classList.remove('is-pressed');
+    homePremiumCardTendencia.dataset.abrindo = '0';
+  }, 300);
+});
 document.getElementById('altaQuedaVoltar').addEventListener('click', ()=>{
   document.getElementById('overlayAltaQueda').classList.remove('show');
 });
@@ -6388,6 +6778,248 @@ async function carregarFrequencia(gameParam, opts){
   }
 }
 
+// ---------- Ternos e Quadras mais frequentes dentro da aba Frequência ----------
+let frequenciaTernosCarregouUmaVez = false;
+let frequenciaQuadrasCarregouUmaVez = false;
+
+function gerarCombinacoesK(lista, k){
+  const arr = lista.slice().sort((a,b)=>a-b);
+  const out = [];
+  const atual = [];
+  function rec(inicio){
+    if(atual.length === k){ out.push(atual.slice()); return; }
+    const faltam = k - atual.length;
+    for(let i=inicio; i<=arr.length-faltam; i++){
+      atual.push(arr[i]);
+      rec(i+1);
+      atual.pop();
+    }
+  }
+  rec(0);
+  return out;
+}
+
+async function calcularGruposFrequentes(game, qtd, tamanho){
+  const ultimo = await fetchConcursoLoteria(game);
+  if(!ultimo || !ultimo.concurso) throw new Error('resposta inválida da API');
+  const numeroUltimo = ultimo.concurso;
+  const numerosConcursos = [];
+  for(let c=numeroUltimo;c>numeroUltimo-qtd && c>0;c--) numerosConcursos.push(c);
+
+  const concursos = new Array(numerosConcursos.length);
+  concursos[0] = ultimo;
+  const pendentes = numerosConcursos.slice(1).map((c,idx)=>
+    fetchConcursoLoteria(game,c).then(data=>{concursos[idx+1]=data;}).catch(()=>{concursos[idx+1]=null;})
+  );
+  await Promise.all(pendentes);
+
+  const validos = concursos.filter(Boolean);
+  if(!validos.length) throw new Error('sem dados');
+  const mapa = new Map();
+  validos.forEach(data=>{
+    const dezenas = (data.dezenas||[]).map(d=>parseInt(d,10)).filter(Number.isFinite);
+    if(dezenas.length < tamanho) return;
+    gerarCombinacoesK(dezenas, tamanho).forEach(combo=>{
+      const chave = combo.join('-');
+      let item = mapa.get(chave);
+      if(!item){ item={combo, vezes:0, concursos:[]}; mapa.set(chave,item); }
+      item.vezes++;
+      item.concursos.push(data.concurso);
+    });
+  });
+
+  const linhas = Array.from(mapa.values())
+    .filter(x=>x.vezes>1)
+    .sort((a,b)=>b.vezes-a.vezes || a.combo.join('').localeCompare(b.combo.join('')));
+  return {linhas, numeroUltimo, concursosAnalisados:validos.length};
+}
+
+function renderGruposFrequentes(tipo, linhas, numeroUltimo, total){
+  const cfg = tipo==='ternos'
+    ? {conteudo:'frequenciaTernosConteudo', singular:'Terno', plural:'ternos', titulo:'Ternos', emoji:'🔺'}
+    : {conteudo:'frequenciaQuadrasConteudo', singular:'Quadra', plural:'quadras', titulo:'Quadras', emoji:'🔷'};
+  const cont=document.getElementById(cfg.conteudo);
+  if(!cont) return;
+  if(!linhas.length){
+    cont.innerHTML=`<div class="note">Nenhum ${cfg.singular.toLowerCase()} repetido foi encontrado nesse período.</div>`;
+    return;
+  }
+  const limite=100;
+  const visiveis=linhas.slice(0,limite);
+  const rows=visiveis.map(l=>{
+    const bolas=l.combo.map(n=>`<span class="quina-bola">${String(n).padStart(2,'0')}</span>`).join('');
+    const pct=((l.vezes/total)*100).toFixed(2)+'%';
+    const concursos=l.concursos.slice().sort((a,b)=>a-b).map(c=>`<span class="quina-concurso">${c}</span>`).join('');
+    return `<tr><td><div class="quina-bolas">${bolas}</div></td><td><span class="quina-freq-badge">${l.vezes}</span></td><td>${pct}</td><td><div class="quina-concursos">${concursos}</div></td></tr>`;
+  }).join('');
+  cont.innerHTML=`
+    <div class="quina-freq-card">
+      <div class="quina-freq-title">${cfg.emoji} ${cfg.titulo} Mais Frequentes (Últimos ${total} Sorteios)</div>
+      <div class="quina-table-wrap">
+        <table class="quina-table">
+          <thead><tr><th>${cfg.singular}</th><th>Frequência</th><th>Percentual</th><th>Concursos</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="note" style="margin-top:8px;">Até o concurso Nº ${numeroUltimo}. Exibindo os ${Math.min(limite,linhas.length)} ${cfg.plural} repetidos mais frequentes${linhas.length>limite?' de '+linhas.length+' encontrados':''}.</div>`;
+}
+
+async function carregarFrequenciaGrupo(tipo, gameParam, opts){
+  const cfg = tipo==='ternos'
+    ? {tamanho:3,qtd:'frequenciaTernosQtdInput',conteudo:'frequenciaTernosConteudo',btn:'frequenciaTernosAtualizarBtn',nome:'ternos',label:'TERNOS'}
+    : {tamanho:4,qtd:'frequenciaQuadrasQtdInput',conteudo:'frequenciaQuadrasConteudo',btn:'frequenciaQuadrasAtualizarBtn',nome:'quadras',label:'QUADRAS'};
+  const ajustarCampo=!opts || opts.ajustarCampo!==false;
+  const game=gameParam || tendGameAtual;
+  const qtdEl=document.getElementById(cfg.qtd);
+  const bruto=qtdEl?parseInt(qtdEl.value,10):NaN;
+  if(!ajustarCampo && (!Number.isFinite(bruto) || bruto<2)) return;
+  let qtd=Number.isFinite(bruto)?bruto:120;
+  if(qtd<2) qtd=120;
+  if(qtd>CENTRO_QTD_MAX) qtd=CENTRO_QTD_MAX;
+  if(qtdEl && ajustarCampo) qtdEl.value=qtd;
+  const cont=document.getElementById(cfg.conteudo);
+  const btn=document.getElementById(cfg.btn);
+  if(btn){btn.disabled=true;btn.textContent='CARREGANDO…';}
+  if(cont) cont.innerHTML=`<div class="res-loading">Calculando ${cfg.nome} dos últimos ${qtd} concursos…</div>`;
+  try{
+    const r=await calcularGruposFrequentes(game,qtd,cfg.tamanho);
+    if(tipo==='ternos') frequenciaTernosCarregouUmaVez=true;
+    else frequenciaQuadrasCarregouUmaVez=true;
+    renderGruposFrequentes(tipo,r.linhas,r.numeroUltimo,r.concursosAnalisados);
+  }catch(e){
+    console.error('carregarFrequenciaGrupo falhou:',tipo,e);
+    if(cont) cont.innerHTML=`<div class="res-error">Não foi possível calcular os ${cfg.nome} agora.<br>Verifique sua internet e tente novamente.<br><span style="font-size:11px;opacity:.8;">${e&&e.message?e.message:''}</span></div>`;
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='ATUALIZAR '+cfg.label;}
+  }
+}
+
+// ---------- Quinas mais frequentes dentro da aba Frequência ----------
+let frequenciaQuinasCarregouUmaVez = false;
+
+function gerarCombinacoes5(lista){
+  const arr = lista.slice().sort((a,b)=>a-b);
+  const out = [];
+  const n = arr.length;
+  for(let a=0;a<n-4;a++)
+    for(let b=a+1;b<n-3;b++)
+      for(let c=b+1;c<n-2;c++)
+        for(let d=c+1;d<n-1;d++)
+          for(let e=d+1;e<n;e++) out.push([arr[a],arr[b],arr[c],arr[d],arr[e]]);
+  return out;
+}
+
+async function calcularQuinasFrequentes(game, qtd){
+  const ultimo = await fetchConcursoLoteria(game);
+  if(!ultimo || !ultimo.concurso) throw new Error('resposta inválida da API');
+  const numeroUltimo = ultimo.concurso;
+  const numerosConcursos = [];
+  for(let c=numeroUltimo;c>numeroUltimo-qtd && c>0;c--) numerosConcursos.push(c);
+
+  const concursos = new Array(numerosConcursos.length);
+  concursos[0] = ultimo;
+  const pendentes = numerosConcursos.slice(1).map((c,idx)=>
+    fetchConcursoLoteria(game,c).then(data=>{concursos[idx+1]=data;}).catch(()=>{concursos[idx+1]=null;})
+  );
+  await Promise.all(pendentes);
+
+  const validos = concursos.filter(Boolean);
+  if(!validos.length) throw new Error('sem dados');
+  const mapa = new Map();
+
+  validos.forEach(data=>{
+    const dezenas = (data.dezenas||[]).map(d=>parseInt(d,10)).filter(Number.isFinite);
+    if(dezenas.length < 5) return;
+    gerarCombinacoes5(dezenas).forEach(combo=>{
+      const chave = combo.join('-');
+      let item = mapa.get(chave);
+      if(!item){ item={combo, vezes:0, concursos:[]}; mapa.set(chave,item); }
+      item.vezes++;
+      item.concursos.push(data.concurso);
+    });
+  });
+
+  const linhas = Array.from(mapa.values())
+    .filter(x=>x.vezes>1)
+    .sort((a,b)=>b.vezes-a.vezes || a.combo.join('').localeCompare(b.combo.join('')));
+  return {linhas, numeroUltimo, concursosAnalisados:validos.length};
+}
+
+function renderQuinasFrequentes(linhas, numeroUltimo, total){
+  const cont=document.getElementById('frequenciaQuinasConteudo');
+  if(!cont) return;
+  if(!linhas.length){
+    cont.innerHTML='<div class="note">Nenhuma quina repetida foi encontrada nesse período.</div>';
+    return;
+  }
+  const limite=100;
+  const visiveis=linhas.slice(0,limite);
+  const rows=visiveis.map(l=>{
+    const bolas=l.combo.map(n=>`<span class="quina-bola">${String(n).padStart(2,'0')}</span>`).join('');
+    const pct=((l.vezes/total)*100).toFixed(2)+'%';
+    const concursos=l.concursos.slice().sort((a,b)=>a-b).map(c=>`<span class="quina-concurso">${c}</span>`).join('');
+    return `<tr><td><div class="quina-bolas">${bolas}</div></td><td><span class="quina-freq-badge">${l.vezes}</span></td><td>${pct}</td><td><div class="quina-concursos">${concursos}</div></td></tr>`;
+  }).join('');
+  cont.innerHTML=`
+    <div class="quina-freq-card">
+      <div class="quina-freq-title">🎲 Quinas Mais Frequentes (Últimos ${total} Sorteios)</div>
+      <div class="quina-table-wrap">
+        <table class="quina-table">
+          <thead><tr><th>Quina</th><th>Frequência</th><th>Percentual</th><th>Concursos</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="note" style="margin-top:8px;">Até o concurso Nº ${numeroUltimo}. Exibindo as ${Math.min(limite,linhas.length)} quinas repetidas mais frequentes${linhas.length>limite?' de '+linhas.length+' encontradas':''}.</div>`;
+}
+
+async function carregarFrequenciaQuinas(gameParam, opts){
+  const ajustarCampo=!opts || opts.ajustarCampo!==false;
+  const game=gameParam || tendGameAtual;
+  const qtdEl=document.getElementById('frequenciaQuinasQtdInput');
+  const bruto=qtdEl?parseInt(qtdEl.value,10):NaN;
+  if(!ajustarCampo && (!Number.isFinite(bruto) || bruto<2)) return;
+  let qtd=Number.isFinite(bruto)?bruto:120;
+  if(qtd<2) qtd=120;
+  if(qtd>CENTRO_QTD_MAX) qtd=CENTRO_QTD_MAX;
+  if(qtdEl && ajustarCampo) qtdEl.value=qtd;
+  const cont=document.getElementById('frequenciaQuinasConteudo');
+  const btn=document.getElementById('frequenciaQuinasAtualizarBtn');
+  if(btn){btn.disabled=true;btn.textContent='CARREGANDO…';}
+  if(cont) cont.innerHTML=`<div class="res-loading">Calculando quinas dos últimos ${qtd} concursos…</div>`;
+  try{
+    const r=await calcularQuinasFrequentes(game,qtd);
+    frequenciaQuinasCarregouUmaVez=true;
+    renderQuinasFrequentes(r.linhas,r.numeroUltimo,r.concursosAnalisados);
+  }catch(e){
+    console.error('carregarFrequenciaQuinas falhou:',e);
+    if(cont) cont.innerHTML=`<div class="res-error">Não foi possível calcular as quinas agora.<br>Verifique sua internet e tente novamente.<br><span style="font-size:11px;opacity:.8;">${e&&e.message?e.message:''}</span></div>`;
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='ATUALIZAR QUINAS';}
+  }
+}
+
+function ativarTipoFrequencia(tipo){
+  const tipos=['dezenas','ternos','quadras','quinas'];
+  const ids={
+    dezenas:['frequenciaDezenasBtn','frequenciaDezenasBox'],
+    ternos:['frequenciaTernosBtn','frequenciaTernosBox'],
+    quadras:['frequenciaQuadrasBtn','frequenciaQuadrasBox'],
+    quinas:['frequenciaQuinasBtn','frequenciaQuinasBox']
+  };
+  tipos.forEach(t=>{
+    const [bid,cid]=ids[t];
+    const b=document.getElementById(bid);
+    const c=document.getElementById(cid);
+    if(b) b.classList.toggle('active',t===tipo);
+    if(c) c.style.display=t===tipo?'block':'none';
+  });
+  if(tipo==='ternos' && !frequenciaTernosCarregouUmaVez) carregarFrequenciaGrupo('ternos',tendGameAtual);
+  if(tipo==='quadras' && !frequenciaQuadrasCarregouUmaVez) carregarFrequenciaGrupo('quadras',tendGameAtual);
+  if(tipo==='quinas' && !frequenciaQuinasCarregouUmaVez) carregarFrequenciaQuinas(tendGameAtual);
+}
+
 // vermelho (pouco frequente) -> amarelo (frequência média) -> verde (muito frequente),
 // relativo à dezena mais frequente encontrada na lista atual
 function corFrequenciaBola(vezes, maiorGlobal){
@@ -8045,12 +8677,12 @@ function renderFreqConcursoTabs(){
       freqConcursoModo = id;
       renderFreqConcursoTabs();
       const customRow = document.getElementById('freqConcursoCustomRow');
-      if(customRow) customRow.style.display = (id === 'custom') ? 'flex' : 'none';
+      if(customRow) customRow.style.display = (id === 'custom') ? 'block' : 'none';
       esconderResultadoFreq();
     });
   });
   const customRow = document.getElementById('freqConcursoCustomRow');
-  if(customRow) customRow.style.display = (freqConcursoModo === 'custom') ? 'flex' : 'none';
+  if(customRow) customRow.style.display = (freqConcursoModo === 'custom') ? 'block' : 'none';
 }
 
 function limitesConcursoFreq(dados){
@@ -8058,8 +8690,35 @@ function limitesConcursoFreq(dados){
   return {min:dados[0].c, max:dados[dados.length-1].c};
 }
 
-// aplica o filtro de concursos escolhido (todos, últimos N, ou intervalo
-// personalizado) sobre a lista completa de sorteios já carregada
+// aplica o filtro de concursos escolhido (todos, últimos N, ou uma lista
+// específica de números de concurso digitada pelo usuário) sobre a lista
+// completa de sorteios já carregada
+function parseFreqConcursoLista(){
+  const input = document.getElementById('freqConcursoLista');
+  const raw = input ? input.value : '';
+  const nums = raw.split(/[,;\s]+/).map(s=>parseInt(s,10)).filter(n=> !isNaN(n) && n > 0);
+  return Array.from(new Set(nums));
+}
+
+function atualizarFreqConcursoListaInfo(){
+  const infoEl = document.getElementById('freqConcursoListaInfo');
+  if(!infoEl) return;
+  const numeros = parseFreqConcursoLista();
+  if(numeros.length === 0){ infoEl.textContent = ''; return; }
+  const cache = carregarCacheHistoricoFreq();
+  const dados = cache ? cache.dados : null;
+  if(!dados || !dados.length){
+    infoEl.textContent = `${numeros.length} concurso(s) digitado(s).`;
+    return;
+  }
+  const existentes = new Set(dados.map(d=> d.c));
+  const validos = numeros.filter(n=> existentes.has(n));
+  const invalidos = numeros.filter(n=> !existentes.has(n));
+  infoEl.textContent = invalidos.length === 0
+    ? `${validos.length} concurso(s) válido(s).`
+    : `${validos.length} concurso(s) válido(s) — não encontrei o(s) concurso(s): ${invalidos.join(', ')}.`;
+}
+
 function filtrarDadosPorConcursoFreq(dados){
   if(freqConcursoModo === 'todos') return dados;
   if(freqConcursoModo === '50' || freqConcursoModo === '100' || freqConcursoModo === '300'){
@@ -8067,17 +8726,10 @@ function filtrarDadosPorConcursoFreq(dados){
     return dados.slice(-n);
   }
   if(freqConcursoModo === 'custom'){
-    const {min, max} = limitesConcursoFreq(dados);
-    const deInput = document.getElementById('freqConcursoDe');
-    const ateInput = document.getElementById('freqConcursoAte');
-    let de = parseInt(deInput ? deInput.value : '', 10);
-    let ate = parseInt(ateInput ? ateInput.value : '', 10);
-    if(isNaN(de)) de = min;
-    if(isNaN(ate)) ate = max;
-    if(de > ate){ const t = de; de = ate; ate = t; }
-    de = Math.max(min, de);
-    ate = Math.min(max, ate);
-    return dados.filter(d=> d.c >= de && d.c <= ate);
+    const numeros = parseFreqConcursoLista();
+    if(numeros.length === 0) return [];
+    const set = new Set(numeros);
+    return dados.filter(d=> set.has(d.c));
   }
   return dados;
 }
@@ -8198,12 +8850,57 @@ function atualizarFreqBaseTotalLabel(){
 // Lotofácil, um concurso por vez — só busca de novo os concursos que ainda faltam
 async function obterHistoricoCompletoFreq(onProgress){
   const game = LOTOFACIL_GAME;
+
+  // CACHE PRIMEIRO: usa imediatamente uma base já salva.
+  let cache = carregarCacheHistoricoFreq();
+  if(cache && Array.isArray(cache.dados) && cache.dados.length >= 100){
+    cache.dados.sort((a,b)=> a.c - b.c);
+    if(onProgress) onProgress(cache.dados.length, cache.dados.length);
+    return cache.dados;
+  }
+  cache = (cache && Array.isArray(cache.dados)) ? cache : {ultimo:0, dados:[]};
+
+  // Tenta primeiro uma carga em bloco. Algumas fontes retornam todo o histórico
+  // em uma única chamada, o que é muito mais rápido que buscar concurso por concurso.
+  async function tentarHistoricoEmBloco(){
+    const bases = [LOTO_API_BASE, ...LOTO_API_BASES_ALT];
+    for(const base of bases){
+      const slugs = [game.slug, game.altSlug].filter((v,i,a)=>v && a.indexOf(v)===i);
+      for(const slug of slugs){
+        const controller = new AbortController();
+        const timer = setTimeout(()=>controller.abort(), 6000);
+        try{
+          const resp = await fetch(`${base}/${slug}`, {signal:controller.signal});
+          clearTimeout(timer);
+          if(!resp.ok) continue;
+          const bruto = await resp.json();
+          const arr = Array.isArray(bruto) ? bruto : (Array.isArray(bruto?.data) ? bruto.data : null);
+          if(!arr || arr.length < 100) continue;
+          const dados = arr.map(x=>({
+            c: Number(x.concurso ?? x.numero ?? x.numeroConcurso),
+            dt: x.data || x.dataApuracao || '',
+            n: (x.dezenas || x.listaDezenas || x.numeros || []).map(v=>parseInt(v,10))
+          })).filter(x=>Number.isFinite(x.c) && x.n.length >= 15);
+          if(dados.length < 100) continue;
+          dados.sort((a,b)=>a.c-b.c);
+          cache = {ultimo:dados[dados.length-1].c, dados};
+          salvarCacheHistoricoFreq(cache);
+          if(onProgress) onProgress(dados.length, dados.length);
+          return dados;
+        }catch(e){
+          clearTimeout(timer);
+        }
+      }
+    }
+    return null;
+  }
+
+  const bloco = await tentarHistoricoEmBloco();
+  if(bloco) return bloco;
+
   const ultimoRemoto = await fetchConcursoLoteria(game);
   if(!ultimoRemoto || !ultimoRemoto.concurso) throw new Error('Não foi possível consultar o concurso mais recente.');
   const numeroUltimo = ultimoRemoto.concurso;
-
-  let cache = carregarCacheHistoricoFreq();
-  if(!cache || !Array.isArray(cache.dados)) cache = {ultimo:0, dados:[]};
 
   const existentes = new Set(cache.dados.map(d=>d.c));
   const faltantes = [];
@@ -8211,25 +8908,47 @@ async function obterHistoricoCompletoFreq(onProgress){
 
   if(faltantes.length === 0) return cache.dados;
 
-  const LOTE = 25;
+  // Fila contínua de downloads: evita esperar o concurso mais lento de cada lote
+  // antes de começar o próximo. Isso reduz bastante o tempo da primeira carga.
+  const CONCORRENCIA = 16;
+  let proximoIndice = 0;
   let concluidos = 0;
-  for(let i=0;i<faltantes.length;i+=LOTE){
-    const pacote = faltantes.slice(i, i+LOTE);
-    const resultados = await Promise.all(pacote.map(c=>
-      (c === numeroUltimo ? Promise.resolve(ultimoRemoto) : fetchConcursoLoteria(game, c)).catch(()=>null)
-    ));
-    resultados.forEach((data, idx)=>{
-      if(data && data.dezenas){
-        cache.dados.push({ c: pacote[idx], dt: data.data || '', n: data.dezenas.map(d=>parseInt(d,10)) });
+  let desdeUltimoSave = 0;
+
+  async function worker(){
+    while(true){
+      const idx = proximoIndice++;
+      if(idx >= faltantes.length) return;
+      const c = faltantes[idx];
+      let data = null;
+      try{
+        data = (c === numeroUltimo) ? ultimoRemoto : await fetchConcursoLoteria(game, c);
+      }catch(e){
+        data = null;
       }
-    });
-    concluidos += pacote.length;
-    cache.dados.sort((a,b)=> a.c - b.c);
-    cache.ultimo = cache.dados.length ? cache.dados[cache.dados.length-1].c : 0;
-    salvarCacheHistoricoFreq(cache); // salva o progresso a cada lote, pra não perder nada se sair no meio
-    if(onProgress) onProgress(concluidos, faltantes.length);
+      if(data && data.dezenas){
+        cache.dados.push({ c, dt: data.data || '', n: data.dezenas.map(d=>parseInt(d,10)) });
+      }
+      concluidos++;
+      desdeUltimoSave++;
+
+      // Atualiza a tela com mais frequência, mas grava no armazenamento em blocos
+      if(onProgress && (concluidos === faltantes.length || concluidos % 5 === 0))
+        onProgress(concluidos, faltantes.length);
+
+      if(desdeUltimoSave >= 60 || concluidos === faltantes.length){
+        desdeUltimoSave = 0;
+        cache.dados.sort((a,b)=> a.c - b.c);
+        cache.ultimo = cache.dados.length ? cache.dados[cache.dados.length-1].c : 0;
+        salvarCacheHistoricoFreq(cache);
+      }
+    }
   }
 
+  await Promise.all(Array.from({length: Math.min(CONCORRENCIA, faltantes.length)}, worker));
+  cache.dados.sort((a,b)=> a.c - b.c);
+  cache.ultimo = cache.dados.length ? cache.dados[cache.dados.length-1].c : 0;
+  salvarCacheHistoricoFreq(cache);
   return cache.dados;
 }
 
@@ -8283,6 +9002,7 @@ function renderResultadoFreq(selecionados, matches, total){
   freqSetHtml('freqResSequencia', seq.map(n=>
     `<span style="background:#fff;color:var(--violet-deep);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:13px;padding:6px 12px;border-radius:8px;">${n.toString().padStart(2,'0')}</span>`
   ).join(''));
+  freqSetText('freqResQtdLabel', seq.length);
   freqSetText('freqResAparicoes', matches.length);
   const pct = total>0 ? (matches.length/total*100) : 0;
   freqSetText('freqResPercentual', pct.toFixed(2).replace('.', ',') + '%');
@@ -8312,11 +9032,16 @@ function renderResultadoFreq(selecionados, matches, total){
 }
 
 document.getElementById('freqBtnAnalisar').addEventListener('click', async ()=>{
-  if(freqSelecionados.size !== freqQtd || freqCarregandoHistorico) return;
+  if(freqSelecionados.size !== freqQtd) return;
   const btn = document.getElementById('freqBtnAnalisar');
   const status = document.getElementById('freqStatusBox');
+  if(freqCarregandoHistorico) return;
   freqCarregandoHistorico = true;
-  if(btn) btn.disabled = true;
+  const textoOriginalBtn = btn ? btn.textContent : '⌁ Analisar Frequência';
+  if(btn){
+    btn.disabled = true;
+    btn.textContent = 'Carregando…';
+  }
   if(status){
     status.style.display = 'block';
     status.innerHTML = `<div class="res-loading">Carregando a base de sorteios da Lotofácil…</div>`;
@@ -8332,7 +9057,7 @@ document.getElementById('freqBtnAnalisar').addEventListener('click', async ()=>{
     if(dadosFiltrados.length === 0){
       if(status){
         status.style.display = 'block';
-        status.innerHTML = `<div class="res-error">Nenhum concurso encontrado nesse intervalo. Ajuste o "Do concurso" / "Até o concurso" e tente de novo.</div>`;
+        status.innerHTML = `<div class="res-error">Nenhum concurso encontrado. Digite pelo menos um número de concurso válido (ex: 10,20,35) e tente de novo.</div>`;
       }
       return;
     }
@@ -8348,7 +9073,10 @@ document.getElementById('freqBtnAnalisar').addEventListener('click', async ()=>{
     }
   }finally{
     freqCarregandoHistorico = false;
-    if(btn) btn.disabled = freqSelecionados.size !== freqQtd;
+    if(btn){
+      btn.textContent = textoOriginalBtn;
+      btn.disabled = freqSelecionados.size !== freqQtd;
+    }
   }
 });
 
@@ -8361,12 +9089,21 @@ renderFreqQtdTabs();
 renderFreqConcursoTabs();
 renderFreqNumGrid();
 atualizarFreqSelecaoUI();
-['freqConcursoDe','freqConcursoAte'].forEach(id=>{
+['freqConcursoLista'].forEach(id=>{
   const el = document.getElementById(id);
-  if(el) el.addEventListener('input', esconderResultadoFreq);
+  if(el) el.addEventListener('input', ()=>{ esconderResultadoFreq(); atualizarFreqConcursoListaInfo(); });
 });
 
-document.getElementById('menuFrequencia').addEventListener('click', ()=>{
+document.getElementById('menuFrequencia')?.addEventListener('click', ()=>{
+  closeDrawer();
+  fecharModaisGlobais('overlayBuscaFrequencia');
+  document.getElementById('overlayBuscaFrequencia').classList.add('show');
+  atualizarFreqBaseTotalLabel();
+  atualizarFreqConcursoInfoLabel();
+  setActiveTab('tabAnalise');
+});
+document.getElementById('menuMaisFrequentes')?.addEventListener('click', ()=>{
+  // Abre a mesma tela completa "Buscar Frequência de Sequências" mostrada na referência.
   closeDrawer();
   fecharModaisGlobais('overlayBuscaFrequencia');
   document.getElementById('overlayBuscaFrequencia').classList.add('show');
@@ -8614,6 +9351,44 @@ document.getElementById('atrasoQtdInput').addEventListener('input', ()=>{
 document.getElementById('atrasoQtdInput').addEventListener('change', ()=>{
   clearTimeout(atrasoQtdDebounceTimer);
   carregarAtraso(tendGameAtual);
+});
+
+document.getElementById('frequenciaDezenasBtn').addEventListener('click', ()=>ativarTipoFrequencia('dezenas'));
+document.getElementById('frequenciaTernosBtn').addEventListener('click', ()=>ativarTipoFrequencia('ternos'));
+document.getElementById('frequenciaQuadrasBtn').addEventListener('click', ()=>ativarTipoFrequencia('quadras'));
+document.getElementById('frequenciaQuinasBtn').addEventListener('click', ()=>ativarTipoFrequencia('quinas'));
+
+document.getElementById('frequenciaTernosAtualizarBtn').addEventListener('click', ()=>carregarFrequenciaGrupo('ternos',tendGameAtual));
+let frequenciaTernosQtdDebounceTimer = null;
+document.getElementById('frequenciaTernosQtdInput').addEventListener('input', ()=>{
+  clearTimeout(frequenciaTernosQtdDebounceTimer);
+  frequenciaTernosQtdDebounceTimer=setTimeout(()=>carregarFrequenciaGrupo('ternos',tendGameAtual,{ajustarCampo:false}),700);
+});
+document.getElementById('frequenciaTernosQtdInput').addEventListener('change', ()=>{
+  clearTimeout(frequenciaTernosQtdDebounceTimer);
+  carregarFrequenciaGrupo('ternos',tendGameAtual);
+});
+
+document.getElementById('frequenciaQuadrasAtualizarBtn').addEventListener('click', ()=>carregarFrequenciaGrupo('quadras',tendGameAtual));
+let frequenciaQuadrasQtdDebounceTimer = null;
+document.getElementById('frequenciaQuadrasQtdInput').addEventListener('input', ()=>{
+  clearTimeout(frequenciaQuadrasQtdDebounceTimer);
+  frequenciaQuadrasQtdDebounceTimer=setTimeout(()=>carregarFrequenciaGrupo('quadras',tendGameAtual,{ajustarCampo:false}),700);
+});
+document.getElementById('frequenciaQuadrasQtdInput').addEventListener('change', ()=>{
+  clearTimeout(frequenciaQuadrasQtdDebounceTimer);
+  carregarFrequenciaGrupo('quadras',tendGameAtual);
+});
+
+document.getElementById('frequenciaQuinasAtualizarBtn').addEventListener('click', ()=>carregarFrequenciaQuinas(tendGameAtual));
+let frequenciaQuinasQtdDebounceTimer = null;
+document.getElementById('frequenciaQuinasQtdInput').addEventListener('input', ()=>{
+  clearTimeout(frequenciaQuinasQtdDebounceTimer);
+  frequenciaQuinasQtdDebounceTimer=setTimeout(()=>carregarFrequenciaQuinas(tendGameAtual,{ajustarCampo:false}),700);
+});
+document.getElementById('frequenciaQuinasQtdInput').addEventListener('change', ()=>{
+  clearTimeout(frequenciaQuinasQtdDebounceTimer);
+  carregarFrequenciaQuinas(tendGameAtual);
 });
 
 document.getElementById('frequenciaAtualizarBtn').addEventListener('click', ()=>carregarFrequencia(tendGameAtual));
@@ -9710,3 +10485,84 @@ if('serviceWorker' in navigator){
 </script>
 </body>
 </html>
+<style id="freq-result-extra-wide">
+/* Faixa azul Resultado da Análise ainda mais esticada para os lados */
+#overlayBuscaFrequencia .freq-result{
+  width:calc(100% + 22px)!important;
+  max-width:none!important;
+  margin-left:-11px!important;
+  margin-right:-11px!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:600px){
+  #overlayBuscaFrequencia .freq-result{
+    width:calc(100% + 22px)!important;
+    margin-left:-11px!important;
+    margin-right:-11px!important;
+  }
+}
+</style>
+<style id="freq-result-align-green-button">
+/* Resultado da Análise alinhado exatamente com o botão verde Analisar Frequência */
+#overlayBuscaFrequencia .freq-result{
+  max-width:none!important;
+  margin-right:0!important;
+  box-sizing:border-box!important;
+}
+</style>
+<script id="freq-result-align-green-button-js">
+(function(){
+  function alinharResultadoComAnalisar(){
+    const overlay = document.getElementById('overlayBuscaFrequencia');
+    const shell = overlay && overlay.querySelector('.freq-shell');
+    const btn = document.getElementById('freqBtnAnalisar');
+    const resultado = document.getElementById('freqResultadoCard');
+    if(!shell || !btn || !resultado) return;
+    const shellRect = shell.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    resultado.style.setProperty('width', btnRect.width + 'px', 'important');
+    resultado.style.setProperty('margin-left', (btnRect.left - shellRect.left) + 'px', 'important');
+    resultado.style.setProperty('margin-right', '0px', 'important');
+  }
+  window.addEventListener('resize', alinharResultadoComAnalisar);
+  window.addEventListener('orientationchange', alinharResultadoComAnalisar);
+  document.addEventListener('DOMContentLoaded', alinharResultadoComAnalisar);
+  const obs = new MutationObserver(alinharResultadoComAnalisar);
+  const resultado = document.getElementById('freqResultadoCard');
+  if(resultado) obs.observe(resultado,{attributes:true,attributeFilter:['style','class']});
+  setTimeout(alinharResultadoComAnalisar,0);
+})();
+</script>
+
+<style id="freq-result-align-actions-row-final">
+/* Resultado da Análise: mesmas bordas laterais da linha Analisar Frequência + Limpar */
+#overlayBuscaFrequencia .freq-result{
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+</style>
+<script id="freq-result-align-actions-row-final-js">
+(function(){
+  function alinharResultadoComLinhaBotoes(){
+    const overlay = document.getElementById('overlayBuscaFrequencia');
+    const shell = overlay && overlay.querySelector('.freq-shell');
+    const linha = overlay && overlay.querySelector('.freq-actions-bottom');
+    const resultado = document.getElementById('freqResultadoCard');
+    if(!shell || !linha || !resultado) return;
+    const sr = shell.getBoundingClientRect();
+    const lr = linha.getBoundingClientRect();
+    resultado.style.setProperty('width', lr.width + 'px', 'important');
+    resultado.style.setProperty('margin-left', (lr.left - sr.left) + 'px', 'important');
+    resultado.style.setProperty('margin-right', '0px', 'important');
+  }
+  window.addEventListener('resize', alinharResultadoComLinhaBotoes);
+  window.addEventListener('orientationchange', alinharResultadoComLinhaBotoes);
+  document.addEventListener('DOMContentLoaded', alinharResultadoComLinhaBotoes);
+  setTimeout(alinharResultadoComLinhaBotoes,0);
+  setTimeout(alinharResultadoComLinhaBotoes,250);
+  const resultado = document.getElementById('freqResultadoCard');
+  if(resultado){
+    new MutationObserver(alinharResultadoComLinhaBotoes).observe(resultado,{attributes:true,attributeFilter:['style','class']});
+  }
+})();
+</script>
