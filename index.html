@@ -352,12 +352,12 @@ document.addEventListener('selectstart', e=>{
     border-radius:50%;
     border:none;
     position:relative;
-    background:radial-gradient(circle at 32% 26%, #ffffff 0%, #ffffff 45%, #fdfdfe 70%, #f7f8f9 100%);
-    box-shadow:inset -3px -3px 4px rgba(0,0,0,.28), inset 3px 3px 3px rgba(255,255,255,.85), 0 2px 4px rgba(0,0,0,.3);
+    background:radial-gradient(circle at 32% 26%, #ffffff 0%, #ffffff 70%, #fefeff 88%, #fdfdfe 100%);
+    box-shadow:none;
     color:#2e2e2e;
     font-family:'Inter',sans-serif;
-    font-size:10px;
-    font-weight:600;
+    font-size:12.5px;
+    font-weight:700;
     cursor:pointer;
     display:flex;
     align-items:center;
@@ -386,6 +386,38 @@ document.addEventListener('selectstart', e=>{
     box-shadow:0 3px 10px rgba(55,65,81,.4);
   }
   .ball.excluded span{position:relative;z-index:1;text-decoration:line-through;}
+  @keyframes ballBalaoEstourar{
+    0%{transform:scale(1); opacity:1;}
+    20%{transform:scale(1.1); opacity:1;}
+    40%{transform:scale(1.22); opacity:1;}
+    60%{transform:scale(1.36); opacity:1;}
+    78%{transform:scale(1.52); opacity:1;}
+    84%{transform:scale(1.6); opacity:1;}
+    88%{transform:scale(0.15); opacity:.6;}
+    100%{transform:scale(0); opacity:0;}
+  }
+  .ball.excluir-anim{
+    animation:ballBalaoEstourar 1.05s cubic-bezier(.45,.05,.55,.95) forwards;
+    z-index:5;
+  }
+  .ball.ball-sumida{
+    visibility:hidden;
+    pointer-events:none;
+  }
+  .balao-particula{
+    position:fixed;
+    width:6px;
+    height:10px;
+    border-radius:1px;
+    pointer-events:none;
+    z-index:9999;
+    opacity:1;
+    animation:balaoParticulaEstourar 1.1s ease-out forwards;
+  }
+  @keyframes balaoParticulaEstourar{
+    0%{ transform:translate(0,0) rotate(0deg) scale(1); opacity:1; }
+    100%{ transform:translate(var(--px), var(--py)) rotate(var(--rot)) scale(.5); opacity:0; }
+  }
   .total-row{
     display:flex;
     justify-content:flex-start;
@@ -2663,6 +2695,8 @@ document.addEventListener('selectstart', e=>{
         <button class="subtab-btn" id="cicloTipoFalhaBtn">Falta falhar</button>
         <button class="subtab-btn" id="cicloTipoImparBtn">Ímpares</button>
         <button class="subtab-btn" id="cicloTipoParBtn">Pares</button>
+        <button class="subtab-btn" id="cicloTipoMolduraBtn">Moldura</button>
+        <button class="subtab-btn" id="cicloTipoColunaBtn">Colunas</button>
       </div>
 
       <div id="cicloSairBox">
@@ -2703,6 +2737,28 @@ document.addEventListener('selectstart', e=>{
           <button class="btn-confirm btn-3d" id="cicloParAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
         </div>
         <div id="cicloParConteudo"></div>
+      </div>
+
+      <div id="cicloMolduraBox" style="display:none;">
+        <div class="card">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Mesma lógica de ciclo, mas considerando só as dezenas da <strong>moldura</strong> (borda) do volante. Mostra quais dezenas da moldura já saíram no ciclo atual e quais ainda faltam sair.</div>
+          <label class="field-label" for="cicloMolduraQtdInput">Analisar quantos últimos concursos?</label>
+          <input type="number" id="cicloMolduraQtdInput" min="2" max="500" value="20" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
+          <button class="btn-confirm btn-3d" id="cicloMolduraAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+        </div>
+        <div id="cicloMolduraConteudo"></div>
+      </div>
+
+      <div id="cicloColunaBox" style="display:none;">
+        <div class="card">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Mesma lógica de ciclo, mas considerando só as dezenas de uma <strong>coluna</strong> do volante. Mostra quais dezenas dessa coluna já saíram no ciclo atual e quais ainda faltam sair.</div>
+          <label class="field-label" for="cicloColunaSelect">Qual coluna?</label>
+          <select id="cicloColunaSelect" style="width:100%;box-sizing:border-box;padding:9px 10px;border-radius:9px;border:1.5px solid #E7DFF5;font-size:13px;margin-bottom:9px;"></select>
+          <label class="field-label" for="cicloColunaQtdInput">Analisar quantos últimos concursos?</label>
+          <input type="number" id="cicloColunaQtdInput" min="2" max="500" value="20" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
+          <button class="btn-confirm btn-3d" id="cicloColunaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+        </div>
+        <div id="cicloColunaConteudo"></div>
       </div>
     </div>
   </div>
@@ -3658,7 +3714,7 @@ document.getElementById('btnLimparSelecao').addEventListener('click', ()=>{
   selected = new Set();
   fixedNums = new Set();
   excludedNums = new Set();
-  ballGrid.querySelectorAll('.ball').forEach(b=>b.classList.remove('on','fixed','excluded'));
+  ballGrid.querySelectorAll('.ball').forEach(b=>b.classList.remove('on','fixed','excluded','excluir-anim','ball-sumida'));
   targetCount = 0;
   slider.value = 0;
   sliderHintInput.value = 0;
@@ -3732,10 +3788,14 @@ function updateExcluirBtnState(){
 btnExcluirModo.addEventListener('click', ()=>{
   const jaTemExcluidas = excludedNums.size > 0;
   if(jaTemExcluidas){
-    // reinclui todas as dezenas excluídas de uma vez
+    // reinclui todas as dezenas excluídas de uma vez (e faz elas reaparecerem já marcadas, como estavam antes)
     excludedNums.forEach(n=>{
       const el = ballGrid.querySelector(`.ball[data-n="${n}"]`);
-      if(el) el.classList.remove('excluded');
+      if(el){
+        el.classList.remove('excluded', 'excluir-anim', 'ball-sumida');
+        el.classList.add('on');
+      }
+      selected.add(n);
     });
     excludedNums = new Set();
   } else {
@@ -3747,15 +3807,190 @@ btnExcluirModo.addEventListener('click', ()=>{
     paraExcluir.forEach(n=>{
       selected.delete(n);
       excludedNums.add(n);
-      const el = ballGrid.querySelector(`.ball[data-n="${n}"]`);
-      if(el){
-        el.classList.remove('on');
-        el.classList.add('excluded');
-      }
+    });
+    falarExclusaoDezenas(paraExcluir.length);
+
+    // estoura uma bolinha de cada vez, com um intervalo entre cada uma
+    paraExcluir.forEach((n, idx)=>{
+      setTimeout(()=>{
+        const el = ballGrid.querySelector(`.ball[data-n="${n}"]`);
+        if(el){
+          el.classList.remove('on');
+          el.classList.add('excluded');
+          el.classList.remove('excluir-anim', 'ball-sumida');
+          void el.offsetWidth; // reinicia a animação mesmo se já tiver rodado antes
+          el.classList.add('excluir-anim');
+          setTimeout(()=> estourarBalaoParticulas(el), 920); // dispara junto com o instante do estouro (~88% da animação de 1.05s)
+          el.addEventListener('animationend', ()=>{
+            el.classList.remove('excluir-anim');
+            el.classList.add('ball-sumida'); // some de vez, deixando o espaço vazio
+          }, {once:true});
+        }
+      }, idx * 1200);
     });
   }
   refreshUI();
 });
+
+// ---------- avisa por voz quantas dezenas foram excluídas ----------
+// pré-carrega a lista de vozes do aparelho assim que possível (em muitos
+// celulares a lista só fica pronta depois do evento 'voiceschanged')
+if('speechSynthesis' in window){
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.addEventListener('voiceschanged', ()=> window.speechSynthesis.getVoices());
+}
+
+// ---------- cria o confete do balão estourando na posição da bolinha ----------
+function estourarBalaoParticulas(el){
+  try{
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top + rect.height/2;
+    const cores = ['#F04B4B','#FBBF24','#34D399','#60A5FA','#A78BFA','#F472B6','#FB923C'];
+    const numParticulas = 14;
+    for(let i=0;i<numParticulas;i++){
+      const ang = (Math.PI*2/numParticulas)*i + (Math.random()*0.5-0.25);
+      const dist = 24 + Math.random()*22;
+      const px = Math.cos(ang)*dist;
+      const py = Math.sin(ang)*dist;
+      const rot = Math.round(Math.random()*720 - 360);
+      const p = document.createElement('div');
+      p.className = 'balao-particula';
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = cores[i % cores.length];
+      p.style.setProperty('--px', px + 'px');
+      p.style.setProperty('--py', py + 'px');
+      p.style.setProperty('--rot', rot + 'deg');
+      document.body.appendChild(p);
+      p.addEventListener('animationend', ()=> p.remove(), {once:true});
+    }
+  }catch(e){}
+  tocarSomEstouro();
+}
+
+// ---------- som de estouro de balão (ruído curto + "boing" descendo) ----------
+function tocarSomEstouro(){
+  try{
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if(!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const agora = ctx.currentTime;
+
+    // estalo seco e curto (o "crack" inicial do tiro)
+    const duracaoEstalo = 0.05;
+    const bufferEstalo = ctx.createBuffer(1, Math.floor(ctx.sampleRate*duracaoEstalo), ctx.sampleRate);
+    const dadosEstalo = bufferEstalo.getChannelData(0);
+    for(let i=0;i<dadosEstalo.length;i++){ dadosEstalo[i] = (Math.random()*2-1) * Math.pow(1 - i/dadosEstalo.length, 0.3); }
+    const estalo = ctx.createBufferSource();
+    estalo.buffer = bufferEstalo;
+    const filtroEstalo = ctx.createBiquadFilter();
+    filtroEstalo.type = 'highpass';
+    filtroEstalo.frequency.value = 1200;
+    const ganhoEstalo = ctx.createGain();
+    ganhoEstalo.gain.setValueAtTime(0.55, agora);
+    ganhoEstalo.gain.exponentialRampToValueAtTime(0.001, agora + duracaoEstalo);
+    estalo.connect(filtroEstalo);
+    filtroEstalo.connect(ganhoEstalo);
+    ganhoEstalo.connect(ctx.destination);
+    estalo.start(agora);
+
+    // corpo do estrondo: ruído grave e denso
+    const duracaoEstrondo = 0.22;
+    const bufferEstrondo = ctx.createBuffer(1, Math.floor(ctx.sampleRate*duracaoEstrondo), ctx.sampleRate);
+    const dadosEstrondo = bufferEstrondo.getChannelData(0);
+    for(let i=0;i<dadosEstrondo.length;i++){ dadosEstrondo[i] = (Math.random()*2-1) * Math.pow(1 - i/dadosEstrondo.length, 1.5); }
+    const estrondo = ctx.createBufferSource();
+    estrondo.buffer = bufferEstrondo;
+    const filtroEstrondo = ctx.createBiquadFilter();
+    filtroEstrondo.type = 'lowpass';
+    filtroEstrondo.frequency.value = 900;
+    const ganhoEstrondo = ctx.createGain();
+    ganhoEstrondo.gain.setValueAtTime(0.7, agora);
+    ganhoEstrondo.gain.exponentialRampToValueAtTime(0.001, agora + duracaoEstrondo);
+    estrondo.connect(filtroEstrondo);
+    filtroEstrondo.connect(ganhoEstrondo);
+    ganhoEstrondo.connect(ctx.destination);
+    estrondo.start(agora);
+
+    // soco grave (o "punch" no peito do tiro)
+    const soco = ctx.createOscillator();
+    const ganhoSoco = ctx.createGain();
+    soco.type = 'sine';
+    soco.frequency.setValueAtTime(150, agora);
+    soco.frequency.exponentialRampToValueAtTime(40, agora + 0.12);
+    ganhoSoco.gain.setValueAtTime(0.9, agora);
+    ganhoSoco.gain.exponentialRampToValueAtTime(0.001, agora + 0.16);
+    soco.connect(ganhoSoco);
+    ganhoSoco.connect(ctx.destination);
+    soco.start(agora);
+    soco.stop(agora + 0.18);
+
+    // pequeno eco (reflexo do estrondo, tipo "eco de rua")
+    const eco = ctx.createBufferSource();
+    eco.buffer = bufferEstrondo;
+    const filtroEco = ctx.createBiquadFilter();
+    filtroEco.type = 'lowpass';
+    filtroEco.frequency.value = 600;
+    const ganhoEco = ctx.createGain();
+    ganhoEco.gain.setValueAtTime(0.001, agora);
+    ganhoEco.gain.setValueAtTime(0.18, agora + 0.09);
+    ganhoEco.gain.exponentialRampToValueAtTime(0.001, agora + 0.3);
+    eco.connect(filtroEco);
+    filtroEco.connect(ganhoEco);
+    ganhoEco.connect(ctx.destination);
+    eco.start(agora + 0.09);
+
+    setTimeout(()=> ctx.close().catch(()=>{}), 600);
+  }catch(e){}
+}
+
+function tocarBipConfirmacao(){
+  try{
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if(!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const agora = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(700, agora);
+    gain.gain.setValueAtTime(0, agora);
+    gain.gain.linearRampToValueAtTime(0.25, agora + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, agora + 0.25);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(agora);
+    osc.stop(agora + 0.27);
+    setTimeout(()=> ctx.close().catch(()=>{}), 400);
+  }catch(e){}
+}
+
+function falarExclusaoDezenas(qtd){
+  const texto = qtd === 1 ? 'Você excluiu 1 dezena' : `Você excluiu ${qtd} dezenas`;
+  if(!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined'){
+    tocarBipConfirmacao(); // aparelho/navegador sem suporte a voz: toca um bipe no lugar
+    return;
+  }
+  try{
+    window.speechSynthesis.cancel();
+    // pequeno atraso evita que o cancel() acima engula a fala nova em alguns navegadores
+    setTimeout(()=>{
+      const fala = new SpeechSynthesisUtterance(texto);
+      fala.lang = 'pt-BR';
+      fala.rate = 1;
+      fala.pitch = 1;
+      fala.volume = 1;
+      const vozes = window.speechSynthesis.getVoices();
+      const vozPt = vozes.find(v=> v.lang && v.lang.toLowerCase().startsWith('pt'));
+      if(vozPt) fala.voice = vozPt;
+      fala.onerror = ()=> tocarBipConfirmacao(); // se a fala falhar, ao menos toca o bipe
+      window.speechSynthesis.speak(fala);
+    }, 80);
+  }catch(e){
+    tocarBipConfirmacao();
+  }
+}
 
 // ---------- stats ----------
 const statDefs = [
@@ -5244,6 +5479,20 @@ function centroDoJogo(game){
   return centro;
 }
 
+// dezenas de uma coluna específica (0-based) do volante impresso, seguindo a
+// mesma grade usada por centroDoJogo/molduraDoJogo
+function colunaDoJogo(game, colIndex){
+  const cols = GRID_COLS_POR_JOGO[game.code];
+  if(!cols || !game.range) return null;
+  const min = game.range.min, max = game.range.max;
+  const lista = [];
+  for(let n = min; n <= max; n++){
+    const idx = n - min;
+    if(idx % cols === colIndex) lista.push(n);
+  }
+  return lista;
+}
+
 // dezenas da "moldura" (borda) do volante — o complemento do centro/miolo
 function molduraDoJogo(game){
   const centro = centroDoJogo(game);
@@ -5429,7 +5678,7 @@ async function carregarCiclo(gameParam){
 // somando as dezenas sorteadas; toda vez que a soma completa a faixa inteira do jogo,
 // um ciclo "fecha" ali e a contagem reinicia do zero. O que sobra no final (sem ter
 // fechado ainda) é o ciclo atual, em andamento.
-async function calcularCiclo(game, qtd, paridade){
+async function calcularCiclo(game, qtd, paridade, subconjuntoArr){
   const ultimo = await fetchConcursoLoteria(game);
   if(!ultimo || !ultimo.concurso) throw new Error('resposta inválida da API');
   const numeroUltimo = ultimo.concurso;
@@ -5444,7 +5693,12 @@ async function calcularCiclo(game, qtd, paridade){
   await Promise.all(pendentes);
 
   const cronologico = concursos.filter(Boolean).slice().reverse(); // mais antigo primeiro
-  const bateParidade = (n)=> !paridade || (paridade==='impar' ? n%2!==0 : n%2===0);
+  // subconjuntoArr (opcional): lista de dezenas específicas a considerar (ex: só a moldura, só uma coluna).
+  // Quando informado, tem prioridade sobre o filtro de paridade.
+  const subconjuntoSet = subconjuntoArr ? new Set(subconjuntoArr) : null;
+  const bateParidade = subconjuntoSet
+    ? (n)=> subconjuntoSet.has(n)
+    : (n)=> !paridade || (paridade==='impar' ? n%2!==0 : n%2===0);
   const totalFaixa = [];
   for(let n = game.range.min; n <= game.range.max; n++) if(bateParidade(n)) totalFaixa.push(n);
 
@@ -5607,6 +5861,142 @@ function renderCicloParidade(containerId, jaSairam, faltam, numeroUltimo, concur
     ${infoFechamento}
     <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">
       Já saíram <strong>${jaSairam.length}</strong> de <strong>${totalFaixa}</strong> dezenas ${paridade==='impar' ? 'ímpares' : 'pares'} no ciclo atual (até o concurso Nº ${numeroUltimo}). Faltam <strong>${faltam.length}</strong> para fechar o ciclo.
+    </div>
+    <div class="centro-grid">${celulas}</div>
+    <div class="ciclo-legenda">
+      <span><span class="ciclo-legenda-bola saiu"></span>já saiu</span>
+      <span><span class="ciclo-legenda-bola falta"></span>falta sair</span>
+    </div>
+    ${historicoHtml}`;
+}
+
+// ---------- Ciclo (moldura): mesma lógica do Ciclo, mas só dentro do subconjunto de dezenas da moldura do volante ----------
+let cicloMolduraCarregouUmaVez = false;
+
+async function carregarCicloMoldura(gameParam){
+  const game = gameParam || tendGameAtual;
+  const qtdEl = document.getElementById('cicloMolduraQtdInput');
+  let qtd = qtdEl ? parseInt(qtdEl.value, 10) : 20;
+  if(!Number.isFinite(qtd) || qtd < 2) qtd = 20;
+  if(qtd > CENTRO_QTD_MAX) qtd = CENTRO_QTD_MAX;
+  if(qtdEl) qtdEl.value = qtd;
+  const cont = document.getElementById('cicloMolduraConteudo');
+  const btn = document.getElementById('cicloMolduraAtualizarBtn');
+
+  const moldura = molduraDoJogo(game);
+  if(!moldura || !moldura.length){
+    if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">O formato do ${game.nome} não tem uma "moldura" de volante definida para essa análise.</div>`;
+    return;
+  }
+
+  if(btn){ btn.disabled = true; setBtnLoading('cicloMolduraAtualizarBtn', true); }
+  if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
+  try{
+    const {jaSairam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico} = await calcularCiclo(game, qtd, null, moldura);
+    cicloMolduraCarregouUmaVez = true;
+    renderCicloSubconjunto('cicloMolduraConteudo', jaSairam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico, moldura.length, 'Ciclo de moldura', 'da moldura');
+  }catch(e){
+    console.error('carregarCicloMoldura falhou:', e);
+    if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
+  }finally{
+    if(btn){ btn.disabled = false; setBtnLoading('cicloMolduraAtualizarBtn', false); }
+  }
+}
+
+// ---------- Ciclo (colunas): mesma lógica do Ciclo, mas só dentro do subconjunto de dezenas de uma coluna do volante ----------
+let cicloColunaCarregouUmaVez = false;
+
+// preenche o seletor de colunas de acordo com o jogo atual (cada jogo tem um nº de colunas diferente)
+function montarSeletorCicloColuna(game){
+  const sel = document.getElementById('cicloColunaSelect');
+  if(!sel) return;
+  const cols = GRID_COLS_POR_JOGO[game.code];
+  const valorAnterior = sel.value;
+  sel.innerHTML = '';
+  if(!cols || !game.range){
+    sel.disabled = true;
+    return;
+  }
+  sel.disabled = false;
+  for(let c = 0; c < cols; c++){
+    const opt = document.createElement('option');
+    opt.value = String(c);
+    opt.textContent = `Coluna ${c + 1}`;
+    sel.appendChild(opt);
+  }
+  // mantém a coluna escolhida antes, se ainda existir nesse jogo; senão volta pra primeira
+  if(valorAnterior && Number(valorAnterior) < cols){
+    sel.value = valorAnterior;
+  } else {
+    sel.value = '0';
+  }
+}
+
+async function carregarCicloColuna(gameParam){
+  const game = gameParam || tendGameAtual;
+  const qtdEl = document.getElementById('cicloColunaQtdInput');
+  let qtd = qtdEl ? parseInt(qtdEl.value, 10) : 20;
+  if(!Number.isFinite(qtd) || qtd < 2) qtd = 20;
+  if(qtd > CENTRO_QTD_MAX) qtd = CENTRO_QTD_MAX;
+  if(qtdEl) qtdEl.value = qtd;
+  const cont = document.getElementById('cicloColunaConteudo');
+  const btn = document.getElementById('cicloColunaAtualizarBtn');
+  const selEl = document.getElementById('cicloColunaSelect');
+
+  if(!selEl || selEl.disabled || !selEl.options.length){
+    if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">O formato do ${game.nome} não tem colunas de volante definidas para essa análise.</div>`;
+    return;
+  }
+  const colIndex = parseInt(selEl.value, 10) || 0;
+  const coluna = colunaDoJogo(game, colIndex);
+  if(!coluna || !coluna.length){
+    if(cont) cont.innerHTML = `<div class="note" style="margin:14px 0;">Não foi possível montar essa coluna para o ${game.nome}.</div>`;
+    return;
+  }
+
+  if(btn){ btn.disabled = true; setBtnLoading('cicloColunaAtualizarBtn', true); }
+  if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
+  try{
+    const {jaSairam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico} = await calcularCiclo(game, qtd, null, coluna);
+    cicloColunaCarregouUmaVez = true;
+    renderCicloSubconjunto('cicloColunaConteudo', jaSairam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico, coluna.length, 'Ciclo de coluna', `da coluna ${colIndex + 1}`);
+  }catch(e){
+    console.error('carregarCicloColuna falhou:', e);
+    if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
+  }finally{
+    if(btn){ btn.disabled = false; setBtnLoading('cicloColunaAtualizarBtn', false); }
+  }
+}
+
+// render genérico do Ciclo para qualquer subconjunto de dezenas (moldura, coluna, etc.) —
+// mesma estrutura visual do renderCiclo/renderCicloParidade, mas recebendo o total do
+// subconjunto e a descrição já prontos, em vez de calcular a partir de par/ímpar
+function renderCicloSubconjunto(containerId, jaSairam, faltam, numeroUltimo, concursosAnalisados, fechouNaJanela, concursoFechou, historico, totalFaixa, rotulo, descricao){
+  const cont = document.getElementById(containerId);
+  const jaSet = new Set(jaSairam);
+  const todas = [...jaSairam, ...faltam].sort((a,b)=>a-b);
+
+  const aviso = fechouNaJanela ? '' : `<div class="note" style="margin:0 0 10px;">Não encontramos nenhum fechamento de ciclo completo dentro dos últimos ${concursosAnalisados} concursos analisados — aumente a quantidade acima para um resultado mais confiável.</div>`;
+
+  const infoFechamento = fechouNaJanela
+    ? `<div style="font-size:12.5px;color:var(--violet-deep);font-weight:700;margin-bottom:6px;">Último ${rotulo.toLowerCase()} fechou no concurso Nº ${concursoFechou} — o ${rotulo.toLowerCase()} atual começou no concurso Nº ${concursoFechou + 1}.</div>`
+    : '';
+
+  const celulas = todas.map(n=>{
+    const saiu = jaSet.has(n);
+    return `
+    <div class="centro-cel ${saiu ? 'ciclo-saiu' : 'ciclo-falta'}" title="${n.toString().padStart(2,'0')}: ${saiu ? 'já saiu neste ciclo' : 'ainda falta sair neste ciclo'}">
+      <div class="centro-num">${n.toString().padStart(2,'0')}</div>
+    </div>`;
+  }).join('');
+
+  const historicoHtml = renderHistoricoCiclo(historico, rotulo, 'concursos');
+
+  cont.innerHTML = `
+    ${aviso}
+    ${infoFechamento}
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">
+      Já saíram <strong>${jaSairam.length}</strong> de <strong>${totalFaixa}</strong> dezenas ${descricao} no ciclo atual (até o concurso Nº ${numeroUltimo}). Faltam <strong>${faltam.length}</strong> para fechar o ciclo.
     </div>
     <div class="centro-grid">${celulas}</div>
     <div class="ciclo-legenda">
@@ -6586,6 +6976,9 @@ function mudarJogoTendencia(g){
   cicloFalhaCarregouUmaVez = false;
   cicloImparCarregouUmaVez = false;
   cicloParCarregouUmaVez = false;
+  cicloMolduraCarregouUmaVez = false;
+  cicloColunaCarregouUmaVez = false;
+  montarSeletorCicloColuna(g);
 
   const subtabRow = document.getElementById('tendSubtabRow');
   const cont = document.getElementById('tendConteudo');
@@ -7209,6 +7602,8 @@ document.getElementById('quenteAtualizarBtn').addEventListener('click', ()=>carr
 document.getElementById('manualAtualizarBtn').addEventListener('click', ()=>carregarManual(tendGameAtual));
 document.getElementById('cicloAtualizarBtn').addEventListener('click', ()=>carregarCiclo(tendGameAtual));
 document.getElementById('cicloFalhaAtualizarBtn').addEventListener('click', ()=>carregarCicloFalha(tendGameAtual));
+document.getElementById('cicloImparAtualizarBtn').addEventListener('click', ()=>carregarCicloImpar(tendGameAtual));
+document.getElementById('cicloParAtualizarBtn').addEventListener('click', ()=>carregarCicloPar(tendGameAtual));
 document.getElementById('manualLimparBtn').addEventListener('click', ()=>{
   ['manualDezena1','manualDezena2','manualDezena3','manualDezena4','manualDezena5','manualDezena6','manualDezena7','manualDezena8','manualDezena9'].forEach(id=>{
     const el = document.getElementById(id);
@@ -7364,10 +7759,12 @@ document.getElementById('subtabCiclo').addEventListener('click', ()=>{
 // toggle interno da aba Ciclo: "Falta sair" x "Falta falhar" x "Ímpares" x "Pares" — os
 // cálculos já existem, só alternamos qual caixa fica visível dentro do mesmo painel
 const CICLO_TIPO_BOTOES = {
-  sair:  {btn:'cicloTipoSairBtn',  box:'cicloSairBox'},
-  falha: {btn:'cicloTipoFalhaBtn', box:'cicloFalhaBox'},
-  impar: {btn:'cicloTipoImparBtn', box:'cicloImparBox'},
-  par:   {btn:'cicloTipoParBtn',   box:'cicloParBox'}
+  sair:    {btn:'cicloTipoSairBtn',    box:'cicloSairBox'},
+  falha:   {btn:'cicloTipoFalhaBtn',   box:'cicloFalhaBox'},
+  impar:   {btn:'cicloTipoImparBtn',   box:'cicloImparBox'},
+  par:     {btn:'cicloTipoParBtn',     box:'cicloParBox'},
+  moldura: {btn:'cicloTipoMolduraBtn', box:'cicloMolduraBox'},
+  coluna:  {btn:'cicloTipoColunaBtn',  box:'cicloColunaBox'}
 };
 function ativarCicloTipo(tipo){
   Object.keys(CICLO_TIPO_BOTOES).forEach(k=>{
@@ -7393,6 +7790,20 @@ document.getElementById('cicloTipoParBtn').addEventListener('click', ()=>{
   ativarCicloTipo('par');
   if(!cicloParCarregouUmaVez) carregarCicloPar(tendGameAtual);
 });
+document.getElementById('cicloTipoMolduraBtn').addEventListener('click', ()=>{
+  ativarCicloTipo('moldura');
+  if(!cicloMolduraCarregouUmaVez) carregarCicloMoldura(tendGameAtual);
+});
+document.getElementById('cicloTipoColunaBtn').addEventListener('click', ()=>{
+  ativarCicloTipo('coluna');
+  montarSeletorCicloColuna(tendGameAtual);
+  if(!cicloColunaCarregouUmaVez) carregarCicloColuna(tendGameAtual);
+});
+document.getElementById('cicloColunaSelect').addEventListener('change', ()=>{
+  carregarCicloColuna(tendGameAtual);
+});
+document.getElementById('cicloMolduraAtualizarBtn').addEventListener('click', ()=>carregarCicloMoldura(tendGameAtual));
+document.getElementById('cicloColunaAtualizarBtn').addEventListener('click', ()=>carregarCicloColuna(tendGameAtual));
 
 // (barra de abas inferior removida — navegação agora só pelo menu ☰ do cabeçalho e pelo menu lateral)
 document.getElementById('galeriaFechar').addEventListener('click', ()=>{
