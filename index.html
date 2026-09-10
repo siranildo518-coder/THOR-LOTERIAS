@@ -4,10 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THOR LOTERIAS</title>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 // ---------- Firebase: usado só para travar cada conta em um único aparelho ----------
+// Carregado sob demanda (só na hora do login), pra não atrasar a abertura do app.
 const firebaseConfig = {
   apiKey: "AIzaSyB3C4umom-ke5d339tcDgRD3A9Oqg4OydE",
   authDomain: "thor-loterias.firebaseapp.com",
@@ -17,8 +16,27 @@ const firebaseConfig = {
   appId: "1:234375514263:web:2259ad7a822c259cfa41d2",
   measurementId: "G-K1M35B2VH4"
 };
-firebase.initializeApp(firebaseConfig);
-const dbFirestore = firebase.firestore();
+let dbFirestore = null;
+let _promessaFirebase = null;
+function carregarScript(src){
+  return new Promise((resolve, reject)=>{
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+function carregarFirebase(){
+  if(_promessaFirebase) return _promessaFirebase;
+  _promessaFirebase = (async ()=>{
+    await carregarScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+    await carregarScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js');
+    firebase.initializeApp(firebaseConfig);
+    dbFirestore = firebase.firestore();
+  })();
+  return _promessaFirebase;
+}
 </script>
 <script>
 // ---------- Login por usuário/senha (100% local, não depende de internet) ----------
@@ -53,6 +71,7 @@ function obterDeviceId(){
 async function verificarTravaAparelho(hash){
   const deviceId = obterDeviceId();
   try{
+    await carregarFirebase();
     const ref = dbFirestore.collection('contas_ativadas').doc(hash);
     const snap = await ref.get();
     if(!snap.exists){
@@ -2531,9 +2550,11 @@ document.addEventListener('selectstart', e=>{
   <div class="drawer-hr"></div>
   <button class="drawer-item" id="menuMinhasSequencias"><span class="ic">📊</span> Minhas Sequências</button>
   <div class="drawer-hr"></div>
-  <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
+  <button class="drawer-item" id="menuAnalisadorJogos"><span class="ic">👁️</span> Analisador de Jogos</button>
   <div class="drawer-hr"></div>
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
+  <div class="drawer-hr" id="drawerHrSairLogin"></div>
+  <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
 
 </div>
 
@@ -8640,7 +8661,7 @@ function resetScroll(){
 }
 
 function fecharOutrasOverlaysDeAba(manter){
-  const modalIds = ['overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayProb','overlayHistorico'];
+  const modalIds = ['overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayProb','overlayHistorico','overlayAnalisadorJogos'];
   modalIds.forEach(id=>{
     if(id === manter) return;
     const el = document.getElementById(id);
@@ -8654,7 +8675,7 @@ function fecharOutrasOverlaysDeAba(manter){
 function fecharModaisGlobais(manter){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
-    'overlayGeradorLoteria','overlayGeradorFiltro'];
+    'overlayGeradorLoteria','overlayGeradorFiltro','overlayAnalisadorJogos'];
   modalIds.forEach(id=>{
     if(id === manter) return;
     const el = document.getElementById(id);
@@ -8667,7 +8688,7 @@ function fecharModaisGlobais(manter){
 function goHome(){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
-    'overlayGeradorLoteria','overlayGeradorFiltro'];
+    'overlayGeradorLoteria','overlayGeradorFiltro','overlayAnalisadorJogos'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.classList.remove('show');
@@ -8685,7 +8706,7 @@ function goHome(){
 function irParaSelecao(){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
-    'overlayGeradorLoteria','overlayGeradorFiltro','overlayListaResultados'];
+    'overlayGeradorLoteria','overlayGeradorFiltro','overlayListaResultados','overlayAnalisadorJogos'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.classList.remove('show');
@@ -8716,6 +8737,33 @@ document.getElementById('btnJogosSalvos')?.addEventListener('click', ()=>{
 });
 
 // ---------- atalhos da nova tela inicial (cabeçalho, banner e barra inferior) ----------
+['btnInicioAtalho','btnTendenciaAtalho','btnFechamentoAtalho','btnSimularAtalho','btnJogosSalvosAtalho2'].forEach(function(id){
+  const btn=document.getElementById(id);
+  if(btn){
+    btn.addEventListener('click', function(){
+      const aj=document.getElementById('overlayAnalisadorJogos');
+      if(aj && aj.classList.contains('show')){
+        const estavaResultado = document.getElementById('ajResultado') &&
+          document.getElementById('ajResultado').style.display !== 'none';
+
+        // Registra no histórico a tela do Analisador que estava aberta.
+        try{
+          history.replaceState({
+            thorAj:true,
+            tela: estavaResultado ? 'resultado' : 'selecao'
+          },'',location.href);
+
+          history.pushState({
+            thorAjDestino:true,
+            destino:id
+          },'',location.href);
+        }catch(_){}
+
+        aj.classList.remove('show');
+      }
+    }, true);
+  }
+});
 document.getElementById('btnInicioAtalho').addEventListener('click', goHome);
 document.getElementById('btnJogosSalvosAtalho2').addEventListener('click', ()=>{
   fecharModaisGlobais('overlayHistorico');
@@ -10426,14 +10474,16 @@ document.getElementById('downloadBtn').addEventListener('click', ()=>{
 
 refreshUI();
 
-// ---------- Botão VOLTAR do celular navega entre as telas do app, uma de cada vez ----------
+// ---------- Botão VOLTAR do celular: sempre retorna para a tela anterior ----------
 (function(){
-  // ordem de prioridade ao fechar: o que estiver mais "por cima"/mais aninhado primeiro
+  // Cada estado guarda QUAL tela/overlay está aberto, e não apenas quantas camadas existem.
+  // Isso evita o problema de trocar o menu lateral por outra tela com a mesma profundidade
+  // (por exemplo, abrir "Análise") e o botão Voltar perder a tela anterior.
   const MODAL_IDS = [
     'overlayNomeJogo','overlayFotoFull','drawer','overlay','overlayTrioProb','overlayCentroDezena','overlayProb',
     'overlayHistorico','overlayErreX','overlayGaleria',
     'overlayGeradorFiltro','overlayGeradorLoteria',
-    'overlayAltaQueda','overlayResultado','overlayTendencia','overlayMinhasSequencias'
+    'overlayAltaQueda','overlayResultado','overlayTendencia','overlayMinhasSequencias','overlayAnalisadorJogos'
   ];
 
   function isModalOpen(id){
@@ -10441,89 +10491,153 @@ refreshUI();
     return !!(el && el.classList.contains('show'));
   }
 
-  function countOpenModals(){
-    return MODAL_IDS.reduce((n,id)=> n + (isModalOpen(id) ? 1 : 0), 0);
-  }
-
   function getBaseScreen(){
     const sel = document.querySelector('.app > section:not(#resultsSection)');
     const res = document.getElementById('resultsSection');
+    const home = document.getElementById('overlayListaResultados');
+    if(home && home.classList.contains('show')) return 'home';
     if(sel && sel.style.display === 'block') return 'selecao';
     if(res && res.style.display === 'block') return 'resultados';
     return 'home';
   }
 
-  // "profundidade" atual = 0 na tela inicial sem nada aberto, e sobe 1 por
-  // camada (tela não-inicial e/ou cada modal/overlay aberto em cima dela)
-  function totalLayers(){
-    return (getBaseScreen() === 'home' ? 0 : 1) + countOpenModals();
-  }
-
-  function closeTopModal(){
-    for(const id of MODAL_IDS){
-      if(isModalOpen(id)){
-        document.getElementById(id).classList.remove('show');
-        if(id === 'drawer'){
-          const ov = document.getElementById('drawerOverlay');
-          if(ov) ov.classList.remove('show');
-        }
-        return true;
-      }
+  function getActiveTab(){
+    for(const key of TAB_IDS){
+      const id = TAB_ID_MAP[key];
+      const el = id ? document.getElementById(id) : null;
+      if(el && el.classList.contains('active')) return key;
     }
-    return false;
+    return 'tabInicio';
   }
 
-  let lastTotal = totalLayers();
-  let pushedExtra = 0;      // quantos estados extras nós empilhamos no histórico do navegador
-  let handlingPop = false;  // true enquanto respondemos a um voltar físico/gesto
-  let programmaticPop = false; // true quando fomos nós que disparamos o "voltar" (pra reequilibrar a pilha)
+  function captureState(){
+    return {
+      base: getBaseScreen(),
+      modals: MODAL_IDS.filter(isModalOpen),
+      tab: getActiveTab()
+    };
+  }
 
-  try{ history.replaceState({thorNav:0}, '', location.href); }catch(e){}
+  function stateSignature(st){
+    // O drawer entra na assinatura para o botão físico poder fechá-lo.
+    return st.base + '|' + st.modals.join(',') + '|' + st.tab;
+  }
 
-  // observa qualquer mudança real de tela/overlay do app (não importa o que a
-  // disparou: clique, toque fora, tecla, etc.) e mantém o histórico do
-  // navegador com uma entrada por camada aberta
-  function sync(){
-    if(handlingPop) return;
-    const newTotal = totalLayers();
-    if(newTotal === lastTotal) return;
-    if(newTotal > lastTotal){
-      for(let i=lastTotal;i<newTotal;i++){
-        pushedExtra++;
-        try{ history.pushState({thorNav:pushedExtra}, '', location.href); }catch(e){}
-      }
+  function applyState(st){
+    if(!st) return;
+
+    const main = document.querySelector('.app > section:not(#resultsSection)');
+    const results = document.getElementById('resultsSection');
+    const home = document.getElementById('overlayListaResultados');
+
+    // Primeiro limpa as telas sobrepostas atuais.
+    MODAL_IDS.forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.classList.remove('show');
+    });
+    const drawerOv = document.getElementById('drawerOverlay');
+    if(drawerOv) drawerOv.classList.remove('show');
+
+    // Restaura a tela-base exata.
+    if(st.base === 'selecao'){
+      if(home) home.classList.remove('show');
+      if(main) main.style.display = 'block';
+      if(results) results.style.display = 'none';
+    } else if(st.base === 'resultados'){
+      if(home) home.classList.remove('show');
+      if(main) main.style.display = 'none';
+      if(results) results.style.display = 'block';
     } else {
-      const delta = Math.min(lastTotal-newTotal, pushedExtra);
-      if(delta > 0){
-        pushedExtra -= delta;
-        programmaticPop = true;
-        try{ history.go(-delta); }catch(e){}
-      }
+      if(main) main.style.display = 'none';
+      if(results) results.style.display = 'none';
+      if(home) home.classList.add('show');
     }
-    lastTotal = newTotal;
+
+    // Depois reabre somente os overlays que pertenciam àquela tela.
+    (st.modals || []).forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.classList.add('show');
+    });
+    if((st.modals || []).includes('drawer') && drawerOv){
+      drawerOv.classList.add('show');
+    }
+
+    setActiveTab(st.tab || 'tabInicio');
   }
 
-  new MutationObserver(sync).observe(document.body, {
+  let navIndex = 0;
+  let navStates = [];
+  let restoring = false;
+  let syncTimer = null;
+
+  const inicial = captureState();
+  navStates[0] = inicial;
+  try{
+    history.replaceState({thorNav:true, idx:0, snapshot:inicial}, '', location.href);
+  }catch(e){}
+
+  function syncNow(){
+    if(restoring) return;
+
+    const atual = captureState();
+    const sigAtual = stateSignature(atual);
+    const corrente = navStates[navIndex];
+    const sigCorrente = corrente ? stateSignature(corrente) : '';
+    if(sigAtual === sigCorrente) return;
+
+    // Se a interface voltou exatamente para algum estado anterior por um botão do próprio app,
+    // acompanha esse retorno também no histórico do navegador, sem criar uma tela duplicada.
+    for(let i=navIndex-1; i>=0; i--){
+      if(stateSignature(navStates[i]) === sigAtual){
+        const delta = i - navIndex;
+        restoring = true;
+        try{ history.go(delta); }catch(e){ restoring = false; }
+        setTimeout(()=>{ restoring = false; }, 0);
+        return;
+      }
+    }
+
+    const correnteEraDrawer = !!(corrente && corrente.modals && corrente.modals.includes('drawer'));
+    const atualTemDrawer = !!(atual.modals && atual.modals.includes('drawer'));
+
+    // Ao escolher uma opção no menu lateral, a nova tela SUBSTITUI o estado do drawer.
+    // Assim, Voltar retorna à tela em que o usuário estava antes de abrir o menu,
+    // e não reabre o menu nem pula direto para Análise.
+    if(correnteEraDrawer && !atualTemDrawer){
+      navStates[navIndex] = atual;
+      try{ history.replaceState({thorNav:true, idx:navIndex, snapshot:atual}, '', location.href); }catch(e){}
+      return;
+    }
+
+    // Mudança normal: registra uma nova tela completa no histórico.
+    navStates = navStates.slice(0, navIndex + 1);
+    navIndex++;
+    navStates[navIndex] = atual;
+    try{ history.pushState({thorNav:true, idx:navIndex, snapshot:atual}, '', location.href); }catch(e){}
+  }
+
+  function scheduleSync(){
+    if(restoring) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(syncNow, 0);
+  }
+
+  // Debounce de 0 ms agrupa mudanças feitas no mesmo clique (fecha drawer + abre a tela escolhida)
+  // como UMA única navegação.
+  new MutationObserver(scheduleSync).observe(document.body, {
     attributes:true, attributeFilter:['class','style'], subtree:true
   });
 
-  window.addEventListener('popstate', function(){
-    // esse popstate foi gerado por nós mesmos (history.go acima) pra
-    // reequilibrar a pilha depois de um fechamento feito por um botão do
-    // próprio app — não é o botão físico, então não fecha nada de novo
-    if(programmaticPop){
-      programmaticPop = false;
-      lastTotal = totalLayers();
-      return;
-    }
-    // botão/gesto de voltar de verdade: fecha só a camada mais de cima
-    handlingPop = true;
-    const fechouAlgo = closeTopModal();
-    if(!fechouAlgo && getBaseScreen() !== 'home'){
-      goHome();
-    }
-    lastTotal = totalLayers();
-    setTimeout(function(){ handlingPop = false; }, 0);
+  window.addEventListener('popstate', function(e){
+    const st = e.state;
+    if(!st || !st.thorNav || !st.snapshot) return;
+
+    restoring = true;
+    navIndex = Number.isInteger(st.idx) ? st.idx : Math.max(0, navIndex - 1);
+    navStates[navIndex] = st.snapshot;
+    applyState(st.snapshot);
+    resetScroll();
+    setTimeout(()=>{ restoring = false; }, 0);
   });
 })();
 
@@ -12147,6 +12261,418 @@ html body #overlayMinhasSequencias .freq-shell{
   }
 }
 </style>
+
+
+<style id="analisador-jogos-css">
+#overlayAnalisadorJogos{position:fixed;inset:0;z-index:79;background:#f6f6f7;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:78px}
+#overlayAnalisadorJogos.show{display:block}
+.aj-head{height:76px;background:linear-gradient(135deg,var(--violet-deep,#55206e),var(--violet,#8e3aa6));color:#fff;display:flex;align-items:center;padding:0 16px;position:sticky;top:0;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.16)}
+.aj-back{width:42px;height:42px;border:0;background:transparent;color:#fff;font-size:31px;line-height:1;cursor:pointer}
+.aj-head-title{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:21px;margin-left:8px}
+.aj-wrap{width:min(620px,100%);margin:0 auto;padding:28px 18px 42px}
+.aj-title{text-align:center;font-family:'Baloo 2',sans-serif;font-size:28px;font-weight:800;color:#151219;line-height:1.05}
+.aj-sub{text-align:center;font-weight:700;font-size:14px;line-height:1.35;margin:7px auto 22px;max-width:430px}
+.aj-loteria-box{max-width:360px;margin:0 auto 16px}
+.aj-loteria-label{display:block;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:14px;margin-bottom:6px}
+.aj-loteria-menu-btn{
+  width:100%;height:44px;border:1.5px solid #9a48aa;border-radius:12px;
+  background:#fff;color:#5d2569;font-family:'Baloo 2',sans-serif;
+  font-size:16px;font-weight:800;padding:0 13px;display:flex;align-items:center;
+  justify-content:space-between;box-shadow:0 3px 0 #c7a4ce;cursor:pointer
+}
+.aj-seta{font-size:12px;transition:.18s}
+.aj-loteria-menu-btn.aberto .aj-seta{transform:rotate(180deg)}
+.aj-loteria-menu{
+  display:none;
+  margin-top:8px;
+  border:none;
+  border-radius:0;
+  background:transparent;
+  padding:0;
+  box-shadow:none;
+}
+.aj-loteria-menu.show{display:grid;grid-template-columns:repeat(2,110px);gap:5px;justify-content:center}
+.aj-loteria-opcao{
+  border:1px solid #b36bc0;border-radius:9px;background:#f7f1f9;color:#6e2b7b;
+  width:110px;min-height:30px;padding:3px 4px;font-family:'Baloo 2',sans-serif;
+  font-size:11px;font-weight:800;cursor:pointer
+}
+.aj-loteria-opcao.ativo{
+  background:#8d3aa0;color:#fff;border-color:#8d3aa0;
+  box-shadow:0 2px 0 #642473
+}
+.aj-info-loteria{text-align:center;font-size:12px;font-weight:700;margin-top:8px;color:#555}
+
+.aj-clear{display:block;margin:0 auto 24px;padding:10px 28px;border:0;border-radius:16px;background:#d6d6d8;font-weight:800;font-size:15px;box-shadow:0 3px 0 #b5b5b7}
+.aj-grid{display:grid;grid-template-columns:repeat(5,40px);gap:6px;max-width:224px;margin:0 auto;justify-content:center}
+.aj-num{width:40px;height:34px;border:1.5px solid #9a48aa;border-radius:7px;background:#fff;color:#8e35a0;font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:none}
+.aj-num.sel{background:#8d3aa0;color:#fff;border-color:#8d3aa0;box-shadow:inset 0 1px rgba(255,255,255,.25),0 3px 0 #642473}
+.aj-counts{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;margin:25px auto 18px;max-width:460px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:15px}
+.aj-counts b{display:block;font-size:24px;line-height:1}
+.aj-analisar,.aj-save{width:100%;border:0;border-radius:16px;background:linear-gradient(180deg,#9b46ad,#7f3092);color:#fff;padding:14px;font-family:'Baloo 2',sans-serif;font-size:20px;font-weight:800;box-shadow:0 4px 0 #612370,0 7px 12px rgba(0,0,0,.16)}
+.aj-analisar:disabled{opacity:.5}
+#ajResultado{display:none}
+.aj-score{text-align:center;margin:10px 0 14px}.aj-score small{font-weight:800;font-size:15px}.aj-score strong{display:block;font-family:'Baloo 2',sans-serif;font-size:52px;line-height:1;color:#c30b0b}
+.aj-msg{text-align:center;font-weight:800;color:#b41616;margin-bottom:16px}
+.aj-alert{text-align:center;font-weight:700;font-size:13px;line-height:1.4;margin:0 4px 20px}
+.aj-card{margin-top:16px;background:#e7e7e8;border-radius:16px;overflow:hidden}
+.aj-card h3{margin:0;background:#8b369e;color:#fff;text-align:center;padding:8px;font-family:'Baloo 2',sans-serif;font-size:18px}
+.aj-chosen{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;padding:14px 10px 8px}
+.aj-chip{border:1px solid #a65ab4;border-radius:8px;padding:6px 9px;color:#87369a;font-weight:800}
+.aj-mini{display:flex;justify-content:space-around;padding:5px 8px 13px;font-weight:800;font-size:13px}
+.aj-obs{padding:0}.aj-ob{display:flex;gap:9px;align-items:flex-start;padding:11px 12px;font-weight:700;font-size:13px;line-height:1.3;background:#fff}.aj-ob:nth-child(even){background:#ededee}.aj-ob.ok{color:#0a981c}.aj-ob.bad{color:#e10c0c}.aj-face{font-size:25px;line-height:1}
+@media(max-width:380px){.aj-grid{grid-template-columns:repeat(5,38px);gap:5px;max-width:210px}.aj-num{width:38px;height:32px;font-size:13px}.aj-wrap{padding-left:8px;padding-right:8px}}
+
+
+#overlayAnalisadorJogos .aj-grid.aj-grid-10{
+  grid-template-columns:repeat(10,30px);
+  gap:5px;
+  max-width:345px;
+}
+#overlayAnalisadorJogos .aj-grid.aj-grid-10 .aj-num{
+  width:30px;
+  height:29px;
+  font-size:11px;
+  border-radius:6px;
+}
+#overlayAnalisadorJogos .aj-grid.aj-grid-5{
+  grid-template-columns:repeat(5,40px);
+  gap:6px;
+  max-width:224px;
+}
+@media(max-width:380px){
+  #overlayAnalisadorJogos .aj-grid.aj-grid-10{
+    grid-template-columns:repeat(10,28px);
+    gap:4px;
+    max-width:316px;
+  }
+  #overlayAnalisadorJogos .aj-grid.aj-grid-10 .aj-num{
+    width:28px;
+    height:27px;
+    font-size:10px;
+  }
+  #overlayAnalisadorJogos .aj-grid.aj-grid-5{
+    grid-template-columns:repeat(5,38px);
+    gap:5px;
+    max-width:210px;
+  }
+}
+
+#overlayAnalisadorJogos .aj-grid{transition:.15s}
+@media(max-width:480px){
+  #overlayAnalisadorJogos .aj-loteria-select{font-size:15px}
+}
+</style>
+
+<div id="overlayAnalisadorJogos">
+  <div class="aj-head"><button class="aj-back" id="ajVoltar" aria-label="Voltar">←</button><div class="aj-head-title">Analisador de Jogos</div></div>
+  <div class="aj-wrap">
+    <div id="ajEscolha">
+      <div class="aj-title">Analisador de jogos</div>
+      <div class="aj-sub" id="ajSubtitulo">Escolha de 15 a 25 dezenas para o sistema atribuir uma classificação baseada em estatísticas</div>
+      <div class="aj-loteria-box">
+        <button type="button" class="aj-loteria-menu-btn" id="ajAbrirMenuLoterias">
+          <span id="ajLoteriaAtual">Lotofácil</span>
+          <span class="aj-seta">▼</span>
+        </button>
+
+        <div class="aj-loteria-menu" id="ajMenuLoterias">
+          <button type="button" class="aj-loteria-opcao ativo" data-loteria="lotofacil">Lotofácil</button>
+          <button type="button" class="aj-loteria-opcao" data-loteria="megasena">Mega-Sena</button>
+          <button type="button" class="aj-loteria-opcao" data-loteria="quina">Quina</button>
+          <button type="button" class="aj-loteria-opcao" data-loteria="lotomania">Lotomania</button>
+          <button type="button" class="aj-loteria-opcao" data-loteria="duplasena">Dupla Sena</button>
+          <button type="button" class="aj-loteria-opcao" data-loteria="diadesorte">Dia de Sorte</button>
+        </div>
+
+        <input type="hidden" id="ajLoteria" value="lotofacil">
+        <div class="aj-info-loteria" id="ajInfoLoteria"></div>
+      </div>
+      <button class="aj-clear" id="ajLimpar">Limpar</button>
+      <div class="aj-grid" id="ajGrid"></div>
+      <div class="aj-counts"><div>Selecionados<b id="ajQtd">0</b></div><div>Pares<b id="ajPares">0</b></div><div>Ímpares<b id="ajImpares">0</b></div></div>
+      <button class="aj-analisar" id="ajAnalisar" disabled>Analisar</button>
+    </div>
+    <div id="ajResultado">
+      <div class="aj-title">Resultado análise</div>
+      <div class="aj-sub">Confira abaixo as análises referentes às dezenas escolhidas</div>
+      <div class="aj-score"><small>Pontuação</small><strong id="ajScore">0.0</strong></div>
+      <div class="aj-msg" id="ajMsg"></div>
+      <div class="aj-alert">Atenção: essa pontuação é gerada com base em análises estatísticas dos jogos que já ocorreram e não dá garantia de acerto. Um jogo com pontuação baixa ainda pode ser premiado e um jogo com pontuação alta pode não ser premiado.</div>
+      <button class="aj-save" id="ajSalvar">Salvar jogo</button>
+      <div class="aj-card"><h3>Dezenas analisadas</h3><div class="aj-chosen" id="ajChosen"></div><div class="aj-mini" id="ajMini"></div></div>
+      <div class="aj-card"><h3>Observações</h3><div class="aj-obs" id="ajObs"></div></div>
+    </div>
+  </div>
+</div>
+
+<script id="analisador-jogos-js">
+(function(){
+ const ov=document.getElementById('overlayAnalisadorJogos');
+ const grid=document.getElementById('ajGrid');
+ const loteriaSel=document.getElementById('ajLoteria');
+ const menuLoterias=document.getElementById('ajMenuLoterias');
+ const abrirMenuLoterias=document.getElementById('ajAbrirMenuLoterias');
+ const loteriaAtualTxt=document.getElementById('ajLoteriaAtual');
+
+ const LOTERIAS={
+   lotofacil:{nome:'Lotofácil',max:25,minEscolha:15,maxEscolha:20,padrao:15},
+   megasena:{nome:'Mega-Sena',max:60,minEscolha:6,maxEscolha:20,padrao:6},
+   quina:{nome:'Quina',max:80,minEscolha:5,maxEscolha:15,padrao:5},
+   lotomania:{nome:'Lotomania',max:100,minEscolha:50,maxEscolha:50,padrao:50,zero:true},
+   duplasena:{nome:'Dupla Sena',max:50,minEscolha:6,maxEscolha:15,padrao:6},
+   diadesorte:{nome:'Dia de Sorte',max:31,minEscolha:7,maxEscolha:15,padrao:7}
+ };
+
+ const sel=new Set();
+ let cfg=LOTERIAS.lotofacil;
+
+ function numeroExibido(n){
+   if(cfg.zero && n===100) return '00';
+   return String(n).padStart(2,'0');
+ }
+
+ function ehPrimo(n){
+   if(n<2)return false;
+   for(let i=2;i*i<=n;i++) if(n%i===0)return false;
+   return true;
+ }
+
+ function criarGrade(){
+   grid.innerHTML='';
+   const chave=(loteriaSel.value||'').toLowerCase();
+   const nome=(cfg.nome||'').toLowerCase();
+   const excecao5 = chave==='lotofacil' || chave==='loterisoft' || nome.includes('lotofácil') || nome.includes('loterisoft');
+   grid.classList.remove('aj-grid-5','aj-grid-10');
+   grid.classList.add(excecao5 ? 'aj-grid-5' : 'aj-grid-10');
+   for(let n=1;n<=cfg.max;n++){
+     const b=document.createElement('button');
+     b.className='aj-num';
+     b.textContent=numeroExibido(n);
+     b.dataset.n=n;
+     b.onclick=()=>{
+       if(sel.has(n)) sel.delete(n);
+       else if(sel.size<cfg.maxEscolha) sel.add(n);
+       render();
+     };
+     grid.appendChild(b);
+   }
+ }
+
+ function stats(){
+   let a=[...sel].sort((a,b)=>a-b);
+   return {
+     a,
+     pares:a.filter(n=>n%2===0).length,
+     imp:a.filter(n=>n%2).length,
+     pri:a.filter(ehPrimo).length,
+     soma:a.reduce((x,y)=>x+y,0)
+   };
+ }
+
+ function render(){
+   const x=stats();
+   grid.querySelectorAll('.aj-num').forEach(b=>b.classList.toggle('sel',sel.has(+b.dataset.n)));
+   document.getElementById('ajQtd').textContent=sel.size;
+   document.getElementById('ajPares').textContent=x.pares;
+   document.getElementById('ajImpares').textContent=x.imp;
+   document.getElementById('ajAnalisar').disabled=sel.size<cfg.minEscolha||sel.size>cfg.maxEscolha;
+ }
+
+ function atualizarLoteria(){
+   cfg=LOTERIAS[loteriaSel.value]||LOTERIAS.lotofacil;
+   if(loteriaAtualTxt) loteriaAtualTxt.textContent=cfg.nome;
+   sel.clear();
+   criarGrade();
+
+   const faixa = cfg.minEscolha===cfg.maxEscolha
+     ? `${cfg.minEscolha} dezenas`
+     : `de ${cfg.minEscolha} a ${cfg.maxEscolha} dezenas`;
+
+   document.getElementById('ajSubtitulo').textContent =
+     `Escolha ${faixa} para o sistema atribuir uma classificação baseada em estatísticas`;
+   document.getElementById('ajInfoLoteria').textContent =
+     `${cfg.nome}: números de ${cfg.zero?'00':'01'} até ${String(cfg.max).padStart(2,'0')}`;
+
+   document.getElementById('ajResultado').style.display='none';
+   document.getElementById('ajEscolha').style.display='block';
+   render();
+ }
+
+ function abrir(){
+   if(typeof fecharModaisGlobais==='function')fecharModaisGlobais('overlayAnalisadorJogos');
+   ov.classList.add('show');
+   document.getElementById('ajEscolha').style.display='block';
+   document.getElementById('ajResultado').style.display='none';
+   ov.scrollTop=0;
+ }
+
+ function fechar(){ov.classList.remove('show')}
+
+ function voltarDoAnalisadorParaInicio(){
+   fechar();
+   if(typeof goHome==='function') goHome();
+   else {
+     document.querySelectorAll('.screen').forEach(el=>el.classList.remove('show','active'));
+     const home=document.getElementById('home')||document.getElementById('telaInicial');
+     if(home) home.classList.add('show','active');
+   }
+   if(typeof setActiveTab==='function') setActiveTab('tabInicio');
+   window.scrollTo(0,0);
+ }
+
+ document.getElementById('menuAnalisadorJogos').onclick=()=>{closeDrawer();setTimeout(abrir,20)};
+
+ document.getElementById('ajVoltar').onclick=()=>{
+   if(document.getElementById('ajResultado').style.display!=='none'){
+     document.getElementById('ajResultado').style.display='none';
+     document.getElementById('ajEscolha').style.display='block';
+     ov.scrollTop=0;
+   }else voltarDoAnalisadorParaInicio();
+ };
+
+ abrirMenuLoterias.onclick=()=>{
+   const abriu=menuLoterias.classList.toggle('show');
+   abrirMenuLoterias.classList.toggle('aberto',abriu);
+ };
+
+ document.querySelectorAll('.aj-loteria-opcao').forEach(btn=>{
+   btn.onclick=()=>{
+     loteriaSel.value=btn.dataset.loteria;
+     document.querySelectorAll('.aj-loteria-opcao').forEach(b=>b.classList.remove('ativo'));
+     btn.classList.add('ativo');
+
+     cfg=LOTERIAS[loteriaSel.value]||LOTERIAS.lotofacil;
+     loteriaAtualTxt.textContent=cfg.nome;
+
+     menuLoterias.classList.remove('show');
+     abrirMenuLoterias.classList.remove('aberto');
+
+     atualizarLoteria();
+     ov.scrollTop=0;
+   };
+ });
+
+ document.getElementById('ajLimpar').onclick=()=>{sel.clear();render()};
+
+ document.getElementById('ajAnalisar').onclick=()=>{
+   const x=stats();
+   if(x.a.length<cfg.minEscolha||x.a.length>cfg.maxEscolha)return;
+
+   let score=10, obs=[];
+   function add(ok,txt){
+     obs.push(`<div class="aj-ob ${ok?'ok':'bad'}"><span class="aj-face">${ok?'☺':'☹'}</span><span>${txt}</span></div>`);
+     if(!ok)score-=1.6;
+   }
+
+   const total=x.a.length;
+   const alvoPar=Math.round(total/2);
+   add(Math.abs(x.pares-alvoPar)<=2,
+       `Você escolheu ${x.pares} pares e ${x.imp} ímpares; o equilíbrio é calculado de acordo com as ${total} dezenas escolhidas.`);
+
+   const densidadePrimos=x.pri/total;
+   add(densidadePrimos>=0.18 && densidadePrimos<=0.45,
+       `Você escolheu ${x.pri} números primos entre ${total} dezenas.`);
+
+   const mediaSoma=(cfg.max+1)/2*total;
+   const tolerancia=mediaSoma*0.28;
+   add(x.soma>=mediaSoma-tolerancia && x.soma<=mediaSoma+tolerancia,
+       `A soma das dezenas é ${x.soma}; a referência é ajustada automaticamente para ${cfg.nome}.`);
+
+   let cons=0,maxCons=0;
+   for(let i=1;i<x.a.length;i++){
+     cons=x.a[i]===x.a[i-1]+1?cons+1:0;
+     maxCons=Math.max(maxCons,cons);
+   }
+   add(maxCons<=Math.max(4,Math.round(total*.28)),
+       maxCons<=Math.max(4,Math.round(total*.28))
+       ?'A sequência de números consecutivos está equilibrada.'
+       :'Há uma sequência longa de números consecutivos no jogo.');
+
+   const baixos=x.a.filter(n=>n<=cfg.max/2).length;
+   const altos=total-baixos;
+   add(Math.abs(baixos-altos)<=Math.max(3,Math.round(total*.25)),
+       `Distribuição: ${baixos} dezenas na metade inferior e ${altos} na metade superior.`);
+
+   score=Math.max(0,Math.min(10,score));
+
+   document.getElementById('ajScore').textContent=score.toFixed(1);
+   document.getElementById('ajScore').style.color=score>=7?'#159529':score>=5?'#d28400':'#c30b0b';
+   document.getElementById('ajMsg').textContent=
+     score>=7?'Seu jogo apresenta uma composição estatística equilibrada.':
+     score>=5?'Seu jogo pode ser ajustado; confira as observações abaixo.':
+     'Seu jogo precisa ser melhorado, confira as observações abaixo.';
+
+   document.getElementById('ajChosen').innerHTML=x.a.map(n=>`<span class="aj-chip">${numeroExibido(n)}</span>`).join('');
+   document.getElementById('ajMini').innerHTML=`<span>${x.imp} ímpares</span><span>${x.pares} pares</span><span>${x.pri} primos</span>`;
+   document.getElementById('ajObs').innerHTML=obs.join('');
+
+   document.getElementById('ajEscolha').style.display='none';
+   document.getElementById('ajResultado').style.display='block';
+   ov.scrollTop=0;
+
+   try{history.pushState({thorAj:true,tela:'resultado'},'',location.href)}catch(_){}
+ };
+
+ document.getElementById('ajSalvar').onclick=()=>{
+   const a=[...sel].sort((a,b)=>a-b);
+   if(!a.length)return;
+   try{
+     let j=JSON.parse(localStorage.getItem('thor_analisador_jogos')||'[]');
+     j.unshift({data:new Date().toISOString(),loteria:loteriaSel.value,nome:cfg.nome,dezenas:a});
+     j=j.slice(0,50);
+     localStorage.setItem('thor_analisador_jogos',JSON.stringify(j));
+     alert('Jogo salvo com sucesso!');
+   }catch(e){alert('Não foi possível salvar o jogo.')}
+ };
+
+ // Botão Voltar físico/navegador no Analisador:
+ // Resultado -> seleção do Analisador -> tela inicial.
+ window.addEventListener('popstate', function(e){
+   const escolha=document.getElementById('ajEscolha');
+   const resultado=document.getElementById('ajResultado');
+
+   if(!ov.classList.contains('show')){
+     const st=e.state||{};
+     if(st.thorAj){
+       e.stopImmediatePropagation();
+       ov.classList.add('show');
+       if(st.tela==='resultado'){
+         escolha.style.display='none';
+         resultado.style.display='block';
+       }else{
+         resultado.style.display='none';
+         escolha.style.display='block';
+       }
+       ov.scrollTop=0;
+       return;
+     }
+     return;
+   }
+
+   e.stopImmediatePropagation();
+
+   if(resultado&&resultado.style.display!=='none'){
+     resultado.style.display='none';
+     escolha.style.display='block';
+     ov.scrollTop=0;
+     try{history.pushState({thorAj:true,tela:'selecao'},'',location.href)}catch(_){}
+     return;
+   }
+
+   voltarDoAnalisadorParaInicio();
+   try{
+     history.replaceState(
+       {thorNav:true,idx:0,snapshot:{base:'home',modals:[],tab:'tabInicio'}},
+       '',
+       location.href
+     );
+   }catch(_){}
+ }, true);
+
+ atualizarLoteria();
+})();
+</script>
 
 </body>
 </html>
