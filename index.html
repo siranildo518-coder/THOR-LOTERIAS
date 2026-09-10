@@ -80,13 +80,9 @@ const CREDENCIAIS_VALIDAS = [
   'u6jby2', // Laila (senha 142580)
   '1e1isk2', // Marcos (senha 142580)
   '2meoqi', // João (senha 142580)
-  'tbl3o9', // Iranyldo (senha 142580)
-  '1t5rw8', // dan (senha 142580)
 ];
 
 const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
-const USUARIO_LOGADO_KEY = 'tl_usuario_logado_v1'; // nome de quem está logado agora, pra mostrar no menu lateral
-const HASH_LOGADO_KEY = 'tl_hash_logado_v1'; // hash de quem está logado agora, pra achar a foto salva dele
 const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio cliente, direto no aparelho dele
 
 function carregarContasExtras(){
@@ -132,49 +128,13 @@ function comprimirFoto(dataUrl, maxLado){
   });
 }
 
-// foto de perfil de cada conta, salva neste aparelho: {hash: 'data:image/jpeg;base64,...'}
-const FOTOS_PERFIL_KEY = 'tl_fotos_perfil_v1';
-function carregarFotosPerfil(){
-  try{
-    const bruto = localStorage.getItem(FOTOS_PERFIL_KEY);
-    const obj = bruto ? JSON.parse(bruto) : {};
-    return (obj && typeof obj === 'object') ? obj : {};
-  }catch(e){ return {}; }
-}
-function salvarFotoPerfil(hash, foto){
-  try{
-    const fotos = carregarFotosPerfil();
-    if(foto){ fotos[hash] = foto; } else { delete fotos[hash]; }
-    localStorage.setItem(FOTOS_PERFIL_KEY, JSON.stringify(fotos));
-  }catch(e){}
-}
-
 function loginJaValidado(){
   try{ return localStorage.getItem(LOGIN_STORAGE_KEY) === '1'; }catch(e){ return false; }
 }
 
-// Mostra a foto e o nome de quem está logado no cabeçalho do menu lateral.
-// Se não tiver foto salva, mantém o trevo. Se não achar nome, mantém "Gerador de jogos".
-function preencherPerfilDrawer(){
-  try{
-    const logoEl = document.getElementById('drawerLogo');
-    const nomeEl = document.getElementById('drawerHeadNome');
-    const usuario = localStorage.getItem(USUARIO_LOGADO_KEY);
-    const hash = localStorage.getItem(HASH_LOGADO_KEY);
-    const fotos = carregarFotosPerfil();
-    const foto = hash ? fotos[hash] : null;
-    if(logoEl) logoEl.innerHTML = foto ? `<img src="${foto}" alt="Foto do usuário">` : '🍀';
-    if(nomeEl) nomeEl.textContent = usuario ? usuario : 'THOR LOTERIAS';
-  }catch(e){}
-}
-
 // Derruba o login deste aparelho/navegador e volta pra tela de usuário/senha.
 function sairDoLogin(){
-  try{
-    localStorage.removeItem(LOGIN_STORAGE_KEY);
-    localStorage.removeItem(USUARIO_LOGADO_KEY);
-    localStorage.removeItem(HASH_LOGADO_KEY);
-  }catch(e){}
+  try{ localStorage.removeItem(LOGIN_STORAGE_KEY); }catch(e){}
   location.reload();
 }
 
@@ -192,11 +152,13 @@ function montarTelaLogin(){
         <div style="text-align:center;font-size:34px;margin-bottom:6px;">🍀</div>
         <h2 style="font-family:'Baloo 2',sans-serif;text-align:center;color:#4C1D95;margin:0 0 4px;font-size:20px;">THOR LOTERIAS</h2>
         <p style="text-align:center;color:#8B80A3;font-size:13px;margin:0 0 14px;">Digite seu usuário e senha para entrar.</p>
-        <div style="display:flex;justify-content:center;margin-bottom:16px;">
-          <button type="button" id="loginFotoCirculo" aria-label="Escolher foto de perfil" style="width:80px;height:80px;border-radius:50%;border:2px dashed #C9BCE8;background:#F4F0FC no-repeat center/cover;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;position:relative;overflow:hidden;">
-            <span id="loginFotoIcone" style="font-size:26px;">📷</span>
-          </button>
+        <div style="text-align:center;margin-bottom:14px;">
+          <label for="loginFotoInput" style="display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;border-radius:50%;overflow:hidden;border:2px dashed #C9BBE8;cursor:pointer;position:relative;background:#F4F0FB;">
+            <img id="loginFotoPreview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;">
+            <span id="loginFotoIcone" style="font-size:24px;color:#8B80A3;">📷</span>
+          </label>
           <input type="file" id="loginFotoInput" accept="image/*" style="display:none;">
+          <div style="font-size:11px;color:#8B80A3;margin-top:4px;">Adicionar foto (opcional)</div>
         </div>
         <input id="loginUsuario" placeholder="Usuário" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:10px;font-size:14.5px;">
         <div style="position:relative;margin-bottom:6px;">
@@ -209,55 +171,26 @@ function montarTelaLogin(){
     </div>`;
   document.body.appendChild(overlay);
 
-  // foto escolhida nesta sessão de login (ainda não salva pra nenhuma conta)
-  let fotoLoginEscolhida = null;
-  // true quando o círculo está mostrando uma foto JÁ SALVA de uma conta reconhecida
-  // (nesse caso um clique deve trocar a foto, não reabrir o seletor de arquivo à toa)
-  const circulo = document.getElementById('loginFotoCirculo');
-  const icone = document.getElementById('loginFotoIcone');
-  const fotoInput = document.getElementById('loginFotoInput');
-
-  function mostrarFotoNoCirculo(foto){
-    if(foto){
-      circulo.style.backgroundImage = `url(${foto})`;
-      circulo.style.border = '2px solid #C9BCE8';
-      icone.style.display = 'none';
-    } else {
-      circulo.style.backgroundImage = 'none';
-      circulo.style.border = '2px dashed #C9BCE8';
-      icone.style.display = '';
-    }
-  }
-
-  circulo.addEventListener('click', ()=> fotoInput.click());
-
-  fotoInput.addEventListener('change', async ()=>{
-    const arquivo = fotoInput.files && fotoInput.files[0];
+  // ---------- foto escolhida na tela de login (opcional) ----------
+  let loginFotoSelecionada = null;
+  const loginFotoInput = document.getElementById('loginFotoInput');
+  const loginFotoPreview = document.getElementById('loginFotoPreview');
+  const loginFotoIcone = document.getElementById('loginFotoIcone');
+  loginFotoInput.addEventListener('change', ()=>{
+    const arquivo = loginFotoInput.files && loginFotoInput.files[0];
     if(!arquivo) return;
     const leitor = new FileReader();
     leitor.onload = async ()=>{
       const comprimida = await comprimirFoto(leitor.result, 240);
       if(comprimida){
-        fotoLoginEscolhida = comprimida;
-        mostrarFotoNoCirculo(comprimida);
+        loginFotoSelecionada = comprimida;
+        loginFotoPreview.src = comprimida;
+        loginFotoPreview.style.display = 'block';
+        loginFotoIcone.style.display = 'none';
       }
     };
     leitor.readAsDataURL(arquivo);
   });
-
-  // enquanto a pessoa digita, se usuário+senha já baterem com uma conta que já tem
-  // foto salva neste aparelho, mostra ela sozinha no círculo
-  function conferirFotoSalvaEnquantoDigita(){
-    if(fotoLoginEscolhida) return; // já escolheu uma foto nova agora, não sobrescreve
-    const usuario = document.getElementById('loginUsuario').value;
-    const senha = document.getElementById('loginSenha').value;
-    if(!usuario.trim() || !senha.trim()) return;
-    const hash = hashLogin(`${usuario}|${senha}`);
-    const fotos = carregarFotosPerfil();
-    if(fotos[hash]) mostrarFotoNoCirculo(fotos[hash]);
-  }
-  document.getElementById('loginUsuario').addEventListener('input', conferirFotoSalvaEnquantoDigita);
-  document.getElementById('loginSenha').addEventListener('input', conferirFotoSalvaEnquantoDigita);
 
   async function tentarEntrar(){
     const usuario = document.getElementById('loginUsuario').value;
@@ -277,13 +210,14 @@ function montarTelaLogin(){
       const resultado = await verificarTravaAparelho(hash);
       btn.disabled = false;
       if(resultado.ok){
-        if(fotoLoginEscolhida) salvarFotoPerfil(hash, fotoLoginEscolhida);
         try{
           localStorage.setItem(LOGIN_STORAGE_KEY, '1');
-          localStorage.setItem(USUARIO_LOGADO_KEY, usuario.trim());
-          localStorage.setItem(HASH_LOGADO_KEY, hash);
+          localStorage.setItem('tl_hash_atual', hash);
+          localStorage.setItem('tl_nome_conta_'+hash, usuario.trim());
+          if(loginFotoSelecionada){
+            localStorage.setItem('tl_foto_conta_'+hash, loginFotoSelecionada);
+          }
         }catch(e){}
-        preencherPerfilDrawer();
         overlay.remove();
         document.documentElement.style.visibility = 'visible';
       } else if(resultado.motivo === 'outro_aparelho'){
@@ -320,8 +254,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.documentElement.style.visibility = 'visible';
   if(!loginJaValidado()){
     montarTelaLogin();
-  } else {
-    preencherPerfilDrawer();
   }
 });
 
@@ -2544,7 +2476,8 @@ document.addEventListener('selectstart', e=>{
 <div class="drawer" id="drawer">
   <div class="drawer-head">
     <div class="logo" id="drawerLogo">🍀</div>
-    <h2 id="drawerHeadNome">THOR LOTERIAS</h2>
+    <h2>THOR LOTERIAS</h2>
+    <p id="drawerSubtitulo"></p>
   </div>
 
   <div class="drawer-hr"></div>
@@ -3048,7 +2981,7 @@ document.addEventListener('selectstart', e=>{
     #overlayMinhasSequencias *{box-sizing:border-box;}
     #overlayMinhasSequencias .freq-page-top{height:56px;background:linear-gradient(90deg,#5423c7,#8b2c91);display:flex;align-items:flex-end;padding:0 0 0;}
     #overlayMinhasSequencias .freq-breadcrumb{height:42px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;color:#666;font-size:13px;padding:0 16px;}
-    #overlayMinhasSequencias .freq-shell{width:min(760px,calc(100% - 26px));margin:24px auto 50px;}
+    #overlayMinhasSequencias .freq-shell{width:min(900px,calc(100% - 10px));margin:24px auto 50px;}
     #overlayMinhasSequencias .freq-hero{background:linear-gradient(90deg,#8e248f,#9b3f99);border-radius:4px 4px 0 0;padding:12px 16px;color:#fff;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;box-shadow:0 6px 16px rgba(0,0,0,.16);}
     #overlayMinhasSequencias .freq-hero-title{font-family:'Baloo 2',sans-serif;font-size:21px;line-height:1.1;font-weight:800;display:flex;align-items:center;gap:8px;}
     #overlayMinhasSequencias .freq-hero-sub{font-size:13px;margin-top:6px;opacity:.96;}
@@ -3073,7 +3006,7 @@ document.addEventListener('selectstart', e=>{
     #overlayMinhasSequencias #freqNumGrid .conf-ball{aspect-ratio:1.2;border:1px solid #d6d6d6;background:#fff;color:#b0b0b0;border-radius:8px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;box-shadow:none;display:flex;align-items:center;justify-content:center;}
     #overlayMinhasSequencias #freqNumGrid .conf-ball.freq-on{background:#15905c;border-color:#15905c;color:#fff;box-shadow:none;}
     #overlayMinhasSequencias .freq-actions-bottom{display:flex;gap:8px;}
-    #overlayMinhasSequencias #freqBtnAnalisar{flex:1;padding:11px 10px;border-radius:4px;border:none;background:#15905c;color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:600;cursor:pointer;box-shadow:none;}
+    #overlayMinhasSequencias #freqBtnAnalisar{flex:1;padding:11px 10px;border-radius:4px;border:none;background:#15905c;color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
     #overlayMinhasSequencias #freqBtnAnalisar:disabled{opacity:.58;cursor:not-allowed;}
     #overlayMinhasSequencias #freqBtnLimpar{flex:none;padding:11px 15px;border-radius:4px;border:none;background:#707983;color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
     #overlayMinhasSequencias .freq-result{margin-top:25px;background:linear-gradient(145deg,#6675e6,#7356c9);border-radius:4px;padding:18px;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.10);}
@@ -3092,7 +3025,7 @@ document.addEventListener('selectstart', e=>{
     .freq-sorteio-nums{display:flex;flex-wrap:wrap;gap:4px;}
     #overlayMinhasSequencias .freq-hidden-filter{display:none!important;}
     /* Versão mais compacta da tela Buscar Frequência */
-    #overlayMinhasSequencias .freq-shell{width:min(650px,calc(100% - 34px));margin:16px auto 34px;}
+    #overlayMinhasSequencias .freq-shell{width:min(900px,calc(100% - 10px));margin:16px auto 34px;}
     #overlayMinhasSequencias .freq-hero{padding:9px 12px;}
     #overlayMinhasSequencias .freq-hero-title{font-size:17px;}
     #overlayMinhasSequencias .freq-hero-sub{font-size:11px;margin-top:3px;}
@@ -3122,7 +3055,7 @@ document.addEventListener('selectstart', e=>{
     @media(max-width:600px){
       #overlayMinhasSequencias .freq-page-top{height:44px;}
       #overlayMinhasSequencias .freq-breadcrumb{height:36px;padding:0 12px;font-size:11px;}
-      #overlayMinhasSequencias .freq-shell{width:calc(100% - 24px);margin:14px auto 35px;}
+      #overlayMinhasSequencias .freq-shell{width:calc(100% - 8px);margin:14px auto 35px;}
       #overlayMinhasSequencias .freq-hero{padding:11px 12px;}
       #overlayMinhasSequencias .freq-hero-title{font-size:16px;}
       #overlayMinhasSequencias .freq-hero-sub{font-size:10px;}
@@ -3178,7 +3111,7 @@ document.addEventListener('selectstart', e=>{
     #overlayMinhasSequencias .freq-outline-btn{padding:8px 7px;font-size:13px;box-shadow:none!important;}
     #overlayMinhasSequencias #freqNumGrid.conf-grid{gap:8px;margin:0 0 16px;justify-content:stretch;}
     #overlayMinhasSequencias #freqNumGrid .conf-ball{font-size:13px;border-radius:8px;box-shadow:none!important;}
-    #overlayMinhasSequencias #freqBtnAnalisar,#overlayMinhasSequencias #freqBtnLimpar{padding:11px 10px;font-size:14px;box-shadow:none!important;}
+    #overlayMinhasSequencias #freqBtnAnalisar,#overlayMinhasSequencias #freqBtnLimpar{padding:11px 10px;font-size:14px;}
     #overlayMinhasSequencias .freq-result{margin-top:25px;padding:18px;text-align:left;box-shadow:none!important;}
     #overlayMinhasSequencias .freq-result-title{font-size:18px;margin-bottom:18px;justify-content:flex-start;text-align:left;}
     #overlayMinhasSequencias .freq-result-sub{text-align:left;font-size:13px;margin-bottom:10px;}
@@ -3430,7 +3363,6 @@ document.addEventListener('selectstart', e=>{
           <div class="freq-hero-title"><span>⌕</span> Buscar Frequência de Sequências</div>
           <div class="freq-hero-sub">Descubra quantas vezes sua sequência de números apareceu nos sorteios</div>
         </div>
-        <button id="freqBtnInicio" class="freq-home-btn">🏠 Início</button>
       </div>
       <div class="freq-intro-body">
         <div class="freq-info"><span>●</span><span>Base de análise: <strong id="freqBaseTotal">…</strong> sorteios da Lotofácil</span></div>
@@ -3470,8 +3402,8 @@ document.addEventListener('selectstart', e=>{
         <div id="freqNumGrid" class="conf-grid"></div>
 
         <div class="freq-actions-bottom">
-          <button type="button" id="freqBtnAnalisar" disabled>⌁ Analisar Frequência</button>
-          <button type="button" id="freqBtnLimpar">✕ Limpar</button>
+          <button type="button" id="freqBtnAnalisar" class="btn-3d" disabled>⌁ Analisar Frequência</button>
+          <button type="button" id="freqBtnLimpar" class="btn-3d">✕ Limpar</button>
         </div>
       </div>
     </section>
@@ -3496,7 +3428,6 @@ document.addEventListener('selectstart', e=>{
     </div>
   </div>
 
-  <button id="freqVoltar" style="position:fixed;left:10px;top:8px;z-index:3;background:rgba(0,0,0,.18);border:0;color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;">←</button>
 </div>
 
 <div class="overlay-full" id="overlayGeradorLoteria" style="z-index:78;">
@@ -8791,7 +8722,7 @@ let freqConcursoModo = 'todos'; // 'todos' | '50' | '100' | '300' | 'custom'
 function renderFreqQtdTabs(){
   const cont = document.getElementById('freqQtdTabs');
   if(!cont) return;
-  const opcoes = [5,7,9,10,11];
+  const opcoes = [3,4,5,7,9,10];
   cont.innerHTML = opcoes.map(n=>`<button type="button" class="freq-qtd-btn${n===freqQtd?' active':''}" data-n="${n}">${n} números</button>`).join('');
   cont.querySelectorAll('.freq-qtd-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
@@ -8803,6 +8734,8 @@ function renderFreqQtdTabs(){
       renderFreqNumGrid();
       atualizarFreqSelecaoUI();
       esconderResultadoFreq();
+      const btnTodos = document.getElementById('freqBtnSelecionarTodos');
+      if(btnTodos) btnTodos.classList.remove('freq-btn-pressionado');
     });
   });
 }
@@ -8955,12 +8888,13 @@ function embaralharFreq(arr){
   return a;
 }
 
-document.getElementById('freqBtnSelecionarTodos').addEventListener('click', ()=>{
+document.getElementById('freqBtnSelecionarTodos').addEventListener('click', function(){
   const todos = embaralharFreq(Array.from({length:25},(_,i)=>i+1));
   freqSelecionados = new Set(todos.slice(0, freqQtd));
   renderFreqNumGrid();
   atualizarFreqSelecaoUI();
   esconderResultadoFreq();
+  this.classList.add('freq-btn-pressionado');
 });
 
 document.getElementById('freqBtnCompletarRestantes').addEventListener('click', ()=>{
@@ -8979,6 +8913,7 @@ document.getElementById('freqBtnLimpar').addEventListener('click', ()=>{
   renderFreqNumGrid();
   atualizarFreqSelecaoUI();
   esconderResultadoFreq();
+  document.getElementById('freqBtnSelecionarTodos').classList.remove('freq-btn-pressionado');
 });
 
 function carregarCacheHistoricoFreq(){
@@ -9212,10 +9147,7 @@ document.getElementById('freqBtnAnalisar').addEventListener('click', async ()=>{
   }
 });
 
-document.getElementById('freqVoltar').addEventListener('click', ()=>{
-  document.getElementById('overlayMinhasSequencias').classList.remove('show');
-});
-document.getElementById('freqBtnInicio').addEventListener('click', goHome);
+document.getElementById('freqBtnInicio')?.addEventListener('click', goHome);
 
 renderFreqQtdTabs();
 renderFreqConcursoTabs();
@@ -9548,6 +9480,19 @@ function aplicarFotoPerfil(dataUrl){
   try{
     const saved = localStorage.getItem(FOTO_KEY);
     if(saved) aplicarFotoPerfil(saved);
+  }catch(e){ /* localStorage indisponível */ }
+})();
+
+// ---------- Foto e nome da conta que fez login (vêm da tela de login) ----------
+(function aplicarPerfilLogado(){
+  try{
+    const hash = localStorage.getItem('tl_hash_atual');
+    if(!hash) return;
+    const nome = localStorage.getItem('tl_nome_conta_'+hash);
+    const foto = localStorage.getItem('tl_foto_conta_'+hash);
+    if(foto) aplicarFotoPerfil(foto);
+    const sub = document.getElementById('drawerSubtitulo');
+    if(sub && nome) sub.textContent = nome;
   }catch(e){ /* localStorage indisponível */ }
 })();
 
@@ -10525,11 +10470,7 @@ if('serviceWorker' in navigator){
 
     navigator.serviceWorker.addEventListener('controllerchange', recarregarUmaVez);
 
-    // updateViaCache:'none' impede o navegador de guardar o PRÓPRIO sw.js em cache HTTP —
-    // sem isso, em alguns celulares o navegador insiste em servir um sw.js antigo por até
-    // 24h mesmo quando o registration.update() abaixo é chamado, deixando o app "travado"
-    // numa versão velha.
-    navigator.serviceWorker.register('sw.js', {updateViaCache:'none'}).then(registration=>{
+    navigator.serviceWorker.register('sw.js').then(registration=>{
       function ativarVersaoNova(){
         if(registration.waiting){
           registration.waiting.postMessage({type:'SKIP_WAITING'});
@@ -10550,9 +10491,7 @@ if('serviceWorker' in navigator){
           }
         });
       });
-      // confere se tem versão nova assim que o app abre, além de a cada 60s e sempre
-      // que o usuário volta pro app
-      registration.update().catch(()=>{});
+      // confere no GitHub se tem versão nova: a cada 60s e sempre que o usuário volta pro app
       setInterval(()=> registration.update().catch(()=>{}), 60000);
       document.addEventListener('visibilitychange', ()=>{
         if(document.visibilityState === 'visible') registration.update().catch(()=>{});
@@ -10631,102 +10570,97 @@ if('serviceWorker' in navigator){
 }
 </style>
 
-<style id="freq-limpar-3d-imagem-final">
-/* LIMPAR — 3D com base roxa grossa, moldura branca e sombra como a referência */
-#overlayMinhasSequencias #freqBtnLimpar{
-  position:relative!important;
-  z-index:1!important;
-  overflow:visible!important;
-  isolation:isolate!important;
-  background:linear-gradient(135deg,#d92f7d 0%,#b42ca6 48%,#7024d4 100%)!important;
-  color:#fff!important;
-  border:2px solid #fff!important;
-  border-radius:7px!important;
-  box-shadow:0 5px 9px rgba(76,29,149,.30), inset 0 1px 1px rgba(255,255,255,.35)!important;
-  transform:translateY(0)!important;
+<style id="minhas-sequencias-fixa-sem-lateral">
+/* Aba completa fixa: impede movimento/rolagem para os lados */
+#overlayMinhasSequencias{
+  overflow-x:hidden!important;
 }
-#overlayMinhasSequencias #freqBtnLimpar::after{
-  content:''!important;
-  position:absolute!important;
-  left:-2px!important;
-  right:-2px!important;
-  top:5px!important;
-  bottom:-7px!important;
-  border-radius:0 0 8px 8px!important;
-  background:linear-gradient(180deg,#5720a8,#421681)!important;
-  z-index:-1!important;
-  box-shadow:0 5px 8px rgba(76,29,149,.24)!important;
-  pointer-events:none!important;
+#overlayMinhasSequencias .freq-shell{
+  width:100%!important;
+  max-width:940px!important;
+  box-sizing:border-box!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  left:auto!important;
+  right:auto!important;
+  transform:none!important;
 }
-#overlayMinhasSequencias #freqBtnLimpar:active{
-  transform:translateY(4px)!important;
-  box-shadow:0 2px 4px rgba(76,29,149,.24), inset 0 1px 1px rgba(255,255,255,.3)!important;
-}
-#overlayMinhasSequencias #freqBtnLimpar:active::after{
-  top:2px!important;
-  bottom:-3px!important;
+@media (max-width:699px){
+  #overlayMinhasSequencias .freq-shell{
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    left:auto!important;
+    transform:none!important;
+  }
 }
 </style>
 
-<style id="freq-limpar-3d-refined">
-/* Botão LIMPAR — efeito 3D com base física, como a imagem de referência */
-#overlayMinhasSequencias .freq-actions-bottom{
-  overflow:visible!important;
-  align-items:flex-start!important;
+<style id="minhas-sequencias-largura-aba-mais-5">
+/* Aba completa: largura aumentada mais um pouco, mantendo centralizada. */
+#overlayMinhasSequencias .freq-shell{
+  width:min(970px,calc(100% + 28px))!important;
+  max-width:970px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
 }
-#overlayMinhasSequencias #freqBtnLimpar{
-  position:relative!important;
-  isolation:isolate!important;
-  overflow:visible!important;
-  background:linear-gradient(135deg,#d93682 0%,#b12cc5 46%,#7b28d6 100%)!important;
-  color:#fff!important;
-  border:3px solid #fff!important;
-  border-radius:13px!important;
-  padding:9px 17px!important;
-  min-height:38px!important;
-  font-weight:700!important;
-  box-shadow:
-    0 0 0 1px rgba(121,40,185,.10),
-    0 10px 18px rgba(92,36,164,.22)!important;
-  transform:translateY(0)!important;
-  transition:transform .08s ease!important;
-  z-index:1!important;
+@media (min-width:700px){
+  #overlayMinhasSequencias .freq-shell{
+    width:970px!important;
+    max-width:calc(100% + 28px)!important;
+  }
 }
-#overlayMinhasSequencias #freqBtnLimpar::after{
-  content:'';
-  position:absolute;
-  z-index:-1;
-  left:-3px;
-  right:-3px;
-  top:calc(100% - 5px);
-  height:11px;
-  border-radius:0 0 14px 14px;
-  background:linear-gradient(180deg,#5e22a9 0%,#49208e 100%);
-  box-shadow:0 5px 9px rgba(73,32,142,.22);
-  pointer-events:none;
-}
-#overlayMinhasSequencias #freqBtnLimpar::before{
-  content:'';
-  position:absolute;
-  left:10px;
-  right:10px;
-  top:3px;
-  height:1px;
-  border-radius:999px;
-  background:rgba(255,255,255,.32);
-  pointer-events:none;
-}
-#overlayMinhasSequencias #freqBtnLimpar:active{
-  transform:translateY(5px)!important;
-  box-shadow:0 0 0 1px rgba(121,40,185,.10),0 4px 8px rgba(92,36,164,.18)!important;
-}
-#overlayMinhasSequencias #freqBtnLimpar:active::after{
-  height:6px;
-  top:calc(100% - 4px);
+@media (max-width:699px){
+  #overlayMinhasSequencias{overflow-x:hidden!important;}
+  #overlayMinhasSequencias .freq-shell{
+    width:calc(100% + 28px)!important;
+    max-width:none!important;
+    position:relative!important;
+    left:50%!important;
+    transform:translateX(-50%)!important;
+  }
 }
 </style>
-</body>
-</html>
+
+<style id="freq-shell-largura-extra-final">
+/* Aumenta de verdade a largura da aba completa, mantendo-a centralizada e sem rolagem lateral */
+#overlayMinhasSequencias{overflow-x:hidden!important;}
+#overlayMinhasSequencias .freq-shell{
+  width:min(970px,calc(100% + 30px))!important;
+  max-width:970px!important;
+  position:relative!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  margin-left:0!important;
+  margin-right:0!important;
+}
+@media (max-width:699px){
+  #overlayMinhasSequencias .freq-shell{
+    width:calc(100% + 30px)!important;
+    max-width:none!important;
+  }
+}
+</style>
+
+<style id="freq-shell-topo-bem-proximo-final">
+/* Aba completa bem próxima do topo, conforme a referência */
+#overlayMinhasSequencias .freq-shell{
+  margin-top:2px!important;
+}
+</style>
+
+<style id="freq-subir-real-final">
+/* Força a aba completa para cima, sem depender das regras anteriores. */
+html body #overlayMinhasSequencias{padding-top:0!important;}
+html body #overlayMinhasSequencias .freq-page-top,
+html body #overlayMinhasSequencias .freq-breadcrumb{display:none!important;height:0!important;margin:0!important;padding:0!important;}
+html body #overlayMinhasSequencias .freq-shell{
+  margin-top:0!important;
+  top:-12px!important;
+  position:relative!important;
+}
+</style>
 
 <style id="minhas-sequencias-bordas-numeros-final">
 /* Minhas Sequências — bordas somente nos números */
@@ -12038,19 +11972,110 @@ if('serviceWorker' in navigator){
 }
 </style>
 
-<style id="freq-limpar-cinza-final">
-/* LIMPAR — volta para o cinza, mantendo o relevo 3D */
-#overlayMinhasSequencias #freqBtnLimpar{
-  background:linear-gradient(180deg,#7d8791 0%,#68727c 100%)!important;
-  color:#fff!important;
-  border-color:#fff!important;
-  box-shadow:0 5px 9px rgba(55,65,81,.24), inset 0 1px 1px rgba(255,255,255,.30)!important;
-}
-#overlayMinhasSequencias #freqBtnLimpar::after{
-  background:linear-gradient(180deg,#555f68 0%,#434b53 100%)!important;
-  box-shadow:0 5px 8px rgba(55,65,81,.22)!important;
-}
-#overlayMinhasSequencias #freqBtnLimpar:active{
-  box-shadow:0 2px 4px rgba(55,65,81,.22), inset 0 1px 1px rgba(255,255,255,.25)!important;
+<style id="freq-shell-subir-final">
+/* Aba completa encostada no topo */
+#overlayMinhasSequencias .freq-shell{
+  margin-top:0!important;
 }
 </style>
+
+<style id="freq-qtd-tabs-grid-3x3-final">
+/* Botões de quantidade em grade 3 colunas (3x3). */
+#overlayMinhasSequencias #freqQtdTabs{
+  display:grid!important;
+  grid-template-columns:repeat(3,1fr)!important;
+  gap:6px!important;
+}
+#overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn{
+  flex:none!important;
+  width:auto!important;
+}
+@media(max-width:699px){
+  #overlayMinhasSequencias #freqQtdTabs{gap:4px!important;}
+}
+</style>
+
+<style id="freq-qtd-btn-efeito-3d-final">
+/* Efeito 3D nos botões 5, 7, 9, 10 e 11 números. */
+#overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn{
+  background:linear-gradient(180deg,#ffffff 0%,#f1eef6 100%)!important;
+  border:1px solid #cfc7dc!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.9),
+    inset 0 -2px 3px rgba(120,100,140,.12),
+    0 2px 0 rgba(160,145,180,.35),
+    0 3px 5px rgba(0,0,0,.15)!important;
+  color:#6b5a80!important;
+  transform:translateY(0)!important;
+  transition:transform .08s ease,box-shadow .08s ease!important;
+}
+#overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn:active{
+  transform:translateY(2px)!important;
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,.18),
+    0 0 0 rgba(0,0,0,0)!important;
+}
+#overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn.active{
+  background:linear-gradient(180deg,#b93fbb 0%,#8f2790 100%)!important;
+  border:1px solid #ffffff!important;
+  color:#fff!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.35),
+    inset 0 -2px 4px rgba(0,0,0,.25),
+    0 2px 0 rgba(90,20,92,.55),
+    0 3px 6px rgba(0,0,0,.25)!important;
+  transform:translateY(1px)!important;
+}
+</style>
+<style id="freq-btn-selecionar-todos-cinza-3d-final">
+/* Selecionar Todos: roxo/magenta sólido, cantos arredondados, com leve efeito 3D. */
+#overlayMinhasSequencias #freqBtnSelecionarTodos{
+  background:linear-gradient(180deg,#a83fd0 0%,#7c1fa6 100%)!important;
+  border:none!important;
+  border-radius:10px!important;
+  color:#fff!important;
+  font-weight:600!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    0 3px 0 #5e1580,
+    0 5px 10px rgba(0,0,0,.25)!important;
+  transform:translateY(0)!important;
+  transition:transform .08s ease,box-shadow .08s ease!important;
+}
+#overlayMinhasSequencias #freqBtnSelecionarTodos.freq-btn-pressionado,
+#overlayMinhasSequencias #freqBtnSelecionarTodos:active{
+  background:linear-gradient(180deg,#8f2790 0%,#6a1786 100%)!important;
+  transform:translateY(3px)!important;
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,.25),
+    0 1px 0 #5e1580,
+    0 2px 5px rgba(0,0,0,.25)!important;
+}
+</style>
+<style id="freq-shell-largura-final-extra">
+/* Aba completa: largura reduzida só um pouquinho */
+#overlayMinhasSequencias .freq-shell{
+  width:min(980px,calc(100% + 28px))!important;
+  max-width:980px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+@media (min-width:700px){
+  #overlayMinhasSequencias .freq-shell{
+    width:980px!important;
+    max-width:calc(100% + 28px)!important;
+  }
+}
+@media (max-width:699px){
+  #overlayMinhasSequencias .freq-shell{
+    width:calc(100% + 28px)!important;
+    max-width:none!important;
+    position:relative!important;
+    left:50%!important;
+    transform:translateX(-50%)!important;
+  }
+}
+</style>
+
+</body>
+</html>
