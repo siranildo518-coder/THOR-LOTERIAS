@@ -80,9 +80,12 @@ const CREDENCIAIS_VALIDAS = [
   'u6jby2', // Laila (senha 142580)
   '1e1isk2', // Marcos (senha 142580)
   '2meoqi', // João (senha 142580)
+  'tbl3o9', // Iranyldo (senha 142580)
 ];
 
 const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
+const USUARIO_LOGADO_KEY = 'tl_usuario_logado_v1'; // nome de quem está logado agora, pra mostrar no menu lateral
+const HASH_LOGADO_KEY = 'tl_hash_logado_v1'; // hash de quem está logado agora, pra achar a foto salva dele
 const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio cliente, direto no aparelho dele
 
 function carregarContasExtras(){
@@ -128,13 +131,49 @@ function comprimirFoto(dataUrl, maxLado){
   });
 }
 
+// foto de perfil de cada conta, salva neste aparelho: {hash: 'data:image/jpeg;base64,...'}
+const FOTOS_PERFIL_KEY = 'tl_fotos_perfil_v1';
+function carregarFotosPerfil(){
+  try{
+    const bruto = localStorage.getItem(FOTOS_PERFIL_KEY);
+    const obj = bruto ? JSON.parse(bruto) : {};
+    return (obj && typeof obj === 'object') ? obj : {};
+  }catch(e){ return {}; }
+}
+function salvarFotoPerfil(hash, foto){
+  try{
+    const fotos = carregarFotosPerfil();
+    if(foto){ fotos[hash] = foto; } else { delete fotos[hash]; }
+    localStorage.setItem(FOTOS_PERFIL_KEY, JSON.stringify(fotos));
+  }catch(e){}
+}
+
 function loginJaValidado(){
   try{ return localStorage.getItem(LOGIN_STORAGE_KEY) === '1'; }catch(e){ return false; }
 }
 
+// Mostra a foto e o nome de quem está logado no cabeçalho do menu lateral.
+// Se não tiver foto salva, mantém o trevo. Se não achar nome, mantém "Gerador de jogos".
+function preencherPerfilDrawer(){
+  try{
+    const logoEl = document.getElementById('drawerLogo');
+    const subEl = document.getElementById('drawerHeadSub');
+    const usuario = localStorage.getItem(USUARIO_LOGADO_KEY);
+    const hash = localStorage.getItem(HASH_LOGADO_KEY);
+    const fotos = carregarFotosPerfil();
+    const foto = hash ? fotos[hash] : null;
+    if(logoEl) logoEl.innerHTML = foto ? `<img src="${foto}" alt="Foto do usuário">` : '🍀';
+    if(subEl) subEl.textContent = usuario ? usuario : 'Gerador de jogos';
+  }catch(e){}
+}
+
 // Derruba o login deste aparelho/navegador e volta pra tela de usuário/senha.
 function sairDoLogin(){
-  try{ localStorage.removeItem(LOGIN_STORAGE_KEY); }catch(e){}
+  try{
+    localStorage.removeItem(LOGIN_STORAGE_KEY);
+    localStorage.removeItem(USUARIO_LOGADO_KEY);
+    localStorage.removeItem(HASH_LOGADO_KEY);
+  }catch(e){}
   location.reload();
 }
 
@@ -151,7 +190,13 @@ function montarTelaLogin(){
       <div id="formLogin">
         <div style="text-align:center;font-size:34px;margin-bottom:6px;">🍀</div>
         <h2 style="font-family:'Baloo 2',sans-serif;text-align:center;color:#4C1D95;margin:0 0 4px;font-size:20px;">THOR LOTERIAS</h2>
-        <p style="text-align:center;color:#8B80A3;font-size:13px;margin:0 0 18px;">Digite seu usuário e senha para entrar.</p>
+        <p style="text-align:center;color:#8B80A3;font-size:13px;margin:0 0 14px;">Digite seu usuário e senha para entrar.</p>
+        <div style="display:flex;justify-content:center;margin-bottom:16px;">
+          <button type="button" id="loginFotoCirculo" aria-label="Escolher foto de perfil" style="width:80px;height:80px;border-radius:50%;border:2px dashed #C9BCE8;background:#F4F0FC no-repeat center/cover;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;position:relative;overflow:hidden;">
+            <span id="loginFotoIcone" style="font-size:26px;">📷</span>
+          </button>
+          <input type="file" id="loginFotoInput" accept="image/*" style="display:none;">
+        </div>
         <input id="loginUsuario" placeholder="Usuário" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:10px;font-size:14.5px;">
         <div style="position:relative;margin-bottom:6px;">
           <input id="loginSenha" type="password" placeholder="Senha" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px 44px 12px 14px;border-radius:10px;border:1px solid #E7DFF5;font-size:14.5px;">
@@ -162,6 +207,56 @@ function montarTelaLogin(){
       </div>
     </div>`;
   document.body.appendChild(overlay);
+
+  // foto escolhida nesta sessão de login (ainda não salva pra nenhuma conta)
+  let fotoLoginEscolhida = null;
+  // true quando o círculo está mostrando uma foto JÁ SALVA de uma conta reconhecida
+  // (nesse caso um clique deve trocar a foto, não reabrir o seletor de arquivo à toa)
+  const circulo = document.getElementById('loginFotoCirculo');
+  const icone = document.getElementById('loginFotoIcone');
+  const fotoInput = document.getElementById('loginFotoInput');
+
+  function mostrarFotoNoCirculo(foto){
+    if(foto){
+      circulo.style.backgroundImage = `url(${foto})`;
+      circulo.style.border = '2px solid #C9BCE8';
+      icone.style.display = 'none';
+    } else {
+      circulo.style.backgroundImage = 'none';
+      circulo.style.border = '2px dashed #C9BCE8';
+      icone.style.display = '';
+    }
+  }
+
+  circulo.addEventListener('click', ()=> fotoInput.click());
+
+  fotoInput.addEventListener('change', async ()=>{
+    const arquivo = fotoInput.files && fotoInput.files[0];
+    if(!arquivo) return;
+    const leitor = new FileReader();
+    leitor.onload = async ()=>{
+      const comprimida = await comprimirFoto(leitor.result, 240);
+      if(comprimida){
+        fotoLoginEscolhida = comprimida;
+        mostrarFotoNoCirculo(comprimida);
+      }
+    };
+    leitor.readAsDataURL(arquivo);
+  });
+
+  // enquanto a pessoa digita, se usuário+senha já baterem com uma conta que já tem
+  // foto salva neste aparelho, mostra ela sozinha no círculo
+  function conferirFotoSalvaEnquantoDigita(){
+    if(fotoLoginEscolhida) return; // já escolheu uma foto nova agora, não sobrescreve
+    const usuario = document.getElementById('loginUsuario').value;
+    const senha = document.getElementById('loginSenha').value;
+    if(!usuario.trim() || !senha.trim()) return;
+    const hash = hashLogin(`${usuario}|${senha}`);
+    const fotos = carregarFotosPerfil();
+    if(fotos[hash]) mostrarFotoNoCirculo(fotos[hash]);
+  }
+  document.getElementById('loginUsuario').addEventListener('input', conferirFotoSalvaEnquantoDigita);
+  document.getElementById('loginSenha').addEventListener('input', conferirFotoSalvaEnquantoDigita);
 
   async function tentarEntrar(){
     const usuario = document.getElementById('loginUsuario').value;
@@ -181,7 +276,13 @@ function montarTelaLogin(){
       const resultado = await verificarTravaAparelho(hash);
       btn.disabled = false;
       if(resultado.ok){
-        try{ localStorage.setItem(LOGIN_STORAGE_KEY, '1'); }catch(e){}
+        if(fotoLoginEscolhida) salvarFotoPerfil(hash, fotoLoginEscolhida);
+        try{
+          localStorage.setItem(LOGIN_STORAGE_KEY, '1');
+          localStorage.setItem(USUARIO_LOGADO_KEY, usuario.trim());
+          localStorage.setItem(HASH_LOGADO_KEY, hash);
+        }catch(e){}
+        preencherPerfilDrawer();
         overlay.remove();
         document.documentElement.style.visibility = 'visible';
       } else if(resultado.motivo === 'outro_aparelho'){
@@ -218,6 +319,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.documentElement.style.visibility = 'visible';
   if(!loginJaValidado()){
     montarTelaLogin();
+  } else {
+    preencherPerfilDrawer();
   }
 });
 
@@ -2149,11 +2252,6 @@ document.addEventListener('selectstart', e=>{
   }
   .btn-3d-conferir:active, .btn-3d-conferir.is-pressed{border:2px solid #fff;transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.3), inset 0 -2px 3px rgba(0,0,0,.25), 0 1px 0 #4C1D95, 0 2px 4px rgba(76,29,149,.35);}
   .btn-3d-conferir:disabled{transform:none;}
-  .btn-3d-limpar{
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 4px 0 #C9C1DE, 0 6px 9px rgba(76,29,149,.18);
-    transform:translateY(0);transition:transform .08s ease, box-shadow .08s ease;
-  }
-  .btn-3d-limpar:active, .btn-3d-limpar.is-pressed{border:2px solid #fff;transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 1px 0 #C9C1DE, 0 2px 4px rgba(76,29,149,.15);}
   /* Botão 3D em relevo verde (GERAR jogos, tela de seleção de números) */
   .btn-3d-gerar{
     box-shadow:inset 0 1px 0 rgba(255,255,255,.5), inset 0 -3px 4px rgba(0,0,0,.18), 0 4px 0 #4C7A2E, 0 7px 10px rgba(76,122,46,.35);
@@ -2177,6 +2275,8 @@ document.addEventListener('selectstart', e=>{
   /* ---- barra de abas inferior ---- */
   body{padding-bottom:0;}
 </style>
+
+
 </head>
 <body>
 <div class="app">
@@ -2332,7 +2432,7 @@ document.addEventListener('selectstart', e=>{
         </div>
         <div class="conf-count">Selecionadas: <strong id="confCount">0</strong> / 20</div>
         <div class="conf-actions">
-          <button class="btn-limpar-conf btn-3d-limpar" id="btnLimparConf">LIMPAR</button>
+          <button class="btn-limpar-conf" id="btnLimparConf">LIMPAR</button>
           <button class="btn-conferir btn-3d-conferir" id="btnConferir" disabled><span id="btnConferirSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="btnConferirLabel">CONFERIR</span></button>
         </div>
         <div class="conf-result" id="confResult"></div>
@@ -2444,12 +2544,11 @@ document.addEventListener('selectstart', e=>{
   <div class="drawer-head">
     <div class="logo" id="drawerLogo">🍀</div>
     <h2>THOR LOTERIAS</h2>
-    <p>Gerador de jogos</p>
+    <p id="drawerHeadSub">Gerador de jogos</p>
   </div>
 
   <div class="drawer-hr"></div>
-  <button class="drawer-item" id="menuFrequencia"><span class="ic">📊</span> Frequência</button>
-  <button class="drawer-item" id="menuMaisFrequentes"><span class="ic">🔥</span> Mais frequentes</button>
+  <button class="drawer-item" id="menuMinhasSequencias"><span class="ic">📊</span> Minhas Sequências</button>
   <div class="drawer-hr"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
 
@@ -2944,259 +3043,259 @@ document.addEventListener('selectstart', e=>{
   </div>
 </div>
 
-<div class="overlay-full" id="overlayBuscaFrequencia" style="z-index:77;background:#fbf9fc;overflow-y:auto;">
+<div class="overlay-full" id="overlayMinhasSequencias" style="z-index:77;background:#fbf9fc;overflow-y:auto;">
   <style>
-    #overlayBuscaFrequencia *{box-sizing:border-box;}
-    #overlayBuscaFrequencia .freq-page-top{height:56px;background:linear-gradient(90deg,#5423c7,#8b2c91);display:flex;align-items:flex-end;padding:0 0 0;}
-    #overlayBuscaFrequencia .freq-breadcrumb{height:42px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;color:#666;font-size:13px;padding:0 16px;}
-    #overlayBuscaFrequencia .freq-shell{width:min(760px,calc(100% - 26px));margin:24px auto 50px;}
-    #overlayBuscaFrequencia .freq-hero{background:linear-gradient(90deg,#8e248f,#9b3f99);border-radius:4px 4px 0 0;padding:12px 16px;color:#fff;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;box-shadow:0 6px 16px rgba(0,0,0,.16);}
-    #overlayBuscaFrequencia .freq-hero-title{font-family:'Baloo 2',sans-serif;font-size:21px;line-height:1.1;font-weight:800;display:flex;align-items:center;gap:8px;}
-    #overlayBuscaFrequencia .freq-hero-sub{font-size:13px;margin-top:6px;opacity:.96;}
-    #overlayBuscaFrequencia .freq-home-btn{background:#fff;color:#222;border:1px solid #ddd;border-radius:4px;padding:8px 11px;font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;box-shadow:none;}
-    #overlayBuscaFrequencia .freq-intro-body{background:#fff;padding:16px;border-radius:0 0 4px 4px;box-shadow:0 6px 16px rgba(0,0,0,.16);margin-bottom:26px;}
-    #overlayBuscaFrequencia .freq-info{background:#cceff7;border:1px solid #bce7f0;color:#17697a;border-radius:4px;padding:13px 16px;font-size:14px;display:flex;align-items:center;gap:10px;}
-    #overlayBuscaFrequencia .freq-search-card{background:transparent;border:none;border-radius:4px;overflow:hidden;box-shadow:none;}
-    #overlayBuscaFrequencia .freq-search-head{background:#15905c;color:#fff;padding:11px 14px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:19px;display:flex;align-items:center;gap:8px;border:0;outline:0;box-shadow:none;}
-    #overlayBuscaFrequencia .freq-search-body{padding:17px 16px 16px;background:#fff;border:1px solid #ddd;border-top:0;border-radius:0 0 4px 4px;}
-    #overlayBuscaFrequencia .freq-label{font-size:14px;font-weight:700;color:#252525;margin-bottom:8px;}
-    #overlayBuscaFrequencia #freqQtdTabs{display:flex;gap:0;overflow:visible;margin:0 0 26px;padding:0;border:1px solid #999;border-radius:5px;}
-    #overlayBuscaFrequencia .freq-qtd-btn{flex:1;min-width:0;padding:10px 5px;border:0;border-right:1px solid #999;border-radius:0;background:#fff;color:#777;font-family:Arial,sans-serif;font-weight:400;font-size:14px;cursor:pointer;text-align:center;white-space:nowrap;box-shadow:none;}
-    #overlayBuscaFrequencia .freq-qtd-btn:last-child{border-right:0;}
-    #overlayBuscaFrequencia .freq-qtd-btn.active{background:#963098;color:#fff;border-color:#999;box-shadow:none;font-weight:500;}
-    #overlayBuscaFrequencia .freq-select-row{display:flex;justify-content:space-between;align-items:center;margin:0 0 9px;gap:10px;}
-    #overlayBuscaFrequencia .freq-count-pill{background:#16905c;color:#fff;border-radius:4px;padding:3px 8px;font-size:12px;font-weight:700;}
-    #overlayBuscaFrequencia .freq-actions-top{display:flex;gap:8px;margin-bottom:9px;}
-    #overlayBuscaFrequencia .freq-outline-btn{flex:1;padding:8px 7px;border-radius:4px;background:#fff;font-size:13px;cursor:pointer;}
-    #overlayBuscaFrequencia #freqBtnSelecionarTodos{border:1px solid #2f80d0;color:#2f80d0;}
-    #overlayBuscaFrequencia #freqBtnCompletarRestantes{border:1px solid #7ed9e8;color:#69cfe0;}
-    #overlayBuscaFrequencia #freqNumGrid.conf-grid{display:grid;grid-template-columns:repeat(11,1fr);gap:8px;max-width:none;margin:0 0 16px;}
-    #overlayBuscaFrequencia #freqNumGrid .conf-ball{aspect-ratio:1.2;border:1px solid #d6d6d6;background:#fff;color:#b0b0b0;border-radius:8px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;box-shadow:none;display:flex;align-items:center;justify-content:center;}
-    #overlayBuscaFrequencia #freqNumGrid .conf-ball.freq-on{background:#15905c;border-color:#15905c;color:#fff;box-shadow:none;}
-    #overlayBuscaFrequencia .freq-actions-bottom{display:flex;gap:8px;}
-    #overlayBuscaFrequencia #freqBtnAnalisar{flex:1;padding:11px 10px;border-radius:4px;border:none;background:#15905c;color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:600;cursor:pointer;box-shadow:none;}
-    #overlayBuscaFrequencia #freqBtnAnalisar:disabled{opacity:.58;cursor:not-allowed;}
-    #overlayBuscaFrequencia #freqBtnLimpar{flex:none;padding:11px 15px;border-radius:4px;border:none;background:#707983;color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
-    #overlayBuscaFrequencia .freq-result{margin-top:25px;background:linear-gradient(145deg,#6675e6,#7356c9);border-radius:4px;padding:18px;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.10);}
-    #overlayBuscaFrequencia .freq-result-title{display:flex;align-items:center;gap:8px;font-family:Arial,sans-serif;font-size:18px;font-weight:500;margin-bottom:18px;}
-    #overlayBuscaFrequencia .freq-result-sub{font-size:13px;font-weight:700;margin-bottom:10px;}
-    #overlayBuscaFrequencia .freq-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin:17px 0;}
-    #overlayBuscaFrequencia .freq-stat{background:rgba(255,255,255,.18);border-radius:4px;padding:20px 8px;text-align:center;}
-    #overlayBuscaFrequencia .freq-stat strong{display:block;font-size:28px;line-height:1;font-family:Arial,sans-serif;margin-bottom:9px;}
-    #overlayBuscaFrequencia .freq-stat span{font-size:12px;opacity:.9;}
-    #overlayBuscaFrequencia .freq-result-btn{width:100%;padding:10px;border-radius:4px;border:none;background:#fff;color:#222;font-size:13px;cursor:pointer;margin-top:8px;}
-    #overlayBuscaFrequencia .freq-result-btn.secondary{border:0;background:#fff;color:#222;}
+    #overlayMinhasSequencias *{box-sizing:border-box;}
+    #overlayMinhasSequencias .freq-page-top{height:56px;background:linear-gradient(90deg,#5423c7,#8b2c91);display:flex;align-items:flex-end;padding:0 0 0;}
+    #overlayMinhasSequencias .freq-breadcrumb{height:42px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;color:#666;font-size:13px;padding:0 16px;}
+    #overlayMinhasSequencias .freq-shell{width:min(760px,calc(100% - 26px));margin:24px auto 50px;}
+    #overlayMinhasSequencias .freq-hero{background:linear-gradient(90deg,#8e248f,#9b3f99);border-radius:4px 4px 0 0;padding:12px 16px;color:#fff;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;box-shadow:0 6px 16px rgba(0,0,0,.16);}
+    #overlayMinhasSequencias .freq-hero-title{font-family:'Baloo 2',sans-serif;font-size:21px;line-height:1.1;font-weight:800;display:flex;align-items:center;gap:8px;}
+    #overlayMinhasSequencias .freq-hero-sub{font-size:13px;margin-top:6px;opacity:.96;}
+    #overlayMinhasSequencias .freq-home-btn{background:#fff;color:#222;border:1px solid #ddd;border-radius:4px;padding:8px 11px;font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;box-shadow:none;}
+    #overlayMinhasSequencias .freq-intro-body{background:#fff;padding:16px;border-radius:0 0 4px 4px;box-shadow:0 6px 16px rgba(0,0,0,.16);margin-bottom:26px;}
+    #overlayMinhasSequencias .freq-info{background:#cceff7;border:1px solid #bce7f0;color:#17697a;border-radius:4px;padding:13px 16px;font-size:14px;display:flex;align-items:center;gap:10px;}
+    #overlayMinhasSequencias .freq-search-card{background:transparent;border:none;border-radius:4px;overflow:hidden;box-shadow:none;}
+    #overlayMinhasSequencias .freq-search-head{background:#15905c;color:#fff;padding:11px 14px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:19px;display:flex;align-items:center;gap:8px;border:0;outline:0;box-shadow:none;}
+    #overlayMinhasSequencias .freq-search-body{padding:17px 16px 16px;background:#fff;border:1px solid #ddd;border-top:0;border-radius:0 0 4px 4px;}
+    #overlayMinhasSequencias .freq-label{font-size:14px;font-weight:700;color:#252525;margin-bottom:8px;}
+    #overlayMinhasSequencias #freqQtdTabs{display:flex;gap:0;overflow:visible;margin:0 0 26px;padding:0;border:1px solid #999;border-radius:5px;}
+    #overlayMinhasSequencias .freq-qtd-btn{flex:1;min-width:0;padding:10px 5px;border:0;border-right:1px solid #999;border-radius:0;background:#fff;color:#777;font-family:Arial,sans-serif;font-weight:400;font-size:14px;cursor:pointer;text-align:center;white-space:nowrap;box-shadow:none;}
+    #overlayMinhasSequencias .freq-qtd-btn:last-child{border-right:0;}
+    #overlayMinhasSequencias .freq-qtd-btn.active{background:#963098;color:#fff;border-color:#999;box-shadow:none;font-weight:500;}
+    #overlayMinhasSequencias .freq-select-row{display:flex;justify-content:space-between;align-items:center;margin:0 0 9px;gap:10px;}
+    #overlayMinhasSequencias .freq-count-pill{background:#16905c;color:#fff;border-radius:4px;padding:3px 8px;font-size:12px;font-weight:700;}
+    #overlayMinhasSequencias .freq-actions-top{display:flex;gap:8px;margin-bottom:9px;}
+    #overlayMinhasSequencias .freq-outline-btn{flex:1;padding:8px 7px;border-radius:4px;background:#fff;font-size:13px;cursor:pointer;}
+    #overlayMinhasSequencias #freqBtnSelecionarTodos{border:1px solid #2f80d0;color:#2f80d0;}
+    #overlayMinhasSequencias #freqBtnCompletarRestantes{border:1px solid #7ed9e8;color:#69cfe0;}
+    #overlayMinhasSequencias #freqNumGrid.conf-grid{display:grid;grid-template-columns:repeat(11,1fr);gap:8px;max-width:none;margin:0 0 16px;}
+    #overlayMinhasSequencias #freqNumGrid .conf-ball{aspect-ratio:1.2;border:1px solid #d6d6d6;background:#fff;color:#b0b0b0;border-radius:8px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;box-shadow:none;display:flex;align-items:center;justify-content:center;}
+    #overlayMinhasSequencias #freqNumGrid .conf-ball.freq-on{background:#15905c;border-color:#15905c;color:#fff;box-shadow:none;}
+    #overlayMinhasSequencias .freq-actions-bottom{display:flex;gap:8px;}
+    #overlayMinhasSequencias #freqBtnAnalisar{flex:1;padding:11px 10px;border-radius:4px;border:none;background:#15905c;color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:600;cursor:pointer;box-shadow:none;}
+    #overlayMinhasSequencias #freqBtnAnalisar:disabled{opacity:.58;cursor:not-allowed;}
+    #overlayMinhasSequencias #freqBtnLimpar{flex:none;padding:11px 15px;border-radius:4px;border:none;background:#707983;color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+    #overlayMinhasSequencias .freq-result{margin-top:25px;background:linear-gradient(145deg,#6675e6,#7356c9);border-radius:4px;padding:18px;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.10);}
+    #overlayMinhasSequencias .freq-result-title{display:flex;align-items:center;gap:8px;font-family:Arial,sans-serif;font-size:18px;font-weight:500;margin-bottom:18px;}
+    #overlayMinhasSequencias .freq-result-sub{font-size:13px;font-weight:700;margin-bottom:10px;}
+    #overlayMinhasSequencias .freq-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin:17px 0;}
+    #overlayMinhasSequencias .freq-stat{background:rgba(255,255,255,.18);border-radius:4px;padding:20px 8px;text-align:center;}
+    #overlayMinhasSequencias .freq-stat strong{display:block;font-size:28px;line-height:1;font-family:Arial,sans-serif;margin-bottom:9px;}
+    #overlayMinhasSequencias .freq-stat span{font-size:12px;opacity:.9;}
+    #overlayMinhasSequencias .freq-result-btn{width:100%;padding:10px;border-radius:4px;border:none;background:#fff;color:#222;font-size:13px;cursor:pointer;margin-top:8px;}
+    #overlayMinhasSequencias .freq-result-btn.secondary{border:0;background:#fff;color:#222;}
     .freq-mini-ball{width:25px;height:23px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;font-weight:700;font-size:10px;background:#f3f3f3;color:#222;}
     .freq-mini-ball.match{background:#15905c;color:#fff;box-shadow:none;}
     .freq-sorteio-card{background:#fff;color:#222;border-radius:4px;padding:10px 12px;margin-bottom:10px;}
     .freq-sorteio-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:12px;color:#8a2a8d;font-weight:700;font-family:Arial,sans-serif;}
     .freq-sorteio-nums{display:flex;flex-wrap:wrap;gap:4px;}
-    #overlayBuscaFrequencia .freq-hidden-filter{display:none!important;}
+    #overlayMinhasSequencias .freq-hidden-filter{display:none!important;}
     /* Versão mais compacta da tela Buscar Frequência */
-    #overlayBuscaFrequencia .freq-shell{width:min(650px,calc(100% - 34px));margin:16px auto 34px;}
-    #overlayBuscaFrequencia .freq-hero{padding:9px 12px;}
-    #overlayBuscaFrequencia .freq-hero-title{font-size:17px;}
-    #overlayBuscaFrequencia .freq-hero-sub{font-size:11px;margin-top:3px;}
-    #overlayBuscaFrequencia .freq-home-btn{padding:6px 9px;font-size:11px;}
-    #overlayBuscaFrequencia .freq-intro-body{padding:11px;margin-bottom:18px;}
-    #overlayBuscaFrequencia .freq-info{padding:9px 11px;font-size:11px;}
-    #overlayBuscaFrequencia .freq-search-head{padding:8px 11px;font-size:15px;}
-    #overlayBuscaFrequencia .freq-search-body{padding:12px 11px;}
-    #overlayBuscaFrequencia .freq-label{font-size:11px;margin-bottom:6px;}
-    #overlayBuscaFrequencia #freqQtdTabs{margin-bottom:17px;}
-    #overlayBuscaFrequencia .freq-qtd-btn{padding:7px 4px;font-size:11px;}
-    #overlayBuscaFrequencia .freq-select-row{margin-bottom:6px;}
-    #overlayBuscaFrequencia .freq-count-pill{padding:2px 6px;font-size:10px;}
-    #overlayBuscaFrequencia .freq-actions-top{gap:6px;margin-bottom:7px;}
-    #overlayBuscaFrequencia .freq-outline-btn{padding:6px 5px;font-size:10px;}
-    #overlayBuscaFrequencia #freqNumGrid.conf-grid{gap:5px;margin-bottom:11px;}
-    #overlayBuscaFrequencia #freqNumGrid .conf-ball{font-size:10px;border-radius:6px;}
-    #overlayBuscaFrequencia .freq-actions-bottom{gap:6px;}
-    #overlayBuscaFrequencia #freqBtnAnalisar,#overlayBuscaFrequencia #freqBtnLimpar{padding:8px 8px;font-size:11px;}
-    #overlayBuscaFrequencia .freq-result{margin-top:17px;padding:13px;}
-    #overlayBuscaFrequencia .freq-result-title{font-size:14px;margin-bottom:12px;}
-    #overlayBuscaFrequencia .freq-result-sub{font-size:11px;margin-bottom:7px;}
-    #overlayBuscaFrequencia .freq-stat-grid{gap:10px;margin:12px 0;}
-    #overlayBuscaFrequencia .freq-stat{padding:13px 6px;}
-    #overlayBuscaFrequencia .freq-stat strong{font-size:21px;margin-bottom:6px;}
-    #overlayBuscaFrequencia .freq-stat span{font-size:10px;}
+    #overlayMinhasSequencias .freq-shell{width:min(650px,calc(100% - 34px));margin:16px auto 34px;}
+    #overlayMinhasSequencias .freq-hero{padding:9px 12px;}
+    #overlayMinhasSequencias .freq-hero-title{font-size:17px;}
+    #overlayMinhasSequencias .freq-hero-sub{font-size:11px;margin-top:3px;}
+    #overlayMinhasSequencias .freq-home-btn{padding:6px 9px;font-size:11px;}
+    #overlayMinhasSequencias .freq-intro-body{padding:11px;margin-bottom:18px;}
+    #overlayMinhasSequencias .freq-info{padding:9px 11px;font-size:11px;}
+    #overlayMinhasSequencias .freq-search-head{padding:8px 11px;font-size:15px;}
+    #overlayMinhasSequencias .freq-search-body{padding:12px 11px;}
+    #overlayMinhasSequencias .freq-label{font-size:11px;margin-bottom:6px;}
+    #overlayMinhasSequencias #freqQtdTabs{margin-bottom:17px;}
+    #overlayMinhasSequencias .freq-qtd-btn{padding:7px 4px;font-size:11px;}
+    #overlayMinhasSequencias .freq-select-row{margin-bottom:6px;}
+    #overlayMinhasSequencias .freq-count-pill{padding:2px 6px;font-size:10px;}
+    #overlayMinhasSequencias .freq-actions-top{gap:6px;margin-bottom:7px;}
+    #overlayMinhasSequencias .freq-outline-btn{padding:6px 5px;font-size:10px;}
+    #overlayMinhasSequencias #freqNumGrid.conf-grid{gap:5px;margin-bottom:11px;}
+    #overlayMinhasSequencias #freqNumGrid .conf-ball{font-size:10px;border-radius:6px;}
+    #overlayMinhasSequencias .freq-actions-bottom{gap:6px;}
+    #overlayMinhasSequencias #freqBtnAnalisar,#overlayMinhasSequencias #freqBtnLimpar{padding:8px 8px;font-size:11px;}
+    #overlayMinhasSequencias .freq-result{margin-top:17px;padding:13px;}
+    #overlayMinhasSequencias .freq-result-title{font-size:14px;margin-bottom:12px;}
+    #overlayMinhasSequencias .freq-result-sub{font-size:11px;margin-bottom:7px;}
+    #overlayMinhasSequencias .freq-stat-grid{gap:10px;margin:12px 0;}
+    #overlayMinhasSequencias .freq-stat{padding:13px 6px;}
+    #overlayMinhasSequencias .freq-stat strong{font-size:21px;margin-bottom:6px;}
+    #overlayMinhasSequencias .freq-stat span{font-size:10px;}
     @media(max-width:600px){
-      #overlayBuscaFrequencia .freq-page-top{height:44px;}
-      #overlayBuscaFrequencia .freq-breadcrumb{height:36px;padding:0 12px;font-size:11px;}
-      #overlayBuscaFrequencia .freq-shell{width:calc(100% - 24px);margin:14px auto 35px;}
-      #overlayBuscaFrequencia .freq-hero{padding:11px 12px;}
-      #overlayBuscaFrequencia .freq-hero-title{font-size:16px;}
-      #overlayBuscaFrequencia .freq-hero-sub{font-size:10px;}
-      #overlayBuscaFrequencia .freq-home-btn{font-size:10px;padding:7px 8px;}
-      #overlayBuscaFrequencia .freq-search-head{font-size:15px;padding:9px 11px;}
-      #overlayBuscaFrequencia .freq-search-body{padding:13px 11px;}
-      #overlayBuscaFrequencia .freq-label{font-size:12px;}
-      #overlayBuscaFrequencia .freq-qtd-btn{font-size:11px;padding:8px 2px;}
-      #overlayBuscaFrequencia #freqNumGrid.conf-grid{gap:5px;}
-      #overlayBuscaFrequencia #freqNumGrid .conf-ball{font-size:10px;border-radius:6px;}
-      #overlayBuscaFrequencia .freq-stat-grid{gap:8px;}
-      #overlayBuscaFrequencia .freq-stat strong{font-size:20px;}
+      #overlayMinhasSequencias .freq-page-top{height:44px;}
+      #overlayMinhasSequencias .freq-breadcrumb{height:36px;padding:0 12px;font-size:11px;}
+      #overlayMinhasSequencias .freq-shell{width:calc(100% - 24px);margin:14px auto 35px;}
+      #overlayMinhasSequencias .freq-hero{padding:11px 12px;}
+      #overlayMinhasSequencias .freq-hero-title{font-size:16px;}
+      #overlayMinhasSequencias .freq-hero-sub{font-size:10px;}
+      #overlayMinhasSequencias .freq-home-btn{font-size:10px;padding:7px 8px;}
+      #overlayMinhasSequencias .freq-search-head{font-size:15px;padding:9px 11px;}
+      #overlayMinhasSequencias .freq-search-body{padding:13px 11px;}
+      #overlayMinhasSequencias .freq-label{font-size:12px;}
+      #overlayMinhasSequencias .freq-qtd-btn{font-size:11px;padding:8px 2px;}
+      #overlayMinhasSequencias #freqNumGrid.conf-grid{gap:5px;}
+      #overlayMinhasSequencias #freqNumGrid .conf-ball{font-size:10px;border-radius:6px;}
+      #overlayMinhasSequencias .freq-stat-grid{gap:8px;}
+      #overlayMinhasSequencias .freq-stat strong{font-size:20px;}
     }
     /* Centralização completa da tela Buscar Frequência */
-    #overlayBuscaFrequencia .freq-hero{align-items:center;text-align:center;}
-    #overlayBuscaFrequencia .freq-hero > div:first-child{flex:1;text-align:center;}
-    #overlayBuscaFrequencia .freq-hero-title{justify-content:center;text-align:center;}
-    #overlayBuscaFrequencia .freq-hero-sub{text-align:center;}
-    #overlayBuscaFrequencia .freq-info{justify-content:center;text-align:center;}
-    #overlayBuscaFrequencia .freq-search-head{justify-content:center;text-align:center;}
-    #overlayBuscaFrequencia .freq-search-body{text-align:center;}
-    #overlayBuscaFrequencia .freq-label{text-align:center;}
-    #overlayBuscaFrequencia #freqQtdTabs{justify-content:center;margin-left:auto;margin-right:auto;}
-    #overlayBuscaFrequencia .freq-select-row{justify-content:center;flex-wrap:wrap;text-align:center;}
-    #overlayBuscaFrequencia .freq-actions-top,#overlayBuscaFrequencia .freq-actions-bottom{justify-content:center;}
-    #overlayBuscaFrequencia #freqNumGrid{justify-content:center;margin-left:auto;margin-right:auto;}
-    #overlayBuscaFrequencia .freq-result{text-align:center;}
-    #overlayBuscaFrequencia .freq-result-title{justify-content:center;text-align:center;}
-    #overlayBuscaFrequencia .freq-result-sub{text-align:center;}
-    #overlayBuscaFrequencia .freq-sorteio-head{justify-content:center;gap:12px;text-align:center;}
-    #overlayBuscaFrequencia .freq-sorteio-nums{justify-content:center;}
+    #overlayMinhasSequencias .freq-hero{align-items:center;text-align:center;}
+    #overlayMinhasSequencias .freq-hero > div:first-child{flex:1;text-align:center;}
+    #overlayMinhasSequencias .freq-hero-title{justify-content:center;text-align:center;}
+    #overlayMinhasSequencias .freq-hero-sub{text-align:center;}
+    #overlayMinhasSequencias .freq-info{justify-content:center;text-align:center;}
+    #overlayMinhasSequencias .freq-search-head{justify-content:center;text-align:center;}
+    #overlayMinhasSequencias .freq-search-body{text-align:center;}
+    #overlayMinhasSequencias .freq-label{text-align:center;}
+    #overlayMinhasSequencias #freqQtdTabs{justify-content:center;margin-left:auto;margin-right:auto;}
+    #overlayMinhasSequencias .freq-select-row{justify-content:center;flex-wrap:wrap;text-align:center;}
+    #overlayMinhasSequencias .freq-actions-top,#overlayMinhasSequencias .freq-actions-bottom{justify-content:center;}
+    #overlayMinhasSequencias #freqNumGrid{justify-content:center;margin-left:auto;margin-right:auto;}
+    #overlayMinhasSequencias .freq-result{text-align:center;}
+    #overlayMinhasSequencias .freq-result-title{justify-content:center;text-align:center;}
+    #overlayMinhasSequencias .freq-result-sub{text-align:center;}
+    #overlayMinhasSequencias .freq-sorteio-head{justify-content:center;gap:12px;text-align:center;}
+    #overlayMinhasSequencias .freq-sorteio-nums{justify-content:center;}
 
     /* Ajuste final: referência visual sem sombras */
-    #overlayBuscaFrequencia{background:#fbf9fc;}
-    #overlayBuscaFrequencia .freq-page-top{height:56px;background:linear-gradient(90deg,#5523c8 0%,#8d2a8f 100%);}
-    #overlayBuscaFrequencia .freq-breadcrumb{height:42px;background:#fff;border-bottom:1px solid #e5e7eb;color:#666;font-size:13px;padding:0 16px;justify-content:flex-start;text-align:left;}
-    #overlayBuscaFrequencia .freq-shell{width:min(760px,calc(100% - 26px));margin:24px auto 50px;}
-    #overlayBuscaFrequencia .freq-hero{background:linear-gradient(90deg,#8e248f,#9b3f99);border-radius:4px 4px 0 0;padding:12px 16px;align-items:flex-start;text-align:left;box-shadow:none!important;}
-    #overlayBuscaFrequencia .freq-hero>div:first-child{flex:1;text-align:left;}
-    #overlayBuscaFrequencia .freq-hero-title{font-size:21px;justify-content:flex-start;text-align:left;}
-    #overlayBuscaFrequencia .freq-hero-sub{font-size:13px;margin-top:6px;text-align:left;}
-    #overlayBuscaFrequencia .freq-home-btn{padding:8px 11px;font-size:13px;border-radius:4px;box-shadow:none!important;}
-    #overlayBuscaFrequencia .freq-intro-body{padding:16px;margin-bottom:26px;box-shadow:none!important;border:1px solid #ddd;border-top:0;}
-    #overlayBuscaFrequencia .freq-info{padding:13px 16px;font-size:14px;justify-content:flex-start;text-align:left;}
-    #overlayBuscaFrequencia .freq-search-card{border:1px solid #ddd;border-radius:4px;box-shadow:none!important;}
-    #overlayBuscaFrequencia .freq-search-head{padding:11px 14px;font-size:19px;justify-content:flex-start;text-align:left;}
-    #overlayBuscaFrequencia .freq-search-body{padding:17px 16px 16px;text-align:left;}
-    #overlayBuscaFrequencia .freq-label{text-align:left;font-size:14px;margin-bottom:8px;}
-    #overlayBuscaFrequencia #freqQtdTabs{margin:0 0 26px;justify-content:flex-start;}
-    #overlayBuscaFrequencia .freq-qtd-btn{padding:10px 5px;font-size:14px;box-shadow:none!important;}
-    #overlayBuscaFrequencia .freq-select-row{justify-content:space-between;flex-wrap:nowrap;text-align:left;margin-bottom:9px;}
-    #overlayBuscaFrequencia .freq-actions-top,#overlayBuscaFrequencia .freq-actions-bottom{justify-content:flex-start;}
-    #overlayBuscaFrequencia .freq-outline-btn{padding:8px 7px;font-size:13px;box-shadow:none!important;}
-    #overlayBuscaFrequencia #freqNumGrid.conf-grid{gap:8px;margin:0 0 16px;justify-content:stretch;}
-    #overlayBuscaFrequencia #freqNumGrid .conf-ball{font-size:13px;border-radius:8px;box-shadow:none!important;}
-    #overlayBuscaFrequencia #freqBtnAnalisar,#overlayBuscaFrequencia #freqBtnLimpar{padding:11px 10px;font-size:14px;box-shadow:none!important;}
-    #overlayBuscaFrequencia .freq-result{margin-top:25px;padding:18px;text-align:left;box-shadow:none!important;}
-    #overlayBuscaFrequencia .freq-result-title{font-size:18px;margin-bottom:18px;justify-content:flex-start;text-align:left;}
-    #overlayBuscaFrequencia .freq-result-sub{text-align:left;font-size:13px;margin-bottom:10px;}
-    #overlayBuscaFrequencia .freq-stat-grid{gap:26px;margin:17px 0;}
-    #overlayBuscaFrequencia .freq-stat{padding:20px 8px;}
-    #overlayBuscaFrequencia .freq-stat strong{font-size:28px;margin-bottom:9px;}
-    #overlayBuscaFrequencia .freq-stat span{font-size:12px;}
-    #overlayBuscaFrequencia .freq-sorteio-head{justify-content:space-between;text-align:left;}
-    #overlayBuscaFrequencia .freq-sorteio-nums{justify-content:flex-start;}
-    #overlayBuscaFrequencia .freq-mini-ball.match{box-shadow:none!important;}
-    #overlayBuscaFrequencia *{text-shadow:none!important;}
+    #overlayMinhasSequencias{background:#fbf9fc;}
+    #overlayMinhasSequencias .freq-page-top{height:56px;background:linear-gradient(90deg,#5523c8 0%,#8d2a8f 100%);}
+    #overlayMinhasSequencias .freq-breadcrumb{height:42px;background:#fff;border-bottom:1px solid #e5e7eb;color:#666;font-size:13px;padding:0 16px;justify-content:flex-start;text-align:left;}
+    #overlayMinhasSequencias .freq-shell{width:min(760px,calc(100% - 26px));margin:24px auto 50px;}
+    #overlayMinhasSequencias .freq-hero{background:linear-gradient(90deg,#8e248f,#9b3f99);border-radius:4px 4px 0 0;padding:12px 16px;align-items:flex-start;text-align:left;box-shadow:none!important;}
+    #overlayMinhasSequencias .freq-hero>div:first-child{flex:1;text-align:left;}
+    #overlayMinhasSequencias .freq-hero-title{font-size:21px;justify-content:flex-start;text-align:left;}
+    #overlayMinhasSequencias .freq-hero-sub{font-size:13px;margin-top:6px;text-align:left;}
+    #overlayMinhasSequencias .freq-home-btn{padding:8px 11px;font-size:13px;border-radius:4px;box-shadow:none!important;}
+    #overlayMinhasSequencias .freq-intro-body{padding:16px;margin-bottom:26px;box-shadow:none!important;border:1px solid #ddd;border-top:0;}
+    #overlayMinhasSequencias .freq-info{padding:13px 16px;font-size:14px;justify-content:flex-start;text-align:left;}
+    #overlayMinhasSequencias .freq-search-card{border:1px solid #ddd;border-radius:4px;box-shadow:none!important;}
+    #overlayMinhasSequencias .freq-search-head{padding:11px 14px;font-size:19px;justify-content:flex-start;text-align:left;}
+    #overlayMinhasSequencias .freq-search-body{padding:17px 16px 16px;text-align:left;}
+    #overlayMinhasSequencias .freq-label{text-align:left;font-size:14px;margin-bottom:8px;}
+    #overlayMinhasSequencias #freqQtdTabs{margin:0 0 26px;justify-content:flex-start;}
+    #overlayMinhasSequencias .freq-qtd-btn{padding:10px 5px;font-size:14px;box-shadow:none!important;}
+    #overlayMinhasSequencias .freq-select-row{justify-content:space-between;flex-wrap:nowrap;text-align:left;margin-bottom:9px;}
+    #overlayMinhasSequencias .freq-actions-top,#overlayMinhasSequencias .freq-actions-bottom{justify-content:flex-start;}
+    #overlayMinhasSequencias .freq-outline-btn{padding:8px 7px;font-size:13px;box-shadow:none!important;}
+    #overlayMinhasSequencias #freqNumGrid.conf-grid{gap:8px;margin:0 0 16px;justify-content:stretch;}
+    #overlayMinhasSequencias #freqNumGrid .conf-ball{font-size:13px;border-radius:8px;box-shadow:none!important;}
+    #overlayMinhasSequencias #freqBtnAnalisar,#overlayMinhasSequencias #freqBtnLimpar{padding:11px 10px;font-size:14px;box-shadow:none!important;}
+    #overlayMinhasSequencias .freq-result{margin-top:25px;padding:18px;text-align:left;box-shadow:none!important;}
+    #overlayMinhasSequencias .freq-result-title{font-size:18px;margin-bottom:18px;justify-content:flex-start;text-align:left;}
+    #overlayMinhasSequencias .freq-result-sub{text-align:left;font-size:13px;margin-bottom:10px;}
+    #overlayMinhasSequencias .freq-stat-grid{gap:26px;margin:17px 0;}
+    #overlayMinhasSequencias .freq-stat{padding:20px 8px;}
+    #overlayMinhasSequencias .freq-stat strong{font-size:28px;margin-bottom:9px;}
+    #overlayMinhasSequencias .freq-stat span{font-size:12px;}
+    #overlayMinhasSequencias .freq-sorteio-head{justify-content:space-between;text-align:left;}
+    #overlayMinhasSequencias .freq-sorteio-nums{justify-content:flex-start;}
+    #overlayMinhasSequencias .freq-mini-ball.match{box-shadow:none!important;}
+    #overlayMinhasSequencias *{text-shadow:none!important;}
 
     /* Botões inferiores mais estreitos/compactos */
-    #overlayBuscaFrequencia .freq-actions-bottom{gap:7px;}
-    #overlayBuscaFrequencia #freqBtnAnalisar{padding:7px 10px!important;font-size:12px!important;min-height:34px!important;}
-    #overlayBuscaFrequencia #freqBtnLimpar{padding:7px 12px!important;font-size:12px!important;min-height:34px!important;}
+    #overlayMinhasSequencias .freq-actions-bottom{gap:7px;}
+    #overlayMinhasSequencias #freqBtnAnalisar{padding:7px 10px!important;font-size:12px!important;min-height:34px!important;}
+    #overlayMinhasSequencias #freqBtnLimpar{padding:7px 12px!important;font-size:12px!important;min-height:34px!important;}
 
     @media(max-width:600px){
-      #overlayBuscaFrequencia .freq-page-top{height:44px;}
-      #overlayBuscaFrequencia .freq-breadcrumb{height:36px;padding:0 12px;font-size:11px;}
-      #overlayBuscaFrequencia .freq-shell{width:calc(100% - 42px);max-width:520px;margin:18px auto 35px;}
-      #overlayBuscaFrequencia .freq-hero{padding:15px 14px;min-height:112px;}
-      #overlayBuscaFrequencia .freq-hero-title{font-size:19px;line-height:1.08;max-width:285px;}
-      #overlayBuscaFrequencia .freq-hero-sub{font-size:12px;line-height:1.35;max-width:360px;margin-top:9px;}
-      #overlayBuscaFrequencia .freq-home-btn{font-size:11px;padding:8px 10px;margin-top:1px;}
-      #overlayBuscaFrequencia .freq-intro-body{padding:13px;margin-bottom:24px;}
-      #overlayBuscaFrequencia .freq-info{padding:12px 13px;font-size:12px;}
-      #overlayBuscaFrequencia .freq-search-head{font-size:17px;padding:11px 14px;}
-      #overlayBuscaFrequencia .freq-search-body{padding:17px 14px 15px;}
-      #overlayBuscaFrequencia .freq-label{font-size:13px;margin-bottom:9px;}
-      #overlayBuscaFrequencia #freqQtdTabs{width:100%;margin-bottom:25px;}
-      #overlayBuscaFrequencia .freq-qtd-btn{font-size:12px;padding:9px 2px;white-space:nowrap;}
-      #overlayBuscaFrequencia .freq-select-row{margin-bottom:10px;}
-      #overlayBuscaFrequencia .freq-actions-top{gap:8px;margin-bottom:10px;}
-      #overlayBuscaFrequencia .freq-outline-btn{font-size:12px;padding:10px 5px;min-height:52px;line-height:1.2;}
-      #overlayBuscaFrequencia #freqNumGrid.conf-grid{gap:6px;margin-bottom:18px;}
-      #overlayBuscaFrequencia #freqNumGrid .conf-ball{font-size:11px;border-radius:7px;min-height:30px;}
-      #overlayBuscaFrequencia .freq-actions-bottom{gap:8px;}
-      #overlayBuscaFrequencia #freqBtnAnalisar{padding:9px 8px!important;font-size:12px!important;min-height:38px!important;}
-      #overlayBuscaFrequencia #freqBtnLimpar{padding:9px 12px!important;font-size:12px!important;min-height:38px!important;}
-      #overlayBuscaFrequencia .freq-stat-grid{gap:8px;}
-      #overlayBuscaFrequencia .freq-stat strong{font-size:20px;}
+      #overlayMinhasSequencias .freq-page-top{height:44px;}
+      #overlayMinhasSequencias .freq-breadcrumb{height:36px;padding:0 12px;font-size:11px;}
+      #overlayMinhasSequencias .freq-shell{width:calc(100% - 42px);max-width:520px;margin:18px auto 35px;}
+      #overlayMinhasSequencias .freq-hero{padding:15px 14px;min-height:112px;}
+      #overlayMinhasSequencias .freq-hero-title{font-size:19px;line-height:1.08;max-width:285px;}
+      #overlayMinhasSequencias .freq-hero-sub{font-size:12px;line-height:1.35;max-width:360px;margin-top:9px;}
+      #overlayMinhasSequencias .freq-home-btn{font-size:11px;padding:8px 10px;margin-top:1px;}
+      #overlayMinhasSequencias .freq-intro-body{padding:13px;margin-bottom:24px;}
+      #overlayMinhasSequencias .freq-info{padding:12px 13px;font-size:12px;}
+      #overlayMinhasSequencias .freq-search-head{font-size:17px;padding:11px 14px;}
+      #overlayMinhasSequencias .freq-search-body{padding:17px 14px 15px;}
+      #overlayMinhasSequencias .freq-label{font-size:13px;margin-bottom:9px;}
+      #overlayMinhasSequencias #freqQtdTabs{width:100%;margin-bottom:25px;}
+      #overlayMinhasSequencias .freq-qtd-btn{font-size:12px;padding:9px 2px;white-space:nowrap;}
+      #overlayMinhasSequencias .freq-select-row{margin-bottom:10px;}
+      #overlayMinhasSequencias .freq-actions-top{gap:8px;margin-bottom:10px;}
+      #overlayMinhasSequencias .freq-outline-btn{font-size:12px;padding:10px 5px;min-height:52px;line-height:1.2;}
+      #overlayMinhasSequencias #freqNumGrid.conf-grid{gap:6px;margin-bottom:18px;}
+      #overlayMinhasSequencias #freqNumGrid .conf-ball{font-size:11px;border-radius:7px;min-height:30px;}
+      #overlayMinhasSequencias .freq-actions-bottom{gap:8px;}
+      #overlayMinhasSequencias #freqBtnAnalisar{padding:9px 8px!important;font-size:12px!important;min-height:38px!important;}
+      #overlayMinhasSequencias #freqBtnLimpar{padding:9px 12px!important;font-size:12px!important;min-height:38px!important;}
+      #overlayMinhasSequencias .freq-stat-grid{gap:8px;}
+      #overlayMinhasSequencias .freq-stat strong{font-size:20px;}
     }
 
     /* ESTILO FINAL — proporções da imagem de referência */
-    #overlayBuscaFrequencia .freq-shell{
+    #overlayMinhasSequencias .freq-shell{
       width:min(760px,calc(100% - 32px))!important;
       margin:24px auto 48px!important;
     }
-    #overlayBuscaFrequencia .freq-hero{
+    #overlayMinhasSequencias .freq-hero{
       padding:12px 16px!important;
       min-height:auto!important;
       border-radius:4px 4px 0 0!important;
       box-shadow:none!important;
     }
-    #overlayBuscaFrequencia .freq-hero-title{font-size:21px!important;line-height:1.1!important;max-width:none!important;}
-    #overlayBuscaFrequencia .freq-hero-sub{font-size:13px!important;line-height:1.3!important;max-width:none!important;margin-top:6px!important;}
-    #overlayBuscaFrequencia .freq-home-btn{font-size:13px!important;padding:8px 11px!important;margin:0!important;box-shadow:none!important;}
-    #overlayBuscaFrequencia .freq-intro-body{padding:16px!important;margin-bottom:26px!important;box-shadow:none!important;}
-    #overlayBuscaFrequencia .freq-info{padding:13px 16px!important;font-size:14px!important;}
-    #overlayBuscaFrequencia .freq-search-card{box-shadow:none!important;}
-    #overlayBuscaFrequencia .freq-search-head{padding:11px 14px!important;font-size:19px!important;}
-    #overlayBuscaFrequencia .freq-search-body{padding:17px 16px 16px!important;}
-    #overlayBuscaFrequencia .freq-label{font-size:14px!important;margin-bottom:8px!important;}
-    #overlayBuscaFrequencia #freqQtdTabs{margin-bottom:26px!important;width:100%!important;}
-    #overlayBuscaFrequencia .freq-qtd-btn{padding:10px 5px!important;font-size:14px!important;}
-    #overlayBuscaFrequencia .freq-actions-top{gap:8px!important;margin-bottom:9px!important;}
-    #overlayBuscaFrequencia .freq-outline-btn{padding:8px 7px!important;font-size:13px!important;min-height:auto!important;line-height:normal!important;}
-    #overlayBuscaFrequencia #freqNumGrid.conf-grid{gap:8px!important;margin-bottom:16px!important;}
-    #overlayBuscaFrequencia #freqNumGrid .conf-ball{font-size:13px!important;border-radius:8px!important;min-height:0!important;}
-    #overlayBuscaFrequencia .freq-actions-bottom{gap:8px!important;}
-    #overlayBuscaFrequencia #freqBtnAnalisar{padding:11px 10px!important;font-size:14px!important;min-height:auto!important;}
-    #overlayBuscaFrequencia #freqBtnLimpar{padding:11px 15px!important;font-size:14px!important;min-height:auto!important;}
-    #overlayBuscaFrequencia .freq-result{margin-top:25px!important;padding:18px!important;box-shadow:none!important;}
-    #overlayBuscaFrequencia .freq-result-title{font-size:18px!important;margin-bottom:18px!important;}
-    #overlayBuscaFrequencia .freq-result-sub{font-size:13px!important;margin-bottom:10px!important;}
-    #overlayBuscaFrequencia .freq-stat-grid{gap:26px!important;margin:17px 0!important;}
-    #overlayBuscaFrequencia .freq-stat{padding:20px 8px!important;}
-    #overlayBuscaFrequencia .freq-stat strong{font-size:28px!important;margin-bottom:9px!important;}
-    #overlayBuscaFrequencia .freq-stat span{font-size:12px!important;}
-    #overlayBuscaFrequencia .freq-result-btn{font-size:13px!important;padding:10px!important;box-shadow:none!important;}
-    #overlayBuscaFrequencia .freq-sorteio-card{box-shadow:none!important;}
+    #overlayMinhasSequencias .freq-hero-title{font-size:21px!important;line-height:1.1!important;max-width:none!important;}
+    #overlayMinhasSequencias .freq-hero-sub{font-size:13px!important;line-height:1.3!important;max-width:none!important;margin-top:6px!important;}
+    #overlayMinhasSequencias .freq-home-btn{font-size:13px!important;padding:8px 11px!important;margin:0!important;box-shadow:none!important;}
+    #overlayMinhasSequencias .freq-intro-body{padding:16px!important;margin-bottom:26px!important;box-shadow:none!important;}
+    #overlayMinhasSequencias .freq-info{padding:13px 16px!important;font-size:14px!important;}
+    #overlayMinhasSequencias .freq-search-card{box-shadow:none!important;}
+    #overlayMinhasSequencias .freq-search-head{padding:11px 14px!important;font-size:19px!important;}
+    #overlayMinhasSequencias .freq-search-body{padding:17px 16px 16px!important;}
+    #overlayMinhasSequencias .freq-label{font-size:14px!important;margin-bottom:8px!important;}
+    #overlayMinhasSequencias #freqQtdTabs{margin-bottom:26px!important;width:100%!important;}
+    #overlayMinhasSequencias .freq-qtd-btn{padding:10px 5px!important;font-size:14px!important;}
+    #overlayMinhasSequencias .freq-actions-top{gap:8px!important;margin-bottom:9px!important;}
+    #overlayMinhasSequencias .freq-outline-btn{padding:8px 7px!important;font-size:13px!important;min-height:auto!important;line-height:normal!important;}
+    #overlayMinhasSequencias #freqNumGrid.conf-grid{gap:8px!important;margin-bottom:16px!important;}
+    #overlayMinhasSequencias #freqNumGrid .conf-ball{font-size:13px!important;border-radius:8px!important;min-height:0!important;}
+    #overlayMinhasSequencias .freq-actions-bottom{gap:8px!important;}
+    #overlayMinhasSequencias #freqBtnAnalisar{padding:11px 10px!important;font-size:14px!important;min-height:auto!important;}
+    #overlayMinhasSequencias #freqBtnLimpar{padding:11px 15px!important;font-size:14px!important;min-height:auto!important;}
+    #overlayMinhasSequencias .freq-result{margin-top:25px!important;padding:18px!important;box-shadow:none!important;}
+    #overlayMinhasSequencias .freq-result-title{font-size:18px!important;margin-bottom:18px!important;}
+    #overlayMinhasSequencias .freq-result-sub{font-size:13px!important;margin-bottom:10px!important;}
+    #overlayMinhasSequencias .freq-stat-grid{gap:26px!important;margin:17px 0!important;}
+    #overlayMinhasSequencias .freq-stat{padding:20px 8px!important;}
+    #overlayMinhasSequencias .freq-stat strong{font-size:28px!important;margin-bottom:9px!important;}
+    #overlayMinhasSequencias .freq-stat span{font-size:12px!important;}
+    #overlayMinhasSequencias .freq-result-btn{font-size:13px!important;padding:10px!important;box-shadow:none!important;}
+    #overlayMinhasSequencias .freq-sorteio-card{box-shadow:none!important;}
 
     @media(max-width:600px){
-      #overlayBuscaFrequencia .freq-shell{width:calc(100% - 26px)!important;max-width:none!important;margin:14px auto 35px!important;}
-      #overlayBuscaFrequencia .freq-hero{padding:10px 12px!important;min-height:auto!important;}
-      #overlayBuscaFrequencia .freq-hero-title{font-size:17px!important;}
-      #overlayBuscaFrequencia .freq-hero-sub{font-size:11px!important;margin-top:4px!important;}
-      #overlayBuscaFrequencia .freq-home-btn{font-size:10px!important;padding:7px 8px!important;}
-      #overlayBuscaFrequencia .freq-intro-body{padding:11px!important;margin-bottom:18px!important;}
-      #overlayBuscaFrequencia .freq-info{padding:9px 11px!important;font-size:11px!important;}
-      #overlayBuscaFrequencia .freq-search-head{font-size:15px!important;padding:8px 11px!important;}
-      #overlayBuscaFrequencia .freq-search-body{padding:12px 11px!important;}
-      #overlayBuscaFrequencia .freq-label{font-size:11px!important;margin-bottom:6px!important;}
-      #overlayBuscaFrequencia #freqQtdTabs{margin-bottom:17px!important;}
-      #overlayBuscaFrequencia .freq-qtd-btn{font-size:11px!important;padding:7px 3px!important;}
-      #overlayBuscaFrequencia .freq-outline-btn{font-size:10px!important;padding:6px 5px!important;min-height:auto!important;}
-      #overlayBuscaFrequencia #freqNumGrid.conf-grid{gap:5px!important;margin-bottom:11px!important;}
-      #overlayBuscaFrequencia #freqNumGrid .conf-ball{font-size:10px!important;border-radius:6px!important;}
-      #overlayBuscaFrequencia #freqBtnAnalisar,#overlayBuscaFrequencia #freqBtnLimpar{font-size:11px!important;padding:8px!important;}
-      #overlayBuscaFrequencia .freq-result{margin-top:17px!important;padding:13px!important;}
-      #overlayBuscaFrequencia .freq-result-title{font-size:14px!important;margin-bottom:12px!important;}
-      #overlayBuscaFrequencia .freq-result-sub{font-size:11px!important;}
-      #overlayBuscaFrequencia .freq-stat-grid{gap:10px!important;margin:12px 0!important;}
-      #overlayBuscaFrequencia .freq-stat{padding:13px 6px!important;}
-      #overlayBuscaFrequencia .freq-stat strong{font-size:21px!important;}
-      #overlayBuscaFrequencia .freq-stat span{font-size:10px!important;}
+      #overlayMinhasSequencias .freq-shell{width:calc(100% - 26px)!important;max-width:none!important;margin:14px auto 35px!important;}
+      #overlayMinhasSequencias .freq-hero{padding:10px 12px!important;min-height:auto!important;}
+      #overlayMinhasSequencias .freq-hero-title{font-size:17px!important;}
+      #overlayMinhasSequencias .freq-hero-sub{font-size:11px!important;margin-top:4px!important;}
+      #overlayMinhasSequencias .freq-home-btn{font-size:10px!important;padding:7px 8px!important;}
+      #overlayMinhasSequencias .freq-intro-body{padding:11px!important;margin-bottom:18px!important;}
+      #overlayMinhasSequencias .freq-info{padding:9px 11px!important;font-size:11px!important;}
+      #overlayMinhasSequencias .freq-search-head{font-size:15px!important;padding:8px 11px!important;}
+      #overlayMinhasSequencias .freq-search-body{padding:12px 11px!important;}
+      #overlayMinhasSequencias .freq-label{font-size:11px!important;margin-bottom:6px!important;}
+      #overlayMinhasSequencias #freqQtdTabs{margin-bottom:17px!important;}
+      #overlayMinhasSequencias .freq-qtd-btn{font-size:11px!important;padding:7px 3px!important;}
+      #overlayMinhasSequencias .freq-outline-btn{font-size:10px!important;padding:6px 5px!important;min-height:auto!important;}
+      #overlayMinhasSequencias #freqNumGrid.conf-grid{gap:5px!important;margin-bottom:11px!important;}
+      #overlayMinhasSequencias #freqNumGrid .conf-ball{font-size:10px!important;border-radius:6px!important;}
+      #overlayMinhasSequencias #freqBtnAnalisar,#overlayMinhasSequencias #freqBtnLimpar{font-size:11px!important;padding:8px!important;}
+      #overlayMinhasSequencias .freq-result{margin-top:17px!important;padding:13px!important;}
+      #overlayMinhasSequencias .freq-result-title{font-size:14px!important;margin-bottom:12px!important;}
+      #overlayMinhasSequencias .freq-result-sub{font-size:11px!important;}
+      #overlayMinhasSequencias .freq-stat-grid{gap:10px!important;margin:12px 0!important;}
+      #overlayMinhasSequencias .freq-stat{padding:13px 6px!important;}
+      #overlayMinhasSequencias .freq-stat strong{font-size:21px!important;}
+      #overlayMinhasSequencias .freq-stat span{font-size:10px!important;}
     }
 
       /* Largura móvel — ocupar praticamente toda a largura do telefone */
     @media(max-width:600px){
-      #overlayBuscaFrequencia .freq-shell{
+      #overlayMinhasSequencias .freq-shell{
         width:calc(100% - 8px)!important;
         max-width:none!important;
         margin:8px 4px 30px!important;
       }
-      #overlayBuscaFrequencia .freq-search-head{
+      #overlayMinhasSequencias .freq-search-head{
         width:calc(100% + 8px)!important;
         margin-left:-4px!important;
         margin-right:-4px!important;
@@ -3205,48 +3304,48 @@ document.addEventListener('selectstart', e=>{
     }
 
     /* Subir toda a aba Buscar Frequência até o topo */
-    #overlayBuscaFrequencia .freq-page-top,
-    #overlayBuscaFrequencia .freq-breadcrumb{display:none!important;}
-    #overlayBuscaFrequencia .freq-shell{margin-top:0!important;padding-top:0!important;}
+    #overlayMinhasSequencias .freq-page-top,
+    #overlayMinhasSequencias .freq-breadcrumb{display:none!important;}
+    #overlayMinhasSequencias .freq-shell{margin-top:0!important;padding-top:0!important;}
 
     /* Aproximar a faixa Nova Busca da área Base de análise / sorteios */
-    #overlayBuscaFrequencia .freq-intro-body{margin-bottom:5px!important;}
-    #overlayBuscaFrequencia .freq-search-card{margin-top:0!important;}
+    #overlayMinhasSequencias .freq-intro-body{margin-bottom:5px!important;}
+    #overlayMinhasSequencias .freq-search-card{margin-top:0!important;}
     @media(max-width:600px){
-      #overlayBuscaFrequencia .freq-intro-body{margin-bottom:4px!important;}
-      #overlayBuscaFrequencia .freq-search-card{margin-top:0!important;}
+      #overlayMinhasSequencias .freq-intro-body{margin-bottom:4px!important;}
+      #overlayMinhasSequencias .freq-search-card{margin-top:0!important;}
     }
 
 
     /* ALINHAMENTO FINAL — todos os blocos dentro das mesmas bordas */
-    #overlayBuscaFrequencia .freq-shell{
+    #overlayMinhasSequencias .freq-shell{
       width:min(760px,calc(100% - 26px))!important;
       margin-left:auto!important;
       margin-right:auto!important;
       overflow:visible!important;
     }
-    #overlayBuscaFrequencia .freq-hero,
-    #overlayBuscaFrequencia .freq-intro-body,
-    #overlayBuscaFrequencia .freq-search-card,
-    #overlayBuscaFrequencia .freq-search-head,
-    #overlayBuscaFrequencia .freq-search-body,
-    #overlayBuscaFrequencia .freq-result{
+    #overlayMinhasSequencias .freq-hero,
+    #overlayMinhasSequencias .freq-intro-body,
+    #overlayMinhasSequencias .freq-search-card,
+    #overlayMinhasSequencias .freq-search-head,
+    #overlayMinhasSequencias .freq-search-body,
+    #overlayMinhasSequencias .freq-result{
       width:100%!important;
       max-width:100%!important;
       margin-left:0!important;
       margin-right:0!important;
       box-sizing:border-box!important;
     }
-    #overlayBuscaFrequencia .freq-search-head{
+    #overlayMinhasSequencias .freq-search-head{
       position:relative!important;
       left:0!important;
       right:auto!important;
     }
-    #overlayBuscaFrequencia .freq-search-body{overflow:hidden!important;}
-    #overlayBuscaFrequencia #freqQtdTabs,
-    #overlayBuscaFrequencia .freq-actions-top,
-    #overlayBuscaFrequencia #freqNumGrid,
-    #overlayBuscaFrequencia .freq-actions-bottom{
+    #overlayMinhasSequencias .freq-search-body{overflow:hidden!important;}
+    #overlayMinhasSequencias #freqQtdTabs,
+    #overlayMinhasSequencias .freq-actions-top,
+    #overlayMinhasSequencias #freqNumGrid,
+    #overlayMinhasSequencias .freq-actions-bottom{
       width:100%!important;
       max-width:100%!important;
       margin-left:0!important;
@@ -3254,27 +3353,71 @@ document.addEventListener('selectstart', e=>{
       box-sizing:border-box!important;
     }
     /* Centralizar Resultado da Análise na mesma largura do conteúdo/botão Analisar Frequência */
-    #overlayBuscaFrequencia .freq-result{
+    #overlayMinhasSequencias .freq-result{
       width:calc(100% - 8px)!important;
       margin-left:4px!important;
       margin-right:4px!important;
       box-sizing:border-box!important;
     }
-    #overlayBuscaFrequencia .freq-qtd-btn{min-width:0!important;}
+    #overlayMinhasSequencias .freq-qtd-btn{min-width:0!important;}
     @media(max-width:600px){
-      #overlayBuscaFrequencia .freq-shell{
+      #overlayMinhasSequencias .freq-shell{
         width:calc(100% - 26px)!important;
         margin:0 13px 30px!important;
       }
-      #overlayBuscaFrequencia .freq-search-head{
+      #overlayMinhasSequencias .freq-search-head{
         width:100%!important;
         margin-left:0!important;
         margin-right:0!important;
       }
-      #overlayBuscaFrequencia .freq-search-body{padding-left:16px!important;padding-right:16px!important;}
-      #overlayBuscaFrequencia #freqNumGrid.conf-grid{grid-template-columns:repeat(11,minmax(0,1fr))!important;}
+      #overlayMinhasSequencias .freq-search-body{padding-left:16px!important;padding-right:16px!important;}
+      #overlayMinhasSequencias #freqNumGrid.conf-grid{grid-template-columns:repeat(11,minmax(0,1fr))!important;}
     }
 
+
+    /* Minhas Sequências — remover todas as bordas visíveis */
+    #overlayMinhasSequencias .freq-breadcrumb,
+    #overlayMinhasSequencias .freq-info,
+    #overlayMinhasSequencias .freq-search-card,
+    #overlayMinhasSequencias .freq-search-head,
+    #overlayMinhasSequencias .freq-search-body,
+    #overlayMinhasSequencias #freqQtdTabs,
+    #overlayMinhasSequencias .freq-qtd-btn,
+    #overlayMinhasSequencias .freq-outline-btn,
+    #overlayMinhasSequencias #freqBtnSelecionarTodos,
+    #overlayMinhasSequencias #freqBtnCompletarRestantes,
+    #overlayMinhasSequencias #freqNumGrid .conf-ball,
+    #overlayMinhasSequencias #freqBtnAnalisar,
+    #overlayMinhasSequencias #freqBtnLimpar,
+    #overlayMinhasSequencias .freq-home-btn,
+    #overlayMinhasSequencias .freq-result{
+      border:none!important;
+      outline:none!important;
+    }
+</style>
+<style id="minhas-sequencias-desktop-style">
+/* Minhas Sequências — visual de site de computador, mantendo o conteúdo da referência */
+#overlayMinhasSequencias{
+  background:#faf7fb;
+  overflow-y:auto;
+}
+#overlayMinhasSequencias .freq-shell{
+  width:min(760px,calc(100% - 28px))!important;
+  max-width:760px!important;
+  margin:0 auto 40px!important;
+}
+#overlayMinhasSequencias .freq-hero,
+#overlayMinhasSequencias .freq-intro-body,
+#overlayMinhasSequencias .freq-search-card,
+#overlayMinhasSequencias .freq-result{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+#overlayMinhasSequencias .freq-search-body{overflow:visible!important;}
+@media (min-width:700px){
+  #overlayMinhasSequencias .freq-shell{width:760px!important;}
+}
 </style>
 
   <div class="freq-page-top"></div>
@@ -3294,11 +3437,18 @@ document.addEventListener('selectstart', e=>{
       </div>
     </section>
 
+    <div class="freq-analysis-frame">
     <section class="freq-search-card">
       <div class="freq-search-head"><span>▦</span> Nova Busca</div>
       <div class="freq-search-body">
         <div class="freq-label">⚙ Quantos números deseja analisar?</div>
         <div id="freqQtdTabs"></div>
+
+        <div class="freq-concursos-qtd-wrap">
+          <label for="freqQtdConcursosInput">Concursos para analisar:</label>
+          <input type="number" id="freqQtdConcursosInput" min="1" step="1" inputmode="numeric" placeholder="" aria-label="Quantidade de concursos para analisar">
+          <span>últimos concursos</span>
+        </div>
 
         <div class="freq-hidden-filter">
           <div>🗓️ Quais concursos deseja analisar?</div>
@@ -3343,6 +3493,7 @@ document.addEventListener('selectstart', e=>{
       <button type="button" id="freqBtnVerTodos" class="freq-result-btn secondary">☷ Ver todos os sorteios (<span id="freqVerTodosCount">0</span>)</button>
       <div id="freqListaSorteios" style="display:none;margin-top:12px;max-height:460px;overflow-y:auto;"></div>
     </section>
+    </div>
   </div>
 
   <button id="freqVoltar" style="position:fixed;left:10px;top:8px;z-index:3;background:rgba(0,0,0,.18);border:0;color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;">←</button>
@@ -5682,7 +5833,7 @@ function abrirGeradorFiltro(code){
   // fecha só as janelas soltas sem relação (Tendência, Histórico, etc.) — mantém a tela
   // "escolher loteria" aberta por baixo, senão o botão de voltar (← ou físico) pula
   // direto pro início em vez de voltar pra lista de loterias
-  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayBuscaFrequencia','overlayAltaQueda','overlayHistorico',
+  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
@@ -8508,7 +8659,7 @@ function resetScroll(){
 }
 
 function fecharOutrasOverlaysDeAba(manter){
-  const modalIds = ['overlayTendencia','overlayBuscaFrequencia','overlayAltaQueda','overlayProb','overlayHistorico'];
+  const modalIds = ['overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayProb','overlayHistorico'];
   modalIds.forEach(id=>{
     if(id === manter) return;
     const el = document.getElementById(id);
@@ -8520,7 +8671,7 @@ function fecharOutrasOverlaysDeAba(manter){
 // está sendo aberta agora — usado ao trocar de aba pela barra inferior, pra nunca deixar
 // uma janela antiga escondendo a tela nova por trás
 function fecharModaisGlobais(manter){
-  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayBuscaFrequencia','overlayAltaQueda','overlayHistorico',
+  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
     'overlayGeradorLoteria','overlayGeradorFiltro'];
   modalIds.forEach(id=>{
@@ -8533,7 +8684,7 @@ function fecharModaisGlobais(manter){
 }
 
 function goHome(){
-  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayBuscaFrequencia','overlayAltaQueda','overlayHistorico',
+  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
     'overlayGeradorLoteria','overlayGeradorFiltro'];
   modalIds.forEach(id=>{
@@ -8551,7 +8702,7 @@ function goHome(){
 }
 
 function irParaSelecao(){
-  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayBuscaFrequencia','overlayAltaQueda','overlayHistorico',
+  const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
     'overlayGeradorLoteria','overlayGeradorFiltro','overlayListaResultados'];
   modalIds.forEach(id=>{
@@ -8720,6 +8871,11 @@ function atualizarFreqConcursoListaInfo(){
 }
 
 function filtrarDadosPorConcursoFreq(dados){
+  const qtdInput = document.getElementById('freqQtdConcursosInput');
+  const qtdDigitada = qtdInput ? parseInt(qtdInput.value, 10) : NaN;
+  if(Number.isFinite(qtdDigitada) && qtdDigitada > 0){
+    return dados.slice(-Math.min(qtdDigitada, dados.length));
+  }
   if(freqConcursoModo === 'todos') return dados;
   if(freqConcursoModo === '50' || freqConcursoModo === '100' || freqConcursoModo === '300'){
     const n = parseInt(freqConcursoModo, 10);
@@ -8850,106 +9006,71 @@ function atualizarFreqBaseTotalLabel(){
 // Lotofácil, um concurso por vez — só busca de novo os concursos que ainda faltam
 async function obterHistoricoCompletoFreq(onProgress){
   const game = LOTOFACIL_GAME;
-
-  // CACHE PRIMEIRO: usa imediatamente uma base já salva.
   let cache = carregarCacheHistoricoFreq();
-  if(cache && Array.isArray(cache.dados) && cache.dados.length >= 100){
+  cache = (cache && Array.isArray(cache.dados)) ? cache : {ultimo:0, dados:[]};
+
+  // Se a base já está praticamente completa, usa na hora.
+  if(cache.dados.length >= 3500){
     cache.dados.sort((a,b)=> a.c - b.c);
     if(onProgress) onProgress(cache.dados.length, cache.dados.length);
     return cache.dados;
   }
-  cache = (cache && Array.isArray(cache.dados)) ? cache : {ultimo:0, dados:[]};
 
-  // Tenta primeiro uma carga em bloco. Algumas fontes retornam todo o histórico
-  // em uma única chamada, o que é muito mais rápido que buscar concurso por concurso.
-  async function tentarHistoricoEmBloco(){
-    const bases = [LOTO_API_BASE, ...LOTO_API_BASES_ALT];
-    for(const base of bases){
-      const slugs = [game.slug, game.altSlug].filter((v,i,a)=>v && a.indexOf(v)===i);
-      for(const slug of slugs){
-        const controller = new AbortController();
-        const timer = setTimeout(()=>controller.abort(), 6000);
-        try{
-          const resp = await fetch(`${base}/${slug}`, {signal:controller.signal});
-          clearTimeout(timer);
-          if(!resp.ok) continue;
-          const bruto = await resp.json();
-          const arr = Array.isArray(bruto) ? bruto : (Array.isArray(bruto?.data) ? bruto.data : null);
-          if(!arr || arr.length < 100) continue;
-          const dados = arr.map(x=>({
-            c: Number(x.concurso ?? x.numero ?? x.numeroConcurso),
-            dt: x.data || x.dataApuracao || '',
-            n: (x.dezenas || x.listaDezenas || x.numeros || []).map(v=>parseInt(v,10))
-          })).filter(x=>Number.isFinite(x.c) && x.n.length >= 15);
-          if(dados.length < 100) continue;
-          dados.sort((a,b)=>a.c-b.c);
-          cache = {ultimo:dados[dados.length-1].c, dados};
-          salvarCacheHistoricoFreq(cache);
-          if(onProgress) onProgress(dados.length, dados.length);
-          return dados;
-        }catch(e){
-          clearTimeout(timer);
-        }
-      }
-    }
-    return null;
-  }
-
-  const bloco = await tentarHistoricoEmBloco();
-  if(bloco) return bloco;
-
-  const ultimoRemoto = await fetchConcursoLoteria(game);
-  if(!ultimoRemoto || !ultimoRemoto.concurso) throw new Error('Não foi possível consultar o concurso mais recente.');
-  const numeroUltimo = ultimoRemoto.concurso;
-
-  const existentes = new Set(cache.dados.map(d=>d.c));
-  const faltantes = [];
-  for(let c=1;c<=numeroUltimo;c++){ if(!existentes.has(c)) faltantes.push(c); }
-
-  if(faltantes.length === 0) return cache.dados;
-
-  // Fila contínua de downloads: evita esperar o concurso mais lento de cada lote
-  // antes de começar o próximo. Isso reduz bastante o tempo da primeira carga.
-  const CONCORRENCIA = 16;
-  let proximoIndice = 0;
-  let concluidos = 0;
-  let desdeUltimoSave = 0;
-
-  async function worker(){
-    while(true){
-      const idx = proximoIndice++;
-      if(idx >= faltantes.length) return;
-      const c = faltantes[idx];
-      let data = null;
-      try{
-        data = (c === numeroUltimo) ? ultimoRemoto : await fetchConcursoLoteria(game, c);
-      }catch(e){
-        data = null;
-      }
-      if(data && data.dezenas){
-        cache.dados.push({ c, dt: data.data || '', n: data.dezenas.map(d=>parseInt(d,10)) });
-      }
-      concluidos++;
-      desdeUltimoSave++;
-
-      // Atualiza a tela com mais frequência, mas grava no armazenamento em blocos
-      if(onProgress && (concluidos === faltantes.length || concluidos % 5 === 0))
-        onProgress(concluidos, faltantes.length);
-
-      if(desdeUltimoSave >= 60 || concluidos === faltantes.length){
-        desdeUltimoSave = 0;
-        cache.dados.sort((a,b)=> a.c - b.c);
-        cache.ultimo = cache.dados.length ? cache.dados[cache.dados.length-1].c : 0;
-        salvarCacheHistoricoFreq(cache);
-      }
+  // Busca o histórico completo em paralelo nas fontes disponíveis.
+  // Assim uma URL lenta não segura as outras.
+  async function buscarBloco(base, slug){
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(), 15000);
+    try{
+      const resp = await fetch(`${base}/${slug}`, {signal:controller.signal, cache:'no-store'});
+      if(!resp.ok) return null;
+      const bruto = await resp.json();
+      const arr = Array.isArray(bruto) ? bruto :
+                  (Array.isArray(bruto?.data) ? bruto.data :
+                  (Array.isArray(bruto?.results) ? bruto.results : null));
+      if(!arr || arr.length < 100) return null;
+      const dados = arr.map(x=>({
+        c: Number(x.concurso ?? x.numero ?? x.numeroConcurso),
+        dt: x.data || x.dataApuracao || '',
+        n: (x.dezenas || x.listaDezenas || x.numeros || []).map(v=>parseInt(v,10))
+      })).filter(x=>Number.isFinite(x.c) && x.n.length >= 15);
+      if(dados.length < 100) return null;
+      dados.sort((a,b)=>a.c-b.c);
+      return dados;
+    }catch(e){
+      return null;
+    }finally{
+      clearTimeout(timer);
     }
   }
 
-  await Promise.all(Array.from({length: Math.min(CONCORRENCIA, faltantes.length)}, worker));
-  cache.dados.sort((a,b)=> a.c - b.c);
-  cache.ultimo = cache.dados.length ? cache.dados[cache.dados.length-1].c : 0;
-  salvarCacheHistoricoFreq(cache);
-  return cache.dados;
+  const bases = [LOTO_API_BASE, ...LOTO_API_BASES_ALT];
+  const slugs = [game.slug, game.altSlug].filter((v,i,a)=>v && a.indexOf(v)===i);
+  const tentativas = [];
+  for(const base of bases) for(const slug of slugs) tentativas.push(buscarBloco(base, slug));
+
+  const resultados = await Promise.all(tentativas);
+  let melhor = null;
+  for(const dados of resultados){
+    if(dados && (!melhor || dados.length > melhor.length)) melhor = dados;
+  }
+
+  if(melhor){
+    cache = {ultimo:melhor[melhor.length-1].c, dados:melhor};
+    salvarCacheHistoricoFreq(cache);
+    if(onProgress) onProgress(melhor.length, melhor.length);
+    return melhor;
+  }
+
+  // Não baixa milhares de concursos um por um ao clicar: isso era o que deixava
+  // o botão parecendo travado por vários minutos. Se houver cache parcial, usa-o.
+  if(cache.dados.length >= 100){
+    cache.dados.sort((a,b)=>a.c-b.c);
+    if(onProgress) onProgress(cache.dados.length, cache.dados.length);
+    return cache.dados;
+  }
+
+  throw new Error('A base completa da Lotofácil não respondeu. Tente novamente em alguns segundos.');
 }
 
 function analisarSequenciaFreq(dados, selecionados){
@@ -9031,6 +9152,15 @@ function renderResultadoFreq(selecionados, matches, total){
   atualizarBotaoFavoritoFreq();
 }
 
+document.getElementById('freqQtdConcursosInput')?.addEventListener('input', ()=>{
+  const input = document.getElementById('freqQtdConcursosInput');
+  if(input && input.value !== ''){
+    let n = parseInt(input.value,10);
+    if(Number.isFinite(n) && n < 1) input.value = '1';
+  }
+  esconderResultadoFreq();
+});
+
 document.getElementById('freqBtnAnalisar').addEventListener('click', async ()=>{
   if(freqSelecionados.size !== freqQtd) return;
   const btn = document.getElementById('freqBtnAnalisar');
@@ -9048,9 +9178,11 @@ document.getElementById('freqBtnAnalisar').addEventListener('click', async ()=>{
   }
   esconderResultadoFreq();
   try{
-    const dados = await obterHistoricoCompletoFreq((feito,totalFaltando)=>{
-      if(status) status.innerHTML = `<div class="res-loading">Carregando sorteios (${feito}/${totalFaltando})…<br><span style="font-size:11px;opacity:.75;">Isso só demora na primeira vez neste aparelho — depois fica salvo.</span></div>`;
+    const carregar = obterHistoricoCompletoFreq((feito,totalFaltando)=>{
+      if(status) status.innerHTML = `<div class="res-loading">Carregando base (${feito} concursos)…</div>`;
     });
+    const limite = new Promise((_, rejeitar)=>setTimeout(()=>rejeitar(new Error('Tempo de carregamento excedido. Toque novamente para tentar outra fonte.')), 18000));
+    const dados = await Promise.race([carregar, limite]);
     freqSetText('freqBaseTotal', dados.length);
     atualizarFreqConcursoInfoLabel(dados);
     const dadosFiltrados = filtrarDadosPorConcursoFreq(dados);
@@ -9081,7 +9213,7 @@ document.getElementById('freqBtnAnalisar').addEventListener('click', async ()=>{
 });
 
 document.getElementById('freqVoltar').addEventListener('click', ()=>{
-  document.getElementById('overlayBuscaFrequencia').classList.remove('show');
+  document.getElementById('overlayMinhasSequencias').classList.remove('show');
 });
 document.getElementById('freqBtnInicio').addEventListener('click', goHome);
 
@@ -9094,19 +9226,10 @@ atualizarFreqSelecaoUI();
   if(el) el.addEventListener('input', ()=>{ esconderResultadoFreq(); atualizarFreqConcursoListaInfo(); });
 });
 
-document.getElementById('menuFrequencia')?.addEventListener('click', ()=>{
+document.getElementById('menuMinhasSequencias')?.addEventListener('click', ()=>{
   closeDrawer();
-  fecharModaisGlobais('overlayBuscaFrequencia');
-  document.getElementById('overlayBuscaFrequencia').classList.add('show');
-  atualizarFreqBaseTotalLabel();
-  atualizarFreqConcursoInfoLabel();
-  setActiveTab('tabAnalise');
-});
-document.getElementById('menuMaisFrequentes')?.addEventListener('click', ()=>{
-  // Abre a mesma tela completa "Buscar Frequência de Sequências" mostrada na referência.
-  closeDrawer();
-  fecharModaisGlobais('overlayBuscaFrequencia');
-  document.getElementById('overlayBuscaFrequencia').classList.add('show');
+  fecharModaisGlobais('overlayMinhasSequencias');
+  document.getElementById('overlayMinhasSequencias').classList.add('show');
   atualizarFreqBaseTotalLabel();
   atualizarFreqConcursoInfoLabel();
   setActiveTab('tabAnalise');
@@ -9670,7 +9793,7 @@ function showResultsScreen(summaryHtml, games, skipHistorico){
   iniciarSorteio2(); // abre a tela de jogos já direto no sorteio com a bolinha, pulando a tela de configuração
   // fecha qualquer overlay/tela que esteja aberta por cima (Tendência, Histórico, etc.)
   // pra tela de resultados não ficar escondida atrás dela
-  ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayBuscaFrequencia','overlayAltaQueda','overlayHistorico',
+  ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay',
     'drawer','overlayListaResultados'].forEach(id=>{
     const el = document.getElementById(id);
@@ -10294,7 +10417,7 @@ refreshUI();
     'overlayNomeJogo','overlayFotoFull','drawer','overlay','overlayTrioProb','overlayCentroDezena','overlayProb',
     'overlayHistorico','overlayErreX','overlayGaleria',
     'overlayGeradorFiltro','overlayGeradorLoteria',
-    'overlayAltaQueda','overlayResultado','overlayTendencia','overlayBuscaFrequencia'
+    'overlayAltaQueda','overlayResultado','overlayTendencia','overlayMinhasSequencias'
   ];
 
   function isModalOpen(id){
@@ -10402,7 +10525,11 @@ if('serviceWorker' in navigator){
 
     navigator.serviceWorker.addEventListener('controllerchange', recarregarUmaVez);
 
-    navigator.serviceWorker.register('sw.js').then(registration=>{
+    // updateViaCache:'none' impede o navegador de guardar o PRÓPRIO sw.js em cache HTTP —
+    // sem isso, em alguns celulares o navegador insiste em servir um sw.js antigo por até
+    // 24h mesmo quando o registration.update() abaixo é chamado, deixando o app "travado"
+    // numa versão velha.
+    navigator.serviceWorker.register('sw.js', {updateViaCache:'none'}).then(registration=>{
       function ativarVersaoNova(){
         if(registration.waiting){
           registration.waiting.postMessage({type:'SKIP_WAITING'});
@@ -10423,7 +10550,9 @@ if('serviceWorker' in navigator){
           }
         });
       });
-      // confere no GitHub se tem versão nova: a cada 60s e sempre que o usuário volta pro app
+      // confere se tem versão nova assim que o app abre, além de a cada 60s e sempre
+      // que o usuário volta pro app
+      registration.update().catch(()=>{});
       setInterval(()=> registration.update().catch(()=>{}), 60000);
       document.addEventListener('visibilitychange', ()=>{
         if(document.visibilityState === 'visible') registration.update().catch(()=>{});
@@ -10483,86 +10612,1445 @@ if('serviceWorker' in navigator){
   }).observe(document.body, {childList:true, subtree:true});
 })();
 </script>
-</body>
-</html>
-<style id="freq-result-extra-wide">
-/* Faixa azul Resultado da Análise ainda mais esticada para os lados */
-#overlayBuscaFrequencia .freq-result{
-  width:calc(100% + 22px)!important;
+
+<style id="minhas-sequencias-resultado-alinhamento-seguro">
+/* Resultado alinhado com a linha Analisar + Limpar, sem MutationObserver. */
+#overlayMinhasSequencias .freq-result{
+  width:calc(100% - 32px)!important;
   max-width:none!important;
-  margin-left:-11px!important;
-  margin-right:-11px!important;
+  margin-left:16px!important;
+  margin-right:16px!important;
   box-sizing:border-box!important;
 }
 @media(max-width:600px){
-  #overlayBuscaFrequencia .freq-result{
-    width:calc(100% + 22px)!important;
-    margin-left:-11px!important;
-    margin-right:-11px!important;
+  #overlayMinhasSequencias .freq-result{
+    width:calc(100% - 32px)!important;
+    margin-left:16px!important;
+    margin-right:16px!important;
   }
 }
 </style>
-<style id="freq-result-align-green-button">
-/* Resultado da Análise alinhado exatamente com o botão verde Analisar Frequência */
-#overlayBuscaFrequencia .freq-result{
+
+<style id="freq-limpar-3d-imagem-final">
+/* LIMPAR — 3D com base roxa grossa, moldura branca e sombra como a referência */
+#overlayMinhasSequencias #freqBtnLimpar{
+  position:relative!important;
+  z-index:1!important;
+  overflow:visible!important;
+  isolation:isolate!important;
+  background:linear-gradient(135deg,#d92f7d 0%,#b42ca6 48%,#7024d4 100%)!important;
+  color:#fff!important;
+  border:2px solid #fff!important;
+  border-radius:7px!important;
+  box-shadow:0 5px 9px rgba(76,29,149,.30), inset 0 1px 1px rgba(255,255,255,.35)!important;
+  transform:translateY(0)!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar::after{
+  content:''!important;
+  position:absolute!important;
+  left:-2px!important;
+  right:-2px!important;
+  top:5px!important;
+  bottom:-7px!important;
+  border-radius:0 0 8px 8px!important;
+  background:linear-gradient(180deg,#5720a8,#421681)!important;
+  z-index:-1!important;
+  box-shadow:0 5px 8px rgba(76,29,149,.24)!important;
+  pointer-events:none!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar:active{
+  transform:translateY(4px)!important;
+  box-shadow:0 2px 4px rgba(76,29,149,.24), inset 0 1px 1px rgba(255,255,255,.3)!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar:active::after{
+  top:2px!important;
+  bottom:-3px!important;
+}
+</style>
+
+<style id="freq-limpar-3d-refined">
+/* Botão LIMPAR — efeito 3D com base física, como a imagem de referência */
+#overlayMinhasSequencias .freq-actions-bottom{
+  overflow:visible!important;
+  align-items:flex-start!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:visible!important;
+  background:linear-gradient(135deg,#d93682 0%,#b12cc5 46%,#7b28d6 100%)!important;
+  color:#fff!important;
+  border:3px solid #fff!important;
+  border-radius:13px!important;
+  padding:9px 17px!important;
+  min-height:38px!important;
+  font-weight:700!important;
+  box-shadow:
+    0 0 0 1px rgba(121,40,185,.10),
+    0 10px 18px rgba(92,36,164,.22)!important;
+  transform:translateY(0)!important;
+  transition:transform .08s ease!important;
+  z-index:1!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar::after{
+  content:'';
+  position:absolute;
+  z-index:-1;
+  left:-3px;
+  right:-3px;
+  top:calc(100% - 5px);
+  height:11px;
+  border-radius:0 0 14px 14px;
+  background:linear-gradient(180deg,#5e22a9 0%,#49208e 100%);
+  box-shadow:0 5px 9px rgba(73,32,142,.22);
+  pointer-events:none;
+}
+#overlayMinhasSequencias #freqBtnLimpar::before{
+  content:'';
+  position:absolute;
+  left:10px;
+  right:10px;
+  top:3px;
+  height:1px;
+  border-radius:999px;
+  background:rgba(255,255,255,.32);
+  pointer-events:none;
+}
+#overlayMinhasSequencias #freqBtnLimpar:active{
+  transform:translateY(5px)!important;
+  box-shadow:0 0 0 1px rgba(121,40,185,.10),0 4px 8px rgba(92,36,164,.18)!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar:active::after{
+  height:6px;
+  top:calc(100% - 4px);
+}
+</style>
+</body>
+</html>
+
+<style id="minhas-sequencias-bordas-numeros-final">
+/* Minhas Sequências — bordas somente nos números */
+#overlayMinhasSequencias #freqNumGrid .conf-ball{
+  border:1px solid #d6d6d6!important;
+  outline:none!important;
+  box-sizing:border-box!important;
+}
+#overlayMinhasSequencias #freqNumGrid .conf-ball.freq-on{
+  border:1px solid #15905c!important;
+}
+</style>
+
+<style id="minhas-sequencias-botoes-analisar-limpar-final">
+/* Minhas Sequências — Analisar + Limpar mais largos para os lados e mais baixos */
+#overlayMinhasSequencias .freq-actions-bottom{
+  display:flex!important;
+  width:100%!important;
+  gap:8px!important;
+  align-items:stretch!important;
+}
+#overlayMinhasSequencias #freqBtnAnalisar,
+#overlayMinhasSequencias #freqBtnLimpar{
+  min-width:0!important;
+  min-height:30px!important;
+  height:30px!important;
+  padding:3px 12px!important;
+  font-size:12px!important;
+  line-height:1!important;
+  box-sizing:border-box!important;
+}
+#overlayMinhasSequencias #freqBtnAnalisar{
+  flex:1 1 auto!important;
+  width:auto!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar{
+  flex:0 0 78px!important;
+  width:78px!important;
+  padding-left:6px!important;
+  padding-right:6px!important;
+}
+</style>
+
+<style id="minhas-sequencias-nova-busca-estreita-final">
+/* Minhas Sequências — faixa Nova Busca mais estreita e centralizada */
+#overlayMinhasSequencias .freq-search-head{
+  width:calc(100% - 80px)!important;
+  margin-left:40px!important;
+  margin-right:40px!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:600px){
+  #overlayMinhasSequencias .freq-search-head{
+    width:calc(100% - 56px)!important;
+    margin-left:28px!important;
+    margin-right:28px!important;
+  }
+}
+</style>
+
+<style id="minhas-sequencias-nova-busca-so-largura-final">
+/* Nova Busca: alterar somente a largura; preservar tamanho/altura/texto */
+#overlayMinhasSequencias .freq-search-head{
+  width:calc(100% - 110px)!important;
+  margin-left:55px!important;
+  margin-right:55px!important;
+  min-height:0!important;
+  padding:11px 14px!important;
+  font-size:19px!important;
+  line-height:normal!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:600px){
+  #overlayMinhasSequencias .freq-search-head{
+    width:calc(100% - 76px)!important;
+    margin-left:38px!important;
+    margin-right:38px!important;
+    padding:11px 14px!important;
+    font-size:19px!important;
+    line-height:normal!important;
+  }
+}
+</style>
+
+<style id="minhas-sequencias-nova-busca-baixa-lateral-centralizada-final">
+/* Nova Busca: menor na altura, mais larga nas laterais e centralizada */
+#overlayMinhasSequencias .freq-search-head{
+  width:calc(100% - 48px)!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  padding-top:6px!important;
+  padding-bottom:6px!important;
+  padding-left:14px!important;
+  padding-right:14px!important;
+  min-height:0!important;
+  line-height:1.15!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:600px){
+  #overlayMinhasSequencias .freq-search-head{
+    width:calc(100% - 32px)!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    padding-top:6px!important;
+    padding-bottom:6px!important;
+  }
+}
+</style>
+
+<style id="minhas-sequencias-nova-busca-igual-hero-final-v2">
+/* Nova Busca: mesma largura do bloco Buscar Frequência, porém mais baixa */
+#overlayMinhasSequencias .freq-search-head{
+  width:100%!important;
+  max-width:100%!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  padding:3px 14px!important;
+  min-height:0!important;
+  line-height:1.1!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:600px){
+  #overlayMinhasSequencias .freq-search-head{
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    padding:3px 14px!important;
+  }
+}
+</style>
+<style id="minhas-sequencias-borda-azul-selecionar-todos-final">
+#overlayMinhasSequencias #freqBtnSelecionarTodos{
+  border:1px solid #2f80d0!important;
+  outline:none!important;
+  color:#2f80d0!important;
+  background:#fff!important;
+}
+</style>
+
+<style id="minhas-sequencias-largura-aba-final">
+/* Minhas Sequências — aumentar só um pouco a largura geral da aba */
+#overlayMinhasSequencias .freq-shell{
+  width:min(790px,calc(100% - 18px))!important;
+  max-width:790px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+@media (min-width:700px){
+  #overlayMinhasSequencias .freq-shell{
+    width:790px!important;
+    max-width:calc(100% - 18px)!important;
+  }
+}
+@media (max-width:699px){
+  #overlayMinhasSequencias .freq-shell{
+    width:calc(100% - 18px)!important;
+    max-width:none!important;
+  }
+}
+</style>
+
+<style id="minhas-sequencias-hero-altura-final">
+/* Minhas Sequências — diminuir bastante somente a altura do bloco Buscar Frequência */
+#overlayMinhasSequencias .freq-hero{
+  padding-top:4px!important;
+  padding-bottom:4px!important;
+  min-height:0!important;
+  height:auto!important;
+}
+#overlayMinhasSequencias .freq-hero-sub{
+  margin-top:2px!important;
+}
+#overlayMinhasSequencias .freq-home-btn{
+  margin-top:0!important;
+  margin-bottom:0!important;
+}
+@media(max-width:600px){
+  #overlayMinhasSequencias .freq-hero{
+    padding-top:4px!important;
+    padding-bottom:4px!important;
+    min-height:0!important;
+    height:auto!important;
+  }
+  #overlayMinhasSequencias .freq-hero-sub{margin-top:2px!important;}
+}
+</style>
+
+<style id="minhas-sequencias-hero-referencia-final">
+/* Buscar Frequência — proporções iguais à referência enviada */
+#overlayMinhasSequencias .freq-hero{
+  width:100%!important;
+  min-height:0!important;
+  height:auto!important;
+  padding:18px 30px 19px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:22px!important;
+  border-radius:5px 5px 0 0!important;
+}
+#overlayMinhasSequencias .freq-hero > div:first-child{
+  flex:1 1 auto!important;
+  min-width:0!important;
+}
+#overlayMinhasSequencias .freq-hero-title{
+  font-size:31px!important;
+  line-height:1.08!important;
+  font-weight:800!important;
   max-width:none!important;
+  white-space:nowrap!important;
+}
+#overlayMinhasSequencias .freq-hero-title > span{
+  font-size:34px!important;
+  margin-right:9px!important;
+  vertical-align:-1px!important;
+}
+#overlayMinhasSequencias .freq-hero-sub{
+  margin-top:13px!important;
+  font-size:18px!important;
+  line-height:1.25!important;
+  white-space:nowrap!important;
+}
+#overlayMinhasSequencias .freq-home-btn{
+  flex:0 0 auto!important;
+  padding:12px 18px!important;
+  min-height:48px!important;
+  font-size:18px!important;
+  line-height:1!important;
+  border-radius:6px!important;
+  margin:0!important;
+}
+@media(max-width:699px){
+  #overlayMinhasSequencias .freq-hero{padding:13px 16px 14px!important;gap:12px!important;}
+  #overlayMinhasSequencias .freq-hero-title{font-size:22px!important;white-space:normal!important;}
+  #overlayMinhasSequencias .freq-hero-title > span{font-size:25px!important;margin-right:6px!important;}
+  #overlayMinhasSequencias .freq-hero-sub{font-size:13px!important;margin-top:8px!important;white-space:normal!important;}
+  #overlayMinhasSequencias .freq-home-btn{padding:10px 13px!important;min-height:40px!important;font-size:14px!important;}
+}
+</style>
+
+<style id="minhas-sequencias-hero-bem-fino-final">
+/* Buscar Frequência — deixar o bloco roxo bem fino, mantendo a largura */
+#overlayMinhasSequencias .freq-hero{
+  min-height:0!important;
+  height:auto!important;
+  padding:6px 18px!important;
+  gap:14px!important;
+  align-items:center!important;
+}
+#overlayMinhasSequencias .freq-hero-title{
+  font-size:24px!important;
+  line-height:1!important;
+}
+#overlayMinhasSequencias .freq-hero-title > span{
+  font-size:26px!important;
+  margin-right:7px!important;
+}
+#overlayMinhasSequencias .freq-hero-sub{
+  margin-top:3px!important;
+  font-size:13px!important;
+  line-height:1.05!important;
+}
+#overlayMinhasSequencias .freq-home-btn{
+  min-height:28px!important;
+  padding:4px 10px!important;
+  font-size:13px!important;
+  line-height:1!important;
+}
+@media(max-width:699px){
+  #overlayMinhasSequencias .freq-hero{
+    padding:5px 10px!important;
+    gap:8px!important;
+  }
+  #overlayMinhasSequencias .freq-hero-title{
+    font-size:17px!important;
+    line-height:1!important;
+    white-space:normal!important;
+  }
+  #overlayMinhasSequencias .freq-hero-title > span{
+    font-size:19px!important;
+    margin-right:5px!important;
+  }
+  #overlayMinhasSequencias .freq-hero-sub{
+    margin-top:2px!important;
+    font-size:10px!important;
+    line-height:1.05!important;
+    white-space:normal!important;
+  }
+  #overlayMinhasSequencias .freq-home-btn{
+    min-height:26px!important;
+    padding:3px 8px!important;
+    font-size:11px!important;
+  }
+}
+</style>
+
+<style id="minhas-sequencias-hero-ultrafino-uma-linha-final">
+/* Ajuste final: bloco roxo mais fino e título em uma única linha */
+#overlayMinhasSequencias .freq-hero{
+  min-height:0!important;
+  height:auto!important;
+  padding:4px 14px!important;
+  gap:10px!important;
+  align-items:center!important;
+}
+#overlayMinhasSequencias .freq-hero > div:first-child{
+  min-width:0!important;
+  flex:1 1 auto!important;
+}
+#overlayMinhasSequencias .freq-hero-title{
+  font-size:18px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  flex-wrap:nowrap!important;
+}
+#overlayMinhasSequencias .freq-hero-title > span{
+  font-size:20px!important;
+  margin-right:5px!important;
+  flex:0 0 auto!important;
+}
+#overlayMinhasSequencias .freq-hero-sub{
+  margin-top:2px!important;
+  font-size:10px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+}
+#overlayMinhasSequencias .freq-home-btn{
+  min-height:24px!important;
+  height:24px!important;
+  padding:2px 8px!important;
+  font-size:10px!important;
+  line-height:1!important;
+  flex:0 0 auto!important;
+}
+@media(max-width:699px){
+  #overlayMinhasSequencias .freq-hero{
+    padding:3px 7px!important;
+    gap:5px!important;
+  }
+  #overlayMinhasSequencias .freq-hero-title{
+    font-size:13px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+  #overlayMinhasSequencias .freq-hero-title > span{
+    font-size:14px!important;
+    margin-right:3px!important;
+  }
+  #overlayMinhasSequencias .freq-hero-sub{
+    margin-top:1px!important;
+    font-size:7.5px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+  #overlayMinhasSequencias .freq-home-btn{
+    min-height:21px!important;
+    height:21px!important;
+    padding:1px 5px!important;
+    font-size:8px!important;
+  }
+}
+</style>
+
+<style id="minhas-sequencias-hero-altura-um-pouco-maior-final">
+/* Aumenta somente um pouco a altura do bloco roxo, preservando largura e tipografia */
+#overlayMinhasSequencias .freq-hero{
+  padding-top:6px!important;
+  padding-bottom:6px!important;
+}
+@media(max-width:699px){
+  #overlayMinhasSequencias .freq-hero{
+    padding-top:5px!important;
+    padding-bottom:5px!important;
+  }
+}
+</style>
+
+<style id="minhas-sequencias-nova-busca-fonte-menor-final">
+/* Minhas Sequências — diminui somente a letra da faixa Nova Busca */
+#overlayMinhasSequencias .freq-search-head{
+  font-size:12px!important;
+}
+#overlayMinhasSequencias .freq-search-head > span{
+  font-size:12px!important;
+}
+@media(max-width:699px){
+  #overlayMinhasSequencias .freq-search-head{
+    font-size:11px!important;
+  }
+  #overlayMinhasSequencias .freq-search-head > span{
+    font-size:11px!important;
+  }
+}
+</style>
+
+<style id="minhas-sequencias-nova-busca-somente-fonte-altura-preservada-final">
+/* Nova Busca: fonte menor sem alterar a altura da faixa */
+#overlayMinhasSequencias .freq-search-head{
+  font-size:12px!important;
+  height:22px!important;
+  min-height:22px!important;
+  padding:3px 14px!important;
+  line-height:16px!important;
+  display:flex!important;
+  align-items:center!important;
+}
+#overlayMinhasSequencias .freq-search-head > span{
+  font-size:12px!important;
+  line-height:16px!important;
+}
+@media(max-width:699px){
+  #overlayMinhasSequencias .freq-search-head{
+    font-size:11px!important;
+    height:22px!important;
+    min-height:22px!important;
+    padding:3px 14px!important;
+    line-height:16px!important;
+  }
+  #overlayMinhasSequencias .freq-search-head > span{
+    font-size:11px!important;
+    line-height:16px!important;
+  }
+}
+</style>
+
+<style id="minhas-sequencias-resultado-alinhado-botoes-final">
+/* Resultado da Análise: exatamente a mesma largura e alinhamento da linha Analisar + Limpar */
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:100%!important;
+  max-width:100%!important;
+  margin-left:0!important;
   margin-right:0!important;
   box-sizing:border-box!important;
 }
 </style>
-<script id="freq-result-align-green-button-js">
-(function(){
-  function alinharResultadoComAnalisar(){
-    const overlay = document.getElementById('overlayBuscaFrequencia');
-    const shell = overlay && overlay.querySelector('.freq-shell');
-    const btn = document.getElementById('freqBtnAnalisar');
-    const resultado = document.getElementById('freqResultadoCard');
-    if(!shell || !btn || !resultado) return;
-    const shellRect = shell.getBoundingClientRect();
-    const btnRect = btn.getBoundingClientRect();
-    resultado.style.setProperty('width', btnRect.width + 'px', 'important');
-    resultado.style.setProperty('margin-left', (btnRect.left - shellRect.left) + 'px', 'important');
-    resultado.style.setProperty('margin-right', '0px', 'important');
-  }
-  window.addEventListener('resize', alinharResultadoComAnalisar);
-  window.addEventListener('orientationchange', alinharResultadoComAnalisar);
-  document.addEventListener('DOMContentLoaded', alinharResultadoComAnalisar);
-  const obs = new MutationObserver(alinharResultadoComAnalisar);
-  const resultado = document.getElementById('freqResultadoCard');
-  if(resultado) obs.observe(resultado,{attributes:true,attributeFilter:['style','class']});
-  setTimeout(alinharResultadoComAnalisar,0);
-})();
-</script>
 
-<style id="freq-result-align-actions-row-final">
-/* Resultado da Análise: mesmas bordas laterais da linha Analisar Frequência + Limpar */
-#overlayBuscaFrequencia .freq-result{
-  max-width:none!important;
+<style id="minhas-sequencias-resultado-alinhado-botoes-correcao-final">
+/* Correção: Resultado da Análise acompanha exatamente as laterais da linha Analisar + Limpar. */
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:calc(100% - 32px)!important;
+  max-width:calc(100% - 32px)!important;
+  margin-left:16px!important;
+  margin-right:16px!important;
   box-sizing:border-box!important;
 }
 </style>
-<script id="freq-result-align-actions-row-final-js">
-(function(){
-  function alinharResultadoComLinhaBotoes(){
-    const overlay = document.getElementById('overlayBuscaFrequencia');
-    const shell = overlay && overlay.querySelector('.freq-shell');
-    const linha = overlay && overlay.querySelector('.freq-actions-bottom');
-    const resultado = document.getElementById('freqResultadoCard');
-    if(!shell || !linha || !resultado) return;
-    const sr = shell.getBoundingClientRect();
-    const lr = linha.getBoundingClientRect();
-    resultado.style.setProperty('width', lr.width + 'px', 'important');
-    resultado.style.setProperty('margin-left', (lr.left - sr.left) + 'px', 'important');
-    resultado.style.setProperty('margin-right', '0px', 'important');
+
+<style id="minhas-sequencias-resultado-mais-estreito-final">
+/* Resultado da Análise: um pouco mais estreito e centralizado */
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:calc(100% - 56px)!important;
+  max-width:calc(100% - 56px)!important;
+  margin-left:28px!important;
+  margin-right:28px!important;
+  box-sizing:border-box!important;
+}
+</style>
+
+<style id="minhas-sequencias-jogos-altura-menor-final">
+/* Minhas Sequências — reduz somente a altura dos cards dos jogos/sorteios */
+#overlayMinhasSequencias .freq-sorteio-card{
+  padding:6px 10px!important;
+  margin-bottom:7px!important;
+}
+#overlayMinhasSequencias .freq-sorteio-head{
+  margin-bottom:4px!important;
+  line-height:16px!important;
+}
+#overlayMinhasSequencias .freq-sorteio-nums{
+  gap:3px!important;
+}
+#overlayMinhasSequencias .freq-mini-ball{
+  height:20px!important;
+  min-height:20px!important;
+  line-height:20px!important;
+}
+</style>
+
+<style id="minhas-sequencias-jogos-altura-ainda-menor-final">
+/* Minhas Sequências — cards dos sorteios ainda mais compactos, sem alterar a largura */
+#overlayMinhasSequencias .freq-sorteio-card{
+  padding:3px 8px!important;
+  margin-bottom:5px!important;
+}
+#overlayMinhasSequencias .freq-sorteio-head{
+  margin-bottom:2px!important;
+  line-height:14px!important;
+}
+#overlayMinhasSequencias .freq-sorteio-nums{
+  gap:2px!important;
+  line-height:1!important;
+}
+#overlayMinhasSequencias .freq-mini-ball{
+  height:17px!important;
+  min-height:17px!important;
+  line-height:17px!important;
+}
+</style>
+
+<style id="minhas-sequencias-analisar-alinha-resultado-final">
+/* Analisar Frequência: mais baixo e expandido; Limpar: menor. A linha acompanha a largura da faixa azul. */
+#overlayMinhasSequencias .freq-actions-bottom{
+  width:calc(100% - 56px)!important;
+  max-width:calc(100% - 56px)!important;
+  margin-left:28px!important;
+  margin-right:28px!important;
+  gap:6px!important;
+  box-sizing:border-box!important;
+}
+#overlayMinhasSequencias #freqBtnAnalisar{
+  flex:1 1 auto!important;
+  width:auto!important;
+  height:25px!important;
+  min-height:25px!important;
+  padding:2px 10px!important;
+  font-size:11px!important;
+  line-height:1!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar{
+  flex:0 0 58px!important;
+  width:58px!important;
+  height:25px!important;
+  min-height:25px!important;
+  padding:2px 4px!important;
+  font-size:10px!important;
+  line-height:1!important;
+}
+</style>
+
+<style id="minhas-sequencias-botoes-resultado-referencia-final">
+/* Referência: linha Analisar + Limpar e faixa Resultado com exatamente as mesmas laterais */
+#overlayMinhasSequencias .freq-actions-bottom{
+  width:calc(100% - 56px)!important;
+  max-width:calc(100% - 56px)!important;
+  margin-left:28px!important;
+  margin-right:28px!important;
+  gap:8px!important;
+  box-sizing:border-box!important;
+}
+#overlayMinhasSequencias #freqBtnAnalisar{
+  flex:1 1 0!important;
+  width:auto!important;
+  height:30px!important;
+  min-height:30px!important;
+  padding:3px 12px!important;
+  font-size:13px!important;
+  line-height:1!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar{
+  flex:0 0 72px!important;
+  width:72px!important;
+  height:30px!important;
+  min-height:30px!important;
+  padding:3px 6px!important;
+  font-size:12px!important;
+  line-height:1!important;
+}
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:calc(100% - 56px)!important;
+  max-width:calc(100% - 56px)!important;
+  margin-left:28px!important;
+  margin-right:28px!important;
+  box-sizing:border-box!important;
+}
+</style>
+
+<style id="minhas-sequencias-analisar-maior-ate-faixa-azul-final">
+/* Analisar Frequência maior; Limpar permanece pequeno. Conjunto alinhado à faixa azul. */
+#overlayMinhasSequencias .freq-actions-bottom{
+  width:calc(100% - 56px)!important;
+  max-width:calc(100% - 56px)!important;
+  margin-left:28px!important;
+  margin-right:28px!important;
+  gap:5px!important;
+}
+#overlayMinhasSequencias #freqBtnAnalisar{
+  flex:1 1 auto!important;
+  width:auto!important;
+  min-width:0!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar{
+  flex:0 0 58px!important;
+  width:58px!important;
+  max-width:58px!important;
+}
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:calc(100% - 56px)!important;
+  max-width:calc(100% - 56px)!important;
+  margin-left:28px!important;
+  margin-right:28px!important;
+}
+</style>
+
+<style id="minhas-sequencias-analisar-somente-largura-final">
+/* Ajuste final: aumentar SOMENTE a largura do botão Analisar Frequência; não alterar altura. */
+#overlayMinhasSequencias .freq-actions-bottom{
+  width:calc(100% - 56px)!important;
+  max-width:calc(100% - 56px)!important;
+  margin-left:28px!important;
+  margin-right:28px!important;
+  gap:4px!important;
+}
+#overlayMinhasSequencias #freqBtnAnalisar{
+  flex:1 1 0!important;
+  width:auto!important;
+  min-width:0!important;
+  height:30px!important;
+  min-height:30px!important;
+  max-height:30px!important;
+  padding-top:3px!important;
+  padding-bottom:3px!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar{
+  flex:0 0 52px!important;
+  width:52px!important;
+  min-width:52px!important;
+  max-width:52px!important;
+  height:30px!important;
+  min-height:30px!important;
+  max-height:30px!important;
+}
+</style>
+
+<style id="minhas-sequencias-analisar-largura-corrigida-definitiva">
+/* Ajuste definitivo: aumentar VISIVELMENTE apenas a largura do botão Analisar Frequência. */
+#overlayMinhasSequencias .freq-actions-bottom{
+  display:flex!important;
+  width:calc(100% - 40px)!important;
+  max-width:calc(100% - 40px)!important;
+  margin-left:20px!important;
+  margin-right:20px!important;
+  gap:5px!important;
+  box-sizing:border-box!important;
+}
+#overlayMinhasSequencias #freqBtnAnalisar{
+  flex:1 1 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  height:30px!important;
+  min-height:30px!important;
+  max-height:30px!important;
+  padding:3px 12px!important;
+  font-size:13px!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar{
+  flex:0 0 44px!important;
+  width:44px!important;
+  min-width:44px!important;
+  max-width:44px!important;
+  height:30px!important;
+  min-height:30px!important;
+  max-height:30px!important;
+  padding:2px 2px!important;
+  font-size:10px!important;
+}
+/* A faixa azul acompanha exatamente as laterais do conjunto dos dois botões. */
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:calc(100% - 40px)!important;
+  max-width:calc(100% - 40px)!important;
+  margin-left:20px!important;
+  margin-right:20px!important;
+  box-sizing:border-box!important;
+}
+</style>
+
+<style id="minhas-sequencias-analisar-aumentar-mais-final">
+/* Aumentar MAIS somente a largura do Analisar Frequência, mantendo a altura. */
+#overlayMinhasSequencias .freq-actions-bottom{
+  width:calc(100% - 24px)!important;
+  max-width:calc(100% - 24px)!important;
+  margin-left:12px!important;
+  margin-right:12px!important;
+  gap:3px!important;
+}
+#overlayMinhasSequencias #freqBtnAnalisar{
+  flex:1 1 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  height:30px!important;
+  min-height:30px!important;
+  max-height:30px!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar{
+  flex:0 0 36px!important;
+  width:36px!important;
+  min-width:36px!important;
+  max-width:36px!important;
+  height:30px!important;
+  min-height:30px!important;
+  max-height:30px!important;
+  padding-left:1px!important;
+  padding-right:1px!important;
+  font-size:9px!important;
+}
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:calc(100% - 24px)!important;
+  max-width:calc(100% - 24px)!important;
+  margin-left:12px!important;
+  margin-right:12px!important;
+}
+</style>
+
+<style id="minhas-sequencias-analisar-aumentar-ainda-mais-final">
+/* Mais largura para Analisar Frequência; altura permanece exatamente em 30px. */
+#overlayMinhasSequencias .freq-actions-bottom{
+  width:calc(100% - 8px)!important;
+  max-width:calc(100% - 8px)!important;
+  margin-left:4px!important;
+  margin-right:4px!important;
+  gap:2px!important;
+}
+#overlayMinhasSequencias #freqBtnAnalisar{
+  flex:1 1 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  height:30px!important;
+  min-height:30px!important;
+  max-height:30px!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar{
+  flex:0 0 30px!important;
+  width:30px!important;
+  min-width:30px!important;
+  max-width:30px!important;
+  height:30px!important;
+  min-height:30px!important;
+  max-height:30px!important;
+  padding:1px!important;
+  font-size:8px!important;
+}
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:calc(100% - 8px)!important;
+  max-width:calc(100% - 8px)!important;
+  margin-left:4px!important;
+  margin-right:4px!important;
+}
+</style>
+
+<style id="minhas-sequencias-analisar-aumentar-mais-um-pouco-final">
+/* Mais um pequeno aumento apenas na largura útil do botão Analisar. */
+#overlayMinhasSequencias .freq-actions-bottom{
+  width:100%!important;
+  max-width:100%!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  gap:2px!important;
+}
+#overlayMinhasSequencias #freqBtnAnalisar{
+  flex:1 1 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  height:30px!important;
+  min-height:30px!important;
+  max-height:30px!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar{
+  flex:0 0 26px!important;
+  width:26px!important;
+  min-width:26px!important;
+  max-width:26px!important;
+  height:30px!important;
+  min-height:30px!important;
+  max-height:30px!important;
+  padding:1px!important;
+  font-size:8px!important;
+}
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:100%!important;
+  max-width:100%!important;
+  margin-left:0!important;
+  margin-right:0!important;
+}
+</style>
+<style id="minhas-sequencias-diminuir-so-altura-analisar-final">
+/* Diminui somente a altura do botão Analisar Frequência; largura permanece igual. */
+#overlayMinhasSequencias #freqBtnAnalisar{
+  height:27px!important;
+  min-height:27px!important;
+  max-height:27px!important;
+  padding-top:1px!important;
+  padding-bottom:1px!important;
+}
+</style>
+<style id="minhas-sequencias-limpar-aumentar-um-pouco-final">
+/* Aumenta somente um pouco a largura do botão Limpar; mantém a altura atual. */
+#overlayMinhasSequencias #freqBtnLimpar{
+  flex:0 0 34px!important;
+  width:34px!important;
+  min-width:34px!important;
+  max-width:34px!important;
+  height:27px!important;
+  min-height:27px!important;
+  max-height:27px!important;
+}
+</style>
+<style id="minhas-sequencias-faixa-azul-diminuir-largura-final">
+/* Diminui somente um pouco a largura da faixa azul/Resultado da Análise. */
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:calc(100% - 16px)!important;
+  max-width:calc(100% - 16px)!important;
+  margin-left:8px!important;
+  margin-right:8px!important;
+  box-sizing:border-box!important;
+}
+</style>
+<style id="minhas-sequencias-faixa-azul-mais-estreita-final">
+/* Resultado da Análise: um pouco mais estreito, mantendo centralizado. */
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:calc(100% - 24px)!important;
+  max-width:calc(100% - 24px)!important;
+  margin-left:12px!important;
+  margin-right:12px!important;
+  box-sizing:border-box!important;
+}
+</style>
+<style id="minhas-sequencias-faixa-azul-alinhar-botoes-final">
+/* Faixa azul um pouco mais estreita para igualar visualmente ao conjunto Analisar + Limpar. */
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:calc(100% - 32px)!important;
+  max-width:calc(100% - 32px)!important;
+  margin-left:16px!important;
+  margin-right:16px!important;
+  box-sizing:border-box!important;
+}
+</style>
+<style id="minhas-sequencias-faixa-azul-corrigir-diminuicao-real-final">
+/* Correção: reduz de forma visível a largura real do cartão/faixa azul. */
+#overlayMinhasSequencias #freqResultadoCard,
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:calc(100% - 56px)!important;
+  max-width:calc(100% - 56px)!important;
+  margin-left:28px!important;
+  margin-right:28px!important;
+  box-sizing:border-box!important;
+}
+#overlayMinhasSequencias #freqResultadoCard .freq-result-title{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+</style>
+<style id="minhas-sequencias-faixa-azul-mais-estreita-final">
+/* Faixa azul: mais um pouco estreita, mantendo centralizada. */
+#overlayMinhasSequencias #freqResultadoCard,
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:calc(100% - 68px)!important;
+  max-width:calc(100% - 68px)!important;
+  margin-left:34px!important;
+  margin-right:34px!important;
+  box-sizing:border-box!important;
+}
+#overlayMinhasSequencias #freqResultadoCard .freq-result-title{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+</style>
+<style id="minhas-sequencias-faixa-azul-pouquinho-de-nada-final">
+/* Faixa azul: redução mínima adicional, mantendo centralizada. */
+#overlayMinhasSequencias #freqResultadoCard,
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  width:calc(100% - 72px)!important;
+  max-width:calc(100% - 72px)!important;
+  margin-left:36px!important;
+  margin-right:36px!important;
+  box-sizing:border-box!important;
+}
+#overlayMinhasSequencias #freqResultadoCard .freq-result-title{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+</style>
+<style id="minhas-sequencias-borda-so-ao-redor-resultado-final">
+/* Resultado da Análise: borda somente no contorno externo. */
+#overlayMinhasSequencias #freqResultadoCard,
+#overlayMinhasSequencias #freqResultadoCard.freq-result{
+  border:1px solid #d4d4d4!important;
+  outline:none!important;
+  box-sizing:border-box!important;
+}
+#overlayMinhasSequencias #freqResultadoCard > *,
+#overlayMinhasSequencias #freqResultadoCard .freq-result-title,
+#overlayMinhasSequencias #freqResultadoCard .freq-stats,
+#overlayMinhasSequencias #freqResultadoCard .freq-stat{
+  border:none!important;
+  outline:none!important;
+}
+</style>
+
+<style id="minhas-sequencias-contorno-como-foto-final">
+/* Contorno externo como na referência: começa em Nova Busca e envolve todo o bloco de análise/resultado. */
+#overlayMinhasSequencias .freq-analysis-frame{
+  border:1px solid #222!important;
+  border-radius:0!important;
+  padding:0 0 14px!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+  background:#fff!important;
+}
+#overlayMinhasSequencias .freq-analysis-frame .freq-search-card{
+  border:0!important;
+  border-radius:0!important;
+  margin:0!important;
+}
+#overlayMinhasSequencias .freq-analysis-frame .freq-search-body{
+  border:0!important;
+}
+#overlayMinhasSequencias .freq-analysis-frame .freq-search-head{
+  border:0!important;
+  border-radius:0!important;
+}
+/* Remove a borda externa anterior do cartão azul; ele permanece dentro do contorno maior. */
+#overlayMinhasSequencias .freq-analysis-frame #freqResultadoCard{
+  border:0!important;
+}
+</style>
+<style id="minhas-sequencias-contorno-largura-menor-final">
+/* Diminui somente a largura do contorno externo e mantém centralizado. */
+#overlayMinhasSequencias .freq-analysis-frame{
+  width:calc(100% - 18px)!important;
+  max-width:calc(100% - 18px)!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+</style>
+<style id="minhas-sequencias-contorno-alinhado-nova-busca-final">
+/* Contorno externo: mais estreito e alinhado exatamente às laterais da aba Nova Busca. */
+#overlayMinhasSequencias .freq-analysis-frame{
+  width:calc(100% - 28px)!important;
+  max-width:calc(100% - 28px)!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+#overlayMinhasSequencias .freq-analysis-frame .freq-search-card,
+#overlayMinhasSequencias .freq-analysis-frame .freq-search-head{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+</style>
+<style id="minhas-sequencias-corrigir-so-espaco-borda-final">
+/* Corrige apenas o contorno: não redimensiona nem desloca Selecionar Todos ou o conteúdo. */
+#overlayMinhasSequencias .freq-analysis-frame{
+  position:relative!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  border:0!important;
+  padding:0 0 14px!important;
+}
+#overlayMinhasSequencias .freq-analysis-frame::after{
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:14px;
+  right:14px;
+  border:1px solid #222;
+  box-sizing:border-box;
+  pointer-events:none;
+  z-index:20;
+}
+/* Mantém Nova Busca e todos os controles nas dimensões anteriores. */
+#overlayMinhasSequencias .freq-analysis-frame .freq-search-card,
+#overlayMinhasSequencias .freq-analysis-frame .freq-search-head{
+  max-width:none!important;
+}
+</style>
+<style id="minhas-sequencias-borda-cinza-espaco-menor-final">
+/* Ajusta somente o contorno: um pouquinho mais para dentro e na cor cinza. */
+#overlayMinhasSequencias .freq-analysis-frame::after{
+  left:16px!important;
+  right:16px!important;
+  border-color:#b8b8b8!important;
+}
+</style>
+<style id="minhas-sequencias-borda-cinza-apagado-pouquinho-final">
+/* Contorno: só mais um pouco para dentro, em cinza claro/apagado. */
+#overlayMinhasSequencias .freq-analysis-frame::after{
+  left:18px!important;
+  right:18px!important;
+  border-color:#d6d6d6!important;
+}
+</style>
+<style id="minhas-sequencias-borda-espaco-largura-altura-menor-final">
+/* Contorno: só mais um pouquinho para dentro nas laterais e com menos espaço na altura. */
+#overlayMinhasSequencias .freq-analysis-frame::after{
+  left:20px!important;
+  right:20px!important;
+  top:2px!important;
+  bottom:4px!important;
+  border-color:#d6d6d6!important;
+}
+</style>
+<style id="minhas-sequencias-borda-topo-alinhado-verde-final">
+/* Diminui somente o espaço superior do contorno, alinhando-o à faixa verde Nova Busca. */
+#overlayMinhasSequencias .freq-analysis-frame::after{
+  top:0!important;
+}
+</style>
+<style id="minhas-sequencias-borda-topo-encostar-verde-correcao-final">
+/* Corrige somente o topo do contorno: desce a linha superior para encostar na faixa verde Nova Busca. */
+#overlayMinhasSequencias .freq-analysis-frame::after{
+  top:4px!important;
+}
+</style>
+<style id="minhas-sequencias-borda-topo-diminuir-mais-final">
+/* Reduz mais somente o espaço superior: aproxima a borda da faixa verde Nova Busca. */
+#overlayMinhasSequencias .freq-analysis-frame::after{
+  top:7px!important;
+}
+</style>
+<style id="minhas-sequencias-borda-topo-encostado-verde-final">
+/* Topo do contorno: elimina o espaço superior até encostar na faixa verde Nova Busca. */
+#overlayMinhasSequencias .freq-analysis-frame::after{
+  top:10px!important;
+}
+</style>
+<style id="minhas-sequencias-borda-topo-diminuir-ainda-mais-final">
+/* Diminui ainda mais somente o espaço superior do contorno. */
+#overlayMinhasSequencias .freq-analysis-frame::after{
+  top:13px!important;
+}
+</style>
+<style id="minhas-sequencias-borda-topo-diminuir-mais-3-final">
+/* Diminui mais somente o espaço superior do contorno. */
+#overlayMinhasSequencias .freq-analysis-frame::after{
+  top:16px!important;
+}
+</style>
+<style id="minhas-sequencias-borda-topo-diminuir-mais-4-final">
+/* Aproxima mais um pouco somente a linha superior da borda da faixa verde. */
+#overlayMinhasSequencias .freq-analysis-frame::before{
+  top:18px!important;
+}
+</style>
+<style id="minhas-sequencias-borda-topo-diminuir-mais-5-final">
+/* Aproxima mais um pouco somente o topo do contorno da faixa verde. */
+#overlayMinhasSequencias .freq-analysis-frame::after{
+  top:19px!important;
+}
+</style>
+<style id="minhas-sequencias-efeito-3d-externo-final">
+/* Efeito 3D somente por fora do contorno da aba, sem alterar tamanhos internos. */
+#overlayMinhasSequencias .freq-analysis-frame::after{
+  box-shadow:
+    0 2px 4px rgba(0,0,0,.10),
+    0 6px 12px rgba(0,0,0,.08),
+    inset 0 1px 0 rgba(255,255,255,.75)!important;
+}
+</style>
+<style id="minhas-sequencias-borda-completar-restantes-azul-claro-final">
+/* Borda azul-claro somente no botão Completar Restantes. */
+#overlayMinhasSequencias #freqBtnCompletarRestantes{
+  border:1px solid #8fd8ee!important;
+  outline:none!important;
+}
+</style>
+<style id="minhas-sequencias-abas-quantidade-bordas-separadas-final">
+/* Quantidade: borda ao redor, divisões visíveis, nomes centralizados e leve respiro entre texto e bordas. */
+#overlayMinhasSequencias #freqQtdTabs{
+  display:flex!important;
+  width:100%!important;
+  gap:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:1px solid #aaa!important;
+  border-radius:5px!important;
+  box-sizing:border-box!important;
+}
+#overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn{
+  flex:1 1 20%!important;
+  width:20%!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:8px 6px!important;
+  border:0!important;
+  border-right:1px solid #aaa!important;
+  border-radius:0!important;
+  text-align:center!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  white-space:nowrap!important;
+  box-sizing:border-box!important;
+}
+#overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn:last-child{
+  border-right:0!important;
+}
+#overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn.active{
+  border-right:1px solid #aaa!important;
+}
+#overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn.active:last-child{
+  border-right:0!important;
+}
+@media(max-width:699px){
+  #overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn{
+    padding:7px 3px!important;
+    font-size:11px!important;
   }
-  window.addEventListener('resize', alinharResultadoComLinhaBotoes);
-  window.addEventListener('orientationchange', alinharResultadoComLinhaBotoes);
-  document.addEventListener('DOMContentLoaded', alinharResultadoComLinhaBotoes);
-  setTimeout(alinharResultadoComLinhaBotoes,0);
-  setTimeout(alinharResultadoComLinhaBotoes,250);
-  const resultado = document.getElementById('freqResultadoCard');
-  if(resultado){
-    new MutationObserver(alinharResultadoComLinhaBotoes).observe(resultado,{attributes:true,attributeFilter:['style','class']});
+}
+</style>
+<style id="minhas-sequencias-abas-quantidade-botoes-individuais-final">
+/* 5, 7, 9, 10 e 11: botões individuais separados, como os números da grade abaixo. */
+#overlayMinhasSequencias #freqQtdTabs{
+  display:flex!important;
+  width:100%!important;
+  gap:6px!important;
+  padding:0!important;
+  overflow:visible!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-sizing:border-box!important;
+}
+#overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn,
+#overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn:last-child,
+#overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn.active,
+#overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn.active:last-child{
+  flex:1 1 0!important;
+  width:auto!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:7px 4px!important;
+  border:1px solid #d6d6d6!important;
+  border-radius:6px!important;
+  text-align:center!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  white-space:nowrap!important;
+  box-sizing:border-box!important;
+}
+#overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn.active{
+  border-color:#a52aa5!important;
+}
+@media(max-width:699px){
+  #overlayMinhasSequencias #freqQtdTabs{gap:4px!important;}
+  #overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn{padding:6px 2px!important;font-size:11px!important;}
+}
+</style>
+<style id="minhas-sequencias-abas-quantidade-fonte-menor-negrito-final">
+/* Texto menor e em negrito nos botões 5, 7, 9, 10 e 11 números. */
+#overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn{
+  font-size:10px!important;
+  font-weight:700!important;
+}
+@media(max-width:699px){
+  #overlayMinhasSequencias #freqQtdTabs .freq-qtd-btn{
+    font-size:9px!important;
+    font-weight:700!important;
   }
-})();
-</script>
+}
+</style>
+<style id="minhas-sequencias-largura-aba-maior-final">
+/* Aumenta a largura de toda a aba Minhas Sequências, mantendo-a centralizada. */
+#overlayMinhasSequencias .freq-shell{
+  width:min(840px,calc(100% - 8px))!important;
+  max-width:840px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+@media (min-width:700px){
+  #overlayMinhasSequencias .freq-shell{
+    width:840px!important;
+    max-width:calc(100% - 8px)!important;
+  }
+}
+@media (max-width:699px){
+  #overlayMinhasSequencias .freq-shell{
+    width:calc(100% - 8px)!important;
+    max-width:none!important;
+  }
+}
+</style>
+<style id="minhas-sequencias-largura-aba-ainda-maior-final">
+/* Aumenta mais um pouco somente a largura geral da aba Minhas Sequências. */
+#overlayMinhasSequencias .freq-shell{
+  width:min(870px,calc(100% - 2px))!important;
+  max-width:870px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+@media (min-width:700px){
+  #overlayMinhasSequencias .freq-shell{
+    width:870px!important;
+    max-width:calc(100% - 2px)!important;
+  }
+}
+@media (max-width:699px){
+  #overlayMinhasSequencias .freq-shell{
+    width:calc(100% - 2px)!important;
+    max-width:none!important;
+  }
+}
+</style>
+<style id="minhas-sequencias-largura-aba-mais-um-pouco-2">
+/* Aumenta mais um pouco somente a largura geral da aba Minhas Sequências. */
+#overlayMinhasSequencias .freq-shell{
+  width:min(890px,100%)!important;
+  max-width:890px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+@media (min-width:700px){
+  #overlayMinhasSequencias .freq-shell{
+    width:890px!important;
+    max-width:100%!important;
+  }
+}
+@media (max-width:699px){
+  #overlayMinhasSequencias .freq-shell{
+    width:100%!important;
+    max-width:none!important;
+  }
+}
+</style>
+
+<style id="minhas-sequencias-largura-aba-mais-3">
+/* Aba inteira: mais um pouco de largura */
+#overlayMinhasSequencias .freq-shell{
+  width:min(920px,calc(100% + 8px))!important;
+  max-width:920px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+@media (min-width:700px){
+  #overlayMinhasSequencias .freq-shell{
+    width:920px!important;
+    max-width:calc(100% + 8px)!important;
+  }
+}
+@media (max-width:699px){
+  #overlayMinhasSequencias .freq-shell{
+    width:calc(100% + 8px)!important;
+    max-width:none!important;
+    margin-left:-4px!important;
+    margin-right:-4px!important;
+  }
+}
+</style>
+<style id="minhas-sequencias-largura-aba-mais-4">
+/* Aba Minhas Sequências: mais um pouco de largura */
+#overlayMinhasSequencias .freq-shell{
+  width:min(940px,calc(100% + 14px))!important;
+  max-width:940px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+@media (min-width:700px){
+  #overlayMinhasSequencias .freq-shell{
+    width:940px!important;
+    max-width:calc(100% + 14px)!important;
+  }
+}
+@media (max-width:699px){
+  #overlayMinhasSequencias .freq-shell{
+    width:calc(100% + 14px)!important;
+    max-width:none!important;
+    position:relative!important;
+    left:50%!important;
+    transform:translateX(-50%)!important;
+  }
+}
+</style>
+
+<style id="freq-qtd-concursos-input-final">
+#overlayMinhasSequencias .freq-concursos-qtd-wrap{
+  display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;
+  margin:8px 0 10px!important;font-family:Arial,sans-serif!important;font-size:11px!important;font-weight:700!important;color:#444!important;
+}
+#overlayMinhasSequencias #freqQtdConcursosInput{
+  width:68px!important;height:28px!important;min-height:28px!important;box-sizing:border-box!important;
+  border:1px solid #b9d8f2!important;border-radius:5px!important;background:#fff!important;color:#222!important;
+  text-align:center!important;font-size:12px!important;font-weight:700!important;padding:2px 5px!important;outline:none!important;
+}
+#overlayMinhasSequencias #freqQtdConcursosInput:focus{border-color:#68aee6!important;box-shadow:0 0 0 2px rgba(104,174,230,.12)!important;}
+#overlayMinhasSequencias .freq-concursos-qtd-wrap span{font-size:10px!important;font-weight:600!important;color:#777!important;}
+@media(max-width:699px){
+  #overlayMinhasSequencias .freq-concursos-qtd-wrap{gap:5px!important;font-size:10px!important;margin:7px 0 9px!important;}
+  #overlayMinhasSequencias #freqQtdConcursosInput{width:62px!important;height:26px!important;min-height:26px!important;font-size:11px!important;}
+  #overlayMinhasSequencias .freq-concursos-qtd-wrap span{font-size:9px!important;}
+}
+</style>
+
+<style id="freq-qtd-concursos-3d-pastel-final">
+/* Campo de quantidade: sem exemplo interno, pastel claro e efeito 3D. */
+#overlayMinhasSequencias #freqQtdConcursosInput{
+  background:linear-gradient(135deg,#bfeeff 0%,#e8d9f1 35%,#ffd9d6 68%,#e8e4dc 100%)!important;
+  border:1px solid rgba(170,170,170,.45)!important;
+  border-radius:9px!important;
+  color:#333!important;
+  box-shadow:
+    inset 2px 2px 4px rgba(255,255,255,.9),
+    inset -2px -2px 4px rgba(145,130,130,.18),
+    0 3px 5px rgba(0,0,0,.20)!important;
+  text-shadow:0 1px 0 rgba(255,255,255,.7)!important;
+}
+#overlayMinhasSequencias #freqQtdConcursosInput:focus{
+  border-color:rgba(125,170,195,.7)!important;
+  box-shadow:
+    inset 2px 2px 4px rgba(255,255,255,.9),
+    inset -2px -2px 4px rgba(145,130,130,.18),
+    0 3px 6px rgba(0,0,0,.22),
+    0 0 0 2px rgba(190,225,240,.25)!important;
+}
+</style>
+
+<style id="freq-limpar-cinza-final">
+/* LIMPAR — volta para o cinza, mantendo o relevo 3D */
+#overlayMinhasSequencias #freqBtnLimpar{
+  background:linear-gradient(180deg,#7d8791 0%,#68727c 100%)!important;
+  color:#fff!important;
+  border-color:#fff!important;
+  box-shadow:0 5px 9px rgba(55,65,81,.24), inset 0 1px 1px rgba(255,255,255,.30)!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar::after{
+  background:linear-gradient(180deg,#555f68 0%,#434b53 100%)!important;
+  box-shadow:0 5px 8px rgba(55,65,81,.22)!important;
+}
+#overlayMinhasSequencias #freqBtnLimpar:active{
+  box-shadow:0 2px 4px rgba(55,65,81,.22), inset 0 1px 1px rgba(255,255,255,.25)!important;
+}
+</style>
