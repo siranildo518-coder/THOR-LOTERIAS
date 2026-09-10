@@ -299,6 +299,7 @@ function montarTelaLogin(){
         }catch(e){}
         overlay.remove();
         document.documentElement.style.visibility = 'visible';
+        if(typeof atualizarPerfilMenuLateral==='function') atualizarPerfilMenuLateral();
       } else if(resultado.motivo === 'outro_aparelho'){
         erroEl.style.color = '#B7791F';
         erroEl.textContent = 'Esta conta já está em uso em outro aparelho.';
@@ -2658,6 +2659,53 @@ document.addEventListener('selectstart', e=>{
 </style>
 
 
+
+<style id="perfilUsuarioMenuStyles">
+#drawer .drawer-head{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+#drawer #drawerPerfilFotoBox{
+  width:64px !important;
+  height:64px !important;
+  border-radius:50% !important;
+  overflow:hidden !important;
+  background:rgba(255,255,255,.18) !important;
+  border:2px solid rgba(255,255,255,.9) !important;
+  box-shadow:0 4px 10px rgba(0,0,0,.22) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  margin-bottom:9px !important;
+}
+#drawer #drawerPerfilFoto{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  display:none;
+}
+#drawer #drawerPerfilFotoFallback{
+  font-size:28px;
+  line-height:1;
+}
+#drawer #drawerPerfilNome{
+  margin:0 0 2px !important;
+  font-size:18px !important;
+  font-weight:800 !important;
+  color:#fff !important;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#drawer #drawerPerfilSub{
+  margin:0 !important;
+  font-size:11.5px !important;
+  color:#E4D9FA !important;
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -2923,12 +2971,13 @@ document.addEventListener('selectstart', e=>{
 <div class="drawer-overlay" id="drawerOverlay"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-head">
-    <div class="logo" id="drawerLogo">🍀</div>
-    <h2>THOR LOTERIAS</h2>
-    <p id="drawerSubtitulo"></p>
-  </div>
-
-  <div class="drawer-hr"></div>
+    <div class="logo" id="drawerPerfilFotoBox">
+      <img id="drawerPerfilFoto" src="" alt="Foto do usuário" style="display:none;">
+      <span id="drawerPerfilFotoFallback" aria-hidden="true">👤</span>
+    </div>
+    <h2 id="drawerPerfilNome">Usuário</h2>
+    <p id="drawerPerfilSub">THOR LOTERIAS</p>
+</div>
   <button class="drawer-item" id="menuMinhasSequencias"><span class="ic">📊</span> Minhas Sequências</button>
   <div class="drawer-hr"></div>
   <button class="drawer-item" id="menuAnalisadorJogos"><span class="ic">👁️</span> Analisador de Jogos</button>
@@ -13527,6 +13576,44 @@ document.addEventListener('DOMContentLoaded', function(){
     ov.style.removeProperty('display');
   }, true);
 });
+</script>
+
+
+<script id="perfil-usuario-menu-js">
+function atualizarPerfilMenuLateral(){
+  try{
+    const hash = localStorage.getItem('tl_hash_atual') || '';
+    const nome = localStorage.getItem('tl_nome_conta_'+hash) || 'Usuário';
+    const foto = localStorage.getItem('tl_foto_conta_'+hash) || '';
+
+    const nomeEl = document.getElementById('drawerPerfilNome');
+    const fotoEl = document.getElementById('drawerPerfilFoto');
+    const fallbackEl = document.getElementById('drawerPerfilFotoFallback');
+
+    if(nomeEl) nomeEl.textContent = nome;
+
+    if(fotoEl && fallbackEl){
+      if(foto){
+        fotoEl.src = foto;
+        fotoEl.style.display = 'block';
+        fallbackEl.style.display = 'none';
+      }else{
+        fotoEl.removeAttribute('src');
+        fotoEl.style.display = 'none';
+        fallbackEl.style.display = 'inline';
+      }
+    }
+  }catch(e){}
+}
+
+document.addEventListener('DOMContentLoaded', atualizarPerfilMenuLateral);
+
+// Atualiza novamente sempre que o menu lateral for aberto,
+// caso a foto/nome tenham sido alterados no login.
+document.addEventListener('click', (e)=>{
+  const btn = e.target.closest && e.target.closest('#hamburgerBtn,.hamburger-btn');
+  if(btn) setTimeout(atualizarPerfilMenuLateral, 0);
+}, true);
 </script>
 
 </body>
