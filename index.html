@@ -327,12 +327,16 @@ document.addEventListener('selectstart', e=>{
     -ms-user-select:text;
     user-select:text; /* mantém a digitação normal nos campos de nome/chave de ativação */
   }
+  html{
+    overscroll-behavior-y:contain;
+  }
   body{
     margin:0;
     background:var(--bg);
     color:var(--ink);
     font-family:'Inter',sans-serif;
     -webkit-font-smoothing:antialiased;
+    overscroll-behavior-y:contain;
   }
   .app{max-width:480px;margin:0 auto;padding:0 0 24px;}
   header.top{
