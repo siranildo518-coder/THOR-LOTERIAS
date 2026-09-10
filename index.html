@@ -139,11 +139,11 @@ function marcarAtualizacaoGithub(sha){
   let visto = null;
   try{ visto = localStorage.getItem(GITHUB_SHA_VISTO_KEY); }catch(e){}
 
-  // Na primeira execução, registra o SHA atual como já visto.
-  // Depois disso, qualquer novo commit no index.html destaca o botão.
+  // Se ainda não existe SHA salvo neste aparelho, NÃO considera a versão como vista.
+  // Isso faz o botão destacar já na primeira checagem depois que o app recebe
+  // este novo sistema de atualização.
   if(!visto){
-    try{ localStorage.setItem(GITHUB_SHA_VISTO_KEY, sha); }catch(e){}
-    btn.classList.remove('menu-atualizar-destaque');
+    btn.classList.add('menu-atualizar-destaque');
     return;
   }
 
@@ -1151,6 +1151,9 @@ document.addEventListener('selectstart', e=>{
     box-shadow:inset 0 2px 4px rgba(0,0,0,.3);
   }
   #menuAtualizar.menu-atualizar-destaque{
+    background:linear-gradient(135deg,#FFF7D6,#FFE08A)!important;
+    color:#8A4B00!important;
+    font-weight:800!important;
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,.12),
       0 2px 0 rgba(0,0,0,.25),
