@@ -85,6 +85,11 @@ const CREDENCIAIS_VALIDAS = [
 const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
 const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio cliente, direto no aparelho dele
 
+// Versão do arquivo: mude este valor sempre que subir uma versão nova do app.
+// Quando ela for diferente da última vista no aparelho, o botão "Atualizar" fica destacado.
+const APP_VERSAO_ATUAL = '2026-09-10-1';
+const APP_VERSAO_VISTA_KEY = 'tl_versao_vista';
+
 function carregarContasExtras(){
   try{
     const bruto = localStorage.getItem(CONTAS_EXTRAS_KEY);
@@ -1051,6 +1056,45 @@ document.addEventListener('selectstart', e=>{
   .drawer-item .ic{font-size:17px;width:20px;text-align:center;}
   .drawer-item:active{background:var(--ball-off);}
   .drawer-hr{height:1px;background:var(--line);margin:6px 0;}
+  .drawer-item .ic.girando{display:inline-block;animation:girarAtualizar .7s linear infinite;}
+  @keyframes girarAtualizar{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  #menuAtualizar{
+    position:relative;
+    border-radius:10px!important;
+    background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0))!important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.12),
+      0 2px 0 rgba(0,0,0,.25),
+      0 3px 6px rgba(0,0,0,.25);
+    transition:transform .08s ease,box-shadow .08s ease;
+  }
+  #menuAtualizar:active{
+    transform:translateY(2px);
+    box-shadow:inset 0 2px 4px rgba(0,0,0,.3);
+  }
+  #menuAtualizar.menu-atualizar-destaque{
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.12),
+      0 2px 0 rgba(0,0,0,.25),
+      0 3px 6px rgba(0,0,0,.25),
+      0 0 0 2px #F59E0B;
+    animation:pulsarAtualizar 1.4s ease-in-out infinite;
+  }
+  #menuAtualizar.menu-atualizar-destaque::after{
+    content:'';
+    position:absolute;
+    top:6px;
+    left:22px;
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:#F59E0B;
+    box-shadow:0 0 6px rgba(245,158,11,.9);
+  }
+  @keyframes pulsarAtualizar{
+    0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 0 rgba(0,0,0,.25),0 3px 6px rgba(0,0,0,.25),0 0 0 2px #F59E0B;}
+    50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 0 rgba(0,0,0,.25),0 3px 10px rgba(245,158,11,.55),0 0 0 4px rgba(245,158,11,.35);}
+  }
   .hist-entry{
     border:1px solid var(--line);
     border-radius:14px;
@@ -2484,6 +2528,8 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuMinhasSequencias"><span class="ic">📊</span> Minhas Sequências</button>
   <div class="drawer-hr"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
+  <div class="drawer-hr"></div>
+  <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
 
 </div>
 
@@ -9169,6 +9215,16 @@ document.getElementById('menuMinhasSequencias')?.addEventListener('click', ()=>{
 document.getElementById('menuSairLogin').addEventListener('click', ()=>{
   sairDoLogin();
 });
+document.getElementById('menuAtualizar')?.addEventListener('click', function(){
+  const icone = document.getElementById('menuAtualizarIcone');
+  if(icone) icone.classList.add('girando');
+  this.classList.remove('menu-atualizar-destaque');
+  try{ localStorage.setItem(APP_VERSAO_VISTA_KEY, APP_VERSAO_ATUAL); }catch(e){}
+  setTimeout(()=>{
+    closeDrawer();
+    if(icone) icone.classList.remove('girando');
+  }, 900);
+});
 document.getElementById('tendenciaVoltar').addEventListener('click', ()=>{
   document.getElementById('overlayTendencia').classList.remove('show');});
 document.getElementById('tendAtualizarBtn').addEventListener('click', ()=>{
@@ -9493,6 +9549,17 @@ function aplicarFotoPerfil(dataUrl){
     if(foto) aplicarFotoPerfil(foto);
     const sub = document.getElementById('drawerSubtitulo');
     if(sub && nome) sub.textContent = nome;
+  }catch(e){ /* localStorage indisponível */ }
+})();
+
+// ---------- Destaca "Atualizar" quando sobe uma versão nova do arquivo ----------
+(function verificarVersaoNova(){
+  try{
+    const vista = localStorage.getItem(APP_VERSAO_VISTA_KEY);
+    if(vista !== APP_VERSAO_ATUAL){
+      const item = document.getElementById('menuAtualizar');
+      if(item) item.classList.add('menu-atualizar-destaque');
+    }
   }catch(e){ /* localStorage indisponível */ }
 })();
 
