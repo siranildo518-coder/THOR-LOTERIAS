@@ -81,6 +81,7 @@ const CREDENCIAIS_VALIDAS = [
   '1e1isk2', // Marcos (senha 142580)
   '2meoqi', // João (senha 142580)
   'tbl3o9', // Iranyldo (senha 142580)
+  '1t5rw8', // dan (senha 142580)
 ];
 
 const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
@@ -157,13 +158,13 @@ function loginJaValidado(){
 function preencherPerfilDrawer(){
   try{
     const logoEl = document.getElementById('drawerLogo');
-    const subEl = document.getElementById('drawerHeadSub');
+    const nomeEl = document.getElementById('drawerHeadNome');
     const usuario = localStorage.getItem(USUARIO_LOGADO_KEY);
     const hash = localStorage.getItem(HASH_LOGADO_KEY);
     const fotos = carregarFotosPerfil();
     const foto = hash ? fotos[hash] : null;
     if(logoEl) logoEl.innerHTML = foto ? `<img src="${foto}" alt="Foto do usuário">` : '🍀';
-    if(subEl) subEl.textContent = usuario ? usuario : 'Gerador de jogos';
+    if(nomeEl) nomeEl.textContent = usuario ? usuario : 'THOR LOTERIAS';
   }catch(e){}
 }
 
@@ -2543,8 +2544,7 @@ document.addEventListener('selectstart', e=>{
 <div class="drawer" id="drawer">
   <div class="drawer-head">
     <div class="logo" id="drawerLogo">🍀</div>
-    <h2>THOR LOTERIAS</h2>
-    <p id="drawerHeadSub">Gerador de jogos</p>
+    <h2 id="drawerHeadNome">THOR LOTERIAS</h2>
   </div>
 
   <div class="drawer-hr"></div>
