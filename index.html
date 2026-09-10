@@ -8737,32 +8737,17 @@ document.getElementById('btnJogosSalvos')?.addEventListener('click', ()=>{
 });
 
 // ---------- atalhos da nova tela inicial (cabeçalho, banner e barra inferior) ----------
+// Se o usuário estiver no Analisador, registra essa tela IMEDIATAMENTE antes
+// de abrir qualquer aba inferior. Assim: Analisador -> Aba -> Voltar -> Analisador.
 ['btnInicioAtalho','btnTendenciaAtalho','btnFechamentoAtalho','btnSimularAtalho','btnJogosSalvosAtalho2'].forEach(function(id){
-  const btn=document.getElementById(id);
-  if(btn){
-    btn.addEventListener('click', function(){
-      const aj=document.getElementById('overlayAnalisadorJogos');
-      if(aj && aj.classList.contains('show')){
-        const estavaResultado = document.getElementById('ajResultado') &&
-          document.getElementById('ajResultado').style.display !== 'none';
-
-        // Registra no histórico a tela do Analisador que estava aberta.
-        try{
-          history.replaceState({
-            thorAj:true,
-            tela: estavaResultado ? 'resultado' : 'selecao'
-          },'',location.href);
-
-          history.pushState({
-            thorAjDestino:true,
-            destino:id
-          },'',location.href);
-        }catch(_){}
-
-        aj.classList.remove('show');
-      }
-    }, true);
-  }
+  const bt = document.getElementById(id);
+  if(!bt) return;
+  bt.addEventListener('click', function(){
+    const aj = document.getElementById('overlayAnalisadorJogos');
+    if(aj && aj.classList.contains('show') && typeof window.__thorRegistrarTelaAtual === 'function'){
+      window.__thorRegistrarTelaAtual();
+    }
+  }, true);
 });
 document.getElementById('btnInicioAtalho').addEventListener('click', goHome);
 document.getElementById('btnJogosSalvosAtalho2').addEventListener('click', ()=>{
@@ -10622,6 +10607,13 @@ refreshUI();
     syncTimer = setTimeout(syncNow, 0);
   }
 
+  // Permite que telas especiais garantam o registro da tela atual ANTES
+  // de um clique que navega para outra aba.
+  window.__thorRegistrarTelaAtual = function(){
+    clearTimeout(syncTimer);
+    syncNow();
+  };
+
   // Debounce de 0 ms agrupa mudanças feitas no mesmo clique (fecha drawer + abre a tela escolhida)
   // como UMA única navegação.
   new MutationObserver(scheduleSync).observe(document.body, {
@@ -10629,6 +10621,15 @@ refreshUI();
   });
 
   window.addEventListener('popstate', function(e){
+    // Se o Analisador estiver mostrando o RESULTADO, deixa o próprio
+    // Analisador tratar o primeiro Voltar: Resultado -> Escolha de dezenas.
+    const ajOv = document.getElementById('overlayAnalisadorJogos');
+    const ajRes = document.getElementById('ajResultado');
+    if(ajOv && ajOv.classList.contains('show') &&
+       ajRes && ajRes.style.display !== 'none'){
+      return;
+    }
+
     const st = e.state;
     if(!st || !st.thorNav || !st.snapshot) return;
 
@@ -12283,13 +12284,9 @@ html body #overlayMinhasSequencias .freq-shell{
 .aj-seta{font-size:12px;transition:.18s}
 .aj-loteria-menu-btn.aberto .aj-seta{transform:rotate(180deg)}
 .aj-loteria-menu{
-  display:none;
-  margin-top:8px;
-  border:none;
-  border-radius:0;
-  background:transparent;
-  padding:0;
-  box-shadow:none;
+  display:none;margin-top:8px;border-top:0;border-bottom:1.5px solid #b777c3;
+  border-left:0;border-right:0;border-radius:0;
+  background:#fff;padding:5px;box-shadow:0 6px 15px rgba(0,0,0,.12)
 }
 .aj-loteria-menu.show{display:grid;grid-template-columns:repeat(2,110px);gap:5px;justify-content:center}
 .aj-loteria-opcao{
@@ -12416,7 +12413,7 @@ html body #overlayMinhasSequencias .freq-shell{
  const loteriaAtualTxt=document.getElementById('ajLoteriaAtual');
 
  const LOTERIAS={
-   lotofacil:{nome:'Lotofácil',max:25,minEscolha:15,maxEscolha:20,padrao:15},
+   lotofacil:{nome:'Lotofácil',max:25,minEscolha:15,maxEscolha:25,padrao:15},
    megasena:{nome:'Mega-Sena',max:60,minEscolha:6,maxEscolha:20,padrao:6},
    quina:{nome:'Quina',max:80,minEscolha:5,maxEscolha:15,padrao:5},
    lotomania:{nome:'Lotomania',max:100,minEscolha:50,maxEscolha:50,padrao:50,zero:true},
@@ -12501,10 +12498,16 @@ html body #overlayMinhasSequencias .freq-shell{
 
  function abrir(){
    if(typeof fecharModaisGlobais==='function')fecharModaisGlobais('overlayAnalisadorJogos');
+   const dr=document.getElementById('drawer');
+   const drOv=document.getElementById('drawerOverlay');
+   if(dr) dr.classList.remove('show');
+   if(drOv) drOv.classList.remove('show');
    ov.classList.add('show');
    document.getElementById('ajEscolha').style.display='block';
    document.getElementById('ajResultado').style.display='none';
    ov.scrollTop=0;
+   // Deixa a mudança visual ser registrada pelo histórico geral antes da próxima navegação.
+   ov.dataset.ajTela='selecao';
  }
 
  function fechar(){ov.classList.remove('show')}
@@ -12521,7 +12524,12 @@ html body #overlayMinhasSequencias .freq-shell{
    window.scrollTo(0,0);
  }
 
- document.getElementById('menuAnalisadorJogos').onclick=()=>{closeDrawer();setTimeout(abrir,20)};
+ document.getElementById('menuAnalisadorJogos').onclick=()=>{
+   // Fecha o menu e abre o Analisador no MESMO clique.
+   // Assim o histórico registra somente a troca de tela e o Voltar não fica preso no menu.
+   closeDrawer();
+   abrir();
+ };
 
  document.getElementById('ajVoltar').onclick=()=>{
    if(document.getElementById('ajResultado').style.display!=='none'){
@@ -12609,6 +12617,7 @@ html body #overlayMinhasSequencias .freq-shell{
 
    document.getElementById('ajEscolha').style.display='none';
    document.getElementById('ajResultado').style.display='block';
+   ov.dataset.ajTela='resultado';
    ov.scrollTop=0;
 
    try{history.pushState({thorAj:true,tela:'resultado'},'',location.href)}catch(_){}
@@ -12655,8 +12664,9 @@ html body #overlayMinhasSequencias .freq-shell{
    if(resultado&&resultado.style.display!=='none'){
      resultado.style.display='none';
      escolha.style.display='block';
+     ov.dataset.ajTela='selecao';
      ov.scrollTop=0;
-     try{history.pushState({thorAj:true,tela:'selecao'},'',location.href)}catch(_){}
+     // Não adiciona novo estado aqui: o próprio Back já voltou uma etapa.
      return;
    }
 
