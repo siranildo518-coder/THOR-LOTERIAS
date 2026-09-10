@@ -104,10 +104,65 @@ const CREDENCIAIS_VALIDAS = [
 const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
 const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio cliente, direto no aparelho dele
 
-// Versão do arquivo: mude este valor sempre que subir uma versão nova do app.
-// Quando ela for diferente da última vista no aparelho, o botão "Atualizar" fica destacado.
-const APP_VERSAO_ATUAL = '2026-09-10-1';
-const APP_VERSAO_VISTA_KEY = 'tl_versao_vista';
+// ---------- Atualização automática pelo GitHub ----------
+// O app consulta o último commit que alterou o index.html deste repositório.
+// Se o SHA remoto mudar desde a última versão vista neste aparelho,
+// o botão "Atualizar" do menu lateral fica destacado automaticamente.
+const APP_VERSAO_ATUAL = '2026-09-10-1'; // mantido por compatibilidade
+const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
+const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
+const GITHUB_ARQUIVO = 'index.html';
+const GITHUB_SHA_VISTO_KEY = 'tl_github_sha_visto_v1';
+let GITHUB_SHA_ATUAL = null;
+
+async function obterShaAtualGithub(){
+  try{
+    const url = `https://api.github.com/repos/${GITHUB_REPO}/commits?path=${encodeURIComponent(GITHUB_ARQUIVO)}&per_page=1&_=${Date.now()}`;
+    const r = await fetch(url, {
+      cache:'no-store',
+      headers:{ 'Accept':'application/vnd.github+json' }
+    });
+    if(!r.ok) throw new Error('GitHub '+r.status);
+    const dados = await r.json();
+    if(Array.isArray(dados) && dados[0] && dados[0].sha){
+      return dados[0].sha;
+    }
+  }catch(e){}
+  return null;
+}
+
+function marcarAtualizacaoGithub(sha){
+  GITHUB_SHA_ATUAL = sha;
+  const btn = document.getElementById('menuAtualizar');
+  if(!btn || !sha) return;
+
+  let visto = null;
+  try{ visto = localStorage.getItem(GITHUB_SHA_VISTO_KEY); }catch(e){}
+
+  // Na primeira execução, registra o SHA atual como já visto.
+  // Depois disso, qualquer novo commit no index.html destaca o botão.
+  if(!visto){
+    try{ localStorage.setItem(GITHUB_SHA_VISTO_KEY, sha); }catch(e){}
+    btn.classList.remove('menu-atualizar-destaque');
+    return;
+  }
+
+  btn.classList.toggle('menu-atualizar-destaque', visto !== sha);
+}
+
+async function verificarAtualizacaoGithub(){
+  const sha = await obterShaAtualGithub();
+  if(sha) marcarAtualizacaoGithub(sha);
+  return sha;
+}
+
+function marcarAtualizacaoComoVista(){
+  if(GITHUB_SHA_ATUAL){
+    try{ localStorage.setItem(GITHUB_SHA_VISTO_KEY, GITHUB_SHA_ATUAL); }catch(e){}
+  }
+  const btn = document.getElementById('menuAtualizar');
+  if(btn) btn.classList.remove('menu-atualizar-destaque');
+}
 
 function carregarContasExtras(){
   try{
@@ -12683,6 +12738,27 @@ html body #overlayMinhasSequencias .freq-shell{
  atualizarLoteria();
 })();
 </script>
+
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  // Checa o GitHub logo ao abrir o app.
+  setTimeout(verificarAtualizacaoGithub, 500);
+
+  // Também checa novamente quando o app volta para primeiro plano.
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'visible') verificarAtualizacaoGithub();
+  });
+});
+
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  const btnAtualizarGit = document.getElementById('menuAtualizar');
+  if(btnAtualizarGit){
+    btnAtualizarGit.addEventListener('click', ()=>{
+      marcarAtualizacaoComoVista();
+    }, true);
+  }
+});
 
 </body>
 </html>
