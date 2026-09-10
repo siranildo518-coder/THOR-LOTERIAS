@@ -2332,6 +2332,171 @@ document.addEventListener('selectstart', e=>{
 
   /* ---- barra de abas inferior ---- */
   body{padding-bottom:0;}
+
+/* ---------- ABA PADRÕES ---------- */
+.padroes-wrap{padding-bottom:92px}
+.padroes-toolbar{padding:10px 12px 0}
+.padroes-loterias{display:flex;gap:6px;overflow-x:auto;padding-bottom:7px;scrollbar-width:none}
+.padroes-loterias::-webkit-scrollbar{display:none}
+.pad-lot{
+  flex:0 0 auto;border:1px solid #c7b4d8;background:#fff;color:#5d2569;
+  border-radius:9px;padding:7px 10px;font-size:11px;font-weight:800;cursor:pointer
+}
+.pad-lot.ativo{background:#7a2e8c;color:#fff;border-color:#7a2e8c;box-shadow:0 2px 0 #542061}
+.padroes-entrada-card{
+  background:#fff;border:1px solid #e2d7eb;border-radius:12px;padding:10px;margin-top:4px
+}
+.padroes-label{font-size:12px;font-weight:800;color:#5d2569;margin-bottom:6px}
+.padroes-entrada{
+  width:100%;min-height:64px;resize:vertical;border:1px solid #d7c8e2;border-radius:9px;
+  padding:9px;font-size:13px;color:#222;background:#fff;box-sizing:border-box
+}
+.padroes-acoes{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:8px}
+.padroes-btn{
+  border:none;border-radius:9px;padding:10px 12px;background:#7a2e8c;color:#fff;
+  font-weight:800;font-size:12px;cursor:pointer
+}
+.padroes-btn.secundario{background:#ece7f1;color:#5d2569}
+.padroes-info{font-size:11px;color:#666;margin-top:6px}
+.padroes-resultado{padding:10px 12px 20px}
+.padroes-vazio{background:#fff;border:1px dashed #d5c5df;border-radius:12px;padding:18px;text-align:center;font-size:12px;color:#777}
+.padroes-resumo{
+  background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;border-radius:13px;
+  padding:12px;margin-bottom:10px;box-shadow:0 4px 10px rgba(76,29,149,.18)
+}
+.padroes-resumo-titulo{font-size:13px;font-weight:800;margin-bottom:5px}
+.padroes-resumo-sub{font-size:11px;opacity:.92}
+.padroes-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.padrao-card{
+  background:#fff;border:1px solid #e3d8ea;border-radius:11px;padding:9px;
+  min-height:84px;box-shadow:0 2px 6px rgba(0,0,0,.04)
+}
+.padrao-card.largo{grid-column:1/-1}
+.padrao-card h4{margin:0 0 5px;font-size:11.5px;color:#5d2569}
+.padrao-valor{font-size:16px;font-weight:800;color:#222;line-height:1.15}
+.padrao-detalhe{font-size:10.5px;color:#666;margin-top:4px;line-height:1.35}
+.padrao-lista{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.padrao-chip{
+  min-width:24px;padding:3px 5px;border-radius:999px;background:#f0e9f4;color:#5d2569;
+  text-align:center;font-size:10px;font-weight:800
+}
+.padrao-bom{color:#147a43}.padrao-alerta{color:#b26a00}
+@media(max-width:380px){
+  .padroes-grid{grid-template-columns:1fr}
+  .padrao-card.largo{grid-column:auto}
+}
+
+
+#overlayPadroes{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:79;
+  background:#f6f2fb;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:80px;
+}
+#overlayPadroes.show{display:block!important;}
+#overlayPadroes .aj-wrap{min-height:100%;background:#f6f2fb;}
+
+
+.padroes-loterias,
+.pad-lot{display:none!important;}
+
+
+/* ---------- PADRÕES HISTÓRICOS ---------- */
+.pad-hist-card{margin:10px 12px;background:#fff;border:1px solid #e3d8ea;border-radius:13px;padding:12px;box-shadow:0 2px 7px rgba(0,0,0,.04)}
+.pad-hist-title{font-size:14px;font-weight:800;color:#5d2569;margin-bottom:4px}
+.pad-hist-sub{font-size:11px;color:#6b7280;line-height:1.35;margin-bottom:10px}
+.pad-hist-label{display:block;font-size:11px;font-weight:700;color:#5d2569;margin-bottom:5px}
+.pad-hist-select{width:100%;height:38px;border:1px solid #d8c8e2;border-radius:9px;background:#fff;padding:0 9px;font-size:12px}
+.pad-hist-btn{width:100%;margin-top:8px;border:none;border-radius:9px;padding:10px 12px;background:#7a2e8c;color:#fff;font-size:12px;font-weight:800;cursor:pointer}
+.pad-hist-btn:disabled{opacity:.6;cursor:default}
+.pad-hist-status{font-size:10.5px;color:#6b7280;margin-top:7px;line-height:1.35}
+.pad-hist-resultado{padding:0 12px 24px}
+.pad-hist-vazio{background:#fff;border:1px dashed #d7c9e0;border-radius:12px;padding:16px;text-align:center;font-size:11.5px;color:#777}
+.pad-hist-section{margin-top:10px}
+.pad-hist-section-title{font-size:12px;font-weight:800;color:#5d2569;margin:0 0 6px}
+.pad-hist-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.pad-hist-item{background:#fff;border:1px solid #e5dbea;border-radius:10px;padding:9px;min-height:78px}
+.pad-hist-item.wide{grid-column:1/-1}
+.pad-hist-item-title{font-size:10px;font-weight:800;color:#6d28d9;margin-bottom:4px}
+.pad-hist-item-value{font-size:15px;font-weight:800;color:#222;line-height:1.15}
+.pad-hist-item-detail{font-size:10px;color:#666;line-height:1.35;margin-top:4px}
+.pad-hist-badge{display:inline-block;border-radius:999px;padding:3px 6px;background:#f1eafa;color:#5d2569;font-size:9.5px;font-weight:800;margin:2px 3px 0 0}
+.pad-hist-rank{background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;border-radius:12px;padding:11px;margin-top:8px}
+.pad-hist-rank-title{font-size:11px;font-weight:800;margin-bottom:6px}
+.pad-hist-rank-line{font-size:10.5px;line-height:1.45;margin:3px 0}
+.pad-hist-note{margin-top:10px;background:#fff8e8;border:1px solid #f4d58a;border-radius:10px;padding:9px;font-size:10px;color:#7a5a13;line-height:1.4}
+@media(max-width:370px){.pad-hist-grid{grid-template-columns:1fr}.pad-hist-item.wide{grid-column:auto}}
+
+
+#padHistInicio{
+  border:1.5px solid #9f8fad!important;
+}
+#padHistInicio:focus{
+  border-color:#7f6d91!important;
+  box-shadow:0 0 0 2px rgba(127,109,145,.12)!important;
+}
+
+
+#padHistInicio{
+  background:
+    radial-gradient(circle at 35% 28%, #f8f8f8 0%, #eeeeee 28%, #d8d8d8 58%, #c8c8c8 78%, #b9b9b9 100%)!important;
+  border:1.5px solid #9a9a9a!important;
+  color:#2f2f2f!important;
+  border-radius:12px!important;
+  box-shadow:
+    inset 2px 2px 5px rgba(255,255,255,.95),
+    inset -3px -3px 6px rgba(120,120,120,.18),
+    0 3px 0 #9b9b9b,
+    0 5px 8px rgba(0,0,0,.22)!important;
+  text-shadow:0 1px 0 rgba(255,255,255,.85)!important;
+}
+#padHistInicio:focus{
+  border-color:#7f7f7f!important;
+  box-shadow:
+    inset 2px 2px 5px rgba(255,255,255,.95),
+    inset -3px -3px 6px rgba(120,120,120,.20),
+    0 3px 0 #8d8d8d,
+    0 5px 9px rgba(0,0,0,.24),
+    0 0 0 2px rgba(150,150,150,.12)!important;
+}
+
+
+#padHistInicio{
+  min-height:38px!important;
+  height:38px!important;
+  padding:6px 10px!important;
+  box-sizing:border-box!important;
+}
+
+
+#padHistInicio{
+  width:38px!important;
+  min-width:38px!important;
+  max-width:38px!important;
+  height:38px!important;
+  min-height:38px!important;
+  padding:4px!important;
+  text-align:center!important;
+  display:block!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  box-sizing:border-box!important;
+}
+
+
+#padHistInicio{
+  width:57px!important;
+  min-width:57px!important;
+  max-width:57px!important;
+}
+
+
+.pad-hist-note{display:none!important;}
+
 </style>
 
 
@@ -2609,6 +2774,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuMinhasSequencias"><span class="ic">📊</span> Minhas Sequências</button>
   <div class="drawer-hr"></div>
   <button class="drawer-item" id="menuAnalisadorJogos"><span class="ic">👁️</span> Analisador de Jogos</button>
+      <button class="drawer-item" id="menuPadroes"><span class="ic">▦</span> Padrões</button>
   <div class="drawer-hr"></div>
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
@@ -8719,7 +8885,7 @@ function resetScroll(){
 }
 
 function fecharOutrasOverlaysDeAba(manter){
-  const modalIds = ['overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayProb','overlayHistorico','overlayAnalisadorJogos'];
+  const modalIds = ['overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayProb','overlayHistorico','overlayAnalisadorJogos','overlayPadroes'];
   modalIds.forEach(id=>{
     if(id === manter) return;
     const el = document.getElementById(id);
@@ -12419,6 +12585,32 @@ html body #overlayMinhasSequencias .freq-shell{
 }
 </style>
 
+
+
+
+<div id="overlayPadroes" class="aj-overlay">
+  <div class="aj-wrap padroes-wrap">
+    <div class="aj-topo">
+      <h2>Padrões</h2>
+    </div>
+
+    <div class="pad-hist-card">
+      <div class="pad-hist-title">Análise histórica de padrões</div>
+      <div class="pad-hist-sub">Baseada nos concursos anteriores da Lotofácil armazenados/carregados pelo próprio app. Digite quantos concursos mais recentes deseja analisar.</div>
+
+      <label class="pad-hist-label" for="padHistInicio">Quantidade de concursos mais recentes</label>
+      <input id="padHistInicio" class="pad-hist-select" type="number" inputmode="numeric" min="1" placeholder="">
+
+      <button type="button" id="padHistAnalisar" class="pad-hist-btn">Analisar padrões</button>
+      <div id="padHistStatus" class="pad-hist-status">Digite a quantidade de concursos mais recentes e toque em analisar.</div>
+    </div>
+
+    <div id="padHistResultado" class="pad-hist-resultado">
+      <div class="pad-hist-vazio">Os padrões mais atrasados e os mais recorrentes vão aparecer aqui.</div>
+    </div>
+  </div>
+</div>
+
 <div id="overlayAnalisadorJogos">
   <div class="aj-head"><button class="aj-back" id="ajVoltar" aria-label="Voltar">←</button><div class="aj-head-title">Analisador de Jogos</div></div>
   <div class="aj-wrap">
@@ -12762,6 +12954,241 @@ document.addEventListener('DOMContentLoaded', ()=>{
     }, true);
   }
 });
+
+
+
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{
+  const ov=document.getElementById('overlayPadroes');
+  if(!ov) return;
+
+  const obs=new MutationObserver(()=>{
+    if(ov.classList.contains('show')){
+      ov.style.display='block';
+    }else{
+      ov.style.display='';
+    }
+  });
+  obs.observe(ov,{attributes:true,attributeFilter:['class']});
+
+  ['btnInicioAtalho','btnTendenciaAtalho','btnFechamentoAtalho','btnSimularAtalho','btnJogosSalvosAtalho2']
+    .forEach(id=>{
+      const b=document.getElementById(id);
+      if(b) b.addEventListener('click',()=>ov.classList.remove('show'),true);
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{
+  const btnMenu = document.getElementById('menuPadroes');
+  const ov = document.getElementById('overlayPadroes');
+  const btn = document.getElementById('padHistAnalisar');
+  const inicioInput = document.getElementById('padHistInicio');
+  const status = document.getElementById('padHistStatus');
+  const out = document.getElementById('padHistResultado');
+  if(!btnMenu || !ov || !btn || !inicioInput || !status || !out) return;
+
+  function abrirPadroes(){
+    const dr=document.getElementById('drawer');
+    const drOv=document.getElementById('drawerOverlay');
+    if(dr) dr.classList.remove('show');
+    if(drOv) drOv.classList.remove('show');
+    if(typeof fecharModaisGlobais==='function') fecharModaisGlobais('overlayPadroes');
+    ov.classList.add('show');
+    ov.style.display='block';
+    ov.scrollTop=0;
+  }
+  btnMenu.addEventListener('click', abrirPadroes);
+
+  function assinaturaConcurso(nums){
+    const a=[...nums].sort((x,y)=>x-y);
+    const pares=a.filter(n=>n%2===0).length;
+    const impares=a.length-pares;
+    const soma=a.reduce((x,y)=>x+y,0);
+    const molduraSet=new Set([1,2,3,4,5,6,10,11,15,16,20,21,22,23,24,25]);
+    const moldura=a.filter(n=>molduraSet.has(n)).length;
+    const miolo=a.length-moldura;
+    let seqMax=1, seq=1;
+    for(let i=1;i<a.length;i++){ if(a[i]===a[i-1]+1){seq++;seqMax=Math.max(seqMax,seq)} else seq=1; }
+    const baixos=a.filter(n=>n<=13).length, altos=a.length-baixos;
+    const primosSet=new Set([2,3,5,7,11,13,17,19,23]);
+    const primos=a.filter(n=>primosSet.has(n)).length;
+    const mult3=a.filter(n=>n%3===0).length;
+    const linhas=[0,0,0,0,0], cols=[0,0,0,0,0];
+    a.forEach(n=>{linhas[Math.floor((n-1)/5)]++;cols[(n-1)%5]++;});
+    const finais={}; a.forEach(n=>{const f=n%10;finais[f]=(finais[f]||0)+1});
+    const finaisRep=Object.values(finais).filter(v=>v>=2).length;
+    return {pares,impares,soma,moldura,miolo,seqMax,baixos,altos,primos,mult3,linhas,cols,finaisRep};
+  }
+
+  function assinaturaRepeticao(atual, anterior){
+    if(!anterior) return null;
+    const ant=new Set(anterior);
+    return atual.filter(n=>ant.has(n)).length;
+  }
+
+  function keyPattern(tipo, valor){ return `${tipo}:${valor}`; }
+
+  function addMap(map, key, concursoIndex){
+    if(!map[key]) map[key]={count:0,lastIndex:-1};
+    map[key].count++;
+    map[key].lastIndex=concursoIndex;
+  }
+
+  function classificaSoma(soma){
+    if(soma<170) return '<170';
+    if(soma<=180) return '170–180';
+    if(soma<=190) return '181–190';
+    if(soma<=200) return '191–200';
+    if(soma<=210) return '201–210';
+    return '>210';
+  }
+
+  function analisarHistorico(dados){
+    const map={};
+    for(let i=0;i<dados.length;i++){
+      const nums=dados[i].n;
+      const s=assinaturaConcurso(nums);
+      addMap(map,keyPattern('paridade',`${s.pares} pares / ${s.impares} ímpares`),i);
+      addMap(map,keyPattern('soma',classificaSoma(s.soma)),i);
+      addMap(map,keyPattern('moldura',`${s.moldura} moldura / ${s.miolo} miolo`),i);
+      addMap(map,keyPattern('seqmax',String(s.seqMax)),i);
+      addMap(map,keyPattern('baixaalta',`${s.baixos} baixas / ${s.altos} altas`),i);
+      addMap(map,keyPattern('primos',String(s.primos)),i);
+      addMap(map,keyPattern('mult3',String(s.mult3)),i);
+      addMap(map,keyPattern('finaisrep',String(s.finaisRep)),i);
+      addMap(map,keyPattern('linhas',s.linhas.join('-')),i);
+      addMap(map,keyPattern('colunas',s.cols.join('-')),i);
+      if(i>0){
+        const rep=assinaturaRepeticao(nums,dados[i-1].n);
+        addMap(map,keyPattern('repetidas',String(rep)),i);
+      }
+    }
+
+    const total=dados.length;
+    const tipos={
+      paridade:'Pares × Ímpares',
+      soma:'Faixa de soma',
+      moldura:'Moldura × Miolo',
+      seqmax:'Quantidade na maior sequência consecutiva',
+      baixaalta:'Dezenas baixas e dezenas altas',
+      primos:'Quantidade de números primos',
+      mult3:'Quantidade de múltiplos de 3',
+      finaisrep:'Quantidade de finais repetidos',
+      linhas:'Distribuição das dezenas por linhas',
+      colunas:'Distribuição das dezenas por colunas',
+      repetidas:'Dezenas repetidas do concurso anterior'
+    };
+
+    const rows=Object.entries(map).map(([k,v])=>{
+      const p=k.indexOf(':'); const tipo=k.slice(0,p), valor=k.slice(p+1);
+      return {tipo,valor,count:v.count,lastIndex:v.lastIndex,
+              atraso:(total-1)-v.lastIndex, freq:v.count/total};
+    });
+
+    const porTipo={};
+    Object.keys(tipos).forEach(t=>porTipo[t]=rows.filter(r=>r.tipo===t));
+
+    // atraso: exclui padrões extremamente raros (mín. 2 ocorrências) para evitar ranking enganoso
+    const atrasados=rows.filter(r=>r.count>=2).sort((a,b)=>b.atraso-a.atraso || b.freq-a.freq).slice(0,10);
+    const frequentes=rows.sort((a,b)=>b.freq-a.freq || a.atraso-b.atraso).slice(0,10);
+
+    // sugestão: para cada tipo, pega padrão com melhor mistura de frequência e recência histórica,
+    // com bônus moderado por atraso relativo — não tratado como "chance real" maior.
+    const sugestoes=[];
+    for(const [tipo,arr] of Object.entries(porTipo)){
+      if(!arr.length) continue;
+      const maxAtr=Math.max(...arr.map(x=>x.atraso),1);
+      const rank=arr.map(x=>({...x,score:(x.freq*0.75)+((x.atraso/maxAtr)*0.25)}))
+                    .sort((a,b)=>b.score-a.score || b.freq-a.freq);
+      sugestoes.push(rank[0]);
+    }
+
+    return {total,tipos,atrasados,frequentes,sugestoes};
+  }
+
+  function item(title,value,detail='',wide=false){
+    return `<div class="pad-hist-item${wide?' wide':''}">
+      <div class="pad-hist-item-title">${title}</div>
+      <div class="pad-hist-item-value">${value}</div>
+      ${detail?`<div class="pad-hist-item-detail">${detail}</div>`:''}
+    </div>`;
+  }
+
+  function render(r,dados){
+    const ultimo=dados[dados.length-1];
+    let html=`<div class="pad-hist-rank">
+      <div class="pad-hist-rank-title">Base analisada</div>
+      <div class="pad-hist-rank-line">${r.total} concursos • último concurso Nº ${ultimo.c}</div>
+    </div>`;
+
+    html+=`<div class="pad-hist-section"><div class="pad-hist-section-title">Padrões mais atrasados</div><div class="pad-hist-grid">`;
+    r.atrasados.slice(0,6).forEach(x=>{
+      html+=item(r.tipos[x.tipo],x.valor,`${x.atraso} concurso(s) sem aparecer • ${x.count} ocorrência(s) na base`);
+    });
+    html+='</div></div>';
+
+    html+=`<div class="pad-hist-section"><div class="pad-hist-section-title">Padrões mais recorrentes</div><div class="pad-hist-grid">`;
+    r.frequentes.slice(0,6).forEach(x=>{
+      html+=item(r.tipos[x.tipo],x.valor,`${(x.freq*100).toFixed(1)}% da base • atraso atual: ${x.atraso}`);
+    });
+    html+='</div></div>';
+
+    html+=`<div class="pad-hist-section"><div class="pad-hist-section-title">Composição sugerida para o próximo concurso</div>`;
+    html+=`<div class="pad-hist-rank">`;
+    r.sugestoes.forEach((x,i)=>{
+      html+=`<div class="pad-hist-rank-line">${i+1}. <b>${r.tipos[x.tipo]}</b>: ${x.valor} • frequência ${(x.freq*100).toFixed(1)}% • atraso ${x.atraso}</div>`;
+    });
+    html+=`</div></div>`;
+    out.innerHTML=html;
+  }
+
+  btn.addEventListener('click', async ()=>{
+    btn.disabled=true;
+    status.textContent='Carregando histórico de concursos…';
+    out.innerHTML='<div class="pad-hist-vazio">Analisando os concursos anteriores…</div>';
+    try{
+      if(typeof obterHistoricoCompletoFreq!=='function'){
+        throw new Error('A função de histórico do app não está disponível.');
+      }
+      const dados=await obterHistoricoCompletoFreq((car,total)=>{
+        status.textContent=`Carregando histórico: ${car}${total?` de ${total}`:''} concursos…`;
+      });
+      const qtd = Math.floor(Number(inicioInput.value));
+      let base = dados.slice().filter(x=>x && Array.isArray(x.n) && x.n.length>=15);
+
+      if(!Number.isFinite(qtd) || qtd < 1){
+        throw new Error('Digite uma quantidade válida de concursos.');
+      }
+
+      // O número digitado representa a quantidade de concursos MAIS RECENTES.
+      // Ex.: 25 = últimos 25 concursos disponíveis.
+      base = base.slice(-qtd);
+
+      if(base.length < Math.min(qtd, 10)){
+        throw new Error('Histórico insuficiente para essa quantidade.');
+      }
+
+      const r=analisarHistorico(base);
+      render(r,base);
+
+      const primeiro = base[0]?.c;
+      const ultimo = base[base.length-1]?.c;
+      status.textContent=`Análise concluída: últimos ${base.length} concursos (${primeiro} até ${ultimo}).`;
+    }catch(e){
+      status.textContent=e && e.message ? e.message : 'Não foi possível analisar o histórico.';
+      out.innerHTML='<div class="pad-hist-vazio">Não foi possível carregar a base histórica agora.</div>';
+    }finally{
+      btn.disabled=false;
+    }
+  });
+});
+</script>
 
 </body>
 </html>
