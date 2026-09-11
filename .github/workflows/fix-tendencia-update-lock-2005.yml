@@ -1,13 +1,10 @@
 name: Fix Tendencia Update Lock 2005
-
 on:
   push:
     paths:
-      - '.github/workflows/fix-tendencia-update-lock-2005.yml'
-
+      - .github/workflows/fix-tendencia-update-lock-2005.yml
 permissions:
   contents: write
-
 jobs:
   fix:
     runs-on: ubuntu-latest
@@ -15,98 +12,28 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Aplicar correcao
-        shell: bash
+      - name: Patch
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
-
-          versao = '2026-09-11-2005'
-          p = Path('index.html')
-          s = p.read_text(encoding='utf-8')
-
-          padrao = r"// Mantém o efeito de afundar visível por um instante antes de abrir a próxima aba\.\nconst homePremiumCardTendencia = document\.getElementById\('homePremiumCardTendencia'\);\nif\(homePremiumCardTendencia\)\{.*?\n\}\ndocument\.getElementById\('altaQuedaVoltar'\)"
-          novo = """// Tendência: usa delegação de clique para continuar funcionando mesmo após atualização do app/cache.
-function abrirTendenciaPelaHome(){
-  const card = document.getElementById('homePremiumCardTendencia');
-  if(!card) return;
-  card.dataset.abrindo = '0';
-  card.classList.remove('is-pressed');
-  card.dataset.abrindo = '1';
-  card.classList.add('is-pressed');
-  try{
-    abrirAltaQueda();
-  } catch(err){
-    console.error('Falha ao abrir Tendência:', err);
-  } finally {
-    setTimeout(()=>{
-      card.classList.remove('is-pressed');
-      card.dataset.abrindo = '0';
-    }, 180);
-  }
-}
-
-document.addEventListener('click', (ev)=>{
-  const alvo = ev.target && ev.target.closest ? ev.target.closest('#homePremiumCardTendencia') : null;
-  if(!alvo) return;
-  ev.preventDefault();
-  abrirTendenciaPelaHome();
-});
-
-document.getElementById('altaQuedaVoltar')"""
-          s, n = re.subn(padrao, novo, s, count=1, flags=re.S)
-          if n == 0 and 'function abrirTendenciaPelaHome()' not in s:
-              raise SystemExit('Bloco Tendencia nao encontrado')
-
-          antigo_menu = """document.getElementById('menuAtualizar')?.addEventListener('click', function(){
-  const icone = document.getElementById('menuAtualizarIcone');
-  if(icone) icone.classList.add('girando');
-  this.classList.remove('menu-atualizar-destaque');
-  try{ localStorage.setItem(APP_VERSAO_VISTA_KEY, APP_VERSAO_ATUAL); }catch(e){}
-  setTimeout(()=>{
-    closeDrawer();
-    if(icone) icone.classList.remove('girando');
-  }, 900);
-});"""
-          novo_menu = """document.getElementById('menuAtualizar')?.addEventListener('click', function(){
-  const icone = document.getElementById('menuAtualizarIcone');
-  if(icone) icone.classList.add('girando');
-  this.classList.remove('menu-atualizar-destaque');
-  marcarAtualizacaoComoVista();
-  try{ localStorage.setItem(APP_VERSAO_VISTA_KEY, APP_VERSAO_ATUAL); }catch(e){}
-  const cardTendencia = document.getElementById('homePremiumCardTendencia');
-  if(cardTendencia){
-    cardTendencia.dataset.abrindo = '0';
-    cardTendencia.classList.remove('is-pressed');
-    cardTendencia.style.pointerEvents = '';
-  }
-  setTimeout(()=>{
-    closeDrawer();
-    if(icone) icone.classList.remove('girando');
-  }, 900);
-});"""
-          if antigo_menu in s:
-              s = s.replace(antigo_menu, novo_menu, 1)
-          elif 'const cardTendencia = document.getElementById' not in s:
-              raise SystemExit('Bloco Atualizar nao encontrado')
-
-          s = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{versao}';", s, count=1)
-          p.write_text(s, encoding='utf-8')
-
-          swp = Path('sw.js')
-          sw = swp.read_text(encoding='utf-8')
-          sw = re.sub(r"const CACHE_NAME = 'thor-loterias-[^']+';", f"const CACHE_NAME = 'thor-loterias-{versao}';", sw, count=1)
-          swp.write_text(sw, encoding='utf-8')
+          p=Path('index.html'); s=p.read_text(encoding='utf-8')
+          old="""const homePremiumCardTendencia = document.getElementById('homePremiumCardTendencia');\nif(homePremiumCardTendencia){\n  homePremiumCardTendencia.addEventListener('click', ()=>{\n    if(homePremiumCardTendencia.dataset.abrindo === '1') return;\n    homePremiumCardTendencia.dataset.abrindo = '1';\n    homePremiumCardTendencia.classList.add('is-pressed');\n    try{\n      abrirAltaQueda();\n    } catch(err){\n      console.error('Falha ao abrir Tendência:', err);\n    } finally {\n      setTimeout(()=>{\n        homePremiumCardTendencia.classList.remove('is-pressed');\n        homePremiumCardTendencia.dataset.abrindo = '0';\n      }, 180);\n    }\n  });\n}"""
+          new="""function abrirTendenciaPelaHome(){\n  const card=document.getElementById('homePremiumCardTendencia');\n  if(!card) return;\n  card.dataset.abrindo='0'; card.classList.remove('is-pressed'); card.style.pointerEvents='';\n  card.dataset.abrindo='1'; card.classList.add('is-pressed');\n  try{ abrirAltaQueda(); } catch(err){ console.error('Falha ao abrir Tendência:',err); }\n  finally{ setTimeout(()=>{card.classList.remove('is-pressed');card.dataset.abrindo='0';},180); }\n}\ndocument.addEventListener('click',(ev)=>{const alvo=ev.target&&ev.target.closest?ev.target.closest('#homePremiumCardTendencia'):null;if(!alvo)return;ev.preventDefault();abrirTendenciaPelaHome();});"""
+          if old in s: s=s.replace(old,new,1)
+          elif 'function abrirTendenciaPelaHome()' not in s: raise SystemExit('Tendencia nao encontrada')
+          marker="try{ localStorage.setItem(APP_VERSAO_VISTA_KEY, APP_VERSAO_ATUAL); }catch(e){}"
+          add=marker+"\n  const cardTendencia=document.getElementById('homePremiumCardTendencia');\n  if(cardTendencia){cardTendencia.dataset.abrindo='0';cardTendencia.classList.remove('is-pressed');cardTendencia.style.pointerEvents='';}"
+          if marker in s and 'const cardTendencia=document.getElementById' not in s: s=s.replace(marker,add,1)
+          s=re.sub(r"const APP_VERSAO_ATUAL = '[^']+';","const APP_VERSAO_ATUAL = '2026-09-11-2005';",s,1)
+          p.write_text(s,encoding='utf-8')
+          q=Path('sw.js'); sw=q.read_text(encoding='utf-8'); sw=re.sub(r"const CACHE_NAME = 'thor-loterias-[^']+';","const CACHE_NAME = 'thor-loterias-2026-09-11-2005';",sw,1); q.write_text(sw,encoding='utf-8')
           PY
-      - name: Publicar
+      - name: Push
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add index.html sw.js
-          if git diff --cached --quiet; then
-            echo "Sem alteracoes"
-            exit 0
-          fi
-          git commit -m "Corrigir Tendencia apos Atualizar e versao 2005"
+          git diff --cached --quiet && exit 0
+          git commit -m 'Corrigir Tendencia apos Atualizar 2005'
           git push
