@@ -1,82 +1,13 @@
-name: Atualizar app Tendencia 2001
+name: Ajuste manual do aplicativo
 
 on:
-  push:
-    paths:
-      - '.github/workflows/ajustar-atualizacao-app.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  atualizar:
+  manual:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Corrigir Tendencia e versoes
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-
-          versao = '2026-09-11-2001'
-          p = Path('index.html')
-          s = p.read_text(encoding='utf-8')
-
-          old = """const homePremiumCardTendencia = document.getElementById('homePremiumCardTendencia');
-homePremiumCardTendencia.addEventListener('click', ()=>{
-  if(homePremiumCardTendencia.dataset.abrindo === '1') return;
-  homePremiumCardTendencia.dataset.abrindo = '1';
-  homePremiumCardTendencia.classList.add('is-pressed');
-  setTimeout(()=>{
-    abrirAltaQueda();
-    homePremiumCardTendencia.classList.remove('is-pressed');
-    homePremiumCardTendencia.dataset.abrindo = '0';
-  }, 300);
-});"""
-
-          new = """const homePremiumCardTendencia = document.getElementById('homePremiumCardTendencia');
-if(homePremiumCardTendencia){
-  homePremiumCardTendencia.addEventListener('click', ()=>{
-    if(homePremiumCardTendencia.dataset.abrindo === '1') return;
-    homePremiumCardTendencia.dataset.abrindo = '1';
-    homePremiumCardTendencia.classList.add('is-pressed');
-    try{
-      abrirAltaQueda();
-    } catch(err){
-      console.error('Falha ao abrir Tendencia:', err);
-    } finally {
-      setTimeout(()=>{
-        homePremiumCardTendencia.classList.remove('is-pressed');
-        homePremiumCardTendencia.dataset.abrindo = '0';
-      }, 180);
-    }
-  });
-}"""
-
-          if old in s:
-              s = s.replace(old, new, 1)
-          elif new not in s:
-              raise SystemExit('Trecho do botao Tendencia nao encontrado')
-
-          s = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{versao}';", s, count=1)
-          p.write_text(s, encoding='utf-8')
-
-          swp = Path('sw.js')
-          sw = swp.read_text(encoding='utf-8')
-          sw = re.sub(r"const CACHE_NAME = 'thor-loterias-[^']+';", f"const CACHE_NAME = 'thor-loterias-{versao}';", sw, count=1)
-          swp.write_text(sw, encoding='utf-8')
-          PY
-      - name: Publicar
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html sw.js
-          if git diff --cached --quiet; then
-            echo "Sem alteracoes"
-            exit 0
-          fi
-          git commit -m "Corrigir botao Tendencia e atualizar app 2001"
-          git push
+      - run: echo "Workflow manual."
