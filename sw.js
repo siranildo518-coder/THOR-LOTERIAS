@@ -1,10 +1,11 @@
 // THOR LOTERIAS - Service Worker
 // Atualizacao automatica: ao detectar um novo sw.js, ele assume imediatamente
 // e o HTML principal sempre tenta a rede primeiro para buscar a versao mais nova.
-const CACHE_NAME = 'thor-loterias-2026-09-11-1556';
+const CACHE_NAME = 'thor-loterias-2026-09-11-1602';
 
 const CACHE_FILES = [
   './index.html',
+  './THOR-LOTERIAS.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
@@ -25,8 +26,6 @@ self.addEventListener('install', (event) => {
       )
     )
   );
-
-  // Faz a versao nova assumir assim que for baixada.
   self.skipWaiting();
 });
 
@@ -49,10 +48,8 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
-
-  // Navegacao/HTML: rede primeiro e sem cache HTTP.
-  // Se houver internet, o usuario recebe sempre o index.html mais recente.
   const aceita = req.headers.get('accept') || '';
+
   if (req.mode === 'navigate' || aceita.includes('text/html')) {
     event.respondWith(
       fetch(req, { cache: 'no-store' })
@@ -63,13 +60,12 @@ self.addEventListener('fetch', (event) => {
           return res;
         })
         .catch(async () => {
-          return (await caches.match(req)) || (await caches.match('./index.html'));
+          return (await caches.match(req)) || (await caches.match('./index.html')) || (await caches.match('./THOR-LOTERIAS.html'));
         })
     );
     return;
   }
 
-  // Demais arquivos: cache primeiro, atualizando pela rede quando necessario.
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
