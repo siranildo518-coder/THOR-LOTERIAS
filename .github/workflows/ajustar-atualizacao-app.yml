@@ -19,35 +19,17 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re
-
+          import re, base64
           versao = '2026-09-11-1953'
+          css_b64 = 'PHN0eWxlIGlkPSJnZXJhZG9yLWNhcmRzLXJlc3VsdGFkby1maW5vcyI+Ci8qIEdlcmFkb3IgZGUgam9nb3M6IHF1YWRyb3MgUmVzdWx0YWRvIGUgUmVwZXRpZGFzIGJlbSBtYWlzIGJhaXhvcy9maW5vcyAqLwojZ2VyYWRvckZpbHRyb1VsdGltb1Jlc3VsdGFkb3twYWRkaW5nOjNweCA4cHggIWltcG9ydGFudDttYXJnaW4tYm90dG9tOjVweCAhaW1wb3J0YW50O2JvcmRlci1yYWRpdXM6MTNweCAhaW1wb3J0YW50O30KI2dlcmFkb3JGaWx0cm9VbHRpbW9SZXN1bHRhZG8gLnJlcy1jYXJkLXRpdGxle21hcmdpbjowIDAgMXB4ICFpbXBvcnRhbnQ7bGluZS1oZWlnaHQ6MTJweCAhaW1wb3J0YW50O2ZvbnQtc2l6ZToxMC41cHggIWltcG9ydGFudDt9CiNnZXJhZG9yRmlsdHJvVWx0aW1vUmVzdWx0YWRvIC5yZXMtbmF2LXJvd3ttYXJnaW46MCAwIDFweCAhaW1wb3J0YW50O21pbi1oZWlnaHQ6MTlweCAhaW1wb3J0YW50O2dhcDo1cHggIWltcG9ydGFudDt9CiNnZXJhZG9yRmlsdHJvVWx0aW1vUmVzdWx0YWRvIC5yZXMtbmF2LWJ0bntwYWRkaW5nOjFweCA2cHggIWltcG9ydGFudDttaW4taGVpZ2h0OjE5cHggIWltcG9ydGFudDtsaW5lLWhlaWdodDoxM3B4ICFpbXBvcnRhbnQ7Zm9udC1zaXplOjkuNXB4ICFpbXBvcnRhbnQ7Ym9yZGVyLXJhZGl1czo3cHggIWltcG9ydGFudDt9CiNnZXJhZG9yRmlsdHJvVWx0aW1vUmVzdWx0YWRvIC5yZXMtY29uY3Vyc28tbnVte2ZvbnQtc2l6ZToxMi41cHggIWltcG9ydGFudDtsaW5lLWhlaWdodDoxNXB4ICFpbXBvcnRhbnQ7fQojZ2VyYWRvckZpbHRyb1VsdGltb1Jlc3VsdGFkbyAucmVzdWx0LWJhbGxze21hcmdpbjowICFpbXBvcnRhbnQ7Z2FwOjFweCAhaW1wb3J0YW50O2xpbmUtaGVpZ2h0OjEgIWltcG9ydGFudDt9CiNnZXJhZG9yRmlsdHJvVWx0aW1vUmVzdWx0YWRvIC5yZXN1bHQtYmFsbC1zbXt3aWR0aDoyM3B4ICFpbXBvcnRhbnQ7aGVpZ2h0OjIzcHggIWltcG9ydGFudDttaW4td2lkdGg6MjNweCAhaW1wb3J0YW50O2ZvbnQtc2l6ZTo5cHggIWltcG9ydGFudDttYXJnaW46MXB4ICFpbXBvcnRhbnQ7fQojZ2VyYWRvckZpbHRyb1VsdGltb1Jlc3VsdGFkbyAucmVzLWxvY2Fse2ZvbnQtc2l6ZTo4cHggIWltcG9ydGFudDtsaW5lLWhlaWdodDo5cHggIWltcG9ydGFudDttYXJnaW46MCAhaW1wb3J0YW50O3BhZGRpbmc6MCAhaW1wb3J0YW50O30KCiNnZXJhZG9yRmlsdHJvQW5hbGlzZXtwYWRkaW5nOjNweCA4cHggIWltcG9ydGFudDttYXJnaW4tYm90dG9tOjVweCAhaW1wb3J0YW50O2JvcmRlci1yYWRpdXM6MTNweCAhaW1wb3J0YW50O30KI2dlcmFkb3JGaWx0cm9BbmFsaXNlIC5zdGF0LXN1Yi10aXRsZXttYXJnaW46MCAwIDFweCAhaW1wb3J0YW50O2ZvbnQtc2l6ZToxMC41cHggIWltcG9ydGFudDtsaW5lLWhlaWdodDoxMnB4ICFpbXBvcnRhbnQ7fQojZ2VyYWRvckZpbHRyb0FuYWxpc2UgLmdmYy1iYWxse3dpZHRoOjIzcHggIWltcG9ydGFudDtoZWlnaHQ6MjNweCAhaW1wb3J0YW50O21pbi13aWR0aDoyM3B4ICFpbXBvcnRhbnQ7Zm9udC1zaXplOjlweCAhaW1wb3J0YW50O21hcmdpbjoxcHggIWltcG9ydGFudDt9CiNnZXJhZG9yRmlsdHJvQW5hbGlzZSA+IGRpdnttYXJnaW4tdG9wOjAgIWltcG9ydGFudDttYXJnaW4tYm90dG9tOjAgIWltcG9ydGFudDt9Cjwvc3R5bGU+'
+          novo_bloco = base64.b64decode(css_b64).decode('utf-8')
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-
-          novo_bloco = '''<style id="gerador-cards-resultado-finos">
-/* Gerador de jogos: quadros Resultado e Repetidas bem mais baixos/finos */
-#geradorFiltroUltimoResultado{padding:3px 8px !important;margin-bottom:5px !important;border-radius:13px !important;}
-#geradorFiltroUltimoResultado .res-card-title{margin:0 0 1px !important;line-height:12px !important;font-size:10.5px !important;}
-#geradorFiltroUltimoResultado .res-nav-row{margin:0 0 1px !important;min-height:19px !important;gap:5px !important;}
-#geradorFiltroUltimoResultado .res-nav-btn{padding:1px 6px !important;min-height:19px !important;line-height:13px !important;font-size:9.5px !important;border-radius:7px !important;}
-#geradorFiltroUltimoResultado .res-concurso-num{font-size:12.5px !important;line-height:15px !important;}
-#geradorFiltroUltimoResultado .result-balls{margin:0 !important;gap:1px !important;line-height:1 !important;}
-#geradorFiltroUltimoResultado .result-ball-sm{width:23px !important;height:23px !important;min-width:23px !important;font-size:9px !important;margin:1px !important;}
-#geradorFiltroUltimoResultado .res-local{font-size:8px !important;line-height:9px !important;margin:0 !important;padding:0 !important;}
-#geradorFiltroAnalise{padding:3px 8px !important;margin-bottom:5px !important;border-radius:13px !important;}
-#geradorFiltroAnalise .stat-sub-title{margin:0 0 1px !important;font-size:10.5px !important;line-height:12px !important;}
-#geradorFiltroAnalise .gfc-ball{width:23px !important;height:23px !important;min-width:23px !important;font-size:9px !important;margin:1px !important;}
-#geradorFiltroAnalise > div{margin-top:0 !important;margin-bottom:0 !important;}
-</style>'''
-
           s, n = re.subn(r'<style id="gerador-cards-resultado-finos">.*?</style>', novo_bloco, s, count=1, flags=re.S)
           if n != 1:
               raise SystemExit('Bloco de cards não encontrado')
-
           s = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{versao}';", s, count=1)
           p.write_text(s, encoding='utf-8')
-
           swp = Path('sw.js')
           sw = swp.read_text(encoding='utf-8')
           sw = re.sub(r"const CACHE_NAME = 'thor-loterias-[^']+';", f"const CACHE_NAME = 'thor-loterias-{versao}';", sw, count=1)
