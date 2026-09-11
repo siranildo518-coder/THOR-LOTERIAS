@@ -1,0 +1,75 @@
+name: Corrigir botão Tendência 2001
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-tendencia-2001.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  corrigir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Corrigir botão e atualizar versões
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = """const homePremiumCardTendencia = document.getElementById('homePremiumCardTendencia');
+homePremiumCardTendencia.addEventListener('click', ()=>{
+  if(homePremiumCardTendencia.dataset.abrindo === '1') return;
+  homePremiumCardTendencia.dataset.abrindo = '1';
+  homePremiumCardTendencia.classList.add('is-pressed');
+  setTimeout(()=>{
+    abrirAltaQueda();
+    homePremiumCardTendencia.classList.remove('is-pressed');
+    homePremiumCardTendencia.dataset.abrindo = '0';
+  }, 300);
+});"""
+          new = """const homePremiumCardTendencia = document.getElementById('homePremiumCardTendencia');
+if(homePremiumCardTendencia){
+  homePremiumCardTendencia.addEventListener('click', ()=>{
+    if(homePremiumCardTendencia.dataset.abrindo === '1') return;
+    homePremiumCardTendencia.dataset.abrindo = '1';
+    homePremiumCardTendencia.classList.add('is-pressed');
+    try{
+      abrirAltaQueda();
+    } catch(err){
+      console.error('Falha ao abrir Tendência:', err);
+    } finally {
+      setTimeout(()=>{
+        homePremiumCardTendencia.classList.remove('is-pressed');
+        homePremiumCardTendencia.dataset.abrindo = '0';
+      }, 180);
+    }
+  });
+}"""
+          if old in s:
+              s = s.replace(old, new, 1)
+          elif new not in s:
+              raise SystemExit('Trecho do botão Tendência não encontrado')
+
+          s = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", "const APP_VERSAO_ATUAL = '2026-09-11-2001';", s, count=1)
+          p.write_text(s, encoding='utf-8')
+
+          swp = Path('sw.js')
+          sw = swp.read_text(encoding='utf-8')
+          sw = re.sub(r"const CACHE_NAME = 'thor-loterias-[^']+';", "const CACHE_NAME = 'thor-loterias-2026-09-11-2001';", sw, count=1)
+          swp.write_text(sw, encoding='utf-8')
+          PY
+      - name: Publicar
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          git diff --cached --quiet && exit 0
+          git commit -m "Corrigir botão Tendência e atualizar app 2001"
+          git push
