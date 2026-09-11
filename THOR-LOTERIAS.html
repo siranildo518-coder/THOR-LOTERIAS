@@ -2989,10 +2989,33 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAnalisadorJogos"><span class="ic">👁️</span> Analisador de Jogos</button>
       <button class="drawer-item" id="menuPadroes"><span class="ic">▦</span> Padrões</button>
   <div class="drawer-hr"></div>
+  <button class="drawer-item" id="menuContatos"><span class="ic">☎️</span> Contatos</button>
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
 
+</div>
+
+<div class="overlay-full" id="overlayContatos" style="z-index:78;background:#f6f2fb;overflow-y:auto;">
+  <style>
+    #overlayContatos *{box-sizing:border-box}
+    #overlayContatos .contatos-topo{height:58px;background:linear-gradient(90deg,#5423c7,#8b2c91);display:flex;align-items:center;padding:8px 14px;color:#fff;position:sticky;top:0;z-index:2;box-shadow:0 2px 7px rgba(0,0,0,.18)}
+    #overlayContatos .contatos-voltar{width:38px;height:38px;border:0;background:transparent;color:#fff;font-size:28px;line-height:1;cursor:pointer}
+    #overlayContatos .contatos-titulo{font-family:'Baloo 2',sans-serif;font-size:21px;font-weight:800;margin-left:7px}
+    #overlayContatos .contatos-conteudo{width:min(620px,calc(100% - 16px));margin:18px auto;padding:20px 17px;background:#fff;border:1px solid #e2dce8;border-radius:8px;box-shadow:0 5px 15px rgba(53,31,75,.12);text-align:center}
+    #overlayContatos .contatos-icone{font-size:42px;margin-bottom:8px}
+    #overlayContatos .contatos-chamada{font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:800;color:#5423c7;margin-bottom:7px}
+    #overlayContatos .contatos-texto{font-size:14px;line-height:1.5;color:#666;margin:0}
+  </style>
+  <div class="contatos-topo">
+    <button type="button" class="contatos-voltar" id="contatosVoltar" aria-label="Voltar">←</button>
+    <div class="contatos-titulo">Contatos</div>
+  </div>
+  <div class="contatos-conteudo">
+    <div class="contatos-icone">☎️</div>
+    <div class="contatos-chamada">Entre em contato</div>
+    <p class="contatos-texto">Os canais de atendimento do THOR LOTERIAS serão exibidos aqui.</p>
+  </div>
 </div>
 
 <div class="overlay" id="overlayHistorico">
@@ -6309,7 +6332,7 @@ function abrirGeradorFiltro(code){
   // "escolher loteria" aberta por baixo, senão o botão de voltar (← ou físico) pula
   // direto pro início em vez de voltar pra lista de loterias
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayHistorico',
-    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer'];
+    'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer','overlayContatos'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.classList.remove('show');
@@ -9216,7 +9239,7 @@ function resetScroll(){
 }
 
 function fecharOutrasOverlaysDeAba(manter){
-  const modalIds = ['overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayProb','overlayHistorico','overlayAnalisadorJogos','overlayPadroes'];
+  const modalIds = ['overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayProb','overlayHistorico','overlayAnalisadorJogos','overlayPadroes','overlayContatos'];
   modalIds.forEach(id=>{
     if(id === manter) return;
     const el = document.getElementById(id);
@@ -9230,7 +9253,7 @@ function fecharOutrasOverlaysDeAba(manter){
 function fecharModaisGlobais(manter){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
-    'overlayGeradorLoteria','overlayGeradorFiltro','overlayAnalisadorJogos'];
+    'overlayGeradorLoteria','overlayGeradorFiltro','overlayAnalisadorJogos','overlayContatos'];
   modalIds.forEach(id=>{
     if(id === manter) return;
     const el = document.getElementById(id);
@@ -9243,7 +9266,7 @@ function fecharModaisGlobais(manter){
 function goHome(){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
-    'overlayGeradorLoteria','overlayGeradorFiltro','overlayAnalisadorJogos'];
+    'overlayGeradorLoteria','overlayGeradorFiltro','overlayAnalisadorJogos','overlayContatos'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.classList.remove('show');
@@ -9261,7 +9284,7 @@ function goHome(){
 function irParaSelecao(){
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
-    'overlayGeradorLoteria','overlayGeradorFiltro','overlayListaResultados','overlayAnalisadorJogos'];
+    'overlayGeradorLoteria','overlayGeradorFiltro','overlayListaResultados','overlayAnalisadorJogos','overlayContatos'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.classList.remove('show');
@@ -10003,6 +10026,20 @@ document.getElementById('menuMinhasSequencias')?.addEventListener('click', ()=>{
   atualizarFreqBaseTotalLabel();
   atualizarFreqConcursoInfoLabel();
   setActiveTab('tabAnalise');
+});
+document.getElementById('menuContatos')?.addEventListener('click', ()=>{
+  closeDrawer();
+  fecharModaisGlobais('overlayContatos');
+  const contatos = document.getElementById('overlayContatos');
+  if(contatos){
+    contatos.classList.add('show');
+    contatos.scrollTop = 0;
+  }
+});
+document.getElementById('contatosVoltar')?.addEventListener('click', ()=>{
+  const contatos = document.getElementById('overlayContatos');
+  if(contatos) contatos.classList.remove('show');
+  goHome();
 });
 document.getElementById('menuSairLogin').addEventListener('click', ()=>{
   sairDoLogin();
@@ -11275,7 +11312,7 @@ refreshUI();
     'overlayNomeJogo','overlayFotoFull','drawer','overlay','overlayTrioProb','overlayCentroDezena','overlayProb',
     'overlayHistorico','overlayErreX','overlayGaleria',
     'overlayGeradorFiltro','overlayGeradorLoteria',
-    'overlayAltaQueda','overlayResultado','overlayTendencia','overlayMinhasSequencias','overlayAnalisadorJogos'
+    'overlayAltaQueda','overlayResultado','overlayTendencia','overlayMinhasSequencias','overlayAnalisadorJogos','overlayContatos'
   ];
 
   function isModalOpen(id){
