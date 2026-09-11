@@ -1,38 +1,13 @@
-name: Conferidor premios 2054
+name: Ajuste manual do aplicativo
+
 on:
-  push:
-    paths: ['.github/workflows/ajustar-atualizacao-app.yml']
+  workflow_dispatch:
+
 permissions:
   contents: write
+
 jobs:
-  publicar:
+  manual:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with: {fetch-depth: 0}
-      - run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re,base64
-          p=Path('index.html');s=p.read_text(encoding='utf-8')
-          s=s.replace("const GERADOR_APOSTA_SIZE = {MS:6, LF:15, QN:5, DIA:7, TM:10, DS:6};","const GERADOR_APOSTA_SIZE = {MS:6, LF:15, QN:5, DIA:7, LM:50, TM:10, DS:6};",1)
-          s=s.replace("  LF:  [{h:15,label:'15 pontos'},   {h:14,label:'14 pontos'},  {h:13,label:'13 pontos'}, {h:12,label:'12 pontos'}, {h:11,label:'11 pontos'}],","  LF:  [{h:15,label:'15 pontos'},   {h:14,label:'14 pontos'},  {h:13,label:'13 pontos — R$ 35,00'}, {h:12,label:'12 pontos — R$ 14,00'}, {h:11,label:'11 pontos — R$ 7,00'}],",1)
-          s=s.replace("  DIA: [{h:7, label:'7 acertos'},   {h:6, label:'6 acertos'},  {h:5, label:'5 acertos'}, {h:4, label:'4 acertos'}],","  DIA: [{h:7, label:'7 acertos'},   {h:6, label:'6 acertos'},  {h:5, label:'5 acertos'}, {h:4, label:'4 acertos'}],\n  LM:  [{h:20,label:'20 acertos'}, {h:19,label:'19 acertos'}, {h:18,label:'18 acertos'}, {h:17,label:'17 acertos'}, {h:16,label:'16 acertos'}, {h:15,label:'15 acertos'}, {h:0,label:'0 acertos'}],",1)
-          s=s.replace("  TM:  [{h:7, label:'7 acertos'},   {h:6, label:'6 acertos'},  {h:5, label:'5 acertos'}, {h:4, label:'4 acertos'}, {h:3, label:'3 acertos'}],","  TM:  [{h:7, label:'7 acertos'},   {h:6, label:'6 acertos'},  {h:5, label:'5 acertos'}, {h:4, label:'4 acertos — R$ 10,50'}, {h:3, label:'3 acertos — R$ 3,50'}],",1)
-          marker="function faixaPremioGerador(code, hits){\n  const faixas = FAIXAS_PREMIACAO_GERADOR[code];\n  if(!faixas) return null;\n  return faixas.find(f => f.h === hits) || null;\n}\n"
-          if 'function resumoPremiacaoGerador' not in s:s=s.replace(marker,marker+base64.b64decode('ZnVuY3Rpb24gcmVzdW1vUHJlbWlhY2FvR2VyYWRvcihjb2RlKXsKICBjb25zdCBmYWl4YXMgPSBGQUlYQVNfUFJFTUlBQ0FPX0dFUkFET1JbY29kZV0gfHwgW107CiAgY29uc3QgdGV4dG8gPSBmYWl4YXMubWFwKGY9PmYubGFiZWwpLmpvaW4oJyDigKIgJyk7CiAgbGV0IGV4dHJhID0gJyc7CiAgaWYoY29kZSA9PT0gJ0RJQScpIGV4dHJhID0gJzxkaXYgc3R5bGU9Im1hcmdpbi10b3A6NHB4O2ZvbnQtc2l6ZToxMHB4O2NvbG9yOiM2QjcyODA7Ij5Nw6pzIGRhIFNvcnRlIMOpIHVtYSBwcmVtaWHDp8OjbyBzZXBhcmFkYSBlIG7Do28gZW50cmEgbmEgY29uZmVyw6puY2lhIGRhcyBkZXplbmFzLjwvZGl2Pic7CiAgaWYoY29kZSA9PT0gJ1RNJykgZXh0cmEgPSAnPGRpdiBzdHlsZT0ibWFyZ2luLXRvcDo0cHg7Zm9udC1zaXplOjEwcHg7Y29sb3I6IzZCNzI4MDsiPlRpbWUgZG8gQ29yYcOnw6NvIMOpIHVtYSBwcmVtaWHDp8OjbyBzZXBhcmFkYSBlIG7Do28gZW50cmEgbmEgY29uZmVyw6puY2lhIGRhcyBkZXplbmFzLjwvZGl2Pic7CiAgaWYoY29kZSA9PT0gJ0RTJykgZXh0cmEgPSAnPGRpdiBzdHlsZT0ibWFyZ2luLXRvcDo0cHg7Zm9udC1zaXplOjEwcHg7Y29sb3I6IzZCNzI4MDsiPkEgY29uZmVyw6puY2lhIHVzYSBvIHNvcnRlaW8gZXhpYmlkbyBubyBjYXJkIGRlIHJlc3VsdGFkby48L2Rpdj4nOwogIHJldHVybiBgPGRpdiBzdHlsZT0iZm9udC1mYW1pbHk6J0JhbG9vIDInLHNhbnMtc2VyaWY7Zm9udC1zaXplOjEwLjVweDtsaW5lLWhlaWdodDoxLjI1O2NvbG9yOiM0QzFEOTU7Ij48c3Ryb25nPvCfj4YgRmFpeGFzIGRlIHByZW1pYcOnw6NvOjwvc3Ryb25nPiAke3RleHRvfSR7ZXh0cmF9PC9kaXY+YDsKfQo=').decode(),1)
-          s=re.sub(r"    const badge = conferindo\n      \? `<span style=\"font-family:'Baloo 2'.*?      : '';",base64.b64decode('ICAgIGNvbnN0IGJhZGdlID0gY29uZmVyaW5kbwogICAgICA/IGA8c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6J0JhbG9vIDInLHNhbnMtc2VyaWY7Zm9udC13ZWlnaHQ6ODAwO2ZvbnQtc2l6ZToxMC41cHg7Y29sb3I6JHtmYWl4YSA/ICcjMUY5RDc0JyA6ICd2YXIoLS1tdXRlZCknfTttYXJnaW4tbGVmdDphdXRvO2ZsZXg6bm9uZTt0ZXh0LWFsaWduOnJpZ2h0OyI+JHtoaXRzfSBhY2VydG8ke2hpdHM9PT0xPycnOidzJ308YnI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTo5cHg7Zm9udC13ZWlnaHQ6NzAwOyI+JHtmYWl4YSA/IGZhaXhhLmxhYmVsIDogJ27Do28gcHJlbWlhZG8nfTwvc3Bhbj48L3NwYW4+YAogICAgICA6ICcnOw==').decode(),s,count=1,flags=re.S)
-          needle='  out.innerHTML = `\n    <div style="display:flex;gap:8px;margin-bottom:12px;">'
-          s=s.replace(needle,base64.b64decode('ICBvdXQuaW5uZXJIVE1MID0gYAogICAgPGRpdiBzdHlsZT0iYmFja2dyb3VuZDojZmZmO2JvcmRlcjoxLjVweCBzb2xpZCAjRTdERkY1O2JvcmRlci1yYWRpdXM6MTNweDtwYWRkaW5nOjhweCAxMHB4O21hcmdpbi1ib3R0b206OHB4OyI+CiAgICAgIDxkaXYgc3R5bGU9ImRpc3BsYXk6ZmxleDthbGlnbi1pdGVtczpjZW50ZXI7anVzdGlmeS1jb250ZW50OnNwYWNlLWJldHdlZW47Z2FwOjhweDttYXJnaW4tYm90dG9tOjNweDsiPgogICAgICAgIDxzdHJvbmcgc3R5bGU9ImZvbnQtZmFtaWx5OidCYWxvbyAyJyxzYW5zLXNlcmlmO2ZvbnQtc2l6ZToxMnB4O2NvbG9yOiNBMjFDQUY7Ij5Db25mZXJpZG9yIGRlIGFjZXJ0b3Mg4oCUICR7Zy5ub21lfTwvc3Ryb25nPgogICAgICAgICR7Y29uZmVyaW5kbyA/IGA8c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6J0JhbG9vIDInLHNhbnMtc2VyaWY7Zm9udC1zaXplOjEwcHg7Zm9udC13ZWlnaHQ6ODAwO2NvbG9yOiMxRjlENzQ7Ij4ke3RvdGFsUHJlbWlhZG9zfSBwcmVtaWFkbyR7dG90YWxQcmVtaWFkb3M9PT0xPycnOidzJ308L3NwYW4+YCA6ICcnfQogICAgICA8L2Rpdj4KICAgICAgJHtyZXN1bW9QcmVtaWFjYW9HZXJhZG9yKGcuY29kZSl9CiAgICA8L2Rpdj4KICAgIDxkaXYgc3R5bGU9ImRpc3BsYXk6ZmxleDtnYXA6OHB4O21hcmdpbi1ib3R0b206MTJweDsiPg==').decode(),1)
-          s=re.sub(r"const APP_VERSAO_ATUAL = '[^']+';","const APP_VERSAO_ATUAL = '2026-09-11-2054';",s,count=1)
-          p.write_text(s,encoding='utf-8')
-          q=Path('sw.js');x=q.read_text(encoding='utf-8');x=re.sub(r"const CACHE_NAME = 'thor-loterias-[^']+';","const CACHE_NAME = 'thor-loterias-2026-09-11-2054';",x,count=1);q.write_text(x,encoding='utf-8')
-          PY
-      - run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html sw.js
-          git diff --cached --quiet && exit 0
-          git commit -m "Adicionar conferidor de premios 2054"
-          git pull --rebase origin main
-          git push
+      - run: echo "Workflow manual."
