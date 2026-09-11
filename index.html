@@ -99,7 +99,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-11-1940'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-11-1945'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -2715,6 +2715,20 @@ document.addEventListener('selectstart', e=>{
 /* Resultado da tabela mais compacto */
 #frequenciaConteudo .freq-dez-row{min-height:27px!important;}
 #frequenciaConteudo .freq-dez-row>div{padding-top:3px!important;padding-bottom:3px!important;}
+</style>
+<style id="gerador-cards-resultado-finos">
+/* Gerador de jogos: resultado e repetidas mais finos/compactos */
+#geradorFiltroUltimoResultado{padding:6px 10px !important;margin-bottom:7px !important;}
+#geradorFiltroUltimoResultado .res-card-title{margin-bottom:2px !important;line-height:14px !important;font-size:11.5px !important;}
+#geradorFiltroUltimoResultado .res-nav-row{margin-bottom:2px !important;min-height:24px !important;}
+#geradorFiltroUltimoResultado .res-nav-btn{padding:2px 7px !important;min-height:22px !important;line-height:15px !important;}
+#geradorFiltroUltimoResultado .res-concurso-num{font-size:14px !important;line-height:18px !important;}
+#geradorFiltroUltimoResultado .result-balls{margin-top:2px !important;margin-bottom:1px !important;}
+#geradorFiltroUltimoResultado .result-ball-sm{width:27px !important;height:27px !important;min-width:27px !important;font-size:10.5px !important;}
+#geradorFiltroUltimoResultado .res-local{font-size:9.5px !important;line-height:11px !important;margin-top:1px !important;}
+#geradorFiltroAnalise{padding:6px 10px !important;margin-bottom:7px !important;}
+#geradorFiltroAnalise .stat-sub-title{margin:0 !important;font-size:11.5px !important;line-height:14px !important;}
+#geradorFiltroAnalise .gfc-ball{width:27px !important;height:27px !important;min-width:27px !important;font-size:10.5px !important;margin:1px 2px !important;}
 </style>
 </head>
 <body>
