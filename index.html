@@ -99,7 +99,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-11-2019'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-11-2054'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -6155,7 +6155,7 @@ function renderManual(dezenas, atraso, totalAnalisado, numeroUltimo, falhaConjun
 // ---------- Gerador multi-loteria: escolher loteria -> filtro (últimos N concursos) -> 50 jogos ----------
 // dezenas por jogo (padrão oficial mínimo de cada loteria). Lotomania (50 dezenas por jogo) e
 // Super Sete (funciona por colunas, não por dezenas) não entram nesse gerador.
-const GERADOR_APOSTA_SIZE = {MS:6, LF:15, QN:5, DIA:7, TM:10, DS:6};
+const GERADOR_APOSTA_SIZE = {MS:6, LF:15, QN:5, DIA:7, LM:50, TM:10, DS:6};
 const GERADOR_GAMES = GAMES.filter(g => GERADOR_APOSTA_SIZE[g.code]);
 let geradorGameAtual = null;
 
@@ -6397,16 +6397,26 @@ function renderGeradorAnalise(g, ultimo, anterior, repMedia, faixaMin, faixaMax,
 // da maior pra menor) — usadas pra marcar os jogos gerados como premiados de verdade
 const FAIXAS_PREMIACAO_GERADOR = {
   MS:  [{h:6, label:'Sena'},        {h:5, label:'Quina'},      {h:4, label:'Quadra'}],
-  LF:  [{h:15,label:'15 pontos'},   {h:14,label:'14 pontos'},  {h:13,label:'13 pontos'}, {h:12,label:'12 pontos'}, {h:11,label:'11 pontos'}],
+  LF:  [{h:15,label:'15 pontos'},   {h:14,label:'14 pontos'},  {h:13,label:'13 pontos — R$ 35,00'}, {h:12,label:'12 pontos — R$ 14,00'}, {h:11,label:'11 pontos — R$ 7,00'}],
   QN:  [{h:5, label:'Quina'},       {h:4, label:'Quadra'},     {h:3, label:'Terno'},     {h:2, label:'Duque'}],
   DIA: [{h:7, label:'7 acertos'},   {h:6, label:'6 acertos'},  {h:5, label:'5 acertos'}, {h:4, label:'4 acertos'}],
-  TM:  [{h:7, label:'7 acertos'},   {h:6, label:'6 acertos'},  {h:5, label:'5 acertos'}, {h:4, label:'4 acertos'}, {h:3, label:'3 acertos'}],
+  LM:  [{h:20,label:'20 acertos'}, {h:19,label:'19 acertos'}, {h:18,label:'18 acertos'}, {h:17,label:'17 acertos'}, {h:16,label:'16 acertos'}, {h:15,label:'15 acertos'}, {h:0,label:'0 acertos'}],
+  TM:  [{h:7, label:'7 acertos'},   {h:6, label:'6 acertos'},  {h:5, label:'5 acertos'}, {h:4, label:'4 acertos — R$ 10,50'}, {h:3, label:'3 acertos — R$ 3,50'}],
   DS:  [{h:6, label:'Sena'},        {h:5, label:'Quina'},      {h:4, label:'Quadra'},    {h:3, label:'Terno'}],
 };
 function faixaPremioGerador(code, hits){
   const faixas = FAIXAS_PREMIACAO_GERADOR[code];
   if(!faixas) return null;
   return faixas.find(f => f.h === hits) || null;
+}
+function resumoPremiacaoGerador(code){
+  const faixas = FAIXAS_PREMIACAO_GERADOR[code] || [];
+  const texto = faixas.map(f=>f.label).join(' • ');
+  let extra = '';
+  if(code === 'DIA') extra = '<div style="margin-top:4px;font-size:10px;color:#6B7280;">Mês da Sorte é uma premiação separada e não entra na conferência das dezenas.</div>';
+  if(code === 'TM') extra = '<div style="margin-top:4px;font-size:10px;color:#6B7280;">Time do Coração é uma premiação separada e não entra na conferência das dezenas.</div>';
+  if(code === 'DS') extra = '<div style="margin-top:4px;font-size:10px;color:#6B7280;">A conferência usa o sorteio exibido no card de resultado.</div>';
+  return `<div style="font-family:'Baloo 2',sans-serif;font-size:10.5px;line-height:1.25;color:#4C1D95;"><strong>🏆 Faixas de premiação:</strong> ${texto}${extra}</div>`;
 }
 
 let geradorUltimoResultado = null; // {gameCode, concurso, dezenas:Set} — resultado oficial mostrado agora no card
@@ -6759,7 +6769,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     const faixa = conferindo ? faixaPremioGerador(g.code, hits) : null;
     if(faixa) totalPremiados++;
     const badge = conferindo
-      ? `<span style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:${faixa ? '#1F9D74' : 'var(--muted)'};margin-left:auto;flex:none;">${hits} acerto${hits===1?'':'s'}</span>`
+      ? `<span style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:${faixa ? '#1F9D74' : 'var(--muted)'};margin-left:auto;flex:none;text-align:right;">${hits} acerto${hits===1?'':'s'}<br><span style="font-size:9px;font-weight:700;">${faixa ? faixa.label : 'não premiado'}</span></span>`
       : '';
     const premioTag = faixa
       ? `<div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:#fff;background:linear-gradient(135deg,#1F9D74,#15764F);padding:3px 8px;border-radius:20px;display:inline-block;margin-top:5px;">🏆 PREMIADO — ${faixa.label}</div>`
@@ -6782,6 +6792,13 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
   }).join('');
 
   out.innerHTML = `
+    <div style="background:#fff;border:1.5px solid #E7DFF5;border-radius:13px;padding:8px 10px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;">
+        <strong style="font-family:'Baloo 2',sans-serif;font-size:12px;color:#A21CAF;">Conferidor de acertos — ${g.nome}</strong>
+        ${conferindo ? `<span style="font-family:'Baloo 2',sans-serif;font-size:10px;font-weight:800;color:#1F9D74;">${totalPremiados} premiado${totalPremiados===1?'':'s'}</span>` : ''}
+      </div>
+      ${resumoPremiacaoGerador(g.code)}
+    </div>
     <div style="display:flex;gap:8px;margin-bottom:12px;">
       <button id="geradorLimparBtn" class="download-btn" style="display:block;flex:1;margin-top:0;padding:7px;font-size:12px;background:#fff;color:#B91C1C;border:1.5px solid #B91C1C;"><span id="geradorLimparSpinner" style="display:none;width:11px;height:11px;border:2px solid rgba(185,28,28,.35);border-top-color:#B91C1C;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="geradorLimparLabel">Limpar jogos</span></button>
       <a id="geradorJogarOnlineBtn" class="download-btn" href="https://loterias.caixa.gov.br/Paginas/${g.officialSlug}.aspx" target="_blank" rel="noopener" style="display:block;flex:1;margin-top:0;padding:7px;font-size:12px;text-align:center;text-decoration:none;box-sizing:border-box;">Jogar online</a>
