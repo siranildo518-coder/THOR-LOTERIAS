@@ -3858,7 +3858,7 @@ document.addEventListener('selectstart', e=>{
         </div>
       </div>
       <div class="freq-intro-body">
-        <div class="freq-info"><span>●</span><span>Base de análise: <strong id="freqBaseTotal">…</strong> sorteios da Lotofácil</span></div>
+        
       </div>
     </section>
 
@@ -9486,6 +9486,14 @@ async function obterHistoricoCompletoFreq(onProgress){
   // Consulta somente o último resultado oficial primeiro.
   const oficialBruto=await fetchJson(CAIXA_API,6500);
   let ultimoOficial=null;
+
+  // IMPORTANTE: guarda o estado do cache ANTES de inserir o concurso oficial mais recente.
+  // Antes, o concurso atual era inserido primeiro e virava o "ultimoLocal"; com isso o app
+  // entendia que não havia nada para atualizar e acabava trazendo somente um concurso.
+  const concursosAntesOficial = new Set(
+    (cache.dados || []).map(x=>Number(x?.c ?? x?.concurso ?? x?.numero ?? x?.numeroConcurso)).filter(Number.isFinite)
+  );
+
   if(oficialBruto){
     const atual=normalizar(oficialBruto);
     if(Number.isFinite(atual.c) && atual.n.length>=15){
@@ -9494,13 +9502,32 @@ async function obterHistoricoCompletoFreq(onProgress){
     }
   }
 
-  let ultimoLocal=cache.dados.length ? cache.dados[cache.dados.length-1].c : 0;
+  let ultimoLocal=0;
+  concursosAntesOficial.forEach(c=>{ if(c>ultimoLocal) ultimoLocal=c; });
 
   // Se já há uma base grande no aparelho, NÃO baixa o histórico inteiro novamente.
-  // Busca somente concursos que faltam entre o cache e a CAIXA.
+  // Busca TODOS os concursos realmente ausentes até o último oficial.
+  // Também corrige caches antigos que ficaram com buracos por causa da lógica anterior.
   if(cache.dados.length>=100 && ultimoOficial){
+    const existentes = new Set(
+      cache.dados.map(x=>Number(x?.c ?? x?.concurso ?? x?.numero ?? x?.numeroConcurso)).filter(Number.isFinite)
+    );
+
     const faltantes=[];
-    for(let c=ultimoLocal+1;c<=ultimoOficial;c++) faltantes.push(c);
+
+    // Se o cache anterior já terminava antes do oficial, varre dali para frente.
+    // Se o último oficial já foi salvo numa execução antiga, procura os buracos recentes
+    // entre o penúltimo bloco disponível e o concurso atual.
+    let inicioBusca = Math.max(1, ultimoLocal + 1);
+    if(ultimoLocal >= ultimoOficial){
+      const anteriores = [...existentes].filter(c=>c < ultimoOficial).sort((a,b)=>b-a);
+      const anteriorMaisProximo = anteriores.length ? anteriores[0] : 0;
+      inicioBusca = Math.max(1, anteriorMaisProximo + 1);
+    }
+
+    for(let c=inicioBusca;c<=ultimoOficial;c++){
+      if(!existentes.has(c)) faltantes.push(c);
+    }
 
     for(let i=0;i<faltantes.length;i+=12){
       const lote=faltantes.slice(i,i+12);
@@ -9777,11 +9804,25 @@ document.getElementById('freqBtnAnalisar').addEventListener('click', async ()=>{
   }
   esconderResultadoFreq();
   try{
-    const carregar = obterHistoricoCompletoFreq((feito,totalFaltando)=>{
-      if(status) status.innerHTML = `<div class="res-loading">Carregando base (${feito} concursos)…</div>`;
-    });
-    const limite = new Promise((_, rejeitar)=>setTimeout(()=>rejeitar(new Error('Tempo de carregamento excedido. Toque novamente para tentar outra fonte.')), 18000));
-    const dados = await Promise.race([carregar, limite]);
+    // Se o usuário informou uma quantidade (ex.: 15), carrega exatamente
+    // os N concursos mais recentes. Antes esta tela ignorava esse campo e
+    // acabava analisando apenas o único concurso que existia no cache local.
+    const qtdInput = document.getElementById('freqQtdConcursosInput');
+    const qtdPedida = qtdInput ? parseInt(qtdInput.value, 10) : NaN;
+
+    let dados;
+    if(Number.isFinite(qtdPedida) && qtdPedida > 0){
+      dados = await garantirUltimosConcursosPadroes(qtdPedida, (feito,total)=>{
+        if(status) status.innerHTML = `<div class="res-loading">Carregando base (${feito}/${total || qtdPedida} concursos)…</div>`;
+      });
+    } else {
+      const carregar = obterHistoricoCompletoFreq((feito,totalFaltando)=>{
+        if(status) status.innerHTML = `<div class="res-loading">Carregando base (${feito} concursos)…</div>`;
+      });
+      const limite = new Promise((_, rejeitar)=>setTimeout(()=>rejeitar(new Error('Tempo de carregamento excedido. Toque novamente para tentar outra fonte.')), 18000));
+      dados = await Promise.race([carregar, limite]);
+    }
+
     freqSetText('freqBaseTotal', dados.length);
     atualizarFreqConcursoInfoLabel(dados);
     const dadosFiltrados = filtrarDadosPorConcursoFreq(dados);
