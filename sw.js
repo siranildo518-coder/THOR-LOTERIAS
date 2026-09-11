@@ -1,7 +1,7 @@
-// Esse número é gerado automaticamente (data + hora) toda vez que o Claude
-// entrega uma atualização do index.html. Não precisa mudar isso na mão:
-// é essa mudança que faz o navegador do cliente perceber a versão nova.
-const CACHE_NAME = 'thor-loterias-2026-09-07-2056';
+// THOR LOTERIAS - Service Worker
+// Atualizacao automatica: ao detectar um novo sw.js, ele assume imediatamente
+// e o HTML principal sempre tenta a rede primeiro para buscar a versao mais nova.
+const CACHE_NAME = 'thor-loterias-2026-09-11-1549';
 
 const CACHE_FILES = [
   './index.html',
@@ -16,14 +16,18 @@ self.addEventListener('install', (event) => {
       Promise.all(
         CACHE_FILES.map((url) =>
           fetch(url, { cache: 'no-store' })
-            .then((res) => cache.put(url, res))
-            .catch((err) => console.error('Falha ao pré-cachear', url, err))
+            .then((res) => {
+              if (!res || !res.ok) throw new Error('Falha ao buscar ' + url);
+              return cache.put(url, res.clone());
+            })
+            .catch((err) => console.error('Falha ao pre-cachear', url, err))
         )
       )
     )
   );
-  // não chama skipWaiting aqui de propósito: o novo SW fica "esperando"
-  // até o usuário tocar em ATUALIZAR no banner do app.
+
+  // Faz a versao nova assumir assim que for baixada.
+  self.skipWaiting();
 });
 
 self.addEventListener('message', (event) => {
@@ -34,36 +38,48 @@ self.addEventListener('message', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    Promise.all([
+      caches.keys().then((keys) =>
+        Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      ),
+      self.clients.claim()
+    ])
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
 
-  // Para o HTML principal: tenta a rede primeiro, ignorando o cache HTTP do
-  // navegador (senão ele pode devolver uma cópia antiga salva localmente
-  // em vez de buscar o arquivo novo de verdade). Só usa o cache do app
-  // se estiver offline.
+  // Navegacao/HTML: rede primeiro e sem cache HTTP.
+  // Se houver internet, o usuario recebe sempre o index.html mais recente.
   const aceita = req.headers.get('accept') || '';
   if (req.mode === 'navigate' || aceita.includes('text/html')) {
     event.respondWith(
       fetch(req, { cache: 'no-store' })
         .then((res) => {
+          if (!res || !res.ok) throw new Error('Resposta invalida');
           const copia = res.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(req, copia));
           return res;
         })
-        .catch(() => caches.match(req))
+        .catch(async () => {
+          return (await caches.match(req)) || (await caches.match('./index.html'));
+        })
     );
     return;
   }
 
-  // Para os demais arquivos (ícones, manifest): cache primeiro, com fallback pra rede.
+  // Demais arquivos: cache primeiro, atualizando pela rede quando necessario.
   event.respondWith(
-    caches.match(req).then((res) => res || fetch(req))
+    caches.match(req).then((cached) => {
+      if (cached) return cached;
+      return fetch(req).then((res) => {
+        if (req.method === 'GET' && res && res.ok) {
+          const copia = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copia));
+        }
+        return res;
+      });
+    })
   );
 });
