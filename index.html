@@ -712,7 +712,7 @@ document.addEventListener('selectstart', e=>{
     width:100%;
     min-width:0;
     text-align:center;
-    padding:12px 6px;
+    padding:6px 6px;
     border-radius:12px;
     background:#F3F4F6;
     font-family:'Montserrat',sans-serif;
@@ -2697,6 +2697,21 @@ document.addEventListener('selectstart', e=>{
 }
 </style>
 
+
+<style id="frequencia-cabecalho-laranja-3d-final">
+/* Cabeçalhos Dezena / Sequência / Percentual: mais baixos, laranja claro e 3D */
+#frequenciaConteudo .freq-dez-head{min-height:27px!important;background:#f6b76b!important;}
+#frequenciaConteudo .freq-dez-head>div{border-right:1px solid #d88a32!important;}
+#frequenciaConteudo .freq-sort-btn{height:27px!important;min-height:27px!important;padding:3px 5px!important;background:linear-gradient(180deg,#ffd59f 0%,#f6b76b 48%,#e99a3f 100%)!important;color:#4d2b08!important;border:0!important;box-shadow:inset 0 2px 1px rgba(255,255,255,.75),inset 0 -2px 2px rgba(151,78,9,.22),0 2px 2px rgba(91,49,9,.20)!important;}
+#frequenciaConteudo .freq-sort-btn:active{transform:translateY(1px);box-shadow:inset 0 2px 4px rgba(135,69,7,.30),0 1px 1px rgba(91,49,9,.15)!important;}
+#frequenciaConteudo .freq-sort-btn.freq-sort-active{background:linear-gradient(180deg,#ffc982 0%,#f0a64f 52%,#dc8428 100%)!important;}
+</style>
+
+<style id="frequencia-resultado-mais-baixo-final">
+/* Resultado da tabela mais compacto */
+#frequenciaConteudo .freq-dez-row{min-height:27px!important;}
+#frequenciaConteudo .freq-dez-row>div{padding-top:3px!important;padding-bottom:3px!important;}
+</style>
 </head>
 <body>
 <div class="app">
@@ -3401,8 +3416,8 @@ document.addEventListener('selectstart', e=>{
 
     <div id="frequenciaPanel" style="display:none;">
       <style>
-        #frequenciaTipoRow{display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,auto);gap:6px;margin-bottom:8px;}
-        .freq-tipo-btn{border:1.2px solid #D8CCF3;background:#fff;color:var(--violet-deep);padding:6px 6px;border-radius:8px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10px;cursor:pointer;box-shadow:0 2px 0 #C7B8E8;min-height:30px;}
+        #frequenciaTipoRow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;align-items:flex-start;}
+        .freq-tipo-btn{border:1.2px solid #D8CCF3;background:#fff;color:var(--violet-deep);width:1.5cm;min-width:1.5cm;max-width:1.5cm;height:24px;min-height:24px;padding:2px 2px;border-radius:8px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:8px;line-height:1;cursor:pointer;box-shadow:0 2px 0 #C7B8E8;}
         .freq-tipo-btn.active{background:linear-gradient(135deg,var(--violet-deep),var(--violet));color:#fff;border-color:transparent;box-shadow:0 2px 0 #3B1578;}
         .quina-freq-card{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:7px;}
         .quina-freq-title{padding:7px 8px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:#374151;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:5px;}
@@ -3426,11 +3441,47 @@ document.addEventListener('selectstart', e=>{
       </div>
 
       <div id="frequenciaDezenasBox">
-        <div class="card">
-          <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Analisa os <strong>concursos anteriores</strong> e lista todas as dezenas da <strong>mais frequente pra menos frequente</strong> (quantas vezes cada uma saiu no período). Recalcula sozinha sempre que sai um concurso novo.</div>
-          <label class="field-label" for="frequenciaQtdInput">Analisar quantos últimos concursos?</label>
-          <input type="number" id="frequenciaQtdInput" min="2" max="500" value="20" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
-          <button class="btn-confirm btn-3d" id="frequenciaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+        <style>
+          #frequenciaDezenasBox{font-family:Arial,sans-serif;}
+          #frequenciaDezenasBox .freq-dez-top{display:flex;align-items:center;justify-content:flex-start;gap:7px;margin:2px 0 12px;}
+          #frequenciaDezenasBox .freq-qtd-label{font-size:12px;font-weight:700;color:#333;}
+          #frequenciaQtdInput{display:block!important;width:82px!important;height:32px!important;padding:4px 8px!important;border:1px solid #c8c8c8!important;border-radius:6px!important;background:#fff!important;color:#333!important;font-size:13px!important;font-weight:700!important;text-align:center!important;box-shadow:0 1px 2px rgba(0,0,0,.06);}
+          #frequenciaAtualizarBtn,#frequenciaLimparBtn{display:inline-flex!important;align-items:center;justify-content:center;width:68px!important;height:25px!important;padding:2px 6px!important;margin:0!important;border-radius:6px!important;color:#fff!important;font-size:9.5px!important;font-weight:800!important;transform:translateY(0);transition:transform .08s ease,box-shadow .08s ease,filter .15s ease;cursor:pointer;}
+          #frequenciaAtualizarBtn{border:1px solid #138a31!important;background:linear-gradient(180deg,#8df59f 0%,#35cf5a 38%,#16a33b 72%,#087528 100%)!important;text-shadow:0 1px 1px rgba(0,70,20,.55);box-shadow:inset 0 2px 1px rgba(255,255,255,.7),inset 0 -2px 2px rgba(0,90,25,.28),0 3px 0 #086421,0 4px 6px rgba(0,0,0,.20)!important;}
+          #frequenciaLimparBtn{border:1px solid #b40000!important;background:linear-gradient(180deg,#ff8d94 0%,#ff3038 38%,#ed0000 72%,#b90000 100%)!important;text-shadow:0 1px 1px rgba(90,0,0,.55);box-shadow:inset 0 2px 1px rgba(255,255,255,.7),inset 0 -2px 2px rgba(120,0,0,.28),0 3px 0 #9d0000,0 4px 6px rgba(0,0,0,.20)!important;}
+          #frequenciaAtualizarBtn:active,#frequenciaAtualizarBtn.atualizando{transform:translateY(3px)!important;box-shadow:inset 0 3px 6px rgba(0,85,25,.45),0 0 0 #086421,0 1px 2px rgba(0,0,0,.16)!important;filter:saturate(.95) brightness(.92);}
+          #frequenciaLimparBtn:active,#frequenciaLimparBtn.apertado{transform:translateY(3px)!important;box-shadow:inset 0 3px 6px rgba(105,0,0,.45),0 0 0 #9d0000,0 1px 2px rgba(0,0,0,.16)!important;filter:saturate(.95) brightness(.92);}
+          #frequenciaAtualizarBtn:disabled{opacity:1!important;cursor:wait!important;}
+          #frequenciaConteudo .freq-dez-card{background:#fff;border:1px solid #c9c9c9;border-radius:0;overflow:hidden;box-shadow:none;}
+          #frequenciaConteudo .freq-dez-head{display:grid;grid-template-columns:22% 22% 56%;align-items:stretch;background:#e5d5eb;color:#222;min-height:38px;font-size:12px;font-weight:700;}
+          #frequenciaConteudo .freq-dez-head>div{padding:10px 8px;border-right:1px solid #d2c5d7;text-align:center;display:flex;align-items:center;justify-content:center;}
+          #frequenciaConteudo .freq-dez-head>div:last-child{border-right:0;}
+          #frequenciaConteudo .freq-dez-body{width:100%;}
+          #frequenciaConteudo .freq-dez-row{display:grid;grid-template-columns:22% 22% 56%;align-items:stretch;min-height:34px;border-top:1px solid #cfcfcf;font-size:12px;color:#202735;}
+          #frequenciaConteudo .freq-dez-row:nth-child(odd){background:#f2f2f2;}
+          #frequenciaConteudo .freq-dez-row:nth-child(even){background:#fff;}
+          #frequenciaConteudo .freq-dez-row>div{padding:7px 8px;border-right:1px solid #d0d0d0;display:flex;align-items:center;}
+          #frequenciaConteudo .freq-dez-row>div:last-child{border-right:0;}
+          #frequenciaConteudo .freq-dez-num{font-weight:700;justify-content:center;}
+          #frequenciaConteudo .freq-dez-vezes{text-align:center;font-weight:700;justify-content:center;}
+          #frequenciaConteudo .freq-dez-pct{display:flex;align-items:center;gap:7px;width:100%;}
+          #frequenciaConteudo .freq-dez-bar-wrap{height:14px;background:transparent;border-radius:5px;overflow:visible;position:relative;flex:1;min-width:0;}
+          #frequenciaConteudo .freq-dez-bar{height:100%;background:linear-gradient(180deg,#caff3a 0%,#9cff00 34%,#70df00 68%,#52bf00 100%);border:1px solid #379000;border-radius:5px;min-width:4px;box-sizing:border-box;box-shadow:inset 0 1px 0 rgba(255,255,255,.78),inset 0 -2px 3px rgba(25,110,0,.28),0 1px 2px rgba(55,140,0,.24);position:relative;}
+          #frequenciaConteudo .freq-dez-bar::after{content:'';position:absolute;left:4%;right:4%;top:1px;height:42%;border-radius:4px;background:linear-gradient(180deg,rgba(255,255,255,.58),rgba(255,255,255,.06));pointer-events:none;}
+          #frequenciaConteudo .freq-dez-pct-txt{white-space:nowrap;min-width:44px;text-align:left;font-size:11.5px;color:#30343b;}
+          #frequenciaConteudo .freq-dez-info{font-size:10.5px;color:#666;margin:0 0 8px;text-align:left;}
+          @media(max-width:380px){
+            #frequenciaConteudo .freq-dez-head,#frequenciaConteudo .freq-dez-row{grid-template-columns:22% 22% 56%;}
+            #frequenciaConteudo .freq-dez-head>div,#frequenciaConteudo .freq-dez-row>div{padding-left:5px;padding-right:5px;}
+            #frequenciaConteudo .freq-dez-pct{gap:5px;}
+            #frequenciaConteudo .freq-dez-pct-txt{min-width:39px;font-size:10.5px;}
+          }
+        </style>
+        <div class="freq-dez-top">
+          <span class="freq-qtd-label">Concursos:</span>
+          <input type="number" id="frequenciaQtdInput" min="2" max="500" value="20" inputmode="numeric" placeholder="">
+          <button class="btn-confirm" id="frequenciaAtualizarBtn" type="button">ATUALIZAR</button>
+          <button class="btn-confirm" id="frequenciaLimparBtn" type="button">LIMPAR</button>
         </div>
         <div id="frequenciaConteudo"></div>
       </div>
@@ -7235,9 +7286,9 @@ async function carregarAtraso(gameParam, opts){
   if(btn){ btn.disabled = true; setBtnLoading('atrasoAtualizarBtn', true); }
   if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
   try{
-    const {linhas, numeroUltimo} = await calcularAtrasoDetalhado(game, qtd);
+    const {linhas, numeroUltimo, concursosAnalisados} = await calcularAtrasoDetalhado(game, qtd);
     atrasoCarregouUmaVez = true;
-    renderAtraso(linhas, numeroUltimo);
+    renderAtraso(linhas, numeroUltimo, concursosAnalisados);
   }catch(e){
     console.error('carregarAtraso falhou:', e);
     if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
@@ -7287,6 +7338,9 @@ function renderAtraso(linhas, numeroUltimo){
 // ---------- Frequência: quantas vezes cada dezena saiu nos últimos N concursos,
 // da mais frequente pra menos frequente (mesma janela/fetch da aba Atrasado há, só troca a métrica) ----------
 let frequenciaCarregouUmaVez = false;
+// Identificador da atualização mais recente. Evita que uma busca antiga termine depois
+// e sobrescreva o cálculo feito para uma nova quantidade de concursos.
+let frequenciaRequestId = 0;
 
 async function calcularFrequenciaDetalhado(game, qtd){
   const ultimo = await fetchConcursoLoteria(game);
@@ -7306,32 +7360,50 @@ async function calcularFrequenciaDetalhado(game, qtd){
   const totalJanela = validos.length;
   if(totalJanela === 0) throw new Error('sem dados');
 
-  const listasDezenas = validos.map(data => (data.dezenas||[]).map(d=>parseInt(d,10)));
-
   const linhas = [];
+  // Sequência correta: quantos concursos CONSECUTIVOS, começando pelo concurso
+  // mais recente e voltando para trás, a dezena vem se repetindo.
+  // Se ela não saiu no último concurso, a sequência atual é 0.
+  // A contagem para imediatamente no primeiro concurso em que a dezena não saiu.
   for(let n = game.range.min; n <= game.range.max; n++){
-    let vezes = 0;
-    listasDezenas.forEach(dezenas => { if(dezenas.includes(n)) vezes++; });
-    linhas.push({n, vezes});
+    let sequencia = 0;
+    for(const data of concursos){
+      // Não atravessa uma falha de carregamento, porque isso quebraria a certeza
+      // de que os concursos analisados são realmente consecutivos.
+      if(!data) break;
+      const dezenas = (data.dezenas || []).map(d => parseInt(d, 10));
+      if(dezenas.includes(n)) sequencia++;
+      else break;
+    }
+    linhas.push({n, sequencia});
   }
 
   return {linhas, numeroUltimo, concursosAnalisados: totalJanela};
 }
 
 async function carregarFrequencia(gameParam, opts){
+  const requestId = ++frequenciaRequestId;
   const ajustarCampo = !opts || opts.ajustarCampo !== false;
   const game = gameParam || tendGameAtual;
   const qtdEl = document.getElementById('frequenciaQtdInput');
-  const qtdBruto = qtdEl ? parseInt(qtdEl.value, 10) : NaN;
+  const valorQtd = qtdEl ? qtdEl.value.trim() : '';
+  const cont = document.getElementById('frequenciaConteudo');
+  // Se o usuário apagar o número de concursos, mantém o campo realmente em branco
+  // e também limpa o resultado até ele digitar uma nova quantidade.
+  if(qtdEl && valorQtd === ''){
+    if(cont) cont.innerHTML = '';
+    return;
+  }
+  const qtdBruto = valorQtd !== '' ? parseInt(valorQtd, 10) : NaN;
   if(!ajustarCampo && (!Number.isFinite(qtdBruto) || qtdBruto < 2)){
     // ainda digitando um valor incompleto/pequeno demais — espera terminar, sem mexer no campo
     return;
   }
   let qtd = Number.isFinite(qtdBruto) ? qtdBruto : 20;
-  if(qtd < 2) qtd = 20;
+  if(qtd < 2) qtd = 2;
   if(qtd > CENTRO_QTD_MAX) qtd = CENTRO_QTD_MAX;
-  if(qtdEl && ajustarCampo) qtdEl.value = qtd; // só corrige/reflete o valor limitado quando não está no meio da digitação
-  const cont = document.getElementById('frequenciaConteudo');
+  if(qtdEl && ajustarCampo) qtdEl.value = qtd;
+
   const btn = document.getElementById('frequenciaAtualizarBtn');
 
   if(!game.range){
@@ -7339,17 +7411,21 @@ async function carregarFrequencia(gameParam, opts){
     return;
   }
 
-  if(btn){ btn.disabled = true; setBtnLoading('frequenciaAtualizarBtn', true); }
+  if(btn){ btn.disabled = true; btn.classList.add('atualizando'); btn.textContent='ATUALIZANDO'; }
   if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
   try{
     const {linhas, numeroUltimo, concursosAnalisados} = await calcularFrequenciaDetalhado(game, qtd);
+    // Se o usuário já mudou a quantidade enquanto esta busca estava rodando,
+    // ignora este resultado antigo e deixa somente a atualização mais nova aparecer.
+    if(requestId !== frequenciaRequestId) return;
     frequenciaCarregouUmaVez = true;
     renderFrequencia(linhas, numeroUltimo, concursosAnalisados);
   }catch(e){
+    if(requestId !== frequenciaRequestId) return;
     console.error('carregarFrequencia falhou:', e);
     if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
   }finally{
-    if(btn){ btn.disabled = false; setBtnLoading('frequenciaAtualizarBtn', false); }
+    if(requestId === frequenciaRequestId && btn){ btn.disabled = false; btn.classList.remove('atualizando'); btn.textContent='ATUALIZAR'; }
   }
 }
 
@@ -7603,28 +7679,85 @@ function corFrequenciaBola(vezes, maiorGlobal){
   return interpolarCorAtraso([250,204,21], [34,197,94], (t-0.5)/0.5);          // amarelo -> verde
 }
 
+let frequenciaOrdenacao = {campo:'sequencia', direcao:'desc'};
+let frequenciaUltimosDados = null;
+
 function renderFrequencia(linhas, numeroUltimo, total){
   const cont = document.getElementById('frequenciaConteudo');
-  // classifica sempre do mais frequente pro menos frequente
-  const ordenadas = linhas.slice().sort((a,b)=> b.vezes - a.vezes || a.n - b.n);
-  const maiorGlobal = ordenadas.length ? ordenadas[0].vezes : 0;
-  const medalhas = ['🥇','🥈','🥉'];
+  if(!cont) return;
 
-  const cards = ordenadas.map((l, idx) => {
-    const destaque = idx < 3;
+  // Guarda os dados para permitir ordenar a tabela sem refazer a busca dos concursos.
+  frequenciaUltimosDados = {linhas: linhas.slice(), numeroUltimo, total};
+
+  const maiorGlobal = linhas.length ? Math.max(...linhas.map(x=>x.sequencia || 0)) : 0;
+  const campo = frequenciaOrdenacao.campo;
+  const dir = frequenciaOrdenacao.direcao === 'asc' ? 1 : -1;
+
+  const ordenadas = linhas.slice().sort((a,b)=>{
+    let av, bv;
+    if(campo === 'dezena'){
+      av = a.n; bv = b.n;
+    }else{
+      // Percentual e sequência têm a mesma ordem, pois o percentual é calculado
+      // diretamente a partir da sequência máxima da janela atual.
+      av = a.sequencia || 0; bv = b.sequencia || 0;
+    }
+    if(av !== bv) return (av - bv) * dir;
+    // Igual ao vídeo: em empates, mantém as dezenas em ordem decrescente quando
+    // a coluna ativa está decrescente e crescente quando está crescente.
+    return (a.n - b.n) * dir;
+  });
+
+  const rows = ordenadas.map(l => {
+    const pct = maiorGlobal > 0 ? (l.sequencia / maiorGlobal) * 100 : 0;
+    const pctTxt = pct === 0 ? '0%' : (Math.abs(pct - Math.round(pct)) < 0.005 ? `${Math.round(pct)}%` : `${pct.toFixed(2)}%`);
+    const largura = pct <= 0 ? 0.8 : pct;
     return `
-    <div class="atraso-card${destaque ? ' destaque' : ''}">
-      ${destaque ? `<span class="atraso-medalha">${medalhas[idx]}</span>` : ''}
-      <div class="atraso-ball" style="background:${corFrequenciaBola(l.vezes, maiorGlobal)};">${l.n.toString().padStart(2,'0')}</div>
-      <div class="atraso-stats">
-        <div class="atraso-stat"><span class="atraso-pill">Saiu</span><div class="atraso-val">${l.vezes}/${total} concurso${total===1?'':'s'}</div></div>
-      </div>
-    </div>`;
+      <div class="freq-dez-row">
+        <div class="freq-dez-num">${l.n.toString().padStart(2,'0')}</div>
+        <div class="freq-dez-vezes">${l.sequencia > 0 ? l.sequencia + 'x' : '0'}</div>
+        <div>
+          <div class="freq-dez-pct">
+            <div class="freq-dez-bar-wrap"><div class="freq-dez-bar ${pct > 49 ? 'pct-alto' : (pct < 5 ? 'pct-minimo' : (pct < 20 ? 'pct-baixo' : 'pct-medio'))}" style="width:${largura.toFixed(2)}%"></div></div>
+            <span class="freq-dez-pct-txt">${pctTxt}</span>
+          </div>
+        </div>
+      </div>`;
   }).join('');
 
+  const primeiro = Math.max(1, numeroUltimo - total + 1);
+  const cab = (rotulo, c)=>{
+    const ativo = campo === c;
+    const cls = ativo ? ' freq-sort-active' : '';
+    const cima = ativo && frequenciaOrdenacao.direcao === 'asc' ? ' ativo' : '';
+    const baixo = ativo && frequenciaOrdenacao.direcao === 'desc' ? ' ativo' : '';
+    return `<button type="button" class="freq-sort-btn${cls}" data-freq-sort="${c}"><span>${rotulo}</span><span class="freq-sort-setas"><i class="freq-sort-up${cima}"></i><i class="freq-sort-down${baixo}"></i></span></button>`;
+  };
+
   cont.innerHTML = `
-    <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Até o concurso Nº ${numeroUltimo} — ordenado da dezena mais frequente pra menos frequente. As 3 mais frequentes ficam em destaque.</div>
-    ${cards}`;
+    <div class="freq-dez-info">Concursos ${primeiro} a ${numeroUltimo} (${total} concursos)</div>
+    <div class="freq-dez-card">
+      <div class="freq-dez-head">
+        <div>${cab('Dezena','dezena')}</div>
+        <div>${cab('Sequência','sequencia')}</div>
+        <div>${cab('Percentual de Sequência','percentual')}</div>
+      </div>
+      <div class="freq-dez-body">${rows}</div>
+    </div>`;
+
+  cont.querySelectorAll('[data-freq-sort]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const novoCampo = btn.dataset.freqSort;
+      if(frequenciaOrdenacao.campo === novoCampo){
+        frequenciaOrdenacao.direcao = frequenciaOrdenacao.direcao === 'desc' ? 'asc' : 'desc';
+      }else{
+        frequenciaOrdenacao.campo = novoCampo;
+        frequenciaOrdenacao.direcao = 'desc';
+      }
+      const d = frequenciaUltimosDados;
+      if(d) renderFrequencia(d.linhas, d.numeroUltimo, d.total);
+    });
+  });
 }
 
 // monta a lista de histórico de fechamentos (usada tanto pelo Ciclo quanto pelo Ciclo de Falha) —
@@ -10132,7 +10265,21 @@ document.getElementById('frequenciaTernosAtualizarBtn').addEventListener('click'
 let frequenciaTernosQtdDebounceTimer = null;
 document.getElementById('frequenciaTernosQtdInput').addEventListener('input', ()=>{
   clearTimeout(frequenciaTernosQtdDebounceTimer);
-  frequenciaTernosQtdDebounceTimer=setTimeout(()=>carregarFrequenciaGrupo('ternos',tendGameAtual,{ajustarCampo:false}),700);
+  const el=document.getElementById('frequenciaTernosQtdInput');
+  if(!el || el.value.trim()==='') return;
+  frequenciaTernosQtdDebounceTimer=setTimeout(()=>{
+    // Ao terminar de digitar, fecha o teclado no celular e atualiza os ternos.
+    el.blur();
+    carregarFrequenciaGrupo('ternos',tendGameAtual,{ajustarCampo:false});
+  },650);
+});
+document.getElementById('frequenciaTernosQtdInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    clearTimeout(frequenciaTernosQtdDebounceTimer);
+    e.currentTarget.blur();
+    carregarFrequenciaGrupo('ternos',tendGameAtual);
+  }
 });
 document.getElementById('frequenciaTernosQtdInput').addEventListener('change', ()=>{
   clearTimeout(frequenciaTernosQtdDebounceTimer);
@@ -10161,14 +10308,52 @@ document.getElementById('frequenciaQuinasQtdInput').addEventListener('change', (
   carregarFrequenciaQuinas(tendGameAtual);
 });
 
-document.getElementById('frequenciaAtualizarBtn').addEventListener('click', ()=>carregarFrequencia(tendGameAtual));
-// atualiza sozinho (sem precisar tocar em ATUALIZAR) sempre que o nº de concursos analisados muda
+document.getElementById('frequenciaAtualizarBtn').addEventListener('click', ()=>{
+  clearTimeout(frequenciaQtdDebounceTimer);
+  carregarFrequencia(tendGameAtual);
+});
+document.getElementById('frequenciaLimparBtn').addEventListener('click', function(){
+  const btn=this; btn.classList.add('apertado');
+  clearTimeout(frequenciaQtdDebounceTimer);
+  // Invalida também qualquer busca que ainda esteja em andamento.
+  frequenciaRequestId++;
+  const el=document.getElementById('frequenciaQtdInput');
+  const cont=document.getElementById('frequenciaConteudo');
+  const atualizar=document.getElementById('frequenciaAtualizarBtn');
+  if(el) el.value='';
+  if(cont) cont.innerHTML='';
+  if(atualizar){ atualizar.disabled=false; atualizar.classList.remove('atualizando'); atualizar.textContent='ATUALIZAR'; }
+  setTimeout(()=>btn.classList.remove('apertado'),220);
+});
+// Ao mudar a quantidade de concursos, recalcula automaticamente.
+// O pequeno atraso evita disparar uma busca a cada tecla enquanto o número é digitado.
 let frequenciaQtdDebounceTimer = null;
 document.getElementById('frequenciaQtdInput').addEventListener('input', ()=>{
   clearTimeout(frequenciaQtdDebounceTimer);
-  frequenciaQtdDebounceTimer = setTimeout(()=> carregarFrequencia(tendGameAtual, {ajustarCampo:false}), 600);
+  const el=document.getElementById('frequenciaQtdInput');
+  if(!el) return;
+  if(el.value.trim()===''){
+    frequenciaRequestId++;
+    const cont=document.getElementById('frequenciaConteudo');
+    const atualizar=document.getElementById('frequenciaAtualizarBtn');
+    if(cont) cont.innerHTML='';
+    if(atualizar){ atualizar.disabled=false; atualizar.classList.remove('atualizando'); atualizar.textContent='ATUALIZAR'; }
+    return;
+  }
+  frequenciaQtdDebounceTimer=setTimeout(()=>{
+    // Ao terminar de digitar, fecha o teclado no celular e atualiza o cálculo.
+    el.blur();
+    carregarFrequencia(tendGameAtual,{ajustarCampo:false});
+  },650);
 });
-// ao sair do campo (perde o foco), corrige/normaliza o valor se necessário e recarrega
+document.getElementById('frequenciaQtdInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    clearTimeout(frequenciaQtdDebounceTimer);
+    e.currentTarget.blur();
+    carregarFrequencia(tendGameAtual);
+  }
+});
 document.getElementById('frequenciaQtdInput').addEventListener('change', ()=>{
   clearTimeout(frequenciaQtdDebounceTimer);
   carregarFrequencia(tendGameAtual);
@@ -13648,5 +13833,497 @@ document.addEventListener('click', (e)=>{
 }, true);
 </script>
 
+
+<style>
+/* Cores percentuais - Frequência > Dezenas */
+#frequenciaConteudo .freq-dez-bar.pct-alto{background:linear-gradient(180deg,#5aa9ff 0%,#1677e8 55%,#0962c8 100%)!important;border-color:#0759b6!important;}
+#frequenciaConteudo .freq-dez-bar.pct-medio{background:linear-gradient(180deg,#ffaaaa 0%,#f47f7f 55%,#e96868 100%)!important;border-color:#dc6060!important;}
+#frequenciaConteudo .freq-dez-bar.pct-baixo{background:linear-gradient(180deg,#ffdede 0%,#ffcaca 55%,#ffbaba 100%)!important;border-color:#f2aaaa!important;}
+#frequenciaConteudo .freq-dez-bar.pct-minimo{background:linear-gradient(180deg,#fff4f4 0%,#ffeaea 55%,#ffdddd 100%)!important;border-color:#f7cccc!important;}
+</style>
+
+<style>
+/* Atrasado há — dezenas em bolinhas laranja estilo bola de sinuca */
+#atrasoConteudo .atraso-bola-laranja{
+  width:22px;
+  height:22px;
+  min-width:22px;
+  border-radius:50%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  background:
+    radial-gradient(circle at 35% 24%, rgba(255,255,255,.95) 0 5%, rgba(255,255,255,.45) 6% 10%, transparent 11%),
+    radial-gradient(circle at 32% 28%, #ffb055 0%, #ff7b13 42%, #f25a00 72%, #c83b00 100%);
+  border:1px solid #d94d00;
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.65), inset 0 -3px 4px rgba(143,46,0,.32), 0 2px 3px rgba(0,0,0,.28);
+}
+#atrasoConteudo .atraso-bola-laranja span{
+  position:relative;
+  z-index:1;
+  color:#fff;
+  font-size:12px;
+  text-shadow:0 1px 1px rgba(0,0,0,.55);
+  line-height:1;
+  font-weight:900;
+  font-family:Arial,sans-serif;
+}
+</style>
 </body>
 </html>
+
+<style id="frequencia-dezena-barra-fina-quadrada-final">
+/* Análise > Frequência > Dezena: barra mais fina e com pontas retas */
+#frequenciaConteudo .freq-dez-bar-wrap{
+  height:7px !important;
+  border-radius:0 !important;
+  overflow:visible !important;
+}
+#frequenciaConteudo .freq-dez-bar{
+  height:7px !important;
+  border-radius:0 !important;
+}
+#frequenciaConteudo .freq-dez-bar::after{
+  border-radius:0 !important;
+}
+</style>
+
+<style id="frequencia-dezena-barra-azul-grossa-final">
+/* Análise > Frequência > Dezena: barra mais grossa, azul e com pontas retas */
+#frequenciaConteudo .freq-dez-bar-wrap{
+  height:12px !important;
+  border-radius:0 !important;
+}
+#frequenciaConteudo .freq-dez-bar{
+  height:12px !important;
+  background:linear-gradient(180deg,#5db8ff 0%,#168ee8 48%,#0870c5 100%) !important;
+  border:1px solid #075f9f !important;
+  border-radius:0 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.60),inset 0 -2px 3px rgba(0,65,125,.25),0 1px 2px rgba(0,70,130,.20) !important;
+}
+#frequenciaConteudo .freq-dez-bar::after{
+  border-radius:0 !important;
+}
+</style>
+
+
+<style id="frequencia-dezena-ordenacao-video">
+/* Ordenação da tabela de Dezenas no mesmo comportamento visual do vídeo */
+#frequenciaConteudo .freq-dez-head>div{padding:0!important;}
+#frequenciaConteudo .freq-sort-btn{
+  appearance:none;-webkit-appearance:none;border:0;margin:0;padding:8px 7px;width:100%;height:100%;
+  background:transparent;color:inherit;font:inherit;font-weight:800;display:flex;align-items:center;
+  justify-content:center;gap:6px;cursor:pointer;line-height:1.1;
+}
+#frequenciaConteudo .freq-sort-btn.freq-sort-active{background:#b9ddef;}
+#frequenciaConteudo .freq-sort-setas{display:inline-flex;flex-direction:column;gap:2px;flex:0 0 auto;}
+#frequenciaConteudo .freq-sort-up,#frequenciaConteudo .freq-sort-down{width:0;height:0;display:block;border-left:4px solid transparent;border-right:4px solid transparent;opacity:.22;}
+#frequenciaConteudo .freq-sort-up{border-bottom:6px solid #26333e;}
+#frequenciaConteudo .freq-sort-down{border-top:6px solid #26333e;}
+#frequenciaConteudo .freq-sort-up.ativo,#frequenciaConteudo .freq-sort-down.ativo{opacity:1;}
+</style>
+
+<style id="frequencia-dezena-barra-azul-normal-grossa-final">
+/* Análise > Frequência > Dezena: barra mais grossa em azul normal */
+#frequenciaConteudo .freq-dez-bar-wrap{
+  height:16px !important;
+  border-radius:0 !important;
+}
+#frequenciaConteudo .freq-dez-bar{
+  height:16px !important;
+  background:#0066cc !important;
+  border:1px solid #0055aa !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+#frequenciaConteudo .freq-dez-bar::after{
+  display:none !important;
+}
+</style>
+<style id="frequencia-dezena-tabela-cinza-claro-final">
+/* Análise > Frequência > Dezena: tabela em cinza bem clarinho */
+#frequenciaConteudo .freq-dez-card{
+  background:#f8f8f8 !important;
+  border-color:#dddddd !important;
+}
+#frequenciaConteudo .freq-dez-body{
+  background:#f8f8f8 !important;
+}
+#frequenciaConteudo .freq-dez-row,
+#frequenciaConteudo .freq-dez-row:nth-child(odd),
+#frequenciaConteudo .freq-dez-row:nth-child(even){
+  background:#f7f7f7 !important;
+}
+#frequenciaConteudo .freq-dez-row{
+  border-top-color:#e1e1e1 !important;
+}
+#frequenciaConteudo .freq-dez-row>div{
+  border-right-color:#e1e1e1 !important;
+}
+</style>
+
+<style id="frequencia-dezena-barra-arredondada-leve-final">
+/* Análise > Frequência > Dezena: arredondamento leve das barras */
+#frequenciaConteudo .freq-dez-bar-wrap{
+  border-radius:3px !important;
+}
+#frequenciaConteudo .freq-dez-bar{
+  border-radius:3px !important;
+}
+</style>
+<style>
+/* Último resultado da aba Análise: mais fino/baixo */
+#tendUltimoResultado{
+  padding:5px 10px !important;
+  margin-bottom:8px !important;
+}
+#tendUltimoResultado .res-card-title{margin-bottom:2px !important;line-height:12px !important;}
+#tendUltimoResultado .res-nav-row{margin-bottom:2px !important;min-height:22px !important;}
+#tendUltimoResultado .res-nav-btn{padding:2px 7px !important;min-height:20px !important;line-height:14px !important;}
+#tendUltimoResultado .result-balls{margin-bottom:2px !important;}
+#tendUltimoResultado .res-local{line-height:11px !important;}
+</style>
+<style id="tend-ultimo-resultado-ainda-mais-fino">
+/* Último resultado da aba Análise: ainda mais fino */
+#tendUltimoResultado{
+  padding:2px 8px !important;
+  margin-bottom:5px !important;
+}
+#tendUltimoResultado .res-card-title{margin-bottom:0 !important;line-height:10px !important;font-size:10px !important;}
+#tendUltimoResultado .res-nav-row{margin-bottom:0 !important;min-height:17px !important;}
+#tendUltimoResultado .res-nav-btn{padding:0 6px !important;min-height:17px !important;line-height:13px !important;}
+#tendUltimoResultado .result-balls{margin-top:1px !important;margin-bottom:0 !important;}
+#tendUltimoResultado .res-local{line-height:9px !important;margin-top:0 !important;}
+</style>
+<style id="analise-loterias-fixas-final">
+/* Aba Análise: cabeçalho e botões das loterias ficam fixos; só o conteúdo abaixo rola */
+#overlayTendencia > header.top{
+  position:sticky !important;
+  top:0 !important;
+  z-index:120 !important;
+}
+#overlayTendencia #tendGameTabs{
+  position:sticky !important;
+  top:49px !important;
+  z-index:119 !important;
+  background:var(--bg) !important;
+  padding:7px 16px 6px !important;
+  box-shadow:0 2px 5px rgba(0,0,0,.08) !important;
+}
+</style>
+<style id="frequencia-dezena-bolinhas-final">
+/* Números da coluna Dezena em bolinhas 3D, como a referência enviada */
+#frequenciaConteudo .freq-dez-num{
+  justify-content:center!important;
+}
+#frequenciaConteudo .freq-dez-num .freq-dez-bola{
+  width:28px;
+  height:28px;
+  min-width:28px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  color:#222;
+  font-size:12px;
+  font-weight:800;
+  line-height:1;
+  background:radial-gradient(circle at 34% 28%,#ffffff 0%,#f5f5f5 31%,#dddddd 58%,#b8b8b8 78%,#969696 100%);
+  border:1px solid #d0d0d0;
+  box-shadow:inset 2px 2px 4px rgba(255,255,255,.95),inset -3px -3px 5px rgba(70,70,70,.22),0 3px 5px rgba(0,0,0,.28);
+  box-sizing:border-box;
+}
+</style>
+<script>
+(function(){
+  const _renderFrequenciaBolas = renderFrequencia;
+  renderFrequencia = function(linhas, numeroUltimo, total){
+    _renderFrequenciaBolas(linhas, numeroUltimo, total);
+    document.querySelectorAll('#frequenciaConteudo .freq-dez-num').forEach(el=>{
+      if(!el.querySelector('.freq-dez-bola')){
+        const numero = el.textContent.trim();
+        el.innerHTML = '<span class="freq-dez-bola">'+numero+'</span>';
+      }
+    });
+  };
+})();
+</script>
+
+<style id="frequencia-ternos-tabela-igual-dezenas-final">
+/* Análise > Frequência > Ternos: tabela no mesmo estilo visual da tabela de Dezenas */
+#frequenciaTernosConteudo .freq-terno-info{
+  font-size:10.5px;color:#666;margin:0 0 8px;text-align:left;
+}
+#frequenciaTernosConteudo .freq-terno-card{
+  background:#f8f8f8;border:1px solid #dddddd;border-radius:0;overflow:hidden;box-shadow:none;
+}
+#frequenciaTernosConteudo .freq-terno-head,
+#frequenciaTernosConteudo .freq-terno-row{
+  display:grid;
+  grid-template-columns:40% 22% 38%;
+  align-items:stretch;
+}
+#frequenciaTernosConteudo .freq-terno-head{
+  min-height:27px;background:#f6b76b;color:#4d2b08;font-size:12px;font-weight:800;
+}
+#frequenciaTernosConteudo .freq-terno-head>div{
+  padding:0;border-right:1px solid #d88a32;display:flex;align-items:center;justify-content:center;
+}
+#frequenciaTernosConteudo .freq-terno-head>div:last-child{border-right:0;}
+#frequenciaTernosConteudo .freq-terno-sort-btn{
+  appearance:none;-webkit-appearance:none;border:0;margin:0;padding:3px 5px;width:100%;height:27px;
+  min-height:27px;background:linear-gradient(180deg,#ffd59f 0%,#f6b76b 48%,#e99a3f 100%);
+  color:#4d2b08;font:inherit;font-weight:800;display:flex;align-items:center;justify-content:center;gap:5px;
+  cursor:pointer;line-height:1.05;box-shadow:inset 0 2px 1px rgba(255,255,255,.75),inset 0 -2px 2px rgba(151,78,9,.22),0 2px 2px rgba(91,49,9,.20);
+}
+#frequenciaTernosConteudo .freq-terno-sort-btn:active{
+  transform:translateY(1px);box-shadow:inset 0 2px 4px rgba(135,69,7,.30),0 1px 1px rgba(91,49,9,.15);
+}
+#frequenciaTernosConteudo .freq-terno-sort-btn.ativo{
+  background:linear-gradient(180deg,#ffc982 0%,#f0a64f 52%,#dc8428 100%);
+}
+#frequenciaTernosConteudo .freq-terno-setas{display:inline-flex;flex-direction:column;gap:2px;flex:0 0 auto;}
+#frequenciaTernosConteudo .freq-terno-up,
+#frequenciaTernosConteudo .freq-terno-down{
+  width:0;height:0;display:block;border-left:4px solid transparent;border-right:4px solid transparent;opacity:.22;
+}
+#frequenciaTernosConteudo .freq-terno-up{border-bottom:6px solid #4d2b08;}
+#frequenciaTernosConteudo .freq-terno-down{border-top:6px solid #4d2b08;}
+#frequenciaTernosConteudo .freq-terno-up.ativo,
+#frequenciaTernosConteudo .freq-terno-down.ativo{opacity:1;}
+#frequenciaTernosConteudo .freq-terno-row{
+  min-height:32px;border-top:1px solid #e1e1e1;background:#f7f7f7;font-size:12px;color:#202735;
+}
+#frequenciaTernosConteudo .freq-terno-row>div{
+  padding:2px 5px;border-right:1px solid #e1e1e1;display:flex;align-items:center;justify-content:center;min-width:0;
+}
+#frequenciaTernosConteudo .freq-terno-row>div:last-child{border-right:0;}
+#frequenciaTernosConteudo .freq-terno-bolas{display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap;}
+#frequenciaTernosConteudo .freq-terno-bola{
+  width:27px;height:27px;min-width:27px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;
+  color:#222;font-size:11px;font-weight:800;line-height:1;
+  background:radial-gradient(circle at 34% 28%,#ffffff 0%,#f5f5f5 31%,#dddddd 58%,#b8b8b8 78%,#969696 100%);
+  border:1px solid #d0d0d0;
+  box-shadow:inset 2px 2px 4px rgba(255,255,255,.95),inset -3px -3px 5px rgba(70,70,70,.22),0 3px 5px rgba(0,0,0,.28);
+  box-sizing:border-box;
+}
+#frequenciaTernosConteudo .freq-terno-vezes{font-weight:800;}
+#frequenciaTernosConteudo .freq-terno-pct{display:flex;align-items:center;gap:5px;width:100%;}
+#frequenciaTernosConteudo .freq-terno-bar-wrap{height:16px;background:transparent;border-radius:3px;overflow:visible;position:relative;flex:1;min-width:0;}
+#frequenciaTernosConteudo .freq-terno-bar{height:16px;border-radius:3px;box-sizing:border-box;min-width:2px;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 1px 2px rgba(0,0,0,.12);}
+#frequenciaTernosConteudo .freq-terno-bar.pct-alto{background:linear-gradient(180deg,#4da6ff 0%,#1976d2 55%,#0b5cad 100%);border:1px solid #0b5cad;}
+#frequenciaTernosConteudo .freq-terno-bar.pct-medio{background:linear-gradient(180deg,#ffb3b3 0%,#f47f7f 55%,#e96a6a 100%);border:1px solid #dc6666;}
+#frequenciaTernosConteudo .freq-terno-bar.pct-baixo{background:linear-gradient(180deg,#ffe1e1 0%,#ffcaca 55%,#f6b8b8 100%);border:1px solid #efa9a9;}
+#frequenciaTernosConteudo .freq-terno-pct-txt{white-space:nowrap;min-width:42px;text-align:left;font-size:10.5px;color:#30343b;}
+@media (max-width:420px){
+  #frequenciaTernosConteudo .freq-terno-head,
+  #frequenciaTernosConteudo .freq-terno-row{grid-template-columns:42% 20% 38%;}
+  #frequenciaTernosConteudo .freq-terno-bola{width:25px;height:25px;min-width:25px;font-size:10.5px;}
+}
+</style>
+
+<script>
+(function(){
+  let ordenacaoTernos={campo:'frequencia',direcao:'desc'};
+  let ultimosTernos=null;
+  const renderAntigoGrupos=renderGruposFrequentes;
+
+  function renderTabelaTernos(linhas, numeroUltimo, total){
+    const cont=document.getElementById('frequenciaTernosConteudo');
+    if(!cont) return;
+    if(!linhas || !linhas.length){
+      cont.innerHTML='<div class="note">Nenhum terno repetido foi encontrado nesse período.</div>';
+      return;
+    }
+
+    ultimosTernos={linhas:linhas.slice(),numeroUltimo,total};
+    const maior=Math.max(...linhas.map(x=>x.vezes||0),1);
+    const campo=ordenacaoTernos.campo;
+    const dir=ordenacaoTernos.direcao==='asc'?1:-1;
+    const ordenadas=linhas.slice().sort((a,b)=>{
+      let av,bv;
+      if(campo==='terno'){
+        av=a.combo.join('-'); bv=b.combo.join('-');
+        const c=av.localeCompare(bv,undefined,{numeric:true});
+        return c*dir;
+      }
+      if(campo==='percentual'){
+        av=(a.vezes/total)*100; bv=(b.vezes/total)*100;
+      }else{
+        av=a.vezes||0; bv=b.vezes||0;
+      }
+      if(av!==bv) return (av-bv)*dir;
+      return a.combo.join('-').localeCompare(b.combo.join('-'),undefined,{numeric:true});
+    }).slice(0,100);
+
+    const rows=ordenadas.map(l=>{
+      const bolas=l.combo.map(n=>'<span class="freq-terno-bola">'+String(n).padStart(2,'0')+'</span>').join('');
+      const pct=(l.vezes/total)*100;
+      const pctTxt=(Math.abs(pct-Math.round(pct))<0.005?Math.round(pct)+'%':pct.toFixed(2)+'%');
+      const largura=(l.vezes/maior)*100;
+      return '<div class="freq-terno-row">'+
+        '<div><div class="freq-terno-bolas">'+bolas+'</div></div>'+
+        '<div class="freq-terno-vezes">'+l.vezes+'x</div>'+
+        '<div><div class="freq-terno-pct"><div class="freq-terno-bar-wrap"><div class="freq-terno-bar '+(pct>30?'pct-alto':(pct<15?'pct-baixo':'pct-medio'))+'" style="width:'+largura.toFixed(2)+'%"></div></div><span class="freq-terno-pct-txt">'+pctTxt+'</span></div></div>'+
+      '</div>';
+    }).join('');
+
+    function cab(rotulo,c){
+      const ativo=campo===c;
+      return '<button type="button" class="freq-terno-sort-btn'+(ativo?' ativo':'')+'" data-terno-sort="'+c+'"><span>'+rotulo+'</span><span class="freq-terno-setas"><i class="freq-terno-up'+(ativo&&ordenacaoTernos.direcao==='asc'?' ativo':'')+'"></i><i class="freq-terno-down'+(ativo&&ordenacaoTernos.direcao==='desc'?' ativo':'')+'"></i></span></button>';
+    }
+
+    const primeiro=Math.max(1,numeroUltimo-total+1);
+    cont.innerHTML='<div class="freq-terno-info">Concursos '+primeiro+' a '+numeroUltimo+' ('+total+' concursos)</div>'+
+      '<div class="freq-terno-card">'+
+        '<div class="freq-terno-head">'+
+          '<div>'+cab('Terno','terno')+'</div>'+
+          '<div>'+cab('Frequência','frequencia')+'</div>'+
+          '<div>'+cab('Percentual','percentual')+'</div>'+
+        '</div>'+
+        '<div class="freq-terno-body">'+rows+'</div>'+
+      '</div>';
+
+    cont.querySelectorAll('[data-terno-sort]').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const novo=btn.dataset.ternoSort;
+        if(ordenacaoTernos.campo===novo){
+          ordenacaoTernos.direcao=ordenacaoTernos.direcao==='desc'?'asc':'desc';
+        }else{
+          ordenacaoTernos.campo=novo;
+          ordenacaoTernos.direcao=novo==='terno'?'asc':'desc';
+        }
+        if(ultimosTernos) renderTabelaTernos(ultimosTernos.linhas,ultimosTernos.numeroUltimo,ultimosTernos.total);
+      });
+    });
+  }
+
+  renderGruposFrequentes=function(tipo,linhas,numeroUltimo,total){
+    if(tipo==='ternos'){
+      renderTabelaTernos(linhas,numeroUltimo,total);
+      return;
+    }
+    return renderAntigoGrupos(tipo,linhas,numeroUltimo,total);
+  };
+})();
+</script>
+<style id="ajuste-ternos-bolinhas-cabecalho">
+/* Frequência > Ternos: bolinhas menores e cabeçalho ajustado */
+#frequenciaTernosConteudo .freq-terno-head{
+  font-size:10px!important;
+}
+#frequenciaTernosConteudo .freq-terno-sort-btn{
+  font-size:10px!important;
+  padding:2px 3px!important;
+  gap:3px!important;
+  white-space:nowrap!important;
+}
+#frequenciaTernosConteudo .freq-terno-bolas{
+  gap:3px!important;
+}
+#frequenciaTernosConteudo .freq-terno-bola{
+  width:22px!important;
+  height:22px!important;
+  min-width:22px!important;
+  font-size:9.5px!important;
+}
+@media (max-width:420px){
+  #frequenciaTernosConteudo .freq-terno-bola{
+    width:21px!important;
+    height:21px!important;
+    min-width:21px!important;
+    font-size:9px!important;
+  }
+  #frequenciaTernosConteudo .freq-terno-head,
+  #frequenciaTernosConteudo .freq-terno-sort-btn{
+    font-size:9.5px!important;
+  }
+}
+</style>
+
+<style>
+/* Atrasado há — tabela compacta com cabeçalho clicável/3D */
+#atrasoConteudo .atraso-tabela{width:100%;border:1px solid #c8c8c8;border-collapse:collapse;background:#f7f7f7;font-size:13px;overflow:hidden}
+#atrasoConteudo .atraso-head{display:grid;grid-template-columns:23% 22% 55%;background:#f6b76b;font-weight:800;color:#202938;box-shadow:inset 0 1px 0 rgba(255,255,255,.85),inset 0 -2px 3px rgba(151,78,9,.16)}
+#atrasoConteudo .atraso-head>div{border-right:1px solid #d88a32;min-width:0}
+#atrasoConteudo .atraso-head>div:last-child{border-right:0}
+#atrasoConteudo .atraso-sort-btn{width:100%;height:28px;min-height:28px;padding:3px 4px;border:0;border-radius:0;background:linear-gradient(180deg,#ffd59f 0%,#f6b76b 48%,#e99a3f 100%);color:#4d2b08;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:4px;box-shadow:inset 0 2px 1px rgba(255,255,255,.75),inset 0 -2px 2px rgba(151,78,9,.22),0 2px 2px rgba(91,49,9,.20);cursor:pointer;white-space:nowrap}
+#atrasoConteudo .atraso-sort-btn:active{transform:translateY(1px);box-shadow:inset 0 2px 4px rgba(135,69,7,.30),0 1px 1px rgba(91,49,9,.15)}
+#atrasoConteudo .atraso-sort-btn.ativo{background:linear-gradient(180deg,#ffc982 0%,#f0a64f 52%,#dc8428 100%)}
+#atrasoConteudo .atraso-seta{font-size:9px;line-height:1;opacity:.9}
+#atrasoConteudo .atraso-row{display:grid;grid-template-columns:23% 22% 55%;min-height:31px;background:#fafafa;border-top:1px solid #c9c9c9;align-items:center}
+#atrasoConteudo .atraso-row:nth-child(odd){background:#f1f1f1}
+#atrasoConteudo .atraso-cell{height:100%;display:flex;align-items:center;justify-content:center;padding:2px 5px;border-right:1px solid #c9c9c9;box-sizing:border-box;font-weight:700;color:#202938}
+#atrasoConteudo .atraso-cell:last-child{border-right:0;justify-content:flex-start;gap:8px;font-weight:500}
+#atrasoConteudo .atraso-bar-wrap{height:18px;flex:1;min-width:0;display:flex;align-items:center}
+#atrasoConteudo .atraso-bar{height:15px;min-width:3px;background:linear-gradient(180deg,#d0a8d1,#b88fba);border:1px solid #8b3b8e;border-radius:4px;box-sizing:border-box}
+#atrasoConteudo .atraso-pct{min-width:43px;font-size:13px;color:#222;font-weight:500;white-space:nowrap}
+#atrasoConteudo .atraso-x{display:inline-flex;align-items:center;justify-content:center;margin-left:2px;padding:0 2px;border:1px solid #a9a9a9;border-radius:2px;line-height:1.05;color:inherit;font-size:.9em;box-sizing:border-box}
+#atrasoConteudo .atraso-info{font-size:11px;color:var(--muted);margin:6px 2px}
+@media(max-width:420px){#atrasoConteudo .atraso-sort-btn{font-size:10px;padding-left:2px;padding-right:2px}}
+</style>
+<script>
+/* Atrasado há: percentual relativo ao MAIOR atraso encontrado.
+   Igual à referência: se o maior atraso for 2, então 2x = 100%, 1x = 50% e 0 = 0%. */
+let atrasoOrdenacao = {campo:'dezena', dir:'asc'};
+let atrasoUltimosDados = null;
+
+renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
+  const cont = document.getElementById('atrasoConteudo');
+  if(!cont) return;
+  const total = Math.max(1, Math.floor(Number(concursosAnalisados)||0));
+  atrasoUltimosDados = {linhas:(linhas||[]).slice(), numeroUltimo, concursosAnalisados:total};
+
+  const base=(linhas||[]).map(l=>({
+    ...l,
+    atraso:Math.max(0, Math.min(total, Number(l.atual)||0))
+  }));
+  const maiorAtraso=Math.max(0, ...base.map(l=>l.atraso));
+  const dados=base.map(l=>({
+    ...l,
+    pct: maiorAtraso>0 ? (l.atraso * 100) / maiorAtraso : 0
+  }));
+  const mult = atrasoOrdenacao.dir==='asc' ? 1 : -1;
+  dados.sort((a,b)=>{
+    let va,vb;
+    if(atrasoOrdenacao.campo==='dezena'){va=Number(a.n)||0;vb=Number(b.n)||0;}
+    else if(atrasoOrdenacao.campo==='atraso'){va=a.atraso;vb=b.atraso;}
+    else {va=a.pct;vb=b.pct;}
+    return (va-vb)*mult || (Number(b.n)-Number(a.n));
+  });
+
+  const fmt=v=>{
+    if(!Number.isFinite(v)||v===0) return '0%';
+    if(Math.abs(v-Math.round(v))<.005) return Math.round(v)+'%';
+    return v.toFixed(2).replace('.',',')+'%';
+  };
+  const seta=campo=> atrasoOrdenacao.campo===campo ? (atrasoOrdenacao.dir==='asc'?'▲':'▼') : '◆';
+  const cls=campo=> atrasoOrdenacao.campo===campo ? ' ativo' : '';
+
+  const rows=dados.map(l=>{
+    const atrasoTxt=l.atraso>0?`${l.atraso}<span class="atraso-x">x</span>`:'0';
+    return `<div class="atraso-row">
+      <div class="atraso-cell"><span class="atraso-bola-laranja"><span>${String(l.n).padStart(2,'0')}</span></span></div>
+      <div class="atraso-cell">${atrasoTxt}</div>
+      <div class="atraso-cell"><div class="atraso-bar-wrap"><div class="atraso-bar" style="width:${l.pct}%;"></div></div><span class="atraso-pct">${fmt(l.pct)}</span></div>
+    </div>`;
+  }).join('');
+
+  cont.innerHTML=`<div class="atraso-info">Concursos analisados: ${total} — até o concurso Nº ${numeroUltimo}</div>
+    <div class="atraso-tabela">
+      <div class="atraso-head">
+        <div><button type="button" class="atraso-sort-btn${cls('dezena')}" data-atraso-sort="dezena">Dezena <span class="atraso-seta">${seta('dezena')}</span></button></div>
+        <div><button type="button" class="atraso-sort-btn${cls('atraso')}" data-atraso-sort="atraso">Atraso <span class="atraso-seta">${seta('atraso')}</span></button></div>
+        <div><button type="button" class="atraso-sort-btn${cls('percentual')}" data-atraso-sort="percentual">Percentual de Atraso <span class="atraso-seta">${seta('percentual')}</span></button></div>
+      </div>${rows}
+    </div>`;
+
+  cont.querySelectorAll('[data-atraso-sort]').forEach(btn=>btn.addEventListener('click',()=>{
+    const campo=btn.dataset.atrasoSort;
+    if(atrasoOrdenacao.campo===campo) atrasoOrdenacao.dir=atrasoOrdenacao.dir==='asc'?'desc':'asc';
+    else { atrasoOrdenacao.campo=campo; atrasoOrdenacao.dir=campo==='dezena'?'desc':'desc'; }
+    if(atrasoUltimosDados) renderAtraso(atrasoUltimosDados.linhas, atrasoUltimosDados.numeroUltimo, atrasoUltimosDados.concursosAnalisados);
+  }));
+};
+</script>
