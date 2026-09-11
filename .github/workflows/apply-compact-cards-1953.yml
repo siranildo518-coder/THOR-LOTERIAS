@@ -1,0 +1,64 @@
+name: Aplicar quadros compactos 1953
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-compact-cards-1953.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Atualizar index e sw
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          versao = '2026-09-11-1953'
+          index = Path('index.html')
+          texto = index.read_text(encoding='utf-8')
+
+          novo_bloco = '''<style id="gerador-cards-resultado-finos">
+/* Gerador de jogos: quadros Resultado e Repetidas bem mais baixos/finos */
+#geradorFiltroUltimoResultado{padding:3px 8px !important;margin-bottom:5px !important;border-radius:13px !important;}
+#geradorFiltroUltimoResultado .res-card-title{margin:0 0 1px !important;line-height:12px !important;font-size:10.5px !important;}
+#geradorFiltroUltimoResultado .res-nav-row{margin:0 0 1px !important;min-height:19px !important;gap:5px !important;}
+#geradorFiltroUltimoResultado .res-nav-btn{padding:1px 6px !important;min-height:19px !important;line-height:13px !important;font-size:9.5px !important;border-radius:7px !important;}
+#geradorFiltroUltimoResultado .res-concurso-num{font-size:12.5px !important;line-height:15px !important;}
+#geradorFiltroUltimoResultado .result-balls{margin:0 !important;gap:1px !important;line-height:1 !important;}
+#geradorFiltroUltimoResultado .result-ball-sm{width:23px !important;height:23px !important;min-width:23px !important;font-size:9px !important;margin:1px !important;}
+#geradorFiltroUltimoResultado .res-local{font-size:8px !important;line-height:9px !important;margin:0 !important;padding:0 !important;}
+
+#geradorFiltroAnalise{padding:3px 8px !important;margin-bottom:5px !important;border-radius:13px !important;}
+#geradorFiltroAnalise .stat-sub-title{margin:0 0 1px !important;font-size:10.5px !important;line-height:12px !important;}
+#geradorFiltroAnalise .gfc-ball{width:23px !important;height:23px !important;min-width:23px !important;font-size:9px !important;margin:1px !important;}
+#geradorFiltroAnalise > div{margin-top:0 !important;margin-bottom:0 !important;}
+</style>'''
+
+          texto, n = re.subn(r'<style id="gerador-cards-resultado-finos">.*?</style>', novo_bloco, texto, count=1, flags=re.S)
+          if n != 1:
+              raise SystemExit('Bloco gerador-cards-resultado-finos não encontrado')
+
+          texto, n = re.subn(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{versao}';", texto, count=1)
+          if n != 1:
+              raise SystemExit('APP_VERSAO_ATUAL não encontrado')
+          index.write_text(texto, encoding='utf-8')
+
+          sw = Path('sw.js')
+          swtxt = sw.read_text(encoding='utf-8')
+          swtxt, n = re.subn(r"const CACHE_NAME = 'thor-loterias-[^']+';", f"const CACHE_NAME = 'thor-loterias-{versao}';", swtxt, count=1)
+          if n != 1:
+              raise SystemExit('CACHE_NAME não encontrado')
+          sw.write_text(swtxt, encoding='utf-8')
+      - name: Publicar
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          git commit -m "Diminuir quadros de resultado e atualizar app 1953" || exit 0
+          git push
