@@ -1,4 +1,4 @@
-name: Ajustar atualizacao automatica do app
+name: Corrigir codigo visivel no app
 
 on:
   push:
@@ -8,14 +8,14 @@ permissions:
   contents: write
 
 jobs:
-  ajustar:
+  corrigir:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Ajustar somente atualizacao do PWA
+      - name: Corrigir JavaScript exibido como texto
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -24,26 +24,42 @@ jobs:
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
 
-          # NAO altera login, Firebase nem verificarTravaAparelho.
-          s = s.replace("navigator.serviceWorker.register('sw.js', { updateViaCache:'none' })", "navigator.serviceWorker.register('./sw.js?v=202609111606', { updateViaCache:'none' })")
-          s = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", "const APP_VERSAO_ATUAL = '2026-09-11-1606';", s, count=1)
+          # Corrige somente o bloco de atualizacao que ficou fora de <script>.
+          # Nao altera login, Firebase nem a trava de seguranca por aparelho.
+          if "// Checa o GitHub logo ao abrir o app." in s:
+              linhas = s.splitlines()
+              comentario = next(i for i,l in enumerate(linhas) if "// Checa o GitHub logo ao abrir o app." in l)
+              inicio = comentario
+              while inicio > 0 and "document.addEventListener('DOMContentLoaded'" not in linhas[inicio]:
+                  inicio -= 1
+              alvo = next(i for i,l in enumerate(linhas) if "marcarAtualizacaoComoVista();" in l)
+              fim = alvo
+              while fim < len(linhas)-1 and linhas[fim].strip() != '});':
+                  fim += 1
+              if inicio > 0 and linhas[inicio-1].strip() != '<script>':
+                  linhas.insert(inicio, '<script>')
+                  fim += 1
+              if fim+1 >= len(linhas) or linhas[fim+1].strip() != '</script>':
+                  linhas.insert(fim+1, '</script>')
+              s = '\n'.join(linhas) + ('\n' if s.endswith('\n') else '')
+
+          s = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", "const APP_VERSAO_ATUAL = '2026-09-11-1612';", s, count=1)
+          s = re.sub(r"navigator\.serviceWorker\.register\('./sw\.js\?v=[^']+'", "navigator.serviceWorker.register('./sw.js?v=202609111612'", s, count=1)
 
           p.write_text(s, encoding='utf-8')
-          # Mantem os dois enderecos HTML sincronizados para atalhos antigos.
           Path('THOR-LOTERIAS.html').write_text(s, encoding='utf-8')
 
           swp = Path('sw.js')
           sw = swp.read_text(encoding='utf-8')
-          sw = re.sub(r"const CACHE_NAME = '[^']+';", "const CACHE_NAME = 'thor-loterias-2026-09-11-1606';", sw, count=1)
-          if "'./THOR-LOTERIAS.html'" not in sw:
-              sw = sw.replace("  './index.html',", "  './index.html',\n  './THOR-LOTERIAS.html',", 1)
+          sw = re.sub(r"const CACHE_NAME = '[^']+';", "const CACHE_NAME = 'thor-loterias-2026-09-11-1612';", sw, count=1)
           swp.write_text(sw, encoding='utf-8')
           PY
-      - name: Commit da atualizacao
+      - name: Validar e publicar
         run: |
+          git diff --check
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html THOR-LOTERIAS.html sw.js
           git diff --cached --quiet && exit 0
-          git commit -m "Forca atualizacao imediata do app mantendo trava de seguranca"
+          git commit -m "Corrige JavaScript aparecendo como texto no app"
           git push
