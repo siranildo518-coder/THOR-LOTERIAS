@@ -1,0 +1,58 @@
+name: Corrigir Atualizar e Tendencia 2013
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-update-tendencia-2013.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  corrigir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Aplicar correcao
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, base64
+
+          versao = '2026-09-11-2013'
+          tend_b64 = 'Ly8gVGVuZMOqbmNpYTogdXNhIGRlbGVnYcOnw6NvIGRlIGNsaXF1ZSBwYXJhIGNvbnRpbnVhciBmdW5jaW9uYW5kbyBtZXNtbyBhcMOzcyBhdHVhbGl6YcOnw6NvIGRvIGFwcC9jYWNoZS4KZnVuY3Rpb24gYWJyaXJUZW5kZW5jaWFQZWxhSG9tZSgpewogIGNvbnN0IGNhcmQgPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnaG9tZVByZW1pdW1DYXJkVGVuZGVuY2lhJyk7CiAgaWYoIWNhcmQpIHJldHVybjsKICAvLyBOdW5jYSBkZWl4YSB1bWEgYXR1YWxpemHDp8OjbyBhbnRlcmlvciB0cmF2YXIgbyBjYXJ0w6NvLgogIGNhcmQuZGF0YXNldC5hYnJpbmRvID0gJzAnOwogIGNhcmQuY2xhc3NMaXN0LnJlbW92ZSgnaXMtcHJlc3NlZCcpOwogIGNhcmQuZGF0YXNldC5hYnJpbmRvID0gJzEnOwogIGNhcmQuY2xhc3NMaXN0LmFkZCgnaXMtcHJlc3NlZCcpOwogIHRyeXsKICAgIGFicmlyQWx0YVF1ZWRhKCk7CiAgfSBjYXRjaChlcnIpewogICAgY29uc29sZS5lcnJvcignRmFsaGEgYW8gYWJyaXIgVGVuZMOqbmNpYTonLCBlcnIpOwogIH0gZmluYWxseSB7CiAgICBzZXRUaW1lb3V0KCgpPT57CiAgICAgIGNhcmQuY2xhc3NMaXN0LnJlbW92ZSgnaXMtcHJlc3NlZCcpOwogICAgICBjYXJkLmRhdGFzZXQuYWJyaW5kbyA9ICcwJzsKICAgIH0sIDE4MCk7CiAgfQp9Cgpkb2N1bWVudC5hZGRFdmVudExpc3RlbmVyKCdjbGljaycsIChldik9PnsKICBjb25zdCBhbHZvID0gZXYudGFyZ2V0ICYmIGV2LnRhcmdldC5jbG9zZXN0ID8gZXYudGFyZ2V0LmNsb3Nlc3QoJyNob21lUHJlbWl1bUNhcmRUZW5kZW5jaWEnKSA6IG51bGw7CiAgaWYoIWFsdm8pIHJldHVybjsKICBldi5wcmV2ZW50RGVmYXVsdCgpOwogIGFicmlyVGVuZGVuY2lhUGVsYUhvbWUoKTsKfSk7Cgo='
+          menu_b64 = 'ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ21lbnVBdHVhbGl6YXInKT8uYWRkRXZlbnRMaXN0ZW5lcignY2xpY2snLCBhc3luYyBmdW5jdGlvbigpewogIGNvbnN0IGljb25lID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ21lbnVBdHVhbGl6YXJJY29uZScpOwogIGNvbnN0IGJ0bkF0dWFsaXphciA9IHRoaXM7CiAgaWYoaWNvbmUpIGljb25lLmNsYXNzTGlzdC5hZGQoJ2dpcmFuZG8nKTsKICBidG5BdHVhbGl6YXIuY2xhc3NMaXN0LnJlbW92ZSgnbWVudS1hdHVhbGl6YXItZGVzdGFxdWUnKTsKICBtYXJjYXJBdHVhbGl6YWNhb0NvbW9WaXN0YSgpOwogIHRyeXsgbG9jYWxTdG9yYWdlLnNldEl0ZW0oQVBQX1ZFUlNBT19WSVNUQV9LRVksIEFQUF9WRVJTQU9fQVRVQUwpOyB9Y2F0Y2goZSl7fQoKICBmdW5jdGlvbiBkZXN0cmF2YXJUZW5kZW5jaWEoKXsKICAgIGNvbnN0IGNhcmQgPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnaG9tZVByZW1pdW1DYXJkVGVuZGVuY2lhJyk7CiAgICBpZighY2FyZCkgcmV0dXJuOwogICAgY2FyZC5kYXRhc2V0LmFicmluZG8gPSAnMCc7CiAgICBjYXJkLmNsYXNzTGlzdC5yZW1vdmUoJ2lzLXByZXNzZWQnKTsKICAgIGNhcmQuc3R5bGUucG9pbnRlckV2ZW50cyA9ICcnOwogICAgY2FyZC5yZW1vdmVBdHRyaWJ1dGUoJ2Rpc2FibGVkJyk7CiAgfQoKICBkZXN0cmF2YXJUZW5kZW5jaWEoKTsKICBjbG9zZURyYXdlcigpOwoKICB0cnl7CiAgICBpZignc2VydmljZVdvcmtlcicgaW4gbmF2aWdhdG9yKXsKICAgICAgY29uc3QgcmVnaXN0cmF0aW9uID0gYXdhaXQgbmF2aWdhdG9yLnNlcnZpY2VXb3JrZXIuZ2V0UmVnaXN0cmF0aW9uKCk7CiAgICAgIGlmKHJlZ2lzdHJhdGlvbil7CiAgICAgICAgYXdhaXQgcmVnaXN0cmF0aW9uLnVwZGF0ZSgpLmNhdGNoKCgpPT57fSk7CiAgICAgICAgaWYocmVnaXN0cmF0aW9uLndhaXRpbmcpewogICAgICAgICAgcmVnaXN0cmF0aW9uLndhaXRpbmcucG9zdE1lc3NhZ2Uoe3R5cGU6J1NLSVBfV0FJVElORyd9KTsKICAgICAgICAgIGF3YWl0IG5ldyBQcm9taXNlKHJlc29sdmU9PnNldFRpbWVvdXQocmVzb2x2ZSwgNDUwKSk7CiAgICAgICAgfQogICAgICB9CiAgICB9CiAgfWNhdGNoKGUpeyBjb25zb2xlLndhcm4oJ0ZhbGhhIGFvIGF0dWFsaXphciBzZXJ2aWNlIHdvcmtlcjonLCBlKTsgfQoKICBkZXN0cmF2YXJUZW5kZW5jaWEoKTsKICBpZihpY29uZSkgaWNvbmUuY2xhc3NMaXN0LnJlbW92ZSgnZ2lyYW5kbycpOwoKICBzZXRUaW1lb3V0KCgpPT57CiAgICBjb25zdCB1ID0gbmV3IFVSTChsb2NhdGlvbi5ocmVmKTsKICAgIHUuc2VhcmNoUGFyYW1zLnNldCgnX3Rob3JfdXBkYXRlJywgRGF0ZS5ub3coKS50b1N0cmluZygpKTsKICAgIGxvY2F0aW9uLnJlcGxhY2UodS50b1N0cmluZygpKTsKICB9LCAxMjApOwp9KTsK'
+          tend = base64.b64decode(tend_b64).decode('utf-8')
+          menu = base64.b64decode(menu_b64).decode('utf-8')
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          s, n1 = re.subn(r"// Mantém o efeito de afundar visível por um instante antes de abrir a próxima aba\..*?(?=document\.getElementById\('altaQuedaVoltar'\))", tend, s, count=1, flags=re.S)
+          if n1 != 1 and 'function abrirTendenciaPelaHome()' not in s:
+              raise SystemExit('Bloco Tendencia nao encontrado')
+
+          s, n2 = re.subn(r"document\.getElementById\('menuAtualizar'\)\?\.addEventListener\('click', function\(\)\{.*?(?=document\.getElementById\('tendenciaVoltar'\))", menu, s, count=1, flags=re.S)
+          if n2 != 1 and "addEventListener('click', async function()" not in s:
+              raise SystemExit('Bloco Atualizar nao encontrado')
+
+          s = re.sub(r"navigator\.serviceWorker\.register\('\./sw\.js\?v=[^']+', \{ updateViaCache:'none' \}\)", "navigator.serviceWorker.register(`./sw.js?v=${encodeURIComponent(APP_VERSAO_ATUAL)}`, { updateViaCache:'none' })", s, count=1)
+          s = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{versao}';", s, count=1)
+          p.write_text(s, encoding='utf-8')
+
+          swp = Path('sw.js')
+          sw = swp.read_text(encoding='utf-8')
+          sw = re.sub(r"const CACHE_NAME = 'thor-loterias-[^']+';", f"const CACHE_NAME = 'thor-loterias-{versao}';", sw, count=1)
+          swp.write_text(sw, encoding='utf-8')
+          PY
+      - name: Publicar
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          git diff --cached --quiet && exit 0
+          git commit -m "Corrigir Atualizar e Tendencia 2013"
+          git pull --rebase origin main
+          git push
