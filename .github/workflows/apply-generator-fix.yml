@@ -1,0 +1,57 @@
+name: Aplicar correcao do gerador
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-generator-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Corrigir index e service worker
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          index = Path('index.html')
+          s = index.read_text(encoding='utf-8')
+
+          padrao = re.compile(r'''\s*if\(!jogo\)\{\s*out\.innerHTML = `<div class="res-error">Não é possível montar jogos de \$\{dezenasPorJogo\} dezenas com \$\{repetidasAlvo\} repetidas do concurso anterior\. Ajuste as configurações avançadas\.</div>`;\s*return;\s*\}''')
+          novo = '''\n      // Uma tentativa pode falhar por causa da combinação aleatória dos filtros.\n      // Não interrompe a geração: tenta novamente até atingir o limite de tentativas.\n      if(!jogo) continue;'''
+          s, _ = padrao.subn(novo, s, count=1)
+
+          s = s.replace(
+            'Não foi possível gerar jogos com esses filtros. Tente ajustar os filtros personalizados, inclusive a soma.',
+            'Não foi possível encontrar uma combinação com esses filtros. Ajuste apenas os filtros que desejar usar e toque em GERAR novamente.',
+            1
+          )
+          s = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", "const APP_VERSAO_ATUAL = '2026-09-11-1900';", s, count=1)
+          index.write_text(s, encoding='utf-8')
+
+          sw = Path('sw.js')
+          w = sw.read_text(encoding='utf-8')
+          w = re.sub(r"const CACHE_NAME = '[^']+';", "const CACHE_NAME = 'thor-loterias-2026-09-11-1900';", w, count=1)
+          sw.write_text(w, encoding='utf-8')
+          PY
+
+      - name: Publicar os dois arquivos
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          if git diff --cached --quiet; then
+            echo "Nada para atualizar"
+          else
+            git commit -m "Corrige gerador e atualiza index + sw"
+            git push
+          fi
