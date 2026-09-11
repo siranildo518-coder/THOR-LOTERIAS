@@ -1,0 +1,54 @@
+name: Remover trava de dispositivo
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  ajustar:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Remover trava e sincronizar arquivos
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          padrao = r"async function verificarTravaAparelho\(hash\)\{.*?\n\}\n\nconst CREDENCIAIS_VALIDAS"
+          novo = """async function verificarTravaAparelho(hash){
+  // Trava por aparelho removida: o acesso depende apenas de usuario e senha validos.
+  return {ok:true};
+}
+
+const CREDENCIAIS_VALIDAS"""
+          s2, n = re.subn(padrao, novo, s, count=1, flags=re.S)
+          if n != 1:
+              raise SystemExit(f'Nao encontrei a funcao verificarTravaAparelho para substituir: {n}')
+
+          s2 = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", "const APP_VERSAO_ATUAL = '2026-09-11-4';", s2, count=1)
+          p.write_text(s2, encoding='utf-8')
+          Path('THOR-LOTERIAS.html').write_text(s2, encoding='utf-8')
+
+          sw = Path('sw.js').read_text(encoding='utf-8')
+          sw = re.sub(r"const CACHE_NAME = '[^']+';", "const CACHE_NAME = 'thor-loterias-2026-09-11-1605';", sw, count=1)
+          if "'./THOR-LOTERIAS.html'" not in sw:
+              sw = sw.replace("  './index.html',", "  './index.html',\n  './THOR-LOTERIAS.html',", 1)
+          Path('sw.js').write_text(sw, encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html THOR-LOTERIAS.html sw.js
+          git commit -m "Remove trava por aparelho e sincroniza versao" || exit 0
+          git push
