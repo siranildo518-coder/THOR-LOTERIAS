@@ -1,46 +1,13 @@
-name: Corrigir codigo visivel no app
+name: Ajuste manual do aplicativo
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  corrigir:
-    if: github.actor != 'github-actions[bot]'
+  manual:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Aplicar ajuste atual
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re, base64
-          versao = '2026-09-11-1953'
-          css_b64 = 'PHN0eWxlIGlkPSJnZXJhZG9yLWNhcmRzLXJlc3VsdGFkby1maW5vcyI+Ci8qIEdlcmFkb3IgZGUgam9nb3M6IHF1YWRyb3MgUmVzdWx0YWRvIGUgUmVwZXRpZGFzIGJlbSBtYWlzIGJhaXhvcy9maW5vcyAqLwojZ2VyYWRvckZpbHRyb1VsdGltb1Jlc3VsdGFkb3twYWRkaW5nOjNweCA4cHggIWltcG9ydGFudDttYXJnaW4tYm90dG9tOjVweCAhaW1wb3J0YW50O2JvcmRlci1yYWRpdXM6MTNweCAhaW1wb3J0YW50O30KI2dlcmFkb3JGaWx0cm9VbHRpbW9SZXN1bHRhZG8gLnJlcy1jYXJkLXRpdGxle21hcmdpbjowIDAgMXB4ICFpbXBvcnRhbnQ7bGluZS1oZWlnaHQ6MTJweCAhaW1wb3J0YW50O2ZvbnQtc2l6ZToxMC41cHggIWltcG9ydGFudDt9CiNnZXJhZG9yRmlsdHJvVWx0aW1vUmVzdWx0YWRvIC5yZXMtbmF2LXJvd3ttYXJnaW46MCAwIDFweCAhaW1wb3J0YW50O21pbi1oZWlnaHQ6MTlweCAhaW1wb3J0YW50O2dhcDo1cHggIWltcG9ydGFudDt9CiNnZXJhZG9yRmlsdHJvVWx0aW1vUmVzdWx0YWRvIC5yZXMtbmF2LWJ0bntwYWRkaW5nOjFweCA2cHggIWltcG9ydGFudDttaW4taGVpZ2h0OjE5cHggIWltcG9ydGFudDtsaW5lLWhlaWdodDoxM3B4ICFpbXBvcnRhbnQ7Zm9udC1zaXplOjkuNXB4ICFpbXBvcnRhbnQ7Ym9yZGVyLXJhZGl1czo3cHggIWltcG9ydGFudDt9CiNnZXJhZG9yRmlsdHJvVWx0aW1vUmVzdWx0YWRvIC5yZXMtY29uY3Vyc28tbnVte2ZvbnQtc2l6ZToxMi41cHggIWltcG9ydGFudDtsaW5lLWhlaWdodDoxNXB4ICFpbXBvcnRhbnQ7fQojZ2VyYWRvckZpbHRyb1VsdGltb1Jlc3VsdGFkbyAucmVzdWx0LWJhbGxze21hcmdpbjowICFpbXBvcnRhbnQ7Z2FwOjFweCAhaW1wb3J0YW50O2xpbmUtaGVpZ2h0OjEgIWltcG9ydGFudDt9CiNnZXJhZG9yRmlsdHJvVWx0aW1vUmVzdWx0YWRvIC5yZXN1bHQtYmFsbC1zbXt3aWR0aDoyM3B4ICFpbXBvcnRhbnQ7aGVpZ2h0OjIzcHggIWltcG9ydGFudDttaW4td2lkdGg6MjNweCAhaW1wb3J0YW50O2ZvbnQtc2l6ZTo5cHggIWltcG9ydGFudDttYXJnaW46MXB4ICFpbXBvcnRhbnQ7fQojZ2VyYWRvckZpbHRyb1VsdGltb1Jlc3VsdGFkbyAucmVzLWxvY2Fse2ZvbnQtc2l6ZTo4cHggIWltcG9ydGFudDtsaW5lLWhlaWdodDo5cHggIWltcG9ydGFudDttYXJnaW46MCAhaW1wb3J0YW50O3BhZGRpbmc6MCAhaW1wb3J0YW50O30KCiNnZXJhZG9yRmlsdHJvQW5hbGlzZXtwYWRkaW5nOjNweCA4cHggIWltcG9ydGFudDttYXJnaW4tYm90dG9tOjVweCAhaW1wb3J0YW50O2JvcmRlci1yYWRpdXM6MTNweCAhaW1wb3J0YW50O30KI2dlcmFkb3JGaWx0cm9BbmFsaXNlIC5zdGF0LXN1Yi10aXRsZXttYXJnaW46MCAwIDFweCAhaW1wb3J0YW50O2ZvbnQtc2l6ZToxMC41cHggIWltcG9ydGFudDtsaW5lLWhlaWdodDoxMnB4ICFpbXBvcnRhbnQ7fQojZ2VyYWRvckZpbHRyb0FuYWxpc2UgLmdmYy1iYWxse3dpZHRoOjIzcHggIWltcG9ydGFudDtoZWlnaHQ6MjNweCAhaW1wb3J0YW50O21pbi13aWR0aDoyM3B4ICFpbXBvcnRhbnQ7Zm9udC1zaXplOjlweCAhaW1wb3J0YW50O21hcmdpbjoxcHggIWltcG9ydGFudDt9CiNnZXJhZG9yRmlsdHJvQW5hbGlzZSA+IGRpdnttYXJnaW4tdG9wOjAgIWltcG9ydGFudDttYXJnaW4tYm90dG9tOjAgIWltcG9ydGFudDt9Cjwvc3R5bGU+'
-          novo_bloco = base64.b64decode(css_b64).decode('utf-8')
-          p = Path('index.html')
-          s = p.read_text(encoding='utf-8')
-          s, n = re.subn(r'<style id="gerador-cards-resultado-finos">.*?</style>', novo_bloco, s, count=1, flags=re.S)
-          if n != 1:
-              raise SystemExit('Bloco de cards não encontrado')
-          s = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{versao}';", s, count=1)
-          p.write_text(s, encoding='utf-8')
-          swp = Path('sw.js')
-          sw = swp.read_text(encoding='utf-8')
-          sw = re.sub(r"const CACHE_NAME = 'thor-loterias-[^']+';", f"const CACHE_NAME = 'thor-loterias-{versao}';", sw, count=1)
-          swp.write_text(sw, encoding='utf-8')
-          PY
-      - name: Publicar
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html sw.js
-          git diff --cached --quiet && exit 0
-          git commit -m "Diminuir quadros de resultado e atualizar app 1953"
-          git pull --rebase origin main
-          git push
+      - run: echo "Workflow manual."
