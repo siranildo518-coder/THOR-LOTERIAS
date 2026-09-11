@@ -1,0 +1,41 @@
+name: Atualizar app 1912
+
+on:
+  push:
+    paths:
+      - '.github/workflows/bump-app-1912.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Atualizar versao dos dois arquivos
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = "const APP_VERSAO_ATUAL = '2026-09-11-1909';"
+          new = "const APP_VERSAO_ATUAL = '2026-09-11-1912';"
+          if old not in s:
+              raise SystemExit('Versao atual do index nao encontrada')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+
+          sw = Path('sw.js')
+          t = sw.read_text(encoding='utf-8')
+          oldsw = "const CACHE_NAME = 'thor-loterias-2026-09-11-1909';"
+          newsw = "const CACHE_NAME = 'thor-loterias-2026-09-11-1912';"
+          if oldsw not in t:
+              raise SystemExit('Versao atual do sw nao encontrada')
+          sw.write_text(t.replace(oldsw, newsw, 1), encoding='utf-8')
+      - name: Publicar index e sw
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          git commit -m "Atualiza index.html e sw.js para versao 1912"
+          git push
