@@ -1,4 +1,4 @@
-name: Aplicar quadros compactos 1953
+name: Publicar app compacto 2019
 
 on:
   push:
@@ -9,56 +9,38 @@ permissions:
   contents: write
 
 jobs:
-  aplicar:
+  publicar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Atualizar index e sw
-        shell: python
+        with:
+          fetch-depth: 0
+      - name: Aplicar ajuste
         run: |
+          python3 - <<'PY'
           from pathlib import Path
-          import re
-
-          versao = '2026-09-11-1953'
-          index = Path('index.html')
-          texto = index.read_text(encoding='utf-8')
-
-          novo_bloco = '''<style id="gerador-cards-resultado-finos">
-/* Gerador de jogos: quadros Resultado e Repetidas bem mais baixos/finos */
-#geradorFiltroUltimoResultado{padding:3px 8px !important;margin-bottom:5px !important;border-radius:13px !important;}
-#geradorFiltroUltimoResultado .res-card-title{margin:0 0 1px !important;line-height:12px !important;font-size:10.5px !important;}
-#geradorFiltroUltimoResultado .res-nav-row{margin:0 0 1px !important;min-height:19px !important;gap:5px !important;}
-#geradorFiltroUltimoResultado .res-nav-btn{padding:1px 6px !important;min-height:19px !important;line-height:13px !important;font-size:9.5px !important;border-radius:7px !important;}
-#geradorFiltroUltimoResultado .res-concurso-num{font-size:12.5px !important;line-height:15px !important;}
-#geradorFiltroUltimoResultado .result-balls{margin:0 !important;gap:1px !important;line-height:1 !important;}
-#geradorFiltroUltimoResultado .result-ball-sm{width:23px !important;height:23px !important;min-width:23px !important;font-size:9px !important;margin:1px !important;}
-#geradorFiltroUltimoResultado .res-local{font-size:8px !important;line-height:9px !important;margin:0 !important;padding:0 !important;}
-
-#geradorFiltroAnalise{padding:3px 8px !important;margin-bottom:5px !important;border-radius:13px !important;}
-#geradorFiltroAnalise .stat-sub-title{margin:0 0 1px !important;font-size:10.5px !important;line-height:12px !important;}
-#geradorFiltroAnalise .gfc-ball{width:23px !important;height:23px !important;min-width:23px !important;font-size:9px !important;margin:1px !important;}
-#geradorFiltroAnalise > div{margin-top:0 !important;margin-bottom:0 !important;}
-</style>'''
-
-          texto, n = re.subn(r'<style id="gerador-cards-resultado-finos">.*?</style>', novo_bloco, texto, count=1, flags=re.S)
-          if n != 1:
-              raise SystemExit('Bloco gerador-cards-resultado-finos não encontrado')
-
-          texto, n = re.subn(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{versao}';", texto, count=1)
-          if n != 1:
-              raise SystemExit('APP_VERSAO_ATUAL não encontrado')
-          index.write_text(texto, encoding='utf-8')
-
-          sw = Path('sw.js')
-          swtxt = sw.read_text(encoding='utf-8')
-          swtxt, n = re.subn(r"const CACHE_NAME = 'thor-loterias-[^']+';", f"const CACHE_NAME = 'thor-loterias-{versao}';", swtxt, count=1)
-          if n != 1:
-              raise SystemExit('CACHE_NAME não encontrado')
-          sw.write_text(swtxt, encoding='utf-8')
+          import re, base64
+          versao = '2026-09-11-2019'
+          css_b64 = 'PHN0eWxlIGlkPSJnZmMtY29uZmlnLWNvbXBhY3QtaGVpZ2h0Ij4KLyogQ29uZmlndXJhw6fDtWVzIGF2YW7Dp2FkYXM6IHJlZHV6aXIgYWx0dXJhIHZlcnRpY2FsICovCi5nZmMtZGFyay1jYXJke3BhZGRpbmc6MTFweCAxNHB4ICFpbXBvcnRhbnQ7bWFyZ2luLWJvdHRvbTo4cHggIWltcG9ydGFudDt9Ci5nZmMtZGFyay10aXRsZXttYXJnaW4tYm90dG9tOjlweCAhaW1wb3J0YW50O30KLmdmYy1kYXJrLWxhYmVse21hcmdpbi1ib3R0b206NHB4ICFpbXBvcnRhbnQ7fQouZ2ZjLWRhcmstc3RlcHBlci1yb3d7bWFyZ2luLWJvdHRvbToxMHB4ICFpbXBvcnRhbnQ7Z2FwOjhweCAhaW1wb3J0YW50O30KLmdmYy1kYXJrLXN0ZXBwZXItYnRue2hlaWdodDozNHB4ICFpbXBvcnRhbnQ7fQouZ2ZjLWRhcmstdmFsdWUtaW5wdXR7cGFkZGluZzozcHggNHB4ICFpbXBvcnRhbnQ7bWluLWhlaWdodDozNHB4ICFpbXBvcnRhbnQ7fQouZ2ZjLWRhcmstZmlsdHJvLWxhYmVse21hcmdpbi1ib3R0b206NXB4ICFpbXBvcnRhbnQ7fQouZ2ZjLWRhcmstZmlsdHJvc3tnYXA6NnB4ICFpbXBvcnRhbnQ7bWFyZ2luLWJvdHRvbToxMHB4ICFpbXBvcnRhbnQ7fQouZ2ZjLWRhcmstaW5wdXQtd3JhcCBpbnB1dHtwYWRkaW5nOjVweCA0cHggIWltcG9ydGFudDt9Cjwvc3R5bGU+'
+          bloco = base64.b64decode(css_b64).decode('utf-8')
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          if 'id="gfc-config-compact-height"' in s:
+              s = re.sub(r'<style id="gfc-config-compact-height">.*?</style>', bloco, s, count=1, flags=re.S)
+          else:
+              s = s.replace('</head>', '\n' + bloco + '\n</head>', 1)
+          s = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{versao}';", s, count=1)
+          p.write_text(s, encoding='utf-8')
+          swp = Path('sw.js')
+          sw = swp.read_text(encoding='utf-8')
+          sw = re.sub(r"const CACHE_NAME = 'thor-loterias-[^']+';", f"const CACHE_NAME = 'thor-loterias-{versao}';", sw, count=1)
+          swp.write_text(sw, encoding='utf-8')
+          PY
       - name: Publicar
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html sw.js
-          git commit -m "Diminuir quadros de resultado e atualizar app 1953" || exit 0
+          git diff --cached --quiet && exit 0
+          git commit -m "Diminuir altura configuracoes e atualizar app 2019"
           git push
