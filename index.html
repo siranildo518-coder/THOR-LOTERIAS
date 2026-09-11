@@ -99,7 +99,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-11-1900'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-11-1909'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -6252,6 +6252,42 @@ function gerarJogoPersonalizado(min, max, dezenasPorJogo, ultimoSet, repetidasAl
   return temFiltro ? null : ultimaTentativa;
 }
 
+function diagnosticarFiltrosIncompativeis(min, max, dezenasPorJogo, ultimoSet, repetidasAlvo, filtroPares, filtroImpares, filtroPrimos, filtrosExtra){
+  const ativos = [
+    {chave:'pares', label:'Pares', valor:filtroPares},
+    {chave:'impares', label:'Ímpares', valor:filtroImpares},
+    {chave:'primos', label:'Primos', valor:filtroPrimos},
+    {chave:'fib', label:'Fibonacci', valor:filtrosExtra.fib},
+    {chave:'moldura', label:'Moldura', valor:filtrosExtra.moldura},
+    {chave:'centro', label:'Centro', valor:filtrosExtra.centro},
+    {chave:'mult3', label:'Múlt. de 3', valor:filtrosExtra.mult3},
+    {chave:'soma', label:'Soma', valor:filtrosExtra.soma}
+  ].filter(f=>f.valor!==null && f.valor!==undefined);
+
+  if(!ativos.length) return [];
+
+  if(filtroPares!==null && filtroImpares!==null && filtroPares + filtroImpares !== dezenasPorJogo){
+    return ativos.filter(f=>f.chave==='pares' || f.chave==='impares');
+  }
+
+  function consegueSem(chaveRemovida){
+    let pares = filtroPares, impares = filtroImpares, primos = filtroPrimos;
+    const extra = {...filtrosExtra};
+    if(chaveRemovida==='pares') pares = null;
+    else if(chaveRemovida==='impares') impares = null;
+    else if(chaveRemovida==='primos') primos = null;
+    else extra[chaveRemovida] = null;
+
+    for(let i=0;i<24;i++){
+      if(gerarJogoPersonalizado(min, max, dezenasPorJogo, ultimoSet, repetidasAlvo, pares, impares, primos, extra)) return true;
+    }
+    return false;
+  }
+
+  const conflitos = ativos.filter(f=>consegueSem(f.chave));
+  return conflitos.length ? conflitos : ativos;
+}
+
 function renderGeradorAnalise(g, ultimo, anterior, repMedia, faixaMin, faixaMax, quentes, atrasados){
   const el = document.getElementById('geradorFiltroAnalise');
   if(!el) return;
@@ -6596,9 +6632,18 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
     }
 
     if(jogos.length === 0){
-      out.innerHTML = `<div class="res-error">Não foi possível encontrar uma combinação com esses filtros. Ajuste apenas os filtros que desejar usar e toque em GERAR novamente.</div>`;
-      return;
+    const conflitos = diagnosticarFiltrosIncompativeis(
+      min, max, dezenasPorJogo, ultimoSet, repetidasAlvo,
+      filtroPares, filtroImpares, filtroPrimos, filtrosExtra
+    );
+    if(conflitos.length){
+      const lista = conflitos.map(f=>`<div style="margin-top:5px;"><strong>${f.label}:</strong> ${f.valor}</div>`).join('');
+      out.innerHTML = `<div class="res-error">Não foi possível combinar esses filtros.<br><br><strong>Filtros que não estão combinando:</strong>${lista}<br><br><span style="font-size:12px;opacity:.85;">Altere pelo menos um dos filtros acima e toque em GERAR novamente.</span></div>`;
+    }else{
+      out.innerHTML = `<div class="res-error">Não foi possível gerar jogos com essa configuração de dezenas repetidas. Ajuste a quantidade de repetidas e toque em GERAR novamente.</div>`;
     }
+    return;
+  }
 
     geradorUltimoJogosCtx = { g, jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo };
     salvarGeradorEstado(g.code, { jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo });
