@@ -44,3 +44,5 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m "Diminuir altura configuracoes e atualizar app 2019"
           git push
+
+# executar
