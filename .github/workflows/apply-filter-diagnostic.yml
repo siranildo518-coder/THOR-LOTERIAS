@@ -60,11 +60,12 @@ jobs:
           if 'function diagnosticarFiltrosIncompativeis(' not in s:
               if old not in s: raise SystemExit('Âncora do diagnóstico não encontrada')
               s=s.replace(old,helper,1)
-          old2='''    if(jogos.length === 0){
-              out.innerHTML = `<div class="res-error">Não foi possível encontrar uma combinação com esses filtros. Ajuste apenas os filtros que desejar usar e toque em GERAR novamente.</div>`;
-              return;
-            }'''
-          new2='''    if(jogos.length === 0){
+
+          if 'Filtros que não estão combinando:' not in s:
+              inicio=s.find('    if(jogos.length === 0){')
+              fim=s.find('    geradorUltimoJogosCtx =', inicio)
+              if inicio < 0 or fim < 0: raise SystemExit('Bloco de erro não encontrado')
+              novo='''    if(jogos.length === 0){
               const conflitos = diagnosticarFiltrosIncompativeis(
                 min, max, dezenasPorJogo, ultimoSet, repetidasAlvo,
                 filtroPares, filtroImpares, filtroPrimos, filtrosExtra
@@ -76,10 +77,11 @@ jobs:
                 out.innerHTML = `<div class="res-error">Não foi possível gerar jogos com essa configuração de dezenas repetidas. Ajuste a quantidade de repetidas e toque em GERAR novamente.</div>`;
               }
               return;
-            }'''
-          if 'Filtros que não estão combinando:' not in s:
-              if old2 not in s: raise SystemExit('Bloco de erro não encontrado')
-              s=s.replace(old2,new2,1)
+            }
+
+          '''
+              s=s[:inicio]+novo+s[fim:]
+
           s=s.replace("const APP_VERSAO_ATUAL = '2026-09-11-1900';", "const APP_VERSAO_ATUAL = '2026-09-11-1909';",1)
           p.write_text(s,encoding='utf-8')
 
