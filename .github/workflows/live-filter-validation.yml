@@ -1,0 +1,83 @@
+name: Validar filtros ao digitar
+
+on:
+  push:
+    paths:
+      - '.github/workflows/live-filter-validation.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Atualizar index e sw
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace("const APP_VERSAO_ATUAL = '2026-09-11-1912';", "const APP_VERSAO_ATUAL = '2026-09-11-1938';",1)
+          css_anchor="  .gfc-dark-input-wrap input:not(:placeholder-shown){background:#F3E8FF;border-color:#A21CAF;color:#4C1D95;}\n"
+          css_add="""  .gfc-dark-input-wrap input.gfc-filtro-invalido{background:#FEE2E2 !important;border-color:#DC2626 !important;color:#991B1B !important;box-shadow:0 0 0 2px rgba(220,38,38,.10);}\n  .gfc-dark-input-wrap input.gfc-filtro-invalido + span{color:#B91C1C !important;}\n  .gfc-filtro-alerta{display:none;margin:8px 0 12px;padding:9px 10px;border:1.5px solid #DC2626;border-radius:10px;background:#FEF2F2;color:#991B1B;font-size:12px;font-weight:700;line-height:1.35;text-align:center;}\n  .gfc-filtro-alerta.ativo{display:block;}\n"""
+          if 'gfc-filtro-invalido' not in s:
+              s=s.replace(css_anchor,css_anchor+css_add,1)
+          h='''        </div>\n\n        <button type="button" class="gfc-dark-btn" id="geradorFiltroGerarBtn">'''
+          hn='''        </div>\n        <div id="gfcFiltroAlerta" class="gfc-filtro-alerta" role="alert" aria-live="polite"></div>\n\n        <button type="button" class="gfc-dark-btn" id="geradorFiltroGerarBtn">'''
+          if 'id="gfcFiltroAlerta"' not in s:
+              s=s.replace(h,hn,1)
+          helper=r'''function gfcValidarFiltrosInstantaneo(){
+            const alerta = document.getElementById('gfcFiltroAlerta');
+            const ids = ['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3','gfcFiltroSoma'];
+            const els = Object.fromEntries(ids.map(id=>[id,document.getElementById(id)]));
+            ids.forEach(id=>els[id] && els[id].classList.remove('gfc-filtro-invalido'));
+            if(!geradorGameAtual){ if(alerta){alerta.classList.remove('ativo'); alerta.textContent='';} return true; }
+            const k = Number(gfc.dezenas) || GERADOR_APOSTA_SIZE[geradorGameAtual.code] || 0;
+            const min = geradorGameAtual.range.min, max = geradorGameAtual.range.max;
+            const total = max-min+1;
+            const ler = id => { const el=els[id]; if(!el || el.value==='') return null; const n=Number(el.value); return Number.isFinite(n) ? Math.trunc(n) : null; };
+            const v = {pares:ler('gfcFiltroPares'),impares:ler('gfcFiltroImpares'),primos:ler('gfcFiltroPrimos'),fib:ler('gfcFiltroFib'),moldura:ler('gfcFiltroMoldura'),centro:ler('gfcFiltroCentro'),mult3:ler('gfcFiltroMult3'),soma:ler('gfcFiltroSoma')};
+            const conflitos = new Map();
+            const marcar=(id,msg)=>{ if(!conflitos.has(id)) conflitos.set(id,msg); };
+            const nums=[]; for(let n=min;n<=max;n++) nums.push(n);
+            const ehPrimo=n=>{ if(n<2)return false; for(let d=2;d*d<=n;d++) if(n%d===0)return false; return true; };
+            const centro=new Set(centroDoJogo(geradorGameAtual)||[]), moldura=new Set(molduraDoJogo(geradorGameAtual)||[]);
+            const props=[['gfcFiltroPares',v.pares,nums.filter(n=>n%2===0).length,'Pares'],['gfcFiltroImpares',v.impares,nums.filter(n=>n%2!==0).length,'Ímpares'],['gfcFiltroPrimos',v.primos,nums.filter(ehPrimo).length,'Primos'],['gfcFiltroFib',v.fib,nums.filter(n=>FIB.has(n)).length,'Fibonacci'],['gfcFiltroMoldura',v.moldura,moldura.size,'Moldura'],['gfcFiltroCentro',v.centro,centro.size,'Centro'],['gfcFiltroMult3',v.mult3,nums.filter(n=>n%3===0).length,'Múlt. de 3']];
+            for(const [id,val,disp,label] of props){ if(val===null) continue; const minimo=Math.max(0,k-(total-disp)), maximo=Math.min(k,disp); if(val<minimo || val>maximo) marcar(id,`${label} precisa ficar entre ${minimo} e ${maximo}.`); }
+            if(v.pares!==null && v.impares!==null && v.pares+v.impares!==k){ marcar('gfcFiltroPares',`Pares + Ímpares precisam somar ${k}.`); marcar('gfcFiltroImpares',`Pares + Ímpares precisam somar ${k}.`); }
+            if(v.moldura!==null && v.centro!==null && v.moldura+v.centro!==k){ marcar('gfcFiltroMoldura',`Moldura + Centro precisam somar ${k}.`); marcar('gfcFiltroCentro',`Moldura + Centro precisam somar ${k}.`); }
+            if(v.soma!==null){ const minSoma=k*(2*min+k-1)/2, maxSoma=k*(2*max-k+1)/2; if(v.soma<minSoma || v.soma>maxSoma) marcar('gfcFiltroSoma',`Soma precisa ficar entre ${minSoma} e ${maxSoma}.`); }
+            conflitos.forEach((_,id)=>els[id] && els[id].classList.add('gfc-filtro-invalido'));
+            if(alerta){ if(conflitos.size){ const msgs=[...new Set(conflitos.values())]; alerta.innerHTML='⚠️ <strong>Filtros incompatíveis:</strong><br>'+msgs.join('<br>'); alerta.classList.add('ativo'); } else { alerta.classList.remove('ativo'); alerta.textContent=''; } }
+            return conflitos.size===0;
+          }
+
+          ['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3','gfcFiltroSoma'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input', gfcValidarFiltrosInstantaneo); });
+
+          '''
+          anchor='function renderGeradorAnalise(g, ultimo, anterior, repMedia, faixaMin, faixaMax, quentes, atrasados){'
+          if 'function gfcValidarFiltrosInstantaneo()' not in s:
+              s=s.replace(anchor,helper+anchor,1)
+          old="""  const analiseEl = document.getElementById('geradorFiltroAnalise');\n  if(analiseEl) analiseEl.innerHTML = '';\n}"""
+          new="""  const analiseEl = document.getElementById('geradorFiltroAnalise');\n  if(analiseEl) analiseEl.innerHTML = '';\n  gfcValidarFiltrosInstantaneo();\n}"""
+          s=s.replace(old,new,1)
+          st=s.index("document.getElementById('gfcDezenasMenos')")
+          en=s.index("// ---------- permite digitar",st)
+          reg=s[st:en].replace("  gfcAtualizarTela();\n","  gfcAtualizarTela();\n  gfcValidarFiltrosInstantaneo();\n")
+          s=s[:st]+reg+s[en:]
+          ba="""document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async ()=>{\n  const g = geradorGameAtual;\n  if(!g) return;\n"""
+          bn="""document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async ()=>{\n  const g = geradorGameAtual;\n  if(!g) return;\n  if(!gfcValidarFiltrosInstantaneo()) return;\n"""
+          s=s.replace(ba,bn,1)
+          p.write_text(s,encoding='utf-8')
+          sw=Path('sw.js')
+          t=sw.read_text(encoding='utf-8').replace("const CACHE_NAME = 'thor-loterias-2026-09-11-1912';","const CACHE_NAME = 'thor-loterias-2026-09-11-1938';",1)
+          sw.write_text(t,encoding='utf-8')
+      - name: Publicar alterações
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          git commit -m "Validação instantânea de filtros incompatíveis"
+          git push
