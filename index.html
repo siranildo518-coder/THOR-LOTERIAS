@@ -99,7 +99,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-11-1912'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-11-1938'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -666,6 +666,10 @@ document.addEventListener('selectstart', e=>{
   .gfc-dark-input-wrap input{width:100%;box-sizing:border-box;padding:7px 4px;border-radius:8px;border:1.5px solid #D8DAE0;background:#fff;color:#1F2937;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;transition:background .12s ease,border-color .12s ease,color .12s ease;}
   .gfc-dark-input-wrap input:focus{outline:none;border-color:#A21CAF;}
   .gfc-dark-input-wrap input:not(:placeholder-shown){background:#F3E8FF;border-color:#A21CAF;color:#4C1D95;}
+  .gfc-dark-input-wrap input.gfc-filtro-invalido{background:#FEE2E2 !important;border-color:#DC2626 !important;color:#991B1B !important;box-shadow:0 0 0 2px rgba(220,38,38,.10);}
+  .gfc-dark-input-wrap input.gfc-filtro-invalido + span{color:#B91C1C !important;}
+  .gfc-filtro-alerta{display:none;margin:8px 0 12px;padding:9px 10px;border:1.5px solid #DC2626;border-radius:10px;background:#FEF2F2;color:#991B1B;font-size:12px;font-weight:700;line-height:1.35;text-align:center;}
+  .gfc-filtro-alerta.ativo{display:block;}
   .gfc-dark-input-wrap span{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;color:#9CA3AF;pointer-events:none;transition:all .12s ease;}
   .gfc-dark-input-wrap input:focus + span,
   .gfc-dark-input-wrap input:not(:placeholder-shown) + span{
@@ -4086,6 +4090,7 @@ document.addEventListener('selectstart', e=>{
             <span>Soma</span>
           </div>
         </div>
+        <div id="gfcFiltroAlerta" class="gfc-filtro-alerta" role="alert" aria-live="polite"></div>
 
         <button type="button" class="gfc-dark-btn" id="geradorFiltroGerarBtn"><span id="geradorFiltroGerarSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="geradorFiltroGerarLabel">Gerar jogos</span></button>
       </div>
@@ -6136,6 +6141,7 @@ function gfcInicializar(g){
   });
   const analiseEl = document.getElementById('geradorFiltroAnalise');
   if(analiseEl) analiseEl.innerHTML = '';
+  gfcValidarFiltrosInstantaneo();
 }
 
 document.getElementById('gfcDezenasMenos').addEventListener('click', ()=>{
@@ -6144,6 +6150,7 @@ document.getElementById('gfcDezenasMenos').addEventListener('click', ()=>{
   gfc.dezenas = gfcClamp(gfc.dezenas - 1, 2, rangeSize);
   gfc.repetidas = gfcClamp(gfc.repetidas, 0, gfc.dezenas);
   gfcAtualizarTela();
+  gfcValidarFiltrosInstantaneo();
 });
 document.getElementById('gfcDezenasMais').addEventListener('click', ()=>{
   if(!geradorGameAtual) return;
@@ -6151,22 +6158,27 @@ document.getElementById('gfcDezenasMais').addEventListener('click', ()=>{
   gfc.dezenas = gfcClamp(gfc.dezenas + 1, 2, rangeSize);
   gfc.repetidas = gfcClamp(gfc.repetidas, 0, gfc.dezenas);
   gfcAtualizarTela();
+  gfcValidarFiltrosInstantaneo();
 });
 document.getElementById('gfcRepMenos').addEventListener('click', ()=>{
   gfc.repetidas = gfcClamp(gfc.repetidas - 1, 0, gfc.dezenas || 99);
   gfcAtualizarTela();
+  gfcValidarFiltrosInstantaneo();
 });
 document.getElementById('gfcRepMais').addEventListener('click', ()=>{
   gfc.repetidas = gfcClamp(gfc.repetidas + 1, 0, gfc.dezenas || 99);
   gfcAtualizarTela();
+  gfcValidarFiltrosInstantaneo();
 });
 document.getElementById('gfcQtdMenos').addEventListener('click', ()=>{
   gfc.qtd = gfcClamp(gfc.qtd - 1, 1, 5000);
   gfcAtualizarTela();
+  gfcValidarFiltrosInstantaneo();
 });
 document.getElementById('gfcQtdMais').addEventListener('click', ()=>{
   gfc.qtd = gfcClamp(gfc.qtd + 1, 1, 5000);
   gfcAtualizarTela();
+  gfcValidarFiltrosInstantaneo();
 });
 
 // ---------- permite digitar os valores diretamente, sem precisar usar +/- ----------
@@ -6287,6 +6299,34 @@ function diagnosticarFiltrosIncompativeis(min, max, dezenasPorJogo, ultimoSet, r
   const conflitos = ativos.filter(f=>consegueSem(f.chave));
   return conflitos.length ? conflitos : ativos;
 }
+
+function gfcValidarFiltrosInstantaneo(){
+  const alerta = document.getElementById('gfcFiltroAlerta');
+  const ids = ['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3','gfcFiltroSoma'];
+  const els = Object.fromEntries(ids.map(id=>[id,document.getElementById(id)]));
+  ids.forEach(id=>els[id] && els[id].classList.remove('gfc-filtro-invalido'));
+  if(!geradorGameAtual){ if(alerta){alerta.classList.remove('ativo'); alerta.textContent='';} return true; }
+  const k = Number(gfc.dezenas) || GERADOR_APOSTA_SIZE[geradorGameAtual.code] || 0;
+  const min = geradorGameAtual.range.min, max = geradorGameAtual.range.max;
+  const total = max-min+1;
+  const ler = id => { const el=els[id]; if(!el || el.value==='') return null; const n=Number(el.value); return Number.isFinite(n) ? Math.trunc(n) : null; };
+  const v = {pares:ler('gfcFiltroPares'),impares:ler('gfcFiltroImpares'),primos:ler('gfcFiltroPrimos'),fib:ler('gfcFiltroFib'),moldura:ler('gfcFiltroMoldura'),centro:ler('gfcFiltroCentro'),mult3:ler('gfcFiltroMult3'),soma:ler('gfcFiltroSoma')};
+  const conflitos = new Map();
+  const marcar=(id,msg)=>{ if(!conflitos.has(id)) conflitos.set(id,msg); };
+  const nums=[]; for(let n=min;n<=max;n++) nums.push(n);
+  const ehPrimo=n=>{ if(n<2)return false; for(let d=2;d*d<=n;d++) if(n%d===0)return false; return true; };
+  const centro=new Set(centroDoJogo(geradorGameAtual)||[]), moldura=new Set(molduraDoJogo(geradorGameAtual)||[]);
+  const props=[['gfcFiltroPares',v.pares,nums.filter(n=>n%2===0).length,'Pares'],['gfcFiltroImpares',v.impares,nums.filter(n=>n%2!==0).length,'Ímpares'],['gfcFiltroPrimos',v.primos,nums.filter(ehPrimo).length,'Primos'],['gfcFiltroFib',v.fib,nums.filter(n=>FIB.has(n)).length,'Fibonacci'],['gfcFiltroMoldura',v.moldura,moldura.size,'Moldura'],['gfcFiltroCentro',v.centro,centro.size,'Centro'],['gfcFiltroMult3',v.mult3,nums.filter(n=>n%3===0).length,'Múlt. de 3']];
+  for(const [id,val,disp,label] of props){ if(val===null) continue; const minimo=Math.max(0,k-(total-disp)), maximo=Math.min(k,disp); if(val<minimo || val>maximo) marcar(id,`${label} precisa ficar entre ${minimo} e ${maximo}.`); }
+  if(v.pares!==null && v.impares!==null && v.pares+v.impares!==k){ marcar('gfcFiltroPares',`Pares + Ímpares precisam somar ${k}.`); marcar('gfcFiltroImpares',`Pares + Ímpares precisam somar ${k}.`); }
+  if(v.moldura!==null && v.centro!==null && v.moldura+v.centro!==k){ marcar('gfcFiltroMoldura',`Moldura + Centro precisam somar ${k}.`); marcar('gfcFiltroCentro',`Moldura + Centro precisam somar ${k}.`); }
+  if(v.soma!==null){ const minSoma=k*(2*min+k-1)/2, maxSoma=k*(2*max-k+1)/2; if(v.soma<minSoma || v.soma>maxSoma) marcar('gfcFiltroSoma',`Soma precisa ficar entre ${minSoma} e ${maxSoma}.`); }
+  conflitos.forEach((_,id)=>els[id] && els[id].classList.add('gfc-filtro-invalido'));
+  if(alerta){ if(conflitos.size){ const msgs=[...new Set(conflitos.values())]; alerta.innerHTML='⚠️ <strong>Filtros incompatíveis:</strong><br>'+msgs.join('<br>'); alerta.classList.add('ativo'); } else { alerta.classList.remove('ativo'); alerta.textContent=''; } }
+  return conflitos.size===0;
+}
+
+['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3','gfcFiltroSoma'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input', gfcValidarFiltrosInstantaneo); });
 
 function renderGeradorAnalise(g, ultimo, anterior, repMedia, faixaMin, faixaMax, quentes, atrasados){
   const el = document.getElementById('geradorFiltroAnalise');
@@ -6511,6 +6551,7 @@ document.getElementById('geradorFiltroTabJogos').addEventListener('click', ()=> 
 document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async ()=>{
   const g = geradorGameAtual;
   if(!g) return;
+  if(!gfcValidarFiltrosInstantaneo()) return;
 
   const dezenasPorJogo = gfc.dezenas;
   const repetidasAlvo = gfc.repetidas;
