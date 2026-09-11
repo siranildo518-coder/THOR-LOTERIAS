@@ -1,0 +1,49 @@
+name: Aplicar atualizacao do app
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/aplicar-atualizacao.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Atualizar index e service worker
+        shell: python
+        run: |
+          from pathlib import Path
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = "navigator.serviceWorker.register('sw.js').then(registration=>{"
+          new = "navigator.serviceWorker.register('sw.js', { updateViaCache:'none' }).then(registration=>{\n      // verifica o sw.js imediatamente ao abrir o aplicativo\n      registration.update().catch(()=>{});"
+          if old not in s:
+              raise SystemExit('Registro do service worker nao encontrado')
+          s = s.replace(old, new, 1)
+          s = s.replace("const APP_VERSAO_ATUAL = '2026-09-10-2';", "const APP_VERSAO_ATUAL = '2026-09-11-3';", 1)
+          p.write_text(s, encoding='utf-8')
+
+          p = Path('sw.js')
+          s = p.read_text(encoding='utf-8')
+          old = "const CACHE_NAME = 'thor-loterias-2026-09-11-1552';"
+          new = "const CACHE_NAME = 'thor-loterias-2026-09-11-1556';"
+          if old not in s:
+              raise SystemExit('Versao atual do cache nao encontrada')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+      - name: Confirmar alteracoes
+        run: |
+          git diff --check
+          git diff -- index.html sw.js
+      - name: Commitar os dois arquivos juntos
+        run: |
+          git config user.name "THOR Atualizador"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html sw.js
+          git commit -m "Sincroniza atualizacao imediata do app"
+          git push
