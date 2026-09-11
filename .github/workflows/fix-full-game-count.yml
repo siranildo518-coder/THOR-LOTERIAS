@@ -1,0 +1,37 @@
+name: Corrigir quantidade de jogos gerados
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-full-game-count.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ajustar gerador e versao
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace("const APP_VERSAO_ATUAL = '2026-09-11-1938';", "const APP_VERSAO_ATUAL = '2026-09-11-1940';", 1)
+          s=s.replace('const maxTentativas = 60;', 'const maxTentativas = 240;', 1)
+          s=s.replace('const maxTries = qtdJogos*80 + 800;', 'const maxTries = Math.max(qtdJogos*350 + 3500, 5000);', 1)
+          p.write_text(s, encoding='utf-8')
+
+          sw=Path('sw.js')
+          t=sw.read_text(encoding='utf-8')
+          t=t.replace("const CACHE_NAME = 'thor-loterias-2026-09-11-1938';", "const CACHE_NAME = 'thor-loterias-2026-09-11-1940';", 1)
+          sw.write_text(t, encoding='utf-8')
+      - name: Publicar alteracoes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          git commit -m "Corrigir geracao completa dos jogos" || exit 0
+          git push
