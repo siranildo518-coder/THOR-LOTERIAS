@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-11-2308'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-11-2314'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -5352,7 +5352,18 @@ function formatBRL(v){
   return `R$ ${Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
 }
 
+// Cache em memória dos concursos já buscados. Ao tocar em Anterior/Próximo,
+// o resultado abre instantaneamente se já foi pré-carregado.
+const CONCURSO_CACHE_LOTERIA = new Map();
+function chaveCacheConcurso(game, concurso){ return `${game.code}:${concurso}`; }
+function obterConcursoCache(game, concurso){
+  if(!concurso) return null;
+  return CONCURSO_CACHE_LOTERIA.get(chaveCacheConcurso(game, concurso)) || null;
+}
+
 async function fetchConcursoLoteria(game, concurso){
+  const emCache = obterConcursoCache(game, concurso);
+  if(emCache) return emCache;
   const timeoutMs = 4200;
   const path = concurso ? `/${concurso}` : '/latest';
 
@@ -5420,6 +5431,9 @@ async function fetchConcursoLoteria(game, concurso){
         if(terminou) return;
         terminou = true;
         controllers.forEach((c, i)=>{ if(i !== idx) try{ c.abort(); }catch(e){} });
+        if(data && data.concurso){
+          CONCURSO_CACHE_LOTERIA.set(chaveCacheConcurso(game, Number(data.concurso)), data);
+        }
         resolve(data);
       }).catch(()=>{
         falhas++;
@@ -6564,6 +6578,11 @@ function abrirGeradorFiltro(code){
 async function carregarUltimoResultadoGerador(g, concurso){
   const box = document.getElementById('geradorFiltroUltimoResultado');
   if(!box) return;
+  const cacheImediato = obterConcursoCache(g, concurso);
+  if(cacheImediato){
+    renderUltimoResultadoGerador(g, cacheImediato);
+    return;
+  }
   box.innerHTML = `<div class="res-loading">Buscando ${concurso ? 'concurso Nº '+concurso : 'o último resultado'} de ${g.nome}…</div>`;
   try{
     const data = await fetchConcursoLoteria(g, concurso);
@@ -6601,9 +6620,18 @@ function renderUltimoResultadoGerador(g, data){
     ${ballsHtml}
     <div class="res-local" style="font-size:10.5px;text-align:center;">${data.local ? `Sorteio em ${data.local} • ` : ''}${data.data || '—'}</div>`;
 
-  document.getElementById('geradorResAnterior').addEventListener('click', ()=> carregarUltimoResultadoGerador(g, data.concurso-1));
+  const abrirConcursoRapido = (numero)=>{
+    const pronto = obterConcursoCache(g, numero);
+    if(pronto) renderUltimoResultadoGerador(g, pronto);
+    else carregarUltimoResultadoGerador(g, numero);
+  };
+  document.getElementById('geradorResAnterior').addEventListener('click', ()=> abrirConcursoRapido(data.concurso-1));
   const btnProx = document.getElementById('geradorResProximo');
-  if(btnProx) btnProx.addEventListener('click', ()=> carregarUltimoResultadoGerador(g, data.concurso+1));
+  if(btnProx) btnProx.addEventListener('click', ()=> abrirConcursoRapido(data.concurso+1));
+
+  // Pré-carrega os concursos vizinhos enquanto o usuário olha a tela.
+  fetchConcursoLoteria(g, data.concurso-1).catch(()=>{});
+  if(podeAvancar) fetchConcursoLoteria(g, data.concurso+1).catch(()=>{});
 
   // guarda o resultado oficial mostrado agora e, se já existem 50 jogos gerados pra essa
   // mesma loteria, re-confere eles na hora contra esse resultado (inclusive ao navegar
