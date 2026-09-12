@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-11-2314'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-11-2353'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -6688,11 +6688,7 @@ function renderUltimoResultadoGerador(g, data){
   // Anterior/Próximo pra um concurso diferente)
   geradorUltimoResultado = { gameCode: g.code, concurso: data.concurso, dezenas: new Set(nums) };
   if(geradorUltimoJogosCtx && geradorUltimoJogosCtx.g.code === g.code){
-    renderGeradorResultado(
-      geradorUltimoJogosCtx.g, geradorUltimoJogosCtx.jogos, geradorUltimoJogosCtx.maisAtrasadas,
-      geradorUltimoJogosCtx.maisSairam, geradorUltimoJogosCtx.totalConcursos,
-      geradorUltimoJogosCtx.numeroUltimo, geradorUltimoJogosCtx.depSize
-    );
+    atualizarConferenciaGeradorLeve(geradorUltimoJogosCtx.g, geradorUltimoJogosCtx.jogos);
   }
 
   // mostra logo abaixo do sorteio, automaticamente, as dezenas repetidas em relação ao concurso anterior
@@ -6888,6 +6884,76 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
 
 const BALL_PHOTO_URL = "data:image/jpeg;base64,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";
 
+
+let geradorConferenciaToken = 0;
+function atualizarConferenciaGeradorLeve(g, jogos){
+  if(!geradorUltimoResultado || geradorUltimoResultado.gameCode !== g.code) return;
+  const token = ++geradorConferenciaToken;
+  const resultadoSet = geradorUltimoResultado.dezenas;
+  const distribuicao = new Map();
+  let totalPremiados = 0;
+  const hitsPorJogo = new Array(jogos.length);
+  const faixaPorJogo = new Array(jogos.length);
+  for(let i=0;i<jogos.length;i++){
+    let hits = 0;
+    for(const n of jogos[i]) if(resultadoSet.has(n)) hits++;
+    const faixa = faixaPremioGerador(g.code, hits);
+    hitsPorJogo[i] = hits;
+    faixaPorJogo[i] = faixa;
+    distribuicao.set(hits, (distribuicao.get(hits)||0)+1);
+    if(faixa) totalPremiados++;
+  }
+  const totalEl = document.getElementById('geradorTotalPremiados');
+  if(totalEl) totalEl.textContent = `${totalPremiados} premiado${totalPremiados===1?'':'s'}`;
+  const oportunidades = document.getElementById('geradorOportunidades');
+  if(oportunidades){
+    const linhas = (FAIXAS_PREMIACAO_GERADOR[g.code]||[]).map(f=>{
+      const qtd = distribuicao.get(f.h)||0;
+      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 7px;border-bottom:1px solid #F0EAF7;"><span style="font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:700;color:#4B5563;">${f.label}</span><span style="font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:800;color:${qtd ? '#1F9D74' : '#8B7C9E'};">${qtd} cart${qtd===1?'ão':'ões'} premiado${qtd===1?'':'s'}</span></div>`;
+    }).join('');
+    oportunidades.innerHTML = `<div style="padding:5px 7px;background:#F6F0FC;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:800;color:#7E22CE;">🏆 Oportunidades de premiação</div>${linhas}`;
+  }
+  const rows = Array.from(document.querySelectorAll('#geradorFiltroResultado .gerador-jogo-row'));
+  let pos = 0;
+  const lote = 35;
+  const atualizarLote = ()=>{
+    if(token !== geradorConferenciaToken) return;
+    const fim = Math.min(pos+lote, rows.length);
+    for(;pos<fim;pos++){
+      const row = rows[pos];
+      const idx = Number(row.dataset.jogoIndex);
+      const hits = hitsPorJogo[idx] ?? 0;
+      const faixa = faixaPorJogo[idx] || null;
+      row.style.background = faixa ? 'rgba(31,157,116,.08)' : '';
+      row.style.borderColor = faixa ? '#1F9D74' : '';
+      row.querySelectorAll('.gerador-jogo-ball').forEach(ball=>{
+        const acertou = resultadoSet.has(Number(ball.dataset.num));
+        ball.style.backgroundImage = acertou ? `linear-gradient(rgba(16,140,86,.62), rgba(6,90,58,.62)), url(${BALL_PHOTO_URL})` : `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url(${BALL_PHOTO_URL})`;
+        ball.style.borderColor = acertou ? 'transparent' : 'var(--line,#E7DFF5)';
+        ball.style.color = acertou ? '#fff' : 'var(--violet-deep)';
+        ball.style.textShadow = acertou ? '0 1px 2px rgba(0,0,0,.35)' : '0 1px 2px rgba(255,255,255,.9)';
+      });
+      const badge = row.querySelector('.gerador-hit-badge');
+      if(badge){
+        badge.style.color = faixa ? '#1F9D74' : 'var(--muted)';
+        badge.innerHTML = `${hits} acerto${hits===1?'':'s'}<br><span style="font-size:9px;font-weight:700;">${faixa ? faixa.label : 'não premiado'}</span>`;
+      }
+      const premioWrap = row.querySelector('.gerador-premio-wrap');
+      if(premioWrap){
+        if(faixa){
+          premioWrap.style.display = 'block';
+          premioWrap.innerHTML = `<div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:#fff;background:linear-gradient(135deg,#1F9D74,#15764F);padding:3px 8px;border-radius:20px;display:inline-block;margin-top:5px;">🏆 PREMIADO — ${faixa.label}</div>`;
+        }else{
+          premioWrap.style.display = 'none';
+          premioWrap.innerHTML = '';
+        }
+      }
+    }
+    if(pos < rows.length) requestAnimationFrame(atualizarLote);
+  };
+  requestAnimationFrame(atualizarLote);
+}
+
 function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcursos, numeroUltimo, depSize){
   const out = document.getElementById('geradorFiltroResultado');
 
@@ -6903,13 +6969,13 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     if(conferindo) distribuicaoAcertos.set(hits, (distribuicaoAcertos.get(hits) || 0) + 1);
     if(faixa) totalPremiados++;
     const badge = conferindo
-      ? `<span style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:${faixa ? '#1F9D74' : 'var(--muted)'};margin-left:auto;flex:none;text-align:right;">${hits} acerto${hits===1?'':'s'}<br><span style="font-size:9px;font-weight:700;">${faixa ? faixa.label : 'não premiado'}</span></span>`
+      ? `<span class="gerador-hit-badge" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:${faixa ? '#1F9D74' : 'var(--muted)'};margin-left:auto;flex:none;text-align:right;">${hits} acerto${hits===1?'':'s'}<br><span style="font-size:9px;font-weight:700;">${faixa ? faixa.label : 'não premiado'}</span></span>`
       : '';
     const premioTag = faixa
       ? `<div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:#fff;background:linear-gradient(135deg,#1F9D74,#15764F);padding:3px 8px;border-radius:20px;display:inline-block;margin-top:5px;">🏆 PREMIADO — ${faixa.label}</div>`
       : '';
     return `
-    <div class="tend-row" style="align-items:center;flex-wrap:wrap;${faixa ? 'background:rgba(31,157,116,.08);border-color:#1F9D74;' : ''}">
+    <div class="tend-row gerador-jogo-row" data-jogo-index="${i}" style="align-items:center;flex-wrap:wrap;${faixa ? 'background:rgba(31,157,116,.08);border-color:#1F9D74;' : ''}">
       <div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:12px;color:var(--muted);width:26px;flex:none;">${i+1}</div>
       <div style="display:flex;flex-wrap:wrap;gap:4px;flex:1;">
         ${jogo.map(n=>{
@@ -6917,11 +6983,11 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
           const bg = acertou
             ? `linear-gradient(rgba(16,140,86,.62), rgba(6,90,58,.62)), url(${BALL_PHOTO_URL})`
             : `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url(${BALL_PHOTO_URL})`;
-          return `<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background-image:${bg};background-size:cover;background-position:center;background-blend-mode:multiply;border:1px solid ${acertou ? 'transparent' : 'var(--line,#E7DFF5)'};color:${acertou ? '#fff' : 'var(--violet-deep)'};font-family:'Baloo 2',sans-serif;font-size:10.5px;font-weight:700;text-shadow:${acertou ? '0 1px 2px rgba(0,0,0,.35)' : '0 1px 2px rgba(255,255,255,.9)'};">${n.toString().padStart(2,'0')}</span>`;
+          return `<span class="gerador-jogo-ball" data-num="${n}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background-image:${bg};background-size:cover;background-position:center;background-blend-mode:multiply;border:1px solid ${acertou ? 'transparent' : 'var(--line,#E7DFF5)'};color:${acertou ? '#fff' : 'var(--violet-deep)'};font-family:'Baloo 2',sans-serif;font-size:10.5px;font-weight:700;text-shadow:${acertou ? '0 1px 2px rgba(0,0,0,.35)' : '0 1px 2px rgba(255,255,255,.9)'};">${n.toString().padStart(2,'0')}</span>`;
         }).join('')}
       </div>
       ${badge}
-      ${premioTag ? `<div style="width:100%;">${premioTag}</div>` : ''}
+      ${premioTag ? `<div class="gerador-premio-wrap" style="width:100%;">${premioTag}</div>` : '<div class="gerador-premio-wrap" style="width:100%;display:none;"></div>'}
     </div>`;
   }).join('');
 
@@ -6933,13 +6999,13 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     : '';
 
   out.innerHTML = `
-    <div style="background:#fff;border:1.5px solid #E7DFF5;border-radius:13px;padding:8px 10px;margin-bottom:8px;">
+    <div id="geradorConferenciaResumo" style="background:#fff;border:1.5px solid #E7DFF5;border-radius:13px;padding:8px 10px;margin-bottom:8px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;">
         <strong style="font-family:'Baloo 2',sans-serif;font-size:12px;color:#A21CAF;">Conferidor de acertos — ${g.nome}</strong>
-        ${conferindo ? `<span style="font-family:'Baloo 2',sans-serif;font-size:10px;font-weight:800;color:#1F9D74;">${totalPremiados} premiado${totalPremiados===1?'':'s'}</span>` : ''}
+        ${conferindo ? `<span id="geradorTotalPremiados" style="font-family:'Baloo 2',sans-serif;font-size:10px;font-weight:800;color:#1F9D74;">${totalPremiados} premiado${totalPremiados===1?'':'s'}</span>` : ''}
       </div>
       ${resumoPremiacaoGerador(g.code)}
-      ${conferindo ? `<div style="margin-top:7px;border:1px solid #EFE7F7;border-radius:10px;overflow:hidden;background:#FCFAFF;"><div style="padding:5px 7px;background:#F6F0FC;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:800;color:#7E22CE;">🏆 Oportunidades de premiação</div>${oportunidadesHtml}</div>` : ''}
+      ${conferindo ? `<div id="geradorOportunidades" style="margin-top:7px;border:1px solid #EFE7F7;border-radius:10px;overflow:hidden;background:#FCFAFF;"><div style="padding:5px 7px;background:#F6F0FC;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:800;color:#7E22CE;">🏆 Oportunidades de premiação</div>${oportunidadesHtml}</div>` : ''}
     </div>
     <div style="display:flex;gap:8px;margin-bottom:12px;">
       <button id="geradorLimparBtn" class="download-btn" style="display:block;flex:1;margin-top:0;padding:7px;font-size:12px;background:#fff;color:#B91C1C;border:1.5px solid #B91C1C;"><span id="geradorLimparSpinner" style="display:none;width:11px;height:11px;border:2px solid rgba(185,28,28,.35);border-top-color:#B91C1C;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="geradorLimparLabel">Limpar jogos</span></button>
