@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0058'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0055'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -1002,23 +1002,7 @@ document.addEventListener('selectstart', e=>{
     from{transform:rotate(0deg);}
     to{transform:rotate(360deg);}
   }
-  @keyframes analiseSpinner{
-    from{transform:rotate(0deg);}
-    to{transform:rotate(360deg);}
-  }
-  .analise-loading-spinner{
-    display:inline-block!important;
-    width:12px;height:12px;
-    border:2px solid rgba(255,255,255,.5);
-    border-top-color:#fff;
-    border-radius:50%;
-    margin-right:6px;
-    vertical-align:middle;
-    transform-origin:50% 50%;
-    will-change:transform;
-    animation:analiseSpinner .65s linear infinite!important;
-  }
-  @keyframes bolaSorteada{
+@keyframes bolaSorteada{
     0%{transform:translateY(-20px) scale(1,1);}
     45%{transform:translateY(0) scale(1,1);}
     52%{transform:translateY(2px) scale(1.14,0.84);}
@@ -4182,30 +4166,16 @@ const PRIMES = new Set([2,3,5,7,11,13,17,19,23]);
 const MOLDURA = new Set([1,2,3,4,5,6,10,11,15,16,20,21,22,23,24,25]);
 const RETRATO = new Set([7,8,9,12,13,14,17,18,19]);
 
-// liga/desliga a bolinha girando dentro de um botão "ATUALIZAR" enquanto ele carrega
+// Mostra apenas o texto de carregamento nos botões da aba Análise, sem bolinha/spinner.
 function setBtnLoading(btnId, loading, textoCarregando){
   const btn = document.getElementById(btnId);
   if(!btn) return;
   if(loading){
     if(btn.dataset.originalHtml === undefined) btn.dataset.originalHtml = btn.innerHTML;
     btn.setAttribute('aria-busy','true');
-    btn.innerHTML = `<span class="analise-loading-spinner" aria-hidden="true"></span><span class="analise-loading-texto">${textoCarregando || 'ATUALIZANDO...'}</span>`;
-    const spinner = btn.querySelector('.analise-loading-spinner');
-    if(spinner){
-      try{
-        if(spinner._thorAnim) spinner._thorAnim.cancel();
-        spinner._thorAnim = spinner.animate(
-          [{transform:'rotate(0deg)'},{transform:'rotate(360deg)'}],
-          {duration:650,iterations:Infinity,easing:'linear'}
-        );
-      }catch(e){
-        spinner.style.animation = 'analiseSpinner .65s linear infinite';
-      }
-    }
+    btn.textContent = textoCarregando || 'ATUALIZANDO...';
   } else {
     btn.removeAttribute('aria-busy');
-    const spinner = btn.querySelector('.analise-loading-spinner');
-    try{ if(spinner && spinner._thorAnim) spinner._thorAnim.cancel(); }catch(e){}
     if(btn.dataset.originalHtml !== undefined) btn.innerHTML = btn.dataset.originalHtml;
   }
 }
