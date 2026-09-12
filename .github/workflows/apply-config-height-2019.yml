@@ -1,4 +1,4 @@
-name: Publicar correção filtros 0533
+name: Publicar cruzamento filtros 0534
 on:
   push:
     paths:
@@ -30,5 +30,5 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add index.html sw.js
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Corrigir filtros múltiplos 0533'
+          git commit -m 'Cruzar filtros selecionados 0534'
           git push
