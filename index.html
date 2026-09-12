@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0055'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0059'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -4170,13 +4170,13 @@ const RETRATO = new Set([7,8,9,12,13,14,17,18,19]);
 function setBtnLoading(btnId, loading, textoCarregando){
   const btn = document.getElementById(btnId);
   if(!btn) return;
+  if(btn.dataset.originalHtml === undefined) btn.dataset.originalHtml = btn.innerHTML;
   if(loading){
-    if(btn.dataset.originalHtml === undefined) btn.dataset.originalHtml = btn.innerHTML;
     btn.setAttribute('aria-busy','true');
-    btn.textContent = textoCarregando || 'ATUALIZANDO...';
+    btn.innerHTML = btn.dataset.originalHtml;
   } else {
     btn.removeAttribute('aria-busy');
-    if(btn.dataset.originalHtml !== undefined) btn.innerHTML = btn.dataset.originalHtml;
+    btn.innerHTML = btn.dataset.originalHtml;
   }
 }
 
