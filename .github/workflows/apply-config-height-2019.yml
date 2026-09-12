@@ -1,4 +1,4 @@
-name: Publicar botões Fixas menores 0149
+name: Publicar filtros com seleção múltipla 0205
 on:
   push:
     paths:
@@ -30,5 +30,5 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add index.html sw.js
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Diminuir botões das dezenas Fixas 0149'
+          git commit -m 'Filtros com seleção múltipla 0205'
           git push
