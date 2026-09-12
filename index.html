@@ -99,7 +99,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-11-2144'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-11-2153'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -5351,17 +5351,49 @@ function formatBRL(v){
 }
 
 async function fetchConcursoLoteria(game, concurso){
+  // Para a Lotofácil, tenta primeiro a fonte oficial da CAIXA.
+  // Isso evita esperar várias APIs espelho antes de mostrar o sorteio.
+  if(game.code === 'LF') {
+    const caixaUrl = 'https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil' + (concurso ? `/${concurso}` : '');
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(), 9000);
+    try{
+      const resp = await fetch(caixaUrl, {signal:controller.signal, cache:'no-store', headers:{Accept:'application/json'}});
+      if(resp.ok){
+        const bruto = await resp.json();
+        const dezenas = bruto.dezenas || bruto.listaDezenas || bruto.numeros || [];
+        const numero = bruto.concurso || bruto.numero || bruto.numeroConcurso;
+        if(numero && Array.isArray(dezenas) && dezenas.length){
+          return {
+            concurso: Number(numero),
+            dezenas: dezenas.map(v=>parseInt(v,10)).filter(v=>!isNaN(v)),
+            data: bruto.data || bruto.dataApuracao || '',
+            local: bruto.local || bruto.nomeMunicipioUFSorteio || bruto.localSorteio || '',
+            premiacoes: bruto.premiacoes || bruto.listaRateioPremio || [],
+            acumulou: bruto.acumulou ?? bruto.acumulado ?? false,
+            proximoConcurso: bruto.proximoConcurso || bruto.numeroConcursoProximo || null,
+            dataProximoConcurso: bruto.dataProximoConcurso || ''
+          };
+        }
+      }
+    }catch(e){
+      console.error('fonte oficial Lotofácil falhou em', caixaUrl, e);
+    }finally{
+      clearTimeout(timer);
+    }
+  }
+
   const path = concurso ? `/${concurso}` : '/latest';
   const tentar = async (base)=>{
     const controller = new AbortController();
     const timer = setTimeout(()=>controller.abort(), 9000);
     try{
-      const resp = await fetch(`${base}${path}`, {signal:controller.signal});
-      clearTimeout(timer);
+      const resp = await fetch(`${base}${path}`, {signal:controller.signal, cache:'no-store'});
       if(resp.ok) return await resp.json();
     }catch(e){
-      clearTimeout(timer);
       console.error('fetchConcursoLoteria falhou em', base+path, e);
+    }finally{
+      clearTimeout(timer);
     }
     return null;
   };
@@ -5373,39 +5405,7 @@ async function fetchConcursoLoteria(game, concurso){
       data = await tentar(`${base}/${game.altSlug}`);
       if(data) return data;
     }
-    // essa base falhou (fora do ar/lenta/erro) — tenta a próxima URL espelho antes de desistir
   }
-
-  // Fallback oficial da CAIXA para a Lotofácil. Algumas APIs espelho ficam
-  // indisponíveis especificamente para esse jogo; nesse caso buscamos direto
-  // no endpoint oficial e normalizamos para o mesmo formato usado no app.
-  if(game.code === 'LF') {
-    const caixaUrl = 'https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil' + (concurso ? `/${concurso}` : '');
-    let bruto = null;
-    const controller = new AbortController();
-    const timer = setTimeout(()=>controller.abort(), 9000);
-    try{
-      const resp = await fetch(caixaUrl, {signal:controller.signal, cache:'no-store', headers:{Accept:'application/json'}});
-      if(resp.ok) bruto = await resp.json();
-    }catch(e){
-      console.error('fallback oficial Lotofácil falhou em', caixaUrl, e);
-    }finally{
-      clearTimeout(timer);
-    }
-    if(bruto){
-      const dezenas = bruto.dezenas || bruto.listaDezenas || bruto.numeros || [];
-      const numero = bruto.concurso || bruto.numero || bruto.numeroConcurso;
-      if(numero && Array.isArray(dezenas) && dezenas.length){
-        return {
-          concurso: Number(numero),
-          dezenas: dezenas.map(v=>parseInt(v,10)).filter(v=>!isNaN(v)),
-          data: bruto.data || bruto.dataApuracao || '',
-          local: bruto.local || bruto.nomeMunicipioUFSorteio || bruto.localSorteio || ''
-        };
-      }
-    }
-  }
-
   throw new Error('Falha ao buscar resultado em todas as fontes disponíveis');
 }
 
@@ -6794,10 +6794,12 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
   const conferindo = geradorUltimoResultado && geradorUltimoResultado.gameCode === g.code;
   const resultadoSet = conferindo ? geradorUltimoResultado.dezenas : null;
   let totalPremiados = 0;
+  const distribuicaoAcertos = new Map();
 
   const listaJogosHtml = jogos.map((jogo,i)=>{
     const hits = conferindo ? jogo.filter(n=>resultadoSet.has(n)).length : null;
     const faixa = conferindo ? faixaPremioGerador(g.code, hits) : null;
+    if(conferindo) distribuicaoAcertos.set(hits, (distribuicaoAcertos.get(hits) || 0) + 1);
     if(faixa) totalPremiados++;
     const badge = conferindo
       ? `<span style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:${faixa ? '#1F9D74' : 'var(--muted)'};margin-left:auto;flex:none;text-align:right;">${hits} acerto${hits===1?'':'s'}<br><span style="font-size:9px;font-weight:700;">${faixa ? faixa.label : 'não premiado'}</span></span>`
