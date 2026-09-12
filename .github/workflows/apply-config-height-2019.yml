@@ -1,4 +1,4 @@
-name: Publicar visual repetidas 0538
+name: Publicar remoção Contatos 0539
 on:
   push:
     paths:
@@ -30,7 +30,7 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add index.html sw.js
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Corrigir visual das repetidas 0538'
+          git commit -m 'Remover Contatos do menu lateral 0539'
           git push
-      - name: Confirmar publicação 0538
-        run: echo '0538 publicada com repetidas no estilo do controle original'
+      - name: Confirmar publicação 0539
+        run: echo '0539 publicada sem a aba Contatos'
