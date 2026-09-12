@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
 
-VER='2026-09-12-0533'
+VER='2026-09-12-0534'
 p=Path('index.html')
 s=p.read_text(encoding='utf-8')
 s=re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{VER}';", s, count=1)
@@ -19,31 +19,89 @@ for nome,vals in opcoes.items():
     s,n=re.subn(rf"{nome}:\[[^\]]*\]", f"{nome}:{vals}", s, count=1)
     if n!=1: raise SystemExit(f'{nome} nao encontrado')
 
-anchor="function diagnosticarFiltrosIncompativeis(min, max, dezenasPorJogo, ultimoSet, repetidasAlvo, filtroPares, filtroImpares, filtroPrimos, filtrosExtra){\n"
-normalizacao=(
-"  const comoLista = v => v===null || v===undefined ? null : (Array.isArray(v) ? v : [v]);\n"
-"  filtroPares = comoLista(filtroPares);\n"
-"  filtroImpares = comoLista(filtroImpares);\n"
-"  filtroPrimos = comoLista(filtroPrimos);\n"
-"  filtrosExtra = {...filtrosExtra,\n"
-"    fib: comoLista(filtrosExtra.fib),\n"
-"    moldura: comoLista(filtrosExtra.moldura),\n"
-"    centro: comoLista(filtrosExtra.centro),\n"
-"    mult3: comoLista(filtrosExtra.mult3)\n"
-"  };\n"
-)
-if normalizacao not in s:
-    if anchor not in s: raise SystemExit('diagnosticarFiltrosIncompativeis nao encontrado')
-    s=s.replace(anchor, anchor+normalizacao, 1)
+cruzamento="""function gfcCruzarFiltrosSelecionados(k, filtros){
+  const lista = v => v===null || v===undefined ? null : (Array.isArray(v) ? [...v] : [v]);
+  const out = {
+    pares: lista(filtros.pares),
+    impares: lista(filtros.impares),
+    primos: lista(filtros.primos),
+    fib: lista(filtros.fib),
+    moldura: lista(filtros.moldura),
+    centro: lista(filtros.centro),
+    mult3: lista(filtros.mult3),
+    soma: filtros.soma
+  };
 
-s=s.replace(
-"if(v.pares!==null && v.impares!==null && !v.pares.some(p=>v.impares.some(i=>p+i===k))){",
-"if(v.pares!==null && v.impares!==null && !([...(Array.isArray(v.pares)?v.pares:[v.pares])]).some(p=>(Array.isArray(v.impares)?v.impares:[v.impares]).some(i=>p+i===k))){",
-1)
-s=s.replace(
-"if(v.moldura!==null && v.centro!==null && !v.moldura.some(m=>v.centro.some(c=>m+c===k))){",
-"if(v.moldura!==null && v.centro!==null && !([...(Array.isArray(v.moldura)?v.moldura:[v.moldura])]).some(m=>(Array.isArray(v.centro)?v.centro:[v.centro]).some(c=>m+c===k))){",
-1)
+  const cruzarComplementares = (a,b)=>{
+    if(a===null || b===null) return [a,b];
+    const aValidos = a.filter(x=>b.some(y=>x+y===k));
+    const bValidos = b.filter(y=>a.some(x=>x+y===k));
+    return [aValidos,bValidos];
+  };
+
+  [out.pares,out.impares] = cruzarComplementares(out.pares,out.impares);
+  [out.moldura,out.centro] = cruzarComplementares(out.moldura,out.centro);
+  return out;
+}
+
+"""
+if 'function gfcCruzarFiltrosSelecionados(k, filtros){' not in s:
+    anchor='function gfcValidarFiltrosInstantaneo(){'
+    if anchor not in s: raise SystemExit('gfcValidarFiltrosInstantaneo nao encontrado')
+    s=s.replace(anchor,cruzamento+anchor,1)
+
+old="""  const filtroPares = gfcFiltroValores('gfcFiltroPares');
+  const filtroImpares = gfcFiltroValores('gfcFiltroImpares');
+  const filtroPrimos = gfcFiltroValores('gfcFiltroPrimos');
+  const filtroFib = gfcFiltroValores('gfcFiltroFib');
+  const filtroMoldura = gfcFiltroValores('gfcFiltroMoldura');
+  const filtroCentro = gfcFiltroValores('gfcFiltroCentro');
+  const filtroMult3 = gfcFiltroValores('gfcFiltroMult3');
+  const somaValor = document.getElementById('gfcFiltroSoma').value;
+  const filtroSoma = somaValor==='' ? null : Math.max(0, parseInt(somaValor,10) || 0);
+
+  const centroArr = centroDoJogo(g) || [];
+  const molduraArr = molduraDoJogo(g) || [];
+  const filtrosExtra = {
+    fib: filtroFib, moldura: filtroMoldura, centro: filtroCentro, mult3: filtroMult3, soma: filtroSoma,
+    fibSet: FIB, molduraSet: new Set(molduraArr), centroSet: new Set(centroArr), fixasSet: new Set(gfcFixasSelecionadas)
+  };
+"""
+new="""  let filtroPares = gfcFiltroValores('gfcFiltroPares');
+  let filtroImpares = gfcFiltroValores('gfcFiltroImpares');
+  let filtroPrimos = gfcFiltroValores('gfcFiltroPrimos');
+  let filtroFib = gfcFiltroValores('gfcFiltroFib');
+  let filtroMoldura = gfcFiltroValores('gfcFiltroMoldura');
+  let filtroCentro = gfcFiltroValores('gfcFiltroCentro');
+  let filtroMult3 = gfcFiltroValores('gfcFiltroMult3');
+  const somaValor = document.getElementById('gfcFiltroSoma').value;
+  const filtroSoma = somaValor==='' ? null : Math.max(0, parseInt(somaValor,10) || 0);
+
+  // Cruza os filtros dependentes e mantém somente as opções selecionadas que podem coexistir.
+  // Ex.: Ímpares 7 + Pares [7,8] vira automaticamente Ímpares 7 + Pares 8.
+  const filtrosCruzados = gfcCruzarFiltrosSelecionados(dezenasPorJogo, {
+    pares:filtroPares, impares:filtroImpares, primos:filtroPrimos, fib:filtroFib,
+    moldura:filtroMoldura, centro:filtroCentro, mult3:filtroMult3, soma:filtroSoma
+  });
+  filtroPares = filtrosCruzados.pares;
+  filtroImpares = filtrosCruzados.impares;
+  filtroPrimos = filtrosCruzados.primos;
+  filtroFib = filtrosCruzados.fib;
+  filtroMoldura = filtrosCruzados.moldura;
+  filtroCentro = filtrosCruzados.centro;
+  filtroMult3 = filtrosCruzados.mult3;
+
+  const centroArr = centroDoJogo(g) || [];
+  const molduraArr = molduraDoJogo(g) || [];
+  const filtrosExtra = {
+    fib: filtroFib, moldura: filtroMoldura, centro: filtroCentro, mult3: filtroMult3, soma: filtroSoma,
+    fibSet: FIB, molduraSet: new Set(molduraArr), centroSet: new Set(centroArr), fixasSet: new Set(gfcFixasSelecionadas)
+  };
+"""
+if old in s:
+    s=s.replace(old,new,1)
+elif 'const filtrosCruzados = gfcCruzarFiltrosSelecionados' not in s:
+    raise SystemExit('bloco de filtros do gerador nao encontrado')
 
 p.write_text(s,encoding='utf-8')
 sw=Path('sw.js')
