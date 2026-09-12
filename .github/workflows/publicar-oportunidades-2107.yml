@@ -52,3 +52,4 @@ jobs:
           git commit -m "Oportunidades por faixa 2107"
           git pull --rebase origin main
           git push
+# trigger 2
