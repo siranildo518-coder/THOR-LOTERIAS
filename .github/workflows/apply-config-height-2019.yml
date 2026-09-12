@@ -1,4 +1,4 @@
-name: Publicar aba Soma 0030
+name: Publicar tabela Soma 0036
 on:
   push:
     paths:
@@ -30,5 +30,5 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add index.html sw.js
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Adicionar aba Soma 0030'
+          git commit -m 'Mostrar tabela Soma igual modelo 0036'
           git push
