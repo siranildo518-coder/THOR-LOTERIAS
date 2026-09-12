@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
-// Versão sincronizada com index.html em 12/09/2026 19:08 (Brasil).
-const CACHE_NAME = 'thor-loterias-2026-09-12-1908';
+// Versão sincronizada com index.html em 12/09/2026 19:15 (Brasil).
+const CACHE_NAME = 'thor-loterias-2026-09-12-1915';
 const CORE = [
   './',
   './index.html',
