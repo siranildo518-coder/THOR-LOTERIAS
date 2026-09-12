@@ -1,7 +1,8 @@
 // THOR LOTERIAS - Service Worker
-// Atualizacao automatica + design neon da tela de selecao.
-const CACHE_NAME = 'thor-loterias-2026-09-12-design-neon-01';
-const DESIGN_URL = './selection-design.css?v=20260912-design-neon-01';
+// Atualizacao automatica + design neon da tela de selecao e da calculadora.
+const CACHE_NAME = 'thor-loterias-2026-09-12-design-neon-02';
+const SELECTION_DESIGN_URL = './selection-design.css?v=20260912-design-neon-02';
+const PROBABILITY_DESIGN_URL = './probability-design.css?v=20260912-prob-neon-01';
 
 const CACHE_FILES = [
   './index.html',
@@ -9,7 +10,8 @@ const CACHE_FILES = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './selection-design.css'
+  './selection-design.css',
+  './probability-design.css'
 ];
 
 function aplicarDesignNoHtml(response){
@@ -18,11 +20,22 @@ function aplicarDesignNoHtml(response){
   if(!tipo.includes('text/html')) return Promise.resolve(response);
 
   return response.clone().text().then((html)=>{
-    if(!html || html.includes('selection-design.css')) return response;
-    const link = `<link rel="stylesheet" href="${DESIGN_URL}">`;
+    if(!html) return response;
+
+    const links = [];
+    if(!html.includes('selection-design.css')){
+      links.push(`<link rel="stylesheet" href="${SELECTION_DESIGN_URL}">`);
+    }
+    if(!html.includes('probability-design.css')){
+      links.push(`<link rel="stylesheet" href="${PROBABILITY_DESIGN_URL}">`);
+    }
+    if(!links.length) return response;
+
+    const bloco = links.join('\n');
     const alterado = html.includes('</head>')
-      ? html.replace('</head>', `${link}\n</head>`)
-      : `${link}\n${html}`;
+      ? html.replace('</head>', `${bloco}\n</head>`)
+      : `${bloco}\n${html}`;
+
     const headers = new Headers(response.headers);
     headers.set('content-type','text/html; charset=utf-8');
     headers.delete('content-length');
