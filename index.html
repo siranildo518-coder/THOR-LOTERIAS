@@ -2,23 +2,108 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="theme-color" content="#050708">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#030405">
 <title>THOR LOTERIAS</title>
-<style>html,body{margin:0;min-height:100%;background:#030506;color:#fff;font-family:Arial,sans-serif}#thorBoot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#030506;z-index:999999;color:#f2bd52;font-weight:800;letter-spacing:1px}.thorBootBox{text-align:center}.thorBootSpin{width:34px;height:34px;margin:0 auto 12px;border:3px solid #302616;border-top-color:#f2bd52;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}</style>
+<style>
+html,body{margin:0;min-height:100%;background:#030405;color:#fff;font-family:Arial,sans-serif}
+#thorBoot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#030405;z-index:999999;color:#f2bd52;font-weight:800;letter-spacing:1px}
+.thorBootBox{text-align:center}.thorBootSpin{width:34px;height:34px;margin:0 auto 12px;border:3px solid #302616;border-top-color:#f2bd52;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+</style>
 </head>
 <body>
 <div id="thorBoot"><div class="thorBootBox"><div class="thorBootSpin"></div>THOR LOTERIAS</div></div>
 <script>
 (function(){
-  var VERSION='20260912-exactref-01';
+  var VERSION='20260912-exact-html-02';
+  var HOME_CSS = String.raw`
+html.thor-home-open,body.thor-home-open{overflow:hidden!important;background:#000!important}
+#thorExactHome{position:fixed;inset:0;z-index:2147483000;overflow:auto;overscroll-behavior:contain;background:#020304;color:#fff;-webkit-overflow-scrolling:touch}
+#thorExactHome *{box-sizing:border-box}
+#thorExactHome .thor-exact-stage{position:relative;width:min(100%,720px);margin:0 auto;background:#020304;min-height:100%;box-shadow:0 0 36px rgba(0,0,0,.85)}
+#thorExactHome .thor-exact-image{display:block;width:100%;height:auto;min-height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none;pointer-events:none}
+#thorExactHome .thor-hot{position:absolute;display:block;border:0;margin:0;padding:0;background:transparent;color:transparent;font-size:0;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;outline:none}
+#thorExactHome .thor-hot:active{background:rgba(255,205,72,.055)}
+#thorExactHome .hot-menu{left:1.2%;top:.45%;width:13.8%;height:6.8%}
+#thorExactHome .hot-a1{left:1.5%;top:41.1%;width:32.0%;height:8.45%}
+#thorExactHome .hot-a2{left:34.4%;top:41.1%;width:31.15%;height:8.45%}
+#thorExactHome .hot-a3{left:66.25%;top:41.1%;width:31.1%;height:8.45%}
+#thorExactHome .hot-b1{left:1.5%;top:50.15%;width:32.0%;height:8.4%}
+#thorExactHome .hot-b2{left:34.4%;top:50.15%;width:31.15%;height:8.4%}
+#thorExactHome .hot-b3{left:66.25%;top:50.15%;width:31.1%;height:8.4%}
+#thorExactHome .hot-c1{left:1.5%;top:59.05%;width:32.0%;height:8.45%}
+#thorExactHome .hot-c2{left:34.4%;top:59.05%;width:31.15%;height:8.45%}
+#thorExactHome .hot-c3{left:66.25%;top:59.05%;width:31.1%;height:8.45%}
+#thorExactHome .hot-result{left:1.45%;top:68.0%;width:96.0%;height:7.35%}
+#thorExactHome .hot-home{left:1.5%;top:84.35%;width:18.9%;height:7.4%}
+#thorExactHome .hot-nav-analysis{left:20.4%;top:84.35%;width:19.4%;height:7.4%}
+#thorExactHome .hot-nav-comb{left:39.8%;top:84.35%;width:20.0%;height:7.4%}
+#thorExactHome .hot-nav-calc{left:59.8%;top:84.35%;width:19.3%;height:7.4%}
+#thorExactHome .hot-nav-games{left:79.1%;top:84.35%;width:18.1%;height:7.4%}
+@media(min-width:721px){#thorExactHome{background:radial-gradient(circle at 50% 25%,#17120a 0,#050607 42%,#000 100%)}}
+`;
+  var HOME_JS = String.raw`
+(function(){
+'use strict';
+var HOME_ID='thorExactHome';
+function q(id){return document.getElementById(id)}
+function click(id){var e=q(id);if(e)e.click()}
+function logged(){try{return localStorage.getItem('tl_login_ok_v1')==='1'}catch(e){return true}}
+function lock(){document.documentElement.classList.add('thor-home-open');document.body.classList.add('thor-home-open')}
+function unlock(){document.documentElement.classList.remove('thor-home-open');document.body.classList.remove('thor-home-open')}
+function hide(){var r=q(HOME_ID);if(r)r.style.display='none';unlock()}
+function show(){var r=q(HOME_ID);if(r&&logged()){r.style.display='block';lock();r.scrollTop=0}}
+function go(id){hide();setTimeout(function(){click(id)},20)}
+function resultado(){hide();try{if(typeof openResultadoOverlay==='function')openResultadoOverlay(window.homeGameAtual||window.LOTOFACIL_GAME);else click('btnResultadosAtalho')}catch(e){}}
+function drawer(){hide();try{if(typeof openDrawer==='function')openDrawer();else click('btnMenu')}catch(e){}}
+function makeHome(){
+ if(!logged()||q(HOME_ID))return;
+ var root=document.createElement('div');root.id=HOME_ID;
+ root.innerHTML='<div class="thor-exact-stage">'+
+ '<img class="thor-exact-image" src="./thor-home-reference.jpg?v=20260912-exact-html-02" alt="THOR LOTERIAS">'+
+ '<button class="thor-hot hot-menu" id="thorMenu" aria-label="Menu"></button>'+
+ '<button class="thor-hot hot-a1" id="thorAnalise" aria-label="Análise"></button>'+
+ '<button class="thor-hot hot-a2" id="thorComb" aria-label="Combinações"></button>'+
+ '<button class="thor-hot hot-a3" id="thorJogos" aria-label="Jogos"></button>'+
+ '<button class="thor-hot hot-b1" id="thorCalc" aria-label="Calculadora"></button>'+
+ '<button class="thor-hot hot-b2" id="thorPalpites" aria-label="Palpites"></button>'+
+ '<button class="thor-hot hot-b3" id="thorResultados2" aria-label="Resultados"></button>'+
+ '<button class="thor-hot hot-c1" id="thorSequencias" aria-label="Minhas Sequências"></button>'+
+ '<button class="thor-hot hot-c2" id="thorAnalisador" aria-label="Analisador de Jogos"></button>'+
+ '<button class="thor-hot hot-c3" id="thorConfig" aria-label="Configurações"></button>'+
+ '<button class="thor-hot hot-result" id="thorResultados" aria-label="Último resultado"></button>'+
+ '<button class="thor-hot hot-home" id="thorInicio" aria-label="Início"></button>'+
+ '<button class="thor-hot hot-nav-analysis" id="thorNavAnalise" aria-label="Análise"></button>'+
+ '<button class="thor-hot hot-nav-comb" id="thorNavComb" aria-label="Combinações"></button>'+
+ '<button class="thor-hot hot-nav-calc" id="thorNavCalc" aria-label="Calculadora"></button>'+
+ '<button class="thor-hot hot-nav-games" id="thorNavJogos" aria-label="Jogos"></button></div>';
+ document.body.appendChild(root);lock();
+ q('thorMenu').onclick=drawer;
+ q('thorAnalise').onclick=function(){go('btnTendenciaAtalho')};
+ q('thorComb').onclick=function(){go('btnFechamentoAtalho')};
+ q('thorJogos').onclick=function(){go('btnJogosSalvosAtalho2')};
+ q('thorCalc').onclick=function(){go('btnSimularAtalho')};
+ q('thorPalpites').onclick=function(){go('btnAbrirFechamentoAtalho')};
+ q('thorResultados').onclick=resultado;q('thorResultados2').onclick=resultado;
+ q('thorSequencias').onclick=function(){go('menuMinhasSequencias')};
+ q('thorAnalisador').onclick=function(){go('menuAnalisadorJogos')};
+ q('thorConfig').onclick=drawer;
+ q('thorInicio').onclick=function(){show();try{if(typeof goHome==='function')goHome()}catch(e){}};
+ q('thorNavAnalise').onclick=q('thorAnalise').onclick;q('thorNavComb').onclick=q('thorComb').onclick;q('thorNavCalc').onclick=q('thorCalc').onclick;q('thorNavJogos').onclick=q('thorJogos').onclick;
+ var start=q('btnInicioAtalho');if(start)start.addEventListener('click',function(){setTimeout(show,0)},true);
+ window.thorShowHome=show;
+}
+function start(){if(logged()){makeHome();return}var tries=0,t=setInterval(function(){if(logged()){clearInterval(t);makeHome()}else if(++tries>240)clearInterval(t)},500)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+`;
   fetch('./app-main.html?v='+VERSION,{cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
     .then(function(html){
-      var css='<link rel="stylesheet" href="./home-reference.css?v='+VERSION+'">';
-      var js='<script src="./home-reference.js?v='+VERSION+'">'+'</scr'+'ipt>';
-      if(html.indexOf('home-reference.css')<0) html=html.replace('</head>',css+'\n</head>');
-      if(html.indexOf('home-reference.js')<0) html=html.replace('</body>',js+'\n</body>');
+      var style='<style id="thorExactHomeStyle">'+HOME_CSS+'</style>';
+      var script='<script id="thorExactHomeScript">'+HOME_JS+'<\/script>';
+      html=html.replace('</head>',style+'\n</head>');
+      html=html.replace('</body>',script+'\n</body>');
       document.open();document.write(html);document.close();
     })
     .catch(function(err){
