@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-11-2353'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-11-2358'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -6907,6 +6907,7 @@ function atualizarConferenciaGeradorLeve(g, jogos){
   if(totalEl) totalEl.textContent = `${totalPremiados} premiado${totalPremiados===1?'':'s'}`;
   const oportunidades = document.getElementById('geradorOportunidades');
   if(oportunidades){
+    oportunidades.style.display = 'block';
     const linhas = (FAIXAS_PREMIACAO_GERADOR[g.code]||[]).map(f=>{
       const qtd = distribuicao.get(f.h)||0;
       return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 7px;border-bottom:1px solid #F0EAF7;"><span style="font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:700;color:#4B5563;">${f.label}</span><span style="font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:800;color:${qtd ? '#1F9D74' : '#8B7C9E'};">${qtd} cart${qtd===1?'ão':'ões'} premiado${qtd===1?'':'s'}</span></div>`;
@@ -6970,7 +6971,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     if(faixa) totalPremiados++;
     const badge = conferindo
       ? `<span class="gerador-hit-badge" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:${faixa ? '#1F9D74' : 'var(--muted)'};margin-left:auto;flex:none;text-align:right;">${hits} acerto${hits===1?'':'s'}<br><span style="font-size:9px;font-weight:700;">${faixa ? faixa.label : 'não premiado'}</span></span>`
-      : '';
+      : `<span class="gerador-hit-badge" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:var(--muted);margin-left:auto;flex:none;text-align:right;">— acertos<br><span style="font-size:9px;font-weight:700;">aguardando resultado</span></span>`;
     const premioTag = faixa
       ? `<div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:#fff;background:linear-gradient(135deg,#1F9D74,#15764F);padding:3px 8px;border-radius:20px;display:inline-block;margin-top:5px;">🏆 PREMIADO — ${faixa.label}</div>`
       : '';
@@ -7002,10 +7003,10 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     <div id="geradorConferenciaResumo" style="background:#fff;border:1.5px solid #E7DFF5;border-radius:13px;padding:8px 10px;margin-bottom:8px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;">
         <strong style="font-family:'Baloo 2',sans-serif;font-size:12px;color:#A21CAF;">Conferidor de acertos — ${g.nome}</strong>
-        ${conferindo ? `<span id="geradorTotalPremiados" style="font-family:'Baloo 2',sans-serif;font-size:10px;font-weight:800;color:#1F9D74;">${totalPremiados} premiado${totalPremiados===1?'':'s'}</span>` : ''}
+        <span id="geradorTotalPremiados" style="font-family:'Baloo 2',sans-serif;font-size:10px;font-weight:800;color:#1F9D74;">${conferindo ? `${totalPremiados} premiado${totalPremiados===1?'':'s'}` : '—'}</span>
       </div>
       ${resumoPremiacaoGerador(g.code)}
-      ${conferindo ? `<div id="geradorOportunidades" style="margin-top:7px;border:1px solid #EFE7F7;border-radius:10px;overflow:hidden;background:#FCFAFF;"><div style="padding:5px 7px;background:#F6F0FC;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:800;color:#7E22CE;">🏆 Oportunidades de premiação</div>${oportunidadesHtml}</div>` : ''}
+      <div id="geradorOportunidades" style="margin-top:7px;border:1px solid #EFE7F7;border-radius:10px;overflow:hidden;background:#FCFAFF;${conferindo ? '' : 'display:none;'}"><div style="padding:5px 7px;background:#F6F0FC;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:800;color:#7E22CE;">🏆 Oportunidades de premiação</div>${oportunidadesHtml}</div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:12px;">
       <button id="geradorLimparBtn" class="download-btn" style="display:block;flex:1;margin-top:0;padding:7px;font-size:12px;background:#fff;color:#B91C1C;border:1.5px solid #B91C1C;"><span id="geradorLimparSpinner" style="display:none;width:11px;height:11px;border:2px solid rgba(185,28,28,.35);border-top-color:#B91C1C;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="geradorLimparLabel">Limpar jogos</span></button>
