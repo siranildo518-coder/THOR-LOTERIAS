@@ -1,0 +1,1 @@
+O app principal será preservado durante a troca da tela inicial.
