@@ -1,9 +1,11 @@
 (function(){
   function q(id){return document.getElementById(id)}
   function click(id){var e=q(id);if(e)e.click()}
-  function existing(id){return q(id)}
+  function logged(){try{return localStorage.getItem('tl_login_ok_v1')==='1'}catch(e){return true}}
+  function nomeUsuario(){try{var h=localStorage.getItem('tl_hash_atual');var n=h&&localStorage.getItem('tl_nome_conta_'+h);return (n||'Irenildo').trim()}catch(e){return 'Irenildo'}}
+
   function makeHome(){
-    if(q('thorRefHomeLite'))return;
+    if(!logged() || q('thorRefHomeLite')) return;
     var root=document.createElement('div');
     root.id='thorRefHomeLite';
     root.innerHTML='<div class="thr-shell">'+
@@ -12,7 +14,7 @@
         '<div class="thr-brand"><div class="thr-thor">THOR</div><div class="thr-lot">LOTERIAS</div></div>'+
         '<div class="thr-clock"><div class="thr-date" id="thrDate">--</div><div class="thr-time" id="thrTime">--:--</div></div>'+
       '</div>'+
-      '<div class="thr-welcome"><strong>Bem-vindo de volta, Irenildo! 👋</strong><span>Boa sorte nos seus jogos de hoje.</span></div>'+
+      '<div class="thr-welcome"><strong>Bem-vindo de volta, <span id="thrUserName"></span>! 👋</strong><span>Boa sorte nos seus jogos de hoje.</span></div>'+
       '<div class="thr-stats"><div class="thr-stat"><b>12</b><span>Jogos Salvos</span></div><div class="thr-stat"><b>4</b><span>Análises Hoje</span></div><div class="thr-stat"><b>8</b><span>Palpites</span></div></div>'+
       '<button class="thr-last" id="thrResultados" style="width:100%;color:inherit;text-align:left;cursor:pointer"><h3>★ Último resultado</h3><span class="thr-small">Lotofácil • Concurso atual</span><div class="thr-balls"><span class="thr-ball">01</span><span class="thr-ball">03</span><span class="thr-ball">05</span><span class="thr-ball">06</span><span class="thr-ball">08</span><span class="thr-ball">09</span><span class="thr-ball">11</span><span class="thr-ball">12</span><span class="thr-ball">13</span><span class="thr-ball">15</span><span class="thr-ball">17</span><span class="thr-ball">18</span><span class="thr-ball">20</span><span class="thr-ball">22</span><span class="thr-ball">25</span></div></button>'+
       '<div class="thr-section-title">Acesso rápido</div>'+
@@ -37,9 +39,10 @@
       '<button class="thr-nav" id="thrNavJogos"><i>🎟</i>Jogos</button>'+
     '</div>';
     document.body.appendChild(root);
+    if(q('thrUserName')) q('thrUserName').textContent=nomeUsuario();
 
     function hide(){root.style.display='none'}
-    function show(){root.style.display='block'}
+    function show(){if(logged())root.style.display='block'}
     function go(id){hide();setTimeout(function(){click(id)},0)}
     function resultado(){hide();try{if(typeof openResultadoOverlay==='function')openResultadoOverlay(window.homeGameAtual||window.LOTOFACIL_GAME)}catch(e){}}
     q('thrMenu').onclick=function(){hide();if(typeof openDrawer==='function')openDrawer();else click('btnMenu')};
@@ -55,10 +58,20 @@
     q('thrFechar').onclick=hide;
     q('thrInicio').onclick=function(){show();try{if(typeof goHome==='function')goHome()}catch(e){}};
     q('thrNavAnalise').onclick=q('thrAnalise').onclick;q('thrNavComb').onclick=q('thrComb').onclick;q('thrNavCalc').onclick=q('thrCalc').onclick;q('thrNavJogos').onclick=q('thrJogos').onclick;
+    var start=q('btnInicioAtalho');if(start)start.addEventListener('click',show,true);
 
-    var homeBtns=['btnInicioAtalho'];homeBtns.forEach(function(id){var e=existing(id);if(e)e.addEventListener('click',show,true)});
     function clock(){var d=new Date(),dias=['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];var date=dias[d.getDay()]+', '+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();var time=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');if(q('thrDate'))q('thrDate').textContent=date;if(q('thrTime'))q('thrTime').textContent=time}
     clock();setInterval(clock,30000);
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',makeHome,{once:true});else makeHome();
+
+  function start(){
+    if(logged()){makeHome();return}
+    var tentativas=0;
+    var timer=setInterval(function(){
+      tentativas++;
+      if(logged()){clearInterval(timer);makeHome()}
+      else if(tentativas>180){clearInterval(timer)}
+    },500);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
