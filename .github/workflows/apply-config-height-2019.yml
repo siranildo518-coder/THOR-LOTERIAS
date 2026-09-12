@@ -33,4 +33,4 @@ jobs:
           git commit -m 'Corrigir visual das repetidas 0538'
           git push
       - name: Confirmar publicação 0538
-        run: echo '0538 publicada'
+        run: echo '0538 publicada com repetidas no estilo do controle original'
