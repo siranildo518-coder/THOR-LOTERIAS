@@ -1,4 +1,4 @@
-name: Publicar tabela Soma 0036
+name: Publicar Soma dinâmica 0042
 on:
   push:
     paths:
@@ -30,5 +30,5 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add index.html sw.js
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Mostrar tabela Soma igual modelo 0036'
+          git commit -m 'Soma dinâmica e centralizada 0042'
           git push
