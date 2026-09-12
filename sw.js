@@ -1,7 +1,7 @@
 // THOR LOTERIAS - Service Worker
 // Atualizacao automatica: ao detectar um novo sw.js, ele assume imediatamente
 // e o HTML principal sempre tenta a rede primeiro para buscar a versao mais nova.
-const CACHE_NAME = 'thor-loterias-2026-09-12-0130';
+const CACHE_NAME = 'thor-loterias-2026-09-12-0142';
 
 const CACHE_FILES = [
   './index.html',

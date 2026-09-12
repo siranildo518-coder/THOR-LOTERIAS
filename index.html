@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0130'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0142'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -673,6 +673,15 @@ document.addEventListener('selectstart', e=>{
   .gfc-fixas-btn{width:100%;box-sizing:border-box;padding:7px 4px;border-radius:8px;border:1.5px solid #D8DAE0;background:#fff;color:#9CA3AF;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;line-height:normal;cursor:pointer;transition:background .12s ease,border-color .12s ease,color .12s ease;}
   .gfc-fixas-btn:focus,.gfc-fixas-btn:active{outline:none;border-color:#A21CAF;}
   .gfc-fixas-btn.tem-fixas{background:#F3E8FF;border-color:#A21CAF;color:#4C1D95;}
+
+  .gfc-fixas-inline{grid-column:1/-1;display:none;background:#fff;border:1.5px solid #A21CAF;border-radius:10px;padding:9px;margin-top:2px;}
+  .gfc-fixas-inline.show{display:block;}
+  .gfc-fixas-inline-title{font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:800;color:#7E22CE;margin-bottom:6px;text-align:left;}
+  .gfc-fixas-inline .conf-grid{grid-template-columns:repeat(5,1fr);gap:5px;}
+  .gfc-fixas-inline-actions{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-top:7px;}
+  .gfc-fixas-inline-actions .conf-count{margin:0;font-size:10.5px;}
+  .gfc-fixas-inline-actions button{padding:5px 9px;border-radius:8px;font-size:10.5px;}
+  .gerador-jogo-ball.fixa-gerador{border:2px solid #F59E0B !important;box-shadow:0 0 0 2px rgba(245,158,11,.22);font-weight:900 !important;}
 
   .gfc-filtro-alerta{display:none;margin:8px 0 12px;padding:9px 10px;border:1.5px solid #DC2626;border-radius:10px;background:#FEF2F2;color:#991B1B;font-size:12px;font-weight:700;line-height:1.35;text-align:center;}
   .gfc-filtro-alerta.ativo{display:block;}
@@ -4179,6 +4188,17 @@ document.addEventListener('selectstart', e=>{
             <input type="number" inputmode="numeric" id="gfcFiltroSoma" placeholder=" ">
             <span>Soma</span>
           </div>
+          <div class="gfc-fixas-inline" id="gfcFixasInline">
+            <div class="gfc-fixas-inline-title">📌 Escolha as dezenas fixas</div>
+            <div class="conf-grid" id="gfcFixasGridInline"></div>
+            <div class="gfc-fixas-inline-actions">
+              <div class="conf-count">Selecionadas: <strong id="gfcFixasCountInline">0</strong></div>
+              <div style="display:flex;gap:6px;">
+                <button type="button" class="btn-cancel" id="gfcFixasLimparInline">LIMPAR</button>
+                <button type="button" class="btn-confirm" id="gfcFixasOkInline">OK</button>
+              </div>
+            </div>
+          </div>
         </div>
         <div id="gfcFiltroAlerta" class="gfc-filtro-alerta" role="alert" aria-live="polite"></div>
 
@@ -6395,33 +6415,43 @@ function gfcAtualizarFixasCampo(){
 }
 
 function gfcRenderFixasGrid(){
-  const grid=document.getElementById('gfcFixasGrid');
-  const count=document.getElementById('gfcFixasCount');
-  if(!grid || !geradorGameAtual) return;
+  const grids=[document.getElementById('gfcFixasGridInline'), document.getElementById('gfcFixasGrid')].filter(Boolean);
+  const counts=[document.getElementById('gfcFixasCountInline'), document.getElementById('gfcFixasCount')].filter(Boolean);
+  if(!grids.length || !geradorGameAtual) return;
   const min=geradorGameAtual.range.min, max=geradorGameAtual.range.max;
-  grid.innerHTML='';
-  for(let n=min;n<=max;n++){
-    const b=document.createElement('button');
-    b.type='button'; b.className='conf-ball'+(gfcFixasSelecionadas.has(n)?' on':'');
-    b.textContent=String(n).padStart(2,'0'); b.dataset.n=n;
-    b.addEventListener('click',()=>{
-      if(gfcFixasSelecionadas.has(n)) gfcFixasSelecionadas.delete(n);
-      else if(gfcFixasSelecionadas.size < (gfc.dezenas||GERADOR_APOSTA_SIZE[geradorGameAtual.code]||0)) gfcFixasSelecionadas.add(n);
-      gfcRenderFixasGrid(); gfcAtualizarFixasCampo();
-    });
-    grid.appendChild(b);
-  }
-  if(count) count.textContent=gfcFixasSelecionadas.size;
+  grids.forEach(grid=>{
+    grid.innerHTML='';
+    for(let n=min;n<=max;n++){
+      const b=document.createElement('button');
+      b.type='button'; b.className='conf-ball'+(gfcFixasSelecionadas.has(n)?' on':'');
+      b.textContent=String(n).padStart(2,'0'); b.dataset.n=n;
+      b.addEventListener('click',()=>{
+        if(gfcFixasSelecionadas.has(n)) gfcFixasSelecionadas.delete(n);
+        else if(gfcFixasSelecionadas.size < (gfc.dezenas||GERADOR_APOSTA_SIZE[geradorGameAtual.code]||0)) gfcFixasSelecionadas.add(n);
+        gfcRenderFixasGrid(); gfcAtualizarFixasCampo();
+      });
+      grid.appendChild(b);
+    }
+  });
+  counts.forEach(count=>count.textContent=gfcFixasSelecionadas.size);
 }
 
 function gfcAbrirFixas(){
   if(!geradorGameAtual) return;
   gfcRenderFixasGrid();
-  document.getElementById('overlayGfcFixas')?.classList.add('show');
+  const painel=document.getElementById('gfcFixasInline');
+  if(painel) painel.classList.toggle('show');
 }
 
-document.getElementById('gfcFixasWrap')?.addEventListener('click', gfcAbrirFixas);
 document.getElementById('gfcFiltroFixas')?.addEventListener('click', e=>{ e.stopPropagation(); gfcAbrirFixas(); });
+document.getElementById('gfcFixasWrap')?.addEventListener('click', e=>{ if(e.target.id!=='gfcFiltroFixas') gfcAbrirFixas(); });
+document.getElementById('gfcFixasOkInline')?.addEventListener('click',()=>{
+  gfcAtualizarFixasCampo();
+  document.getElementById('gfcFixasInline')?.classList.remove('show');
+});
+document.getElementById('gfcFixasLimparInline')?.addEventListener('click',()=>{
+  gfcFixasSelecionadas.clear(); gfcRenderFixasGrid(); gfcAtualizarFixasCampo();
+});
 document.getElementById('gfcFixasConfirmar')?.addEventListener('click',()=>{
   gfcAtualizarFixasCampo();
   document.getElementById('overlayGfcFixas')?.classList.remove('show');
@@ -7098,11 +7128,12 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
       <div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:12px;color:var(--muted);width:26px;flex:none;">${i+1}</div>
       <div style="display:flex;flex-wrap:wrap;gap:4px;flex:1;">
         ${jogo.map(n=>{
+          const fixa = gfcFixasSelecionadas.has(n);
           const acertou = conferindo && resultadoSet.has(n);
           const bg = acertou
             ? `linear-gradient(rgba(16,140,86,.62), rgba(6,90,58,.62)), url(${BALL_PHOTO_URL})`
             : `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url(${BALL_PHOTO_URL})`;
-          return `<span class="gerador-jogo-ball" data-num="${n}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background-image:${bg};background-size:cover;background-position:center;background-blend-mode:multiply;border:1px solid ${acertou ? 'transparent' : 'var(--line,#E7DFF5)'};color:${acertou ? '#fff' : 'var(--violet-deep)'};font-family:'Baloo 2',sans-serif;font-size:10.5px;font-weight:700;text-shadow:${acertou ? '0 1px 2px rgba(0,0,0,.35)' : '0 1px 2px rgba(255,255,255,.9)'};">${n.toString().padStart(2,'0')}</span>`;
+          return `<span class="gerador-jogo-ball${fixa ? ' fixa-gerador' : ''}" data-num="${n}" title="${fixa ? 'Dezena fixa' : ''}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background-image:${bg};background-size:cover;background-position:center;background-blend-mode:multiply;border:${fixa ? '2px solid #F59E0B' : ('1px solid '+(acertou ? 'transparent' : 'var(--line,#E7DFF5)'))};color:${acertou ? '#fff' : 'var(--violet-deep)'};font-family:'Baloo 2',sans-serif;font-size:10.5px;font-weight:${fixa ? '900' : '700'};text-shadow:${acertou ? '0 1px 2px rgba(0,0,0,.35)' : '0 1px 2px rgba(255,255,255,.9)'};">${n.toString().padStart(2,'0')}</span>`;
         }).join('')}
       </div>
       ${badge}
