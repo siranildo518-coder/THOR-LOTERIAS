@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0142'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0149'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -677,7 +677,8 @@ document.addEventListener('selectstart', e=>{
   .gfc-fixas-inline{grid-column:1/-1;display:none;background:#fff;border:1.5px solid #A21CAF;border-radius:10px;padding:9px;margin-top:2px;}
   .gfc-fixas-inline.show{display:block;}
   .gfc-fixas-inline-title{font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:800;color:#7E22CE;margin-bottom:6px;text-align:left;}
-  .gfc-fixas-inline .conf-grid{grid-template-columns:repeat(5,1fr);gap:5px;}
+  .gfc-fixas-inline .conf-grid{grid-template-columns:repeat(5,30px);gap:4px;justify-content:center;max-width:none;}
+  .gfc-fixas-inline .conf-ball{width:30px;height:30px;aspect-ratio:auto;border-radius:7px;font-size:8.5px;}
   .gfc-fixas-inline-actions{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-top:7px;}
   .gfc-fixas-inline-actions .conf-count{margin:0;font-size:10.5px;}
   .gfc-fixas-inline-actions button{padding:5px 9px;border-radius:8px;font-size:10.5px;}
