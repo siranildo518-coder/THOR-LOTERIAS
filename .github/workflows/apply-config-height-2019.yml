@@ -1,4 +1,4 @@
-name: Publicar correção Centro 0226
+name: Publicar filtros múltiplos 0532
 on:
   push:
     paths:
@@ -30,5 +30,5 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add index.html sw.js
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Corrigir filtro Centro 0226'
+          git commit -m 'Filtros múltiplos 0532'
           git push
