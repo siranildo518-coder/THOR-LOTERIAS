@@ -15,13 +15,13 @@ html,body{margin:0;min-height:100%;background:#030405;color:#fff;font-family:Ari
 <div id="thorBoot"><div class="thorBootBox"><div class="thorBootSpin"></div>THOR LOTERIAS</div></div>
 <script>
 (function(){
-  var VERSION='20260912-exact-html-02';
+  var VERSION='20260912-hqfix-01';
   var HOME_CSS = String.raw`
 html.thor-home-open,body.thor-home-open{overflow:hidden!important;background:#000!important}
 #thorExactHome{position:fixed;inset:0;z-index:2147483000;overflow:auto;overscroll-behavior:contain;background:#020304;color:#fff;-webkit-overflow-scrolling:touch}
 #thorExactHome *{box-sizing:border-box}
-#thorExactHome .thor-exact-stage{position:relative;width:min(100%,720px);margin:0 auto;background:#020304;min-height:100%;box-shadow:0 0 36px rgba(0,0,0,.85)}
-#thorExactHome .thor-exact-image{display:block;width:100%;height:auto;min-height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none;pointer-events:none}
+#thorExactHome .thor-exact-stage{position:relative;width:min(100%,720px);aspect-ratio:480/853;margin:0 auto;background:#020304;box-shadow:0 0 36px rgba(0,0,0,.85)}
+#thorExactHome .thor-exact-image{display:block;width:100%;height:auto;object-fit:contain;user-select:none;-webkit-user-drag:none;pointer-events:none;opacity:0;transition:opacity .12s ease}
 #thorExactHome .thor-hot{position:absolute;display:block;border:0;margin:0;padding:0;background:transparent;color:transparent;font-size:0;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;outline:none}
 #thorExactHome .thor-hot:active{background:rgba(255,205,72,.055)}
 #thorExactHome .hot-menu{left:1.2%;top:.45%;width:13.8%;height:6.8%}
@@ -56,11 +56,33 @@ function show(){var r=q(HOME_ID);if(r&&logged()){r.style.display='block';lock();
 function go(id){hide();setTimeout(function(){click(id)},20)}
 function resultado(){hide();try{if(typeof openResultadoOverlay==='function')openResultadoOverlay(window.homeGameAtual||window.LOTOFACIL_GAME);else click('btnResultadosAtalho')}catch(e){}}
 function drawer(){hide();try{if(typeof openDrawer==='function')openDrawer();else click('btnMenu')}catch(e){}}
+var HQ_PARTS=[
+ './home-hq/p00.txt?v=20260912-hqfix-01',
+ './home-hq/p01.txt?v=20260912-hqfix-01',
+ './home-hq/p02.txt?v=20260912-hqfix-01',
+ './home-hq/p03.txt?v=20260912-hqfix-01',
+ './home-hq/p04.txt?v=20260912-hqfix-01',
+ './home-hq/p05.txt?v=20260912-hqfix-01'
+];
+function carregarImagemHQ(img){
+ if(!img)return;
+ img.onload=function(){img.style.opacity='1'};
+ Promise.all(HQ_PARTS.map(function(url){
+   return fetch(url,{cache:'no-store'}).then(function(r){
+     if(!r.ok)throw new Error('HTTP '+r.status);
+     return r.text();
+   });
+ })).then(function(parts){
+   img.src='data:image/jpeg;base64,'+parts.join('');
+ }).catch(function(){
+   img.src='./thor-home-reference.jpg?v=20260912-hqfix-01';
+ });
+}
 function makeHome(){
  if(!logged()||q(HOME_ID))return;
  var root=document.createElement('div');root.id=HOME_ID;
  root.innerHTML='<div class="thor-exact-stage">'+
- '<img class="thor-exact-image" src="./thor-home-reference.jpg?v=20260912-exact-html-02" alt="THOR LOTERIAS">'+
+ '<img class="thor-exact-image" id="thorHomeImage" width="480" height="853" alt="THOR LOTERIAS">'+
  '<button class="thor-hot hot-menu" id="thorMenu" aria-label="Menu"></button>'+
  '<button class="thor-hot hot-a1" id="thorAnalise" aria-label="Análise"></button>'+
  '<button class="thor-hot hot-a2" id="thorComb" aria-label="Combinações"></button>'+
@@ -77,7 +99,7 @@ function makeHome(){
  '<button class="thor-hot hot-nav-comb" id="thorNavComb" aria-label="Combinações"></button>'+
  '<button class="thor-hot hot-nav-calc" id="thorNavCalc" aria-label="Calculadora"></button>'+
  '<button class="thor-hot hot-nav-games" id="thorNavJogos" aria-label="Jogos"></button></div>';
- document.body.appendChild(root);lock();
+ document.body.appendChild(root);carregarImagemHQ(q('thorHomeImage'));lock();
  q('thorMenu').onclick=drawer;
  q('thorAnalise').onclick=function(){go('btnTendenciaAtalho')};
  q('thorComb').onclick=function(){go('btnFechamentoAtalho')};
