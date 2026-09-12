@@ -1,0 +1,47 @@
+name: Oportunidades premios 2104
+on:
+  push:
+    paths: ['.github/workflows/oportunidades-premios-2104.yml']
+permissions:
+  contents: write
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Aplicar oportunidades
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, base64
+          versao='2026-09-11-2104'
+          bloco=base64.b64decode('ICBjb25zdCBvcG9ydHVuaWRhZGVzSHRtbCA9IGNvbmZlcmluZG8KICAgID8gKEZBSVhBU19QUkVNSUFDQU9fR0VSQURPUltnLmNvZGVdIHx8IFtdKS5tYXAoZj0+ewogICAgICAgIGNvbnN0IHF0ZCA9IGRpc3RyaWJ1aWNhb0FjZXJ0b3MuZ2V0KGYuaCkgfHwgMDsKICAgICAgICByZXR1cm4gYDxkaXYgc3R5bGU9ImRpc3BsYXk6ZmxleDthbGlnbi1pdGVtczpjZW50ZXI7anVzdGlmeS1jb250ZW50OnNwYWNlLWJldHdlZW47Z2FwOjhweDtwYWRkaW5nOjVweCA3cHg7Ym9yZGVyLWJvdHRvbToxcHggc29saWQgI0YwRUFGNzsiPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTonQmFsb28gMicsc2Fucy1zZXJpZjtmb250LXNpemU6MTFweDtmb250LXdlaWdodDo3MDA7Y29sb3I6IzRCNTU2MzsiPiR7Zi5sYWJlbH08L3NwYW4+PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OidCYWxvbyAyJyxzYW5zLXNlcmlmO2ZvbnQtc2l6ZToxMXB4O2ZvbnQtd2VpZ2h0OjgwMDtjb2xvcjoke3F0ZCA/ICcjMUY5RDc0JyA6ICcjOEI3QzlFJ307Ij4ke3F0ZH0gY2FydCR7cXRkPT09MT8nw6NvJzonw7Vlcyd9IHByZW1pYWRvJHtxdGQ9PT0xPycnOidzJ308L3NwYW4+PC9kaXY+YDsKICAgICAgfSkuam9pbignJykKICAgIDogJyc7').decode('utf-8')
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          pat=r"  const resumoAcertosHtml = conferindo.*?    : '';"
+          s,n=re.subn(pat, bloco, s, count=1, flags=re.S)
+          if n!=1:
+              pat2=r"  const oportunidadesHtml = conferindo.*?    : '';"
+              s,n=re.subn(pat2, bloco, s, count=1, flags=re.S)
+          if n!=1: raise SystemExit('Resumo de acertos nao encontrado')
+          s=s.replace('📊 Quantidade de cartões por acertos</div>${resumoAcertosHtml}','🏆 Oportunidades de premiação</div>${oportunidadesHtml}')
+          s=s.replace('🏆 Oportunidades de premiação</div>${resumoAcertosHtml}','🏆 Oportunidades de premiação</div>${oportunidadesHtml}')
+          s,nv=re.subn(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{versao}';", s, count=1)
+          if nv!=1: raise SystemExit('Versao index nao encontrada')
+          p.write_text(s,encoding='utf-8')
+          swp=Path('sw.js'); sw=swp.read_text(encoding='utf-8')
+          sw,nw=re.subn(r"const CACHE_NAME = 'thor-loterias-[^']+';", f"const CACHE_NAME = 'thor-loterias-{versao}';", sw, count=1)
+          if nw!=1: raise SystemExit('Versao sw nao encontrada')
+          swp.write_text(sw,encoding='utf-8')
+          PY
+      - name: Publicar
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          git diff --cached --quiet && exit 0
+          git commit -m "Adicionar oportunidades de premiacao 2104"
+          git pull --rebase origin main
+          git push
