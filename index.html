@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0149'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0205'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -670,6 +670,15 @@ document.addEventListener('selectstart', e=>{
   .gfc-dark-input-wrap input:not(:placeholder-shown){background:#F3E8FF;border-color:#A21CAF;color:#4C1D95;}
   .gfc-dark-input-wrap input.gfc-filtro-invalido{background:#FEE2E2 !important;border-color:#DC2626 !important;color:#991B1B !important;box-shadow:0 0 0 2px rgba(220,38,38,.10);}
   .gfc-dark-input-wrap input.gfc-filtro-invalido + span{color:#B91C1C !important;}
+
+  .gfc-multi-btn{width:100%;box-sizing:border-box;padding:5px 4px;border-radius:8px;border:1.5px solid #D8DAE0;background:#fff;color:#9CA3AF;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;line-height:normal;cursor:pointer;}
+  .gfc-multi-btn.tem-valores{background:#F3E8FF;border-color:#A21CAF;color:#4C1D95;}
+  .gfc-multi-inline{grid-column:1/-1;display:none;background:#fff;border:1.5px solid #A21CAF;border-radius:10px;padding:8px;margin-top:2px;}
+  .gfc-multi-inline.show{display:block;}
+  .gfc-multi-title{font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:800;color:#7E22CE;margin-bottom:6px;}
+  .gfc-multi-options{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;}
+  .gfc-multi-option{min-width:30px;height:30px;padding:0 7px;border-radius:7px;border:1.5px solid #D8DAE0;background:#fff;color:#4C1D95;font-family:'Baloo 2',sans-serif;font-size:9.5px;font-weight:800;}
+  .gfc-multi-option.on{background:#A21CAF;border-color:#A21CAF;color:#fff;}
   .gfc-fixas-btn{width:100%;box-sizing:border-box;padding:7px 4px;border-radius:8px;border:1.5px solid #D8DAE0;background:#fff;color:#9CA3AF;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;line-height:normal;cursor:pointer;transition:background .12s ease,border-color .12s ease,color .12s ease;}
   .gfc-fixas-btn:focus,.gfc-fixas-btn:active{outline:none;border-color:#A21CAF;}
   .gfc-fixas-btn.tem-fixas{background:#F3E8FF;border-color:#A21CAF;color:#4C1D95;}
@@ -4154,40 +4163,24 @@ document.addEventListener('selectstart', e=>{
 
         <div class="gfc-dark-label">🛠️ Filtros personalizados</div>
         <div class="gfc-dark-filtros">
-          <div class="gfc-dark-input-wrap">
-            <input type="number" inputmode="numeric" id="gfcFiltroPares" placeholder=" ">
-            <span>Pares</span>
-          </div>
-          <div class="gfc-dark-input-wrap">
-            <input type="number" inputmode="numeric" id="gfcFiltroImpares" placeholder=" ">
-            <span>Ímpares</span>
-          </div>
-          <div class="gfc-dark-input-wrap">
-            <input type="number" inputmode="numeric" id="gfcFiltroPrimos" placeholder=" ">
-            <span>Primos</span>
-          </div>
-          <div class="gfc-dark-input-wrap">
-            <input type="number" inputmode="numeric" id="gfcFiltroFib" placeholder=" ">
-            <span>Fibonacci</span>
-          </div>
-          <div class="gfc-dark-input-wrap">
-            <input type="number" inputmode="numeric" id="gfcFiltroMoldura" placeholder=" ">
-            <span>Moldura</span>
-          </div>
-          <div class="gfc-dark-input-wrap">
-            <input type="number" inputmode="numeric" id="gfcFiltroCentro" placeholder=" ">
-            <span>Centro</span>
-          </div>
+          <div class="gfc-dark-input-wrap"><button type="button" id="gfcFiltroPares" class="gfc-multi-btn" data-label="Pares">Pares</button></div>
+          <div class="gfc-dark-input-wrap"><button type="button" id="gfcFiltroImpares" class="gfc-multi-btn" data-label="Ímpares">Ímpares</button></div>
+          <div class="gfc-dark-input-wrap"><button type="button" id="gfcFiltroPrimos" class="gfc-multi-btn" data-label="Primos">Primos</button></div>
+          <div class="gfc-dark-input-wrap"><button type="button" id="gfcFiltroFib" class="gfc-multi-btn" data-label="Fibonacci">Fibonacci</button></div>
+          <div class="gfc-dark-input-wrap"><button type="button" id="gfcFiltroMoldura" class="gfc-multi-btn" data-label="Moldura">Moldura</button></div>
+          <div class="gfc-dark-input-wrap"><button type="button" id="gfcFiltroCentro" class="gfc-multi-btn" data-label="Centro">Centro</button></div>
           <div class="gfc-dark-input-wrap" id="gfcFixasWrap">
             <button type="button" id="gfcFiltroFixas" class="gfc-fixas-btn" aria-label="Escolher dezenas fixas">Fixas</button>
           </div>
-          <div class="gfc-dark-input-wrap">
-            <input type="number" inputmode="numeric" id="gfcFiltroMult3" placeholder=" ">
-            <span>Múlt. de 3</span>
-          </div>
+          <div class="gfc-dark-input-wrap"><button type="button" id="gfcFiltroMult3" class="gfc-multi-btn" data-label="Múlt. de 3">Múlt. de 3</button></div>
           <div class="gfc-dark-input-wrap">
             <input type="number" inputmode="numeric" id="gfcFiltroSoma" placeholder=" ">
             <span>Soma</span>
+          </div>
+          <div class="gfc-multi-inline" id="gfcMultiInline">
+            <div class="gfc-multi-title" id="gfcMultiTitle">Escolha as quantidades</div>
+            <div class="gfc-multi-options" id="gfcMultiOptions"></div>
+            <div class="gfc-fixas-inline-actions"><div class="conf-count">Selecionadas: <strong id="gfcMultiCount">0</strong></div><div style="display:flex;gap:6px;"><button type="button" class="btn-cancel" id="gfcMultiLimpar">LIMPAR</button><button type="button" class="btn-confirm" id="gfcMultiOk">OK</button></div></div>
           </div>
           <div class="gfc-fixas-inline" id="gfcFixasInline">
             <div class="gfc-fixas-inline-title">📌 Escolha as dezenas fixas</div>
@@ -6317,6 +6310,15 @@ let geradorGameAtual = null;
 const gfc = { dezenas: null, repetidas: null, qtd: 10 };
 let gfcFixasSelecionadas = new Set();
 
+const GFC_MULTI_IDS=['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3'];
+const gfcMultiSelecionados=Object.fromEntries(GFC_MULTI_IDS.map(id=>[id,new Set()]));let gfcMultiAtual=null;
+function gfcOpcoesFiltro(id){if(geradorGameAtual?.code==='LF')return ({gfcFiltroPares:[6,8,10,12],gfcFiltroImpares:[5,7,9,11,13],gfcFiltroPrimos:[3,5,7,9],gfcFiltroFib:[3,5,7],gfcFiltroMoldura:[8,10,12,14,16],gfcFiltroCentro:[3,5,7,9],gfcFiltroMult3:[2,4,6,8]})[id]||[];const k=gfc.dezenas||0;return Array.from({length:k+1},(_,i)=>i);}
+function gfcAtualizarMultiBotao(id){const el=document.getElementById(id),set=gfcMultiSelecionados[id];if(!el||!set)return;const label=el.dataset.label||'',vals=[...set].sort((a,b)=>a-b);el.textContent=vals.length?`${label} (${vals.join(' / ')})`:label;el.value=vals.join(',');el.classList.toggle('tem-valores',!!vals.length);}
+function gfcRenderMulti(){const box=document.getElementById('gfcMultiOptions'),title=document.getElementById('gfcMultiTitle'),count=document.getElementById('gfcMultiCount');if(!box||!gfcMultiAtual)return;const el=document.getElementById(gfcMultiAtual),set=gfcMultiSelecionados[gfcMultiAtual];title.textContent=`Escolha as quantidades de ${el.dataset.label}`;box.innerHTML='';gfcOpcoesFiltro(gfcMultiAtual).forEach(v=>{const b=document.createElement('button');b.type='button';b.className='gfc-multi-option'+(set.has(v)?' on':'');b.textContent=v;b.onclick=()=>{set.has(v)?set.delete(v):set.add(v);gfcAtualizarMultiBotao(gfcMultiAtual);gfcRenderMulti();};box.appendChild(b);});count.textContent=set.size;}
+function gfcAbrirMulti(id){gfcMultiAtual=id;gfcRenderMulti();document.getElementById('gfcFixasInline')?.classList.remove('show');document.getElementById('gfcMultiInline')?.classList.add('show');}
+GFC_MULTI_IDS.forEach(id=>document.getElementById(id)?.addEventListener('click',()=>gfcAbrirMulti(id)));document.getElementById('gfcMultiOk')?.addEventListener('click',()=>{document.getElementById('gfcMultiInline')?.classList.remove('show');gfcValidarFiltrosInstantaneo();});document.getElementById('gfcMultiLimpar')?.addEventListener('click',()=>{if(!gfcMultiAtual)return;gfcMultiSelecionados[gfcMultiAtual].clear();gfcAtualizarMultiBotao(gfcMultiAtual);gfcRenderMulti();gfcValidarFiltrosInstantaneo();});
+function gfcFiltroValores(id){const a=[...(gfcMultiSelecionados[id]||[])];return a.length?a:null;}function gfcAceitaFiltro(filtro,valor){return filtro===null||filtro===undefined||(Array.isArray(filtro)?filtro.includes(valor):filtro===valor);}
+
 function gfcClamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
 
 function gfcAtualizarTela(){
@@ -6439,6 +6441,7 @@ function gfcRenderFixasGrid(){
 
 function gfcAbrirFixas(){
   if(!geradorGameAtual) return;
+  document.getElementById('gfcMultiInline')?.classList.remove('show');
   gfcRenderFixasGrid();
   const painel=document.getElementById('gfcFixasInline');
   if(painel) painel.classList.toggle('show');
@@ -6511,13 +6514,13 @@ function gerarJogoPersonalizado(min, max, dezenasPorJogo, ultimoSet, repetidasAl
     const centro = jogo.filter(n=>centroSet.has(n)).length;
     const mult3 = jogo.filter(n=>n%3===0).length;
     const soma = jogo.reduce((acc,n)=>acc+n,0);
-    if(filtroPares!==null && pares!==filtroPares) continue;
-    if(filtroImpares!==null && impares!==filtroImpares) continue;
-    if(filtroPrimos!==null && primos!==filtroPrimos) continue;
-    if(filtroFib!==null && fib!==filtroFib) continue;
-    if(filtroMoldura!==null && moldura!==filtroMoldura) continue;
-    if(filtroCentro!==null && centro!==filtroCentro) continue;
-    if(filtroMult3!==null && mult3!==filtroMult3) continue;
+    if(!gfcAceitaFiltro(filtroPares, pares)) continue;
+    if(!gfcAceitaFiltro(filtroImpares, impares)) continue;
+    if(!gfcAceitaFiltro(filtroPrimos, primos)) continue;
+    if(!gfcAceitaFiltro(filtroFib, fib)) continue;
+    if(!gfcAceitaFiltro(filtroMoldura, moldura)) continue;
+    if(!gfcAceitaFiltro(filtroCentro, centro)) continue;
+    if(!gfcAceitaFiltro(filtroMult3, mult3)) continue;
     if(filtroSoma!==null && soma!==filtroSoma) continue;
     return jogo;
   }
@@ -6542,7 +6545,7 @@ function diagnosticarFiltrosIncompativeis(min, max, dezenasPorJogo, ultimoSet, r
   if(!ativos.length) return [];
 
   // Contradição exata: pares + ímpares precisam totalizar a quantidade de dezenas do jogo.
-  if(filtroPares!==null && filtroImpares!==null && filtroPares + filtroImpares !== dezenasPorJogo){
+  if(filtroPares!==null && filtroImpares!==null && !filtroPares.some(p=>filtroImpares.some(i=>p+i===dezenasPorJogo))){
     return ativos.filter(f=>f.chave==='pares' || f.chave==='impares');
   }
 
@@ -6576,15 +6579,8 @@ function gfcValidarFiltrosInstantaneo(){
   const k = Number(gfc.dezenas) || GERADOR_APOSTA_SIZE[geradorGameAtual.code] || 0;
   const min = geradorGameAtual.range.min, max = geradorGameAtual.range.max;
   const total = max-min+1;
-  const ler = id => {
-    const el=els[id]; if(!el || el.value==='') return null;
-    const n=Number(el.value); return Number.isFinite(n) ? Math.trunc(n) : null;
-  };
-  const v = {
-    pares:ler('gfcFiltroPares'), impares:ler('gfcFiltroImpares'), primos:ler('gfcFiltroPrimos'),
-    fib:ler('gfcFiltroFib'), moldura:ler('gfcFiltroMoldura'), centro:ler('gfcFiltroCentro'),
-    mult3:ler('gfcFiltroMult3'), soma:ler('gfcFiltroSoma')
-  };
+  const ler=id=>GFC_MULTI_IDS.includes(id)?gfcFiltroValores(id):(()=>{const el=els[id];if(!el||el.value==='')return null;const n=parseInt(el.value,10);return Number.isFinite(n)?n:null;})();
+  const v = {pares:ler('gfcFiltroPares'), impares:ler('gfcFiltroImpares'), primos:ler('gfcFiltroPrimos'), fib:ler('gfcFiltroFib'), moldura:ler('gfcFiltroMoldura'), centro:ler('gfcFiltroCentro'), mult3:ler('gfcFiltroMult3'), soma:ler('gfcFiltroSoma')};
   const conflitos = new Map();
   const marcar = (id,msg)=>{ if(!conflitos.has(id)) conflitos.set(id,msg); };
 
@@ -6604,13 +6600,13 @@ function gfcValidarFiltrosInstantaneo(){
   for(const [id,val,disp,label] of props){
     if(val===null) continue;
     const minimo=Math.max(0,k-(total-disp)), maximo=Math.min(k,disp);
-    if(val<minimo || val>maximo) marcar(id,`${label} precisa ficar entre ${minimo} e ${maximo}.`);
+    const vals=Array.isArray(val)?val:[val]; if(!vals.some(x=>x>=minimo&&x<=maximo)) marcar(id,`${label} precisa ter pelo menos uma opção entre ${minimo} e ${maximo}.`);
   }
-  if(v.pares!==null && v.impares!==null && v.pares+v.impares!==k){
+  if(v.pares!==null && v.impares!==null && !v.pares.some(p=>v.impares.some(i=>p+i===k))){
     marcar('gfcFiltroPares',`Pares + Ímpares precisam somar ${k}.`);
     marcar('gfcFiltroImpares',`Pares + Ímpares precisam somar ${k}.`);
   }
-  if(v.moldura!==null && v.centro!==null && v.moldura+v.centro!==k){
+  if(v.moldura!==null && v.centro!==null && !v.moldura.some(m=>v.centro.some(c=>m+c===k))){
     marcar('gfcFiltroMoldura',`Moldura + Centro precisam somar ${k}.`);
     marcar('gfcFiltroCentro',`Moldura + Centro precisam somar ${k}.`);
   }
