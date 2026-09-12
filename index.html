@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0532'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0533'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -6546,6 +6546,16 @@ function gerarJogoPersonalizado(min, max, dezenasPorJogo, ultimoSet, repetidasAl
 }
 
 function diagnosticarFiltrosIncompativeis(min, max, dezenasPorJogo, ultimoSet, repetidasAlvo, filtroPares, filtroImpares, filtroPrimos, filtrosExtra){
+  const comoLista = v => v===null || v===undefined ? null : (Array.isArray(v) ? v : [v]);
+  filtroPares = comoLista(filtroPares);
+  filtroImpares = comoLista(filtroImpares);
+  filtroPrimos = comoLista(filtroPrimos);
+  filtrosExtra = {...filtrosExtra,
+    fib: comoLista(filtrosExtra.fib),
+    moldura: comoLista(filtrosExtra.moldura),
+    centro: comoLista(filtrosExtra.centro),
+    mult3: comoLista(filtrosExtra.mult3)
+  };
   const ativos = [
     {chave:'pares', label:'Pares', valor:filtroPares},
     {chave:'impares', label:'Ímpares', valor:filtroImpares},
@@ -6617,11 +6627,11 @@ function gfcValidarFiltrosInstantaneo(){
     const minimo=Math.max(0,k-(total-disp)), maximo=Math.min(k,disp);
     const vals=Array.isArray(val)?val:[val]; if(!vals.some(x=>x>=minimo&&x<=maximo)) marcar(id,`${label} precisa ter pelo menos uma opção entre ${minimo} e ${maximo}.`);
   }
-  if(v.pares!==null && v.impares!==null && !v.pares.some(p=>v.impares.some(i=>p+i===k))){
+  if(v.pares!==null && v.impares!==null && !([...(Array.isArray(v.pares)?v.pares:[v.pares])]).some(p=>(Array.isArray(v.impares)?v.impares:[v.impares]).some(i=>p+i===k))){
     marcar('gfcFiltroPares',`Pares + Ímpares precisam somar ${k}.`);
     marcar('gfcFiltroImpares',`Pares + Ímpares precisam somar ${k}.`);
   }
-  if(v.moldura!==null && v.centro!==null && !v.moldura.some(m=>v.centro.some(c=>m+c===k))){
+  if(v.moldura!==null && v.centro!==null && !([...(Array.isArray(v.moldura)?v.moldura:[v.moldura])]).some(m=>(Array.isArray(v.centro)?v.centro:[v.centro]).some(c=>m+c===k))){
     marcar('gfcFiltroMoldura',`Moldura + Centro precisam somar ${k}.`);
     marcar('gfcFiltroCentro',`Moldura + Centro precisam somar ${k}.`);
   }
