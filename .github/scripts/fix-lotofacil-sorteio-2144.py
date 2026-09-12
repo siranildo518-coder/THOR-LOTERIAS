@@ -1,5 +1,6 @@
 from pathlib import Path
 
+# trigger para publicar a correção depois que o workflow já existe no branch principal
 p = Path('index.html')
 s = p.read_text(encoding='utf-8')
 s = s.replace("const APP_VERSAO_ATUAL = '2026-09-11-2107';", "const APP_VERSAO_ATUAL = '2026-09-11-2144';", 1)
