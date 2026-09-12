@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0226'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0532'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -6317,11 +6317,11 @@ function gfcOpcoesFiltro(id){
     const opcoes={
       gfcFiltroPares:[6,7,8,9,10,11,12],
       gfcFiltroImpares:[6,7,8,9,10,11,12],
-      gfcFiltroPrimos:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
-      gfcFiltroFib:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
-      gfcFiltroMoldura:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+      gfcFiltroPrimos:[2,3,4,5,6,7,8,9],
+      gfcFiltroFib:[3,4,5,6,7],
+      gfcFiltroMoldura:[8,9,10,11,12,13,14,15],
       gfcFiltroCentro:[5,6,7,8,9],
-      gfcFiltroMult3:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+      gfcFiltroMult3:[2,3,4,5,6,7,8]
     };
     return opcoes[id]||[];
   }
