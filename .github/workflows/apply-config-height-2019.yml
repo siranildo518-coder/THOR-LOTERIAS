@@ -1,4 +1,4 @@
-name: Publicar correcao Lotofacil 2144
+name: Publicar correcao Lotofacil 2153
 on:
   push:
     paths:
@@ -12,11 +12,23 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - run: python3 .github/scripts/fix-lotofacil-sorteio-2144.py
-      - run: |
+      - name: Aplicar correcao
+        run: python3 .github/scripts/fix-lotofacil-sorteio-2144.py
+      - name: Validar JavaScript
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf-8')
+          scripts=re.findall(r'<script(?:[^>]*)>(.*?)</script>', s, re.S)
+          Path('/tmp/thor-scripts.js').write_text('\n'.join(scripts), encoding='utf-8')
+          PY
+          node --check /tmp/thor-scripts.js
+      - name: Publicar index e sw
+        run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add index.html sw.js
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Corrigir sorteio Lotofacil 2144'
+          git commit -m 'Corrigir Lotofacil e oportunidades 2153'
           git push
