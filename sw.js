@@ -1,12 +1,13 @@
 // THOR LOTERIAS - Service Worker
-// Versão sincronizada com index.html: referência dourada 01.
-const CACHE_NAME = 'thor-loterias-2026-09-12-goldref-01';
+// Versão sincronizada com index.html: tela inicial referência exata 01.
+const CACHE_NAME = 'thor-loterias-2026-09-12-exactref-01';
 const CORE = [
   './',
   './index.html',
   './app-main.html',
   './home-reference.css',
   './home-reference.js',
+  './thor-home-reference.jpg',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
