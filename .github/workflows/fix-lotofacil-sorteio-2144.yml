@@ -1,13 +1,12 @@
 name: Corrigir sorteio Lotofácil 2144
 on:
-  workflow_run:
-    workflows: ["pages build and deployment"]
-    types: [completed]
+  push:
+    paths:
+      - '.github/workflows/fix-lotofacil-sorteio-2144.yml'
 permissions:
   contents: write
 jobs:
   publicar:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
