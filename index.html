@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0205'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0225'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -6312,7 +6312,22 @@ let gfcFixasSelecionadas = new Set();
 
 const GFC_MULTI_IDS=['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3'];
 const gfcMultiSelecionados=Object.fromEntries(GFC_MULTI_IDS.map(id=>[id,new Set()]));let gfcMultiAtual=null;
-function gfcOpcoesFiltro(id){if(geradorGameAtual?.code==='LF')return ({gfcFiltroPares:[6,8,10,12],gfcFiltroImpares:[5,7,9,11,13],gfcFiltroPrimos:[3,5,7,9],gfcFiltroFib:[3,5,7],gfcFiltroMoldura:[8,10,12,14,16],gfcFiltroCentro:[3,5,7,9],gfcFiltroMult3:[2,4,6,8]})[id]||[];const k=gfc.dezenas||0;return Array.from({length:k+1},(_,i)=>i);}
+function gfcOpcoesFiltro(id){
+  if(geradorGameAtual?.code==='LF'){
+    const opcoes={
+      gfcFiltroPares:[6,7,8,9,10,11,12],
+      gfcFiltroImpares:[6,7,8,9,10,11,12],
+      gfcFiltroPrimos:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+      gfcFiltroFib:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+      gfcFiltroMoldura:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+      gfcFiltroCentro:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+      gfcFiltroMult3:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    };
+    return opcoes[id]||[];
+  }
+  const k=gfc.dezenas||0;
+  return Array.from({length:k+1},(_,i)=>i);
+}
 function gfcAtualizarMultiBotao(id){const el=document.getElementById(id),set=gfcMultiSelecionados[id];if(!el||!set)return;const label=el.dataset.label||'',vals=[...set].sort((a,b)=>a-b);el.textContent=vals.length?`${label} (${vals.join(' / ')})`:label;el.value=vals.join(',');el.classList.toggle('tem-valores',!!vals.length);}
 function gfcRenderMulti(){const box=document.getElementById('gfcMultiOptions'),title=document.getElementById('gfcMultiTitle'),count=document.getElementById('gfcMultiCount');if(!box||!gfcMultiAtual)return;const el=document.getElementById(gfcMultiAtual),set=gfcMultiSelecionados[gfcMultiAtual];title.textContent=`Escolha as quantidades de ${el.dataset.label}`;box.innerHTML='';gfcOpcoesFiltro(gfcMultiAtual).forEach(v=>{const b=document.createElement('button');b.type='button';b.className='gfc-multi-option'+(set.has(v)?' on':'');b.textContent=v;b.onclick=()=>{set.has(v)?set.delete(v):set.add(v);gfcAtualizarMultiBotao(gfcMultiAtual);gfcRenderMulti();};box.appendChild(b);});count.textContent=set.size;}
 function gfcAbrirMulti(id){gfcMultiAtual=id;gfcRenderMulti();document.getElementById('gfcFixasInline')?.classList.remove('show');document.getElementById('gfcMultiInline')?.classList.add('show');}
