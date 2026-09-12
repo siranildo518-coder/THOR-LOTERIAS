@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0042'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0048'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -3499,7 +3499,7 @@ document.addEventListener('selectstart', e=>{
         <div class="card" style="padding:10px 10px 11px;margin-bottom:10px;">
           <label class="field-label" for="somaQtdInput" style="display:block;margin-bottom:6px;text-align:center;">Analisar quantos últimos concursos?</label>
           <div style="display:flex;align-items:center;justify-content:center;gap:7px;">
-            <input type="number" id="somaQtdInput" min="2" max="500" value="100" inputmode="numeric" style="background:#fff;width:78px;height:31px;padding:4px 7px;font-size:12px;text-align:center;border:1px solid #CFC7D8;border-radius:7px;box-sizing:border-box;">
+            <input type="number" id="somaQtdInput" min="2" max="500" value="300" inputmode="numeric" style="background:#fff;width:78px;height:31px;padding:4px 7px;font-size:12px;text-align:center;border:1px solid #CFC7D8;border-radius:7px;box-sizing:border-box;">
             <button type="button" class="btn-confirm btn-3d" id="somaAtualizarBtn" style="height:31px;padding:4px 14px;border-radius:7px;border:none;font-size:10.5px;min-width:88px;">ANALISAR</button>
           </div>
           <div id="somaStatus" style="text-align:center;font-size:10px;color:var(--muted);margin-top:6px;min-height:12px;"></div>
@@ -10617,18 +10617,33 @@ function renderSomaFaixas(contagens,total){
 }
 async function carregarSoma(gameParam){
   const game=gameParam||tendGameAtual, input=document.getElementById('somaQtdInput'), btn=document.getElementById('somaAtualizarBtn'), status=document.getElementById('somaStatus');
-  let qtd=parseInt(input?.value||'100',10); if(!Number.isFinite(qtd))qtd=100; qtd=Math.max(2,Math.min(500,qtd)); if(input)input.value=qtd;
+  let qtd=parseInt(input?.value||'300',10); if(!Number.isFinite(qtd))qtd=300; qtd=Math.max(2,Math.min(500,qtd)); if(input)input.value=qtd;
   if(game.code!=='LF'){ if(status)status.textContent='A análise de soma desta tabela é da Lotofácil.'; renderSomaFaixas([0,0,0,0,0,0],0); return; }
   const req=++somaRequestId; if(btn){btn.disabled=true;setBtnLoading('somaAtualizarBtn',true,'ANALISANDO');} if(status)status.textContent=`Analisando os últimos ${qtd} concursos…`;
   try{
     const ultimo=await fetchConcursoLoteria(game); if(req!==somaRequestId)return; if(!ultimo?.concurso)throw new Error('sem dados');
     const numeros=[]; for(let c=ultimo.concurso;c>ultimo.concurso-qtd&&c>0;c--)numeros.push(c);
     const dados=new Array(numeros.length); dados[0]=ultimo;
-    await Promise.all(numeros.slice(1).map((c,i)=>fetchConcursoLoteria(game,c).then(d=>dados[i+1]=d).catch(()=>dados[i+1]=null)));
+    const buscarComTentativas=async(concurso)=>{
+      for(let tentativa=0;tentativa<3;tentativa++){
+        try{const d=await fetchConcursoLoteria(game,concurso);if(d&&Array.isArray(d.dezenas))return d;}catch(e){}
+        await new Promise(r=>setTimeout(r,120+tentativa*180));
+      }
+      return null;
+    };
+    const pendentes=numeros.slice(1), lote=18;
+    for(let ini=0;ini<pendentes.length;ini+=lote){
+      if(req!==somaRequestId)return;
+      const fatia=pendentes.slice(ini,ini+lote);
+      const respostas=await Promise.all(fatia.map(c=>buscarComTentativas(c)));
+      respostas.forEach((d,j)=>{dados[ini+1+j]=d;});
+      if(status){const feitos=Math.min(numeros.length,ini+fatia.length+1);status.textContent=`Analisando ${feitos} de ${qtd} concursos…`;}
+      if(ini+lote<pendentes.length)await new Promise(r=>setTimeout(r,70));
+    }
     if(req!==somaRequestId)return;
     const validos=dados.filter(d=>d&&Array.isArray(d.dezenas)), contagens=[0,0,0,0,0,0];
     validos.forEach(d=>{ const soma=(d.dezenas||[]).reduce((a,n)=>a+(parseInt(n,10)||0),0); const ix=SOMA_FAIXAS_LOTOFACIL.findIndex(([a,b])=>soma>=a&&soma<=b); if(ix>=0)contagens[ix]++; });
-    renderSomaFaixas(contagens,validos.length); if(status)status.textContent=`${validos.length} concurso${validos.length===1?'':'s'} analisado${validos.length===1?'':'s'}.`; somaCarregouUmaVez=true;
+    renderSomaFaixas(contagens,validos.length); if(status)status.textContent=validos.length===qtd?`${qtd} concursos analisados.`:`${validos.length} de ${qtd} concursos analisados.`; somaCarregouUmaVez=true;
   }catch(e){ if(status)status.textContent='Não foi possível analisar os concursos agora.'; }
   finally{ if(req===somaRequestId&&btn){btn.disabled=false;setBtnLoading('somaAtualizarBtn',false);btn.textContent='ANALISAR';} }
 }
