@@ -1,4 +1,4 @@
-name: Publicar filtro repetidas 0536
+name: Publicar posição repetidas 0537
 on:
   push:
     paths:
@@ -30,7 +30,7 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add index.html sw.js
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Filtro multiplo de repetidas 0536'
+          git commit -m 'Posicionar seletor de repetidas 0537'
           git push
-      - name: Confirmar publicação 0536
-        run: echo '0536 publicada'
+      - name: Confirmar publicação 0537
+        run: echo '0537 publicada'
