@@ -1,68 +1,53 @@
 from pathlib import Path
 import re
 
-VERSAO = '2026-09-12-0010'
+VERSAO = '2026-09-12-0016'
 
 p = Path('index.html')
 s = p.read_text(encoding='utf-8')
 s = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{VERSAO}';", s, count=1)
 
-# Spinner próprio para os botões da aba Análise.
-if '.analise-loading-spinner' not in s:
-    s = s.replace(
-        "  @keyframes girarBtn{\n    from{transform:rotate(0deg);}\n    to{transform:rotate(360deg);}\n  }",
-        "  @keyframes girarBtn{\n    from{transform:rotate(0deg);}\n    to{transform:rotate(360deg);}\n  }\n  @keyframes analiseSpinner{\n    from{transform:rotate(0deg);}\n    to{transform:rotate(360deg);}\n  }\n  .analise-loading-spinner{\n    display:inline-block!important;\n    width:12px;height:12px;\n    border:2px solid rgba(255,255,255,.5);\n    border-top-color:#fff;\n    border-radius:50%;\n    margin-right:6px;\n    vertical-align:middle;\n    transform-origin:50% 50%;\n    will-change:transform;\n    animation:analiseSpinner .65s linear infinite!important;\n  }",
-        1
-    )
+old = '''function setBtnLoading(btnId, loading, textoCarregando){
+  const btn = document.getElementById(btnId);
+  if(!btn) return;
+  if(loading){
+    if(btn.dataset.originalHtml === undefined) btn.dataset.originalHtml = btn.innerHTML;
+    btn.innerHTML = `<span class="analise-loading-spinner" aria-hidden="true"></span>${textoCarregando || 'ATUALIZANDO...'}`;
+  } else if(btn.dataset.originalHtml !== undefined){
+    btn.innerHTML = btn.dataset.originalHtml;
+  }
+}'''
 
-s = s.replace(
-    'btn.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span>${textoCarregando || \'ATUALIZANDO...\'}`;',
-    'btn.innerHTML = `<span class="analise-loading-spinner" aria-hidden="true"></span>${textoCarregando || \'ATUALIZANDO...\'}`;',
-    1
-)
+new = '''function setBtnLoading(btnId, loading, textoCarregando){
+  const btn = document.getElementById(btnId);
+  if(!btn) return;
+  if(loading){
+    if(btn.dataset.originalHtml === undefined) btn.dataset.originalHtml = btn.innerHTML;
+    btn.setAttribute('aria-busy','true');
+    btn.innerHTML = `<span class="analise-loading-spinner" aria-hidden="true"></span><span class="analise-loading-texto">${textoCarregando || 'ATUALIZANDO...'}</span>`;
+    const spinner = btn.querySelector('.analise-loading-spinner');
+    if(spinner){
+      try{
+        if(spinner._thorAnim) spinner._thorAnim.cancel();
+        spinner._thorAnim = spinner.animate(
+          [{transform:'rotate(0deg)'},{transform:'rotate(360deg)'}],
+          {duration:650,iterations:Infinity,easing:'linear'}
+        );
+      }catch(e){
+        spinner.style.animation = 'analiseSpinner .65s linear infinite';
+      }
+    }
+  } else {
+    btn.removeAttribute('aria-busy');
+    const spinner = btn.querySelector('.analise-loading-spinner');
+    try{ if(spinner && spinner._thorAnim) spinner._thorAnim.cancel(); }catch(e){}
+    if(btn.dataset.originalHtml !== undefined) btn.innerHTML = btn.dataset.originalHtml;
+  }
+}'''
 
-# Frequência - Dezenas também passa a usar o mesmo spinner.
-s = s.replace(
-    "if(btn){ btn.disabled = true; btn.classList.add('atualizando'); btn.textContent='ATUALIZANDO'; }",
-    "if(btn){ btn.disabled = true; btn.classList.add('atualizando'); setBtnLoading('frequenciaAtualizarBtn', true, 'ATUALIZANDO'); }",
-    1
-)
-s = s.replace(
-    "if(requestId === frequenciaRequestId && btn){ btn.disabled = false; btn.classList.remove('atualizando'); btn.textContent='ATUALIZAR'; }",
-    "if(requestId === frequenciaRequestId && btn){ btn.disabled = false; btn.classList.remove('atualizando'); setBtnLoading('frequenciaAtualizarBtn', false); }",
-    1
-)
-
-# Frequência - Ternos e Quadras.
-s = s.replace(
-    "if(btn){btn.disabled=true;btn.textContent='CARREGANDO…';}",
-    "if(btn){btn.disabled=true;setBtnLoading(cfg.btn,true,'CARREGANDO…');}",
-    1
-)
-s = s.replace(
-    "if(btn){btn.disabled=false;btn.textContent='ATUALIZAR '+cfg.label;}",
-    "if(btn){btn.disabled=false;setBtnLoading(cfg.btn,false);}",
-    1
-)
-
-# Frequência - Quinas.
-s = s.replace(
-    "if(btn){btn.disabled=true;btn.textContent='CARREGANDO…';}",
-    "if(btn){btn.disabled=true;setBtnLoading('frequenciaQuinasAtualizarBtn',true,'CARREGANDO…');}",
-    1
-)
-s = s.replace(
-    "if(btn){btn.disabled=false;btn.textContent='ATUALIZAR QUINAS';}",
-    "if(btn){btn.disabled=false;setBtnLoading('frequenciaQuinasAtualizarBtn',false);}",
-    1
-)
-
-# Ao limpar/resetar a frequência, restaura o HTML original do botão corretamente.
-s = s.replace(
-    "if(atualizar){ atualizar.disabled=false; atualizar.classList.remove('atualizando'); atualizar.textContent='ATUALIZAR'; }",
-    "if(atualizar){ atualizar.disabled=false; atualizar.classList.remove('atualizando'); setBtnLoading('frequenciaAtualizarBtn', false); }",
-    2
-)
+if old not in s:
+    raise SystemExit('setBtnLoading atual não encontrado')
+s = s.replace(old, new, 1)
 
 p.write_text(s, encoding='utf-8')
 
