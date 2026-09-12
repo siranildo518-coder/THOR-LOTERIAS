@@ -1,18 +1,32 @@
 from pathlib import Path
 import re
-VERSAO='2026-09-12-0110'
+VERSAO='2026-09-12-0116'
 p=Path('index.html')
 s=p.read_text(encoding='utf-8')
 s=re.sub(r"const APP_VERSAO_ATUAL = '[^']+';",f"const APP_VERSAO_ATUAL = '{VERSAO}';",s,count=1)
-# Adiciona o campo Fixas logo abaixo de Centro, sem duplicar.
-if 'id="gfcFiltroFixas"' not in s:
-    alvo='''          <div class="gfc-dark-input-wrap">\n            <input type="number" inputmode="numeric" id="gfcFiltroCentro" placeholder=" ">\n            <span>Centro</span>\n          </div>'''
-    novo=alvo+'''\n          <div class="gfc-dark-input-wrap">\n            <input type="number" inputmode="numeric" id="gfcFiltroFixas" placeholder=" ">\n            <span>Fixas</span>\n          </div>'''
-    if alvo not in s:
-        raise SystemExit('Bloco Centro não encontrado')
-    s=s.replace(alvo,novo,1)
-# Inclui Fixas na limpeza/inicialização dos filtros.
-s=s.replace("['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3','gfcFiltroSoma']", "['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroFixas','gfcFiltroMult3','gfcFiltroSoma']",1)
+old='''          <div class="gfc-dark-input-wrap">\n            <input type="number" inputmode="numeric" id="gfcFiltroFixas" placeholder=" ">\n            <span>Fixas</span>\n          </div>'''
+new='''          <div class="gfc-dark-input-wrap" id="gfcFixasWrap" style="cursor:pointer;">\n            <input type="text" id="gfcFiltroFixas" placeholder=" " readonly inputmode="none" aria-label="Escolher dezenas fixas" style="cursor:pointer;">\n            <span>Fixas</span>\n          </div>'''
+if old not in s: raise SystemExit('campo Fixas antigo não encontrado')
+s=s.replace(old,new,1)
+marker='<div class="overlay" id="overlayHistorico">'
+modal='''<div class="overlay" id="overlayGfcFixas">\n  <div class="modal" style="max-width:360px;">\n    <div class="modal-head">DEZENAS FIXAS</div>\n    <div class="modal-info">Toque nas dezenas que devem aparecer em todos os jogos gerados.</div>\n    <div class="modal-card">\n      <div class="conf-grid" id="gfcFixasGrid"></div>\n      <div class="conf-count">Selecionadas: <strong id="gfcFixasCount">0</strong></div>\n    </div>\n    <div class="modal-actions">\n      <button class="btn-cancel" id="gfcFixasLimpar">LIMPAR</button>\n      <button class="btn-confirm" id="gfcFixasConfirmar">CONFIRMAR</button>\n    </div>\n  </div>\n</div>\n\n'''
+if 'id="overlayGfcFixas"' not in s:
+    if marker not in s: raise SystemExit('ponto do modal não encontrado')
+    s=s.replace(marker,modal+marker,1)
+s=s.replace("const gfc = { dezenas: null, repetidas: null, qtd: 10 };", "const gfc = { dezenas: null, repetidas: null, qtd: 10 };\nlet gfcFixasSelecionadas = new Set();",1)
+s=s.replace("  gfcAtualizarTela();\n  ['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroFixas','gfcFiltroMult3','gfcFiltroSoma'].forEach(id=>{", "  gfcAtualizarTela();\n  gfcFixasSelecionadas.clear();\n  ['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroFixas','gfcFiltroMult3','gfcFiltroSoma'].forEach(id=>{",1)
+anchor='function gerarJogoPersonalizado(min, max, dezenasPorJogo, ultimoSet, repetidasAlvo, filtroPares, filtroImpares, filtroPrimos, filtrosExtra){'
+js='''function gfcAtualizarFixasCampo(){\n  const el=document.getElementById('gfcFiltroFixas');\n  if(!el) return;\n  const arr=[...gfcFixasSelecionadas].sort((a,b)=>a-b);\n  el.value=arr.length ? `${arr.length} escolhida${arr.length===1?'':'s'}` : '';\n  el.title=arr.length ? arr.map(n=>String(n).padStart(2,'0')).join(', ') : 'Escolher dezenas fixas';\n}\n\nfunction gfcRenderFixasGrid(){\n  const grid=document.getElementById('gfcFixasGrid');\n  const count=document.getElementById('gfcFixasCount');\n  if(!grid || !geradorGameAtual) return;\n  const min=geradorGameAtual.range.min, max=geradorGameAtual.range.max;\n  grid.innerHTML='';\n  for(let n=min;n<=max;n++){\n    const b=document.createElement('button');\n    b.type='button'; b.className='conf-ball'+(gfcFixasSelecionadas.has(n)?' on':'');\n    b.textContent=String(n).padStart(2,'0'); b.dataset.n=n;\n    b.addEventListener('click',()=>{\n      if(gfcFixasSelecionadas.has(n)) gfcFixasSelecionadas.delete(n);\n      else if(gfcFixasSelecionadas.size < (gfc.dezenas||GERADOR_APOSTA_SIZE[geradorGameAtual.code]||0)) gfcFixasSelecionadas.add(n);\n      gfcRenderFixasGrid(); gfcAtualizarFixasCampo();\n    });\n    grid.appendChild(b);\n  }\n  if(count) count.textContent=gfcFixasSelecionadas.size;\n}\n\nfunction gfcAbrirFixas(){\n  if(!geradorGameAtual) return;\n  gfcRenderFixasGrid();\n  document.getElementById('overlayGfcFixas')?.classList.add('show');\n}\n\ndocument.getElementById('gfcFixasWrap')?.addEventListener('click', gfcAbrirFixas);\ndocument.getElementById('gfcFiltroFixas')?.addEventListener('click', e=>{ e.stopPropagation(); gfcAbrirFixas(); });\ndocument.getElementById('gfcFixasConfirmar')?.addEventListener('click',()=>{\n  gfcAtualizarFixasCampo();\n  document.getElementById('overlayGfcFixas')?.classList.remove('show');\n});\ndocument.getElementById('gfcFixasLimpar')?.addEventListener('click',()=>{\n  gfcFixasSelecionadas.clear(); gfcRenderFixasGrid(); gfcAtualizarFixasCampo();\n});\n\n'''
+if 'function gfcAbrirFixas()' not in s:
+    if anchor not in s: raise SystemExit('gerador não encontrado')
+    s=s.replace(anchor,js+anchor,1)
+s=s.replace("  const filtroSoma = (filtrosExtra && filtrosExtra.soma !== undefined) ? filtrosExtra.soma : null;", "  const filtroSoma = (filtrosExtra && filtrosExtra.soma !== undefined) ? filtrosExtra.soma : null;\n  const fixasSet = (filtrosExtra && filtrosExtra.fixasSet) || new Set();",1)
+old2='''  const doUltimo = todosNums.filter(n=>ultimoSet.has(n));\n  const outros = todosNums.filter(n=>!ultimoSet.has(n));\n\n  const repAlvo = gfcClamp(repetidasAlvo, 0, Math.min(dezenasPorJogo, doUltimo.length));\n  const restantesAlvo = dezenasPorJogo - repAlvo;\n  if(restantesAlvo > outros.length) return null; // impossível com esses parâmetros'''
+new2='''  const fixas = todosNums.filter(n=>fixasSet.has(n));\n  if(fixas.length > dezenasPorJogo) return null;\n  const fixasDoUltimo = fixas.filter(n=>ultimoSet.has(n));\n  const fixasOutros = fixas.filter(n=>!ultimoSet.has(n));\n  const doUltimo = todosNums.filter(n=>ultimoSet.has(n) && !fixasSet.has(n));\n  const outros = todosNums.filter(n=>!ultimoSet.has(n) && !fixasSet.has(n));\n\n  const repAlvo = gfcClamp(repetidasAlvo, 0, Math.min(dezenasPorJogo, todosNums.filter(n=>ultimoSet.has(n)).length));\n  const restantesAlvo = dezenasPorJogo - repAlvo;\n  const repLivres = repAlvo - fixasDoUltimo.length;\n  const outrosLivres = restantesAlvo - fixasOutros.length;\n  if(repLivres < 0 || outrosLivres < 0 || repLivres > doUltimo.length || outrosLivres > outros.length) return null;'''
+if old2 not in s: raise SystemExit('bloco de sorteio antigo não encontrado')
+s=s.replace(old2,new2,1)
+s=s.replace("    const partA = embaralhar(doUltimo).slice(0, repAlvo);\n    const partB = embaralhar(outros).slice(0, restantesAlvo);\n    const jogo = partA.concat(partB).sort((a,b)=>a-b);", "    const partA = embaralhar(doUltimo).slice(0, repLivres);\n    const partB = embaralhar(outros).slice(0, outrosLivres);\n    const jogo = fixas.concat(partA,partB).sort((a,b)=>a-b);",1)
+s=s.replace("    fib: filtroFib, moldura: filtroMoldura, centro: filtroCentro, mult3: filtroMult3, soma: filtroSoma,\n    fibSet: FIB, molduraSet: new Set(molduraArr), centroSet: new Set(centroArr)", "    fib: filtroFib, moldura: filtroMoldura, centro: filtroCentro, mult3: filtroMult3, soma: filtroSoma,\n    fibSet: FIB, molduraSet: new Set(molduraArr), centroSet: new Set(centroArr), fixasSet: new Set(gfcFixasSelecionadas)",1)
 p.write_text(s,encoding='utf-8')
 sw=Path('sw.js')
 t=sw.read_text(encoding='utf-8')
