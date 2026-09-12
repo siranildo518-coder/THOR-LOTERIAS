@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-11-2358'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0010'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -1001,6 +1001,22 @@ document.addEventListener('selectstart', e=>{
   @keyframes girarBtn{
     from{transform:rotate(0deg);}
     to{transform:rotate(360deg);}
+  }
+  @keyframes analiseSpinner{
+    from{transform:rotate(0deg);}
+    to{transform:rotate(360deg);}
+  }
+  .analise-loading-spinner{
+    display:inline-block!important;
+    width:12px;height:12px;
+    border:2px solid rgba(255,255,255,.5);
+    border-top-color:#fff;
+    border-radius:50%;
+    margin-right:6px;
+    vertical-align:middle;
+    transform-origin:50% 50%;
+    will-change:transform;
+    animation:analiseSpinner .65s linear infinite!important;
   }
   @keyframes bolaSorteada{
     0%{transform:translateY(-20px) scale(1,1);}
@@ -4148,7 +4164,7 @@ function setBtnLoading(btnId, loading, textoCarregando){
   if(!btn) return;
   if(loading){
     if(btn.dataset.originalHtml === undefined) btn.dataset.originalHtml = btn.innerHTML;
-    btn.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span>${textoCarregando || 'ATUALIZANDO...'}`;
+    btn.innerHTML = `<span class="analise-loading-spinner" aria-hidden="true"></span>${textoCarregando || 'ATUALIZANDO...'}`;
   } else if(btn.dataset.originalHtml !== undefined){
     btn.innerHTML = btn.dataset.originalHtml;
   }
@@ -7804,7 +7820,7 @@ async function carregarFrequencia(gameParam, opts){
     return;
   }
 
-  if(btn){ btn.disabled = true; btn.classList.add('atualizando'); btn.textContent='ATUALIZANDO'; }
+  if(btn){ btn.disabled = true; btn.classList.add('atualizando'); setBtnLoading('frequenciaAtualizarBtn', true, 'ATUALIZANDO'); }
   if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
   try{
     const {linhas, numeroUltimo, concursosAnalisados} = await calcularFrequenciaDetalhado(game, qtd);
@@ -7818,7 +7834,7 @@ async function carregarFrequencia(gameParam, opts){
     console.error('carregarFrequencia falhou:', e);
     if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
   }finally{
-    if(requestId === frequenciaRequestId && btn){ btn.disabled = false; btn.classList.remove('atualizando'); btn.textContent='ATUALIZAR'; }
+    if(requestId === frequenciaRequestId && btn){ btn.disabled = false; btn.classList.remove('atualizando'); setBtnLoading('frequenciaAtualizarBtn', false); }
   }
 }
 
@@ -7924,7 +7940,7 @@ async function carregarFrequenciaGrupo(tipo, gameParam, opts){
   if(qtdEl && ajustarCampo) qtdEl.value=qtd;
   const cont=document.getElementById(cfg.conteudo);
   const btn=document.getElementById(cfg.btn);
-  if(btn){btn.disabled=true;btn.textContent='CARREGANDO…';}
+  if(btn){btn.disabled=true;setBtnLoading(cfg.btn,true,'CARREGANDO…');}
   if(cont) cont.innerHTML=`<div class="res-loading">Calculando ${cfg.nome} dos últimos ${qtd} concursos…</div>`;
   try{
     const r=await calcularGruposFrequentes(game,qtd,cfg.tamanho);
@@ -7935,7 +7951,7 @@ async function carregarFrequenciaGrupo(tipo, gameParam, opts){
     console.error('carregarFrequenciaGrupo falhou:',tipo,e);
     if(cont) cont.innerHTML=`<div class="res-error">Não foi possível calcular os ${cfg.nome} agora.<br>Verifique sua internet e tente novamente.<br><span style="font-size:11px;opacity:.8;">${e&&e.message?e.message:''}</span></div>`;
   }finally{
-    if(btn){btn.disabled=false;btn.textContent='ATUALIZAR '+cfg.label;}
+    if(btn){btn.disabled=false;setBtnLoading(cfg.btn,false);}
   }
 }
 
@@ -8030,7 +8046,7 @@ async function carregarFrequenciaQuinas(gameParam, opts){
   if(qtdEl && ajustarCampo) qtdEl.value=qtd;
   const cont=document.getElementById('frequenciaQuinasConteudo');
   const btn=document.getElementById('frequenciaQuinasAtualizarBtn');
-  if(btn){btn.disabled=true;btn.textContent='CARREGANDO…';}
+  if(btn){btn.disabled=true;setBtnLoading('frequenciaQuinasAtualizarBtn',true,'CARREGANDO…');}
   if(cont) cont.innerHTML=`<div class="res-loading">Calculando quinas dos últimos ${qtd} concursos…</div>`;
   try{
     const r=await calcularQuinasFrequentes(game,qtd);
@@ -8040,7 +8056,7 @@ async function carregarFrequenciaQuinas(gameParam, opts){
     console.error('carregarFrequenciaQuinas falhou:',e);
     if(cont) cont.innerHTML=`<div class="res-error">Não foi possível calcular as quinas agora.<br>Verifique sua internet e tente novamente.<br><span style="font-size:11px;opacity:.8;">${e&&e.message?e.message:''}</span></div>`;
   }finally{
-    if(btn){btn.disabled=false;btn.textContent='ATUALIZAR QUINAS';}
+    if(btn){btn.disabled=false;setBtnLoading('frequenciaQuinasAtualizarBtn',false);}
   }
 }
 
@@ -10761,7 +10777,7 @@ document.getElementById('frequenciaLimparBtn').addEventListener('click', functio
   const atualizar=document.getElementById('frequenciaAtualizarBtn');
   if(el) el.value='';
   if(cont) cont.innerHTML='';
-  if(atualizar){ atualizar.disabled=false; atualizar.classList.remove('atualizando'); atualizar.textContent='ATUALIZAR'; }
+  if(atualizar){ atualizar.disabled=false; atualizar.classList.remove('atualizando'); setBtnLoading('frequenciaAtualizarBtn', false); }
   setTimeout(()=>btn.classList.remove('apertado'),220);
 });
 // Ao mudar a quantidade de concursos, recalcula automaticamente.
@@ -10776,7 +10792,7 @@ document.getElementById('frequenciaQtdInput').addEventListener('input', ()=>{
     const cont=document.getElementById('frequenciaConteudo');
     const atualizar=document.getElementById('frequenciaAtualizarBtn');
     if(cont) cont.innerHTML='';
-    if(atualizar){ atualizar.disabled=false; atualizar.classList.remove('atualizando'); atualizar.textContent='ATUALIZAR'; }
+    if(atualizar){ atualizar.disabled=false; atualizar.classList.remove('atualizando'); setBtnLoading('frequenciaAtualizarBtn', false); }
     return;
   }
   frequenciaQtdDebounceTimer=setTimeout(()=>{
