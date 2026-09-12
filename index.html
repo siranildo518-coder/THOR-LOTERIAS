@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0016'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0030'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -3239,6 +3239,7 @@ document.addEventListener('selectstart', e=>{
       <button class="subtab-btn" id="subtabCiclo">Ciclo</button>
       <button class="subtab-btn" id="subtabAtraso">Atrasado há</button>
       <button class="subtab-btn" id="subtabFrequencia">Frequência</button>
+      <button class="subtab-btn" id="subtabSoma">Soma</button>
     </div>
 
     <div id="tendPanel" class="stat-dark-wrap">
@@ -3491,6 +3492,12 @@ document.addEventListener('selectstart', e=>{
         <button class="btn-confirm btn-3d" id="atrasoAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
       </div>
       <div id="atrasoConteudo"></div>
+    </div>
+
+    <div id="somaPanel" style="display:none;">
+      <div class="card" style="padding:12px;">
+        <div style="font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:800;color:var(--violet-deep);">Soma</div>
+      </div>
     </div>
 
     <div id="frequenciaPanel" style="display:none;">
@@ -10590,7 +10597,8 @@ const TEND_SUBTABS = [
   {btn:'subtabManual', panel:'manualPanel'},
   {btn:'subtabCiclo', panel:'cicloPanel'},
   {btn:'subtabAtraso', panel:'atrasoPanel'},
-  {btn:'subtabFrequencia', panel:'frequenciaPanel'}
+  {btn:'subtabFrequencia', panel:'frequenciaPanel'},
+  {btn:'subtabSoma', panel:'somaPanel'}
 ];
 function ativarSubtabTendencia(idAtivo){
   TEND_SUBTABS.forEach(s=>{
@@ -10664,6 +10672,9 @@ document.getElementById('subtabAtraso').addEventListener('click', ()=>{
 document.getElementById('subtabFrequencia').addEventListener('click', ()=>{
   ativarSubtabTendencia('subtabFrequencia');
   if(!frequenciaCarregouUmaVez) carregarFrequencia(tendGameAtual);
+});
+document.getElementById('subtabSoma').addEventListener('click', ()=>{
+  ativarSubtabTendencia('subtabSoma');
 });
 // toggle interno da aba Ciclo: "Falta sair" x "Falta falhar" x "Ímpares" x "Pares" — os
 // cálculos já existem, só alternamos qual caixa fica visível dentro do mesmo painel
