@@ -1,10 +1,16 @@
 // THOR LOTERIAS - Service Worker
-// Versão sincronizada com index.html: tela inicial exata dentro do HTML.
-const CACHE_NAME = 'thor-loterias-2026-09-12-exact-html-02';
+// Versão sincronizada com index.html: tela inicial nítida em alta qualidade.
+const CACHE_NAME = 'thor-loterias-2026-09-12-hqfix-01';
 const CORE = [
   './',
   './index.html',
   './app-main.html',
+  './home-hq/p00.txt',
+  './home-hq/p01.txt',
+  './home-hq/p02.txt',
+  './home-hq/p03.txt',
+  './home-hq/p04.txt',
+  './home-hq/p05.txt',
   './thor-home-reference.jpg',
   './manifest.json',
   './icon-192.png',
