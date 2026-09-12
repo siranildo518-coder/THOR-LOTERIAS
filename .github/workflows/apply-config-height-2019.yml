@@ -1,62 +1,22 @@
-name: Aplicar altura compacta 2019
-
+name: Publicar correcao Lotofacil 2144
 on:
   push:
     paths:
       - '.github/workflows/apply-config-height-2019.yml'
-
 permissions:
   contents: write
-
 jobs:
-  atualizar:
+  publicar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Aplicar ajuste e versoes
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-
-          versao = '2026-09-11-2019'
-          bloco = '''<style id="gfc-config-compact-height">
-/* Configurações avançadas: reduzir altura vertical */
-.gfc-dark-card{padding:11px 14px !important;margin-bottom:8px !important;}
-.gfc-dark-title{margin-bottom:9px !important;}
-.gfc-dark-label{margin-bottom:4px !important;}
-.gfc-dark-stepper-row{margin-bottom:10px !important;gap:8px !important;}
-.gfc-dark-stepper-btn{height:34px !important;}
-.gfc-dark-value-input{padding:3px 4px !important;min-height:34px !important;}
-.gfc-dark-filtro-label{margin-bottom:5px !important;}
-.gfc-dark-filtros{gap:6px !important;margin-bottom:10px !important;}
-.gfc-dark-input-wrap input{padding:5px 4px !important;}
-</style>'''
-
-          p = Path('index.html')
-          s = p.read_text(encoding='utf-8')
-          if 'id="gfc-config-compact-height"' in s:
-              s = re.sub(r'<style id="gfc-config-compact-height">.*?</style>', bloco, s, count=1, flags=re.S)
-          else:
-              s = s.replace('</head>', '\n' + bloco + '\n</head>', 1)
-          s = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{versao}';", s, count=1)
-          p.write_text(s, encoding='utf-8')
-
-          swp = Path('sw.js')
-          sw = swp.read_text(encoding='utf-8')
-          sw = re.sub(r"const CACHE_NAME = 'thor-loterias-[^']+';", f"const CACHE_NAME = 'thor-loterias-{versao}';", sw, count=1)
-          swp.write_text(sw, encoding='utf-8')
-          PY
-      - name: Publicar
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - run: python3 .github/scripts/fix-lotofacil-sorteio-2144.py
+      - run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add index.html sw.js
-          if git diff --cached --quiet; then
-            echo "Sem alteracoes"
-            exit 0
-          fi
-          git commit -m "Diminuir altura das configuracoes e atualizar app 2019"
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Corrigir sorteio Lotofacil 2144'
           git push
