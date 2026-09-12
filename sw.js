@@ -1,15 +1,38 @@
 // THOR LOTERIAS - Service Worker
-// Atualizacao automatica: ao detectar um novo sw.js, ele assume imediatamente
-// e o HTML principal sempre tenta a rede primeiro para buscar a versao mais nova.
-const CACHE_NAME = 'thor-loterias-2026-09-12-0540';
+// Atualizacao automatica + design neon da tela de selecao.
+const CACHE_NAME = 'thor-loterias-2026-09-12-design-neon-01';
+const DESIGN_URL = './selection-design.css?v=20260912-design-neon-01';
 
 const CACHE_FILES = [
   './index.html',
   './THOR-LOTERIAS.html',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './selection-design.css'
 ];
+
+function aplicarDesignNoHtml(response){
+  if(!response) return Promise.resolve(response);
+  const tipo = response.headers.get('content-type') || '';
+  if(!tipo.includes('text/html')) return Promise.resolve(response);
+
+  return response.clone().text().then((html)=>{
+    if(!html || html.includes('selection-design.css')) return response;
+    const link = `<link rel="stylesheet" href="${DESIGN_URL}">`;
+    const alterado = html.includes('</head>')
+      ? html.replace('</head>', `${link}\n</head>`)
+      : `${link}\n${html}`;
+    const headers = new Headers(response.headers);
+    headers.set('content-type','text/html; charset=utf-8');
+    headers.delete('content-length');
+    return new Response(alterado, {
+      status: response.status,
+      statusText: response.statusText,
+      headers
+    });
+  }).catch(()=>response);
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -53,14 +76,16 @@ self.addEventListener('fetch', (event) => {
   if (req.mode === 'navigate' || aceita.includes('text/html')) {
     event.respondWith(
       fetch(req, { cache: 'no-store' })
-        .then((res) => {
+        .then(async (res) => {
           if (!res || !res.ok) throw new Error('Resposta invalida');
-          const copia = res.clone();
+          const comDesign = await aplicarDesignNoHtml(res);
+          const copia = comDesign.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(req, copia));
-          return res;
+          return comDesign;
         })
         .catch(async () => {
-          return (await caches.match(req)) || (await caches.match('./index.html')) || (await caches.match('./THOR-LOTERIAS.html'));
+          const fallback = (await caches.match(req)) || (await caches.match('./index.html')) || (await caches.match('./THOR-LOTERIAS.html'));
+          return aplicarDesignNoHtml(fallback);
         })
     );
     return;
