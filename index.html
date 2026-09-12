@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0533'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0534'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -6594,6 +6594,29 @@ function diagnosticarFiltrosIncompativeis(min, max, dezenasPorJogo, ultimoSet, r
   return conflitos.length ? conflitos : ativos;
 }
 
+function gfcCruzarFiltrosSelecionados(k, filtros){
+  const lista = v => v===null || v===undefined ? null : (Array.isArray(v) ? [...v] : [v]);
+  const out = {
+    pares: lista(filtros.pares),
+    impares: lista(filtros.impares),
+    primos: lista(filtros.primos),
+    fib: lista(filtros.fib),
+    moldura: lista(filtros.moldura),
+    centro: lista(filtros.centro),
+    mult3: lista(filtros.mult3),
+    soma: filtros.soma
+  };
+  const cruzarComplementares = (a,b)=>{
+    if(a===null || b===null) return [a,b];
+    const aValidos = a.filter(x=>b.some(y=>x+y===k));
+    const bValidos = b.filter(y=>a.some(x=>x+y===k));
+    return [aValidos,bValidos];
+  };
+  [out.pares,out.impares] = cruzarComplementares(out.pares,out.impares);
+  [out.moldura,out.centro] = cruzarComplementares(out.moldura,out.centro);
+  return out;
+}
+
 function gfcValidarFiltrosInstantaneo(){
   const alerta = document.getElementById('gfcFiltroAlerta');
   const ids = ['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3','gfcFiltroSoma'];
@@ -6909,19 +6932,27 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
   const dezenasPorJogo = gfc.dezenas;
   const repetidasAlvo = gfc.repetidas;
   const qtdJogos = gfc.qtd;
-  const parseFiltro = id => {
-    const v = document.getElementById(id).value;
-    return v==='' ? null : gfcClamp(parseInt(v,10), 0, dezenasPorJogo);
-  };
-  const filtroPares = parseFiltro('gfcFiltroPares');
-  const filtroImpares = parseFiltro('gfcFiltroImpares');
-  const filtroPrimos = parseFiltro('gfcFiltroPrimos');
-  const filtroFib = parseFiltro('gfcFiltroFib');
-  const filtroMoldura = parseFiltro('gfcFiltroMoldura');
-  const filtroCentro = parseFiltro('gfcFiltroCentro');
-  const filtroMult3 = parseFiltro('gfcFiltroMult3');
+  let filtroPares = gfcFiltroValores('gfcFiltroPares');
+  let filtroImpares = gfcFiltroValores('gfcFiltroImpares');
+  let filtroPrimos = gfcFiltroValores('gfcFiltroPrimos');
+  let filtroFib = gfcFiltroValores('gfcFiltroFib');
+  let filtroMoldura = gfcFiltroValores('gfcFiltroMoldura');
+  let filtroCentro = gfcFiltroValores('gfcFiltroCentro');
+  let filtroMult3 = gfcFiltroValores('gfcFiltroMult3');
   const somaValor = document.getElementById('gfcFiltroSoma').value;
   const filtroSoma = somaValor==='' ? null : Math.max(0, parseInt(somaValor,10) || 0);
+
+  const filtrosCruzados = gfcCruzarFiltrosSelecionados(dezenasPorJogo, {
+    pares:filtroPares, impares:filtroImpares, primos:filtroPrimos, fib:filtroFib,
+    moldura:filtroMoldura, centro:filtroCentro, mult3:filtroMult3, soma:filtroSoma
+  });
+  filtroPares = filtrosCruzados.pares;
+  filtroImpares = filtrosCruzados.impares;
+  filtroPrimos = filtrosCruzados.primos;
+  filtroFib = filtrosCruzados.fib;
+  filtroMoldura = filtrosCruzados.moldura;
+  filtroCentro = filtrosCruzados.centro;
+  filtroMult3 = filtrosCruzados.mult3;
 
   const centroArr = centroDoJogo(g) || [];
   const molduraArr = molduraDoJogo(g) || [];
