@@ -1,38 +1,68 @@
 from pathlib import Path
 import re
 
-VER='2026-09-12-0537'
+VER='2026-09-12-0538'
 p=Path('index.html')
 s=p.read_text(encoding='utf-8')
 s=re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{VER}';", s, count=1)
 
-# Mantem o filtro multiplo de repetidas criado na 0536.
-if 'id="gfcFiltroRepetidas"' not in s: raise SystemExit('controle de repetidas nao encontrado')
-if "'gfcFiltroRepetidas'" not in s: raise SystemExit('repetidas nao esta nos filtros multiplos')
+old='''        <div class="gfc-dark-label">Repetidas do concurso anterior</div>\n        <div class="gfc-dark-input-wrap" style="margin-bottom:8px;">\n          <button type="button" id="gfcFiltroRepetidas" class="gfc-multi-btn" data-label="Repetidas" style="width:100%;">Repetidas</button>\n        </div>'''
+new='''        <div class="gfc-dark-label">Repetidas do concurso anterior</div>\n        <div class="gfc-dark-stepper-row" id="gfcRepetidasRow">\n          <button type="button" class="gfc-dark-stepper-btn" id="gfcRepMenos">−</button>\n          <button type="button" class="gfc-dark-value-input gfc-repetidas-value" id="gfcFiltroRepetidas" data-label="Repetidas" value="">9</button>\n          <button type="button" class="gfc-dark-stepper-btn plus" id="gfcRepMais">+</button>\n        </div>'''
+if old in s:
+    s=s.replace(old,new,1)
+elif 'id="gfcRepetidasRow"' not in s:
+    raise SystemExit('bloco repetidas nao encontrado')
 
-new_open="""function gfcAbrirMulti(id){
-  gfcMultiAtual=id;
-  const painel=document.getElementById('gfcMultiInline');
-  const repetidasBtn=document.getElementById('gfcFiltroRepetidas');
-  const filtrosGrid=document.querySelector('.gfc-dark-filtros');
-  const fixasInline=document.getElementById('gfcFixasInline');
-  if(painel){
-    if(id==='gfcFiltroRepetidas'){
-      const wrap=repetidasBtn?.closest('.gfc-dark-input-wrap');
-      if(wrap) wrap.insertAdjacentElement('afterend',painel);
-    }else if(filtrosGrid){
-      if(fixasInline && fixasInline.parentElement===filtrosGrid) filtrosGrid.insertBefore(painel,fixasInline);
-      else filtrosGrid.appendChild(painel);
-    }
+if '.gfc-repetidas-value{' not in s:
+    s=s.replace('</style>', "\n.gfc-repetidas-value{cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;border:1px solid var(--line,#E7DFF5);background:#fff;color:#4C1D95;font-weight:800;appearance:none;-webkit-appearance:none;}\n</style>",1)
+
+oldfun="""function gfcAtualizarMultiBotao(id){
+  const el=document.getElementById(id), set=gfcMultiSelecionados[id]; if(!el||!set)return;
+  const label=el.dataset.label||''; const vals=[...set].sort((a,b)=>a-b);
+  el.textContent=vals.length?`${label} (${vals.join(' / ')})`:label; el.value=vals.join(','); el.classList.toggle('tem-valores',!!vals.length);
+}"""
+newfun="""function gfcAtualizarMultiBotao(id){
+  const el=document.getElementById(id), set=gfcMultiSelecionados[id]; if(!el||!set)return;
+  const label=el.dataset.label||''; const vals=[...set].sort((a,b)=>a-b);
+  if(id==='gfcFiltroRepetidas'){
+    const fallback = gfc.repetidas ?? 9;
+    el.textContent = vals.length ? vals.join(' / ') : String(fallback);
+    el.value = vals.join(',');
+    el.classList.toggle('tem-valores',!!vals.length);
+    return;
   }
-  gfcRenderMulti();
-  document.getElementById('gfcFixasInline')?.classList.remove('show');
-  painel?.classList.add('show');
+  el.textContent=vals.length?`${label} (${vals.join(' / ')})`:label; el.value=vals.join(','); el.classList.toggle('tem-valores',!!vals.length);
+}"""
+if oldfun in s:
+    s=s.replace(oldfun,newfun,1)
+elif "if(id==='gfcFiltroRepetidas'){\n    const fallback" not in s:
+    raise SystemExit('gfcAtualizarMultiBotao nao encontrado')
+
+s=s.replace("const wrap=repetidasBtn?.closest('.gfc-dark-input-wrap');\n      if(wrap) wrap.insertAdjacentElement('afterend',painel);", "const row=document.getElementById('gfcRepetidasRow') || repetidasBtn?.closest('.gfc-dark-stepper-row');\n      if(row) row.insertAdjacentElement('afterend',painel);",1)
+
+anchor="GFC_MULTI_IDS.forEach(id=>document.getElementById(id)?.addEventListener('click',()=>gfcAbrirMulti(id)));"
+extra="""GFC_MULTI_IDS.forEach(id=>document.getElementById(id)?.addEventListener('click',()=>gfcAbrirMulti(id)));
+
+function gfcAjustarRepetidas(delta){
+  const opcoes=gfcOpcoesFiltro('gfcFiltroRepetidas');
+  if(!opcoes.length) return;
+  const set=gfcMultiSelecionados.gfcFiltroRepetidas;
+  const atuais=[...set].sort((a,b)=>a-b);
+  let atual=atuais.length===1?atuais[0]:(gfc.repetidas ?? opcoes[0]);
+  let idx=opcoes.indexOf(atual);
+  if(idx<0) idx=0;
+  idx=Math.max(0,Math.min(opcoes.length-1,idx+delta));
+  set.clear();
+  set.add(opcoes[idx]);
+  gfc.repetidas=opcoes[idx];
+  gfcAtualizarMultiBotao('gfcFiltroRepetidas');
+  gfcValidarFiltrosInstantaneo();
 }
-"""
-if "if(id==='gfcFiltroRepetidas')" not in s:
-    s,n=re.subn(r"function gfcAbrirMulti\(id\)\{.*?(?=GFC_MULTI_IDS\.forEach)",new_open,s,count=1,flags=re.S)
-    if n!=1: raise SystemExit('gfcAbrirMulti nao encontrado')
+document.getElementById('gfcRepMenos')?.addEventListener('click',()=>gfcAjustarRepetidas(-1));
+document.getElementById('gfcRepMais')?.addEventListener('click',()=>gfcAjustarRepetidas(1));"""
+if 'function gfcAjustarRepetidas(delta){' not in s:
+    if anchor not in s: raise SystemExit('listeners multi nao encontrados')
+    s=s.replace(anchor,extra,1)
 
 p.write_text(s,encoding='utf-8')
 sw=Path('sw.js')
