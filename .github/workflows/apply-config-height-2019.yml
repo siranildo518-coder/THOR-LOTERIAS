@@ -33,4 +33,4 @@ jobs:
           git commit -m 'Posicionar seletor de repetidas 0537'
           git push
       - name: Confirmar publicação 0537
-        run: echo '0537 publicada'
+        run: echo '0537 publicada - seletor abaixo de Repetidas'
