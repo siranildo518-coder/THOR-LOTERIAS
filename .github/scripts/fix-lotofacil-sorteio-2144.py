@@ -1,15 +1,16 @@
 from pathlib import Path
 import re
-VERSAO='2026-09-12-0048'
+VERSAO='2026-09-12-0054'
 p=Path('index.html')
 s=p.read_text(encoding='utf-8')
 s=re.sub(r"const APP_VERSAO_ATUAL = '[^']+';",f"const APP_VERSAO_ATUAL = '{VERSAO}';",s,count=1)
-s=s.replace('id="somaQtdInput" min="2" max="500" value="100"','id="somaQtdInput" min="2" max="500" value="300"',1)
-s=s.replace("let qtd=parseInt(input?.value||'100',10); if(!Number.isFinite(qtd))qtd=100;", "let qtd=parseInt(input?.value||'300',10); if(!Number.isFinite(qtd))qtd=300;",1)
-old="""    const dados=new Array(numeros.length); dados[0]=ultimo;\n    await Promise.all(numeros.slice(1).map((c,i)=>fetchConcursoLoteria(game,c).then(d=>dados[i+1]=d).catch(()=>dados[i+1]=null)));\n    if(req!==somaRequestId)return;\n    const validos=dados.filter(d=>d&&Array.isArray(d.dezenas)), contagens=[0,0,0,0,0,0];"""
-new="""    const dados=new Array(numeros.length); dados[0]=ultimo;\n    const buscarComTentativas=async(concurso)=>{\n      for(let tentativa=0;tentativa<3;tentativa++){\n        try{const d=await fetchConcursoLoteria(game,concurso);if(d&&Array.isArray(d.dezenas))return d;}catch(e){}\n        await new Promise(r=>setTimeout(r,120+tentativa*180));\n      }\n      return null;\n    };\n    const pendentes=numeros.slice(1), lote=18;\n    for(let ini=0;ini<pendentes.length;ini+=lote){\n      if(req!==somaRequestId)return;\n      const fatia=pendentes.slice(ini,ini+lote);\n      const respostas=await Promise.all(fatia.map(c=>buscarComTentativas(c)));\n      respostas.forEach((d,j)=>{dados[ini+1+j]=d;});\n      if(status){const feitos=Math.min(numeros.length,ini+fatia.length+1);status.textContent=`Analisando ${feitos} de ${qtd} concursos…`;}\n      if(ini+lote<pendentes.length)await new Promise(r=>setTimeout(r,70));\n    }\n    if(req!==somaRequestId)return;\n    const validos=dados.filter(d=>d&&Array.isArray(d.dezenas)), contagens=[0,0,0,0,0,0];"""
-if old in s:s=s.replace(old,new,1)
-s=s.replace("renderSomaFaixas(contagens,validos.length); if(status)status.textContent=`${validos.length} concurso${validos.length===1?'':'s'} analisado${validos.length===1?'':'s'}.`; somaCarregouUmaVez=true;", "renderSomaFaixas(contagens,validos.length); if(status)status.textContent=validos.length===qtd?`${qtd} concursos analisados.`:`${validos.length} de ${qtd} concursos analisados.`; somaCarregouUmaVez=true;",1)
+css='''\n  @keyframes somaSpinnerGirar{\n    0%{transform:rotate(0deg);}\n    100%{transform:rotate(360deg);}\n  }\n  .soma-loading-spinner{\n    display:inline-block!important;\n    width:13px;height:13px;box-sizing:border-box;\n    border:2px solid rgba(255,255,255,.45);\n    border-top-color:#fff;border-right-color:#fff;\n    border-radius:50%;margin-right:6px;vertical-align:-2px;\n    animation:somaSpinnerGirar .55s linear infinite!important;\n    -webkit-animation:somaSpinnerGirar .55s linear infinite!important;\n  }\n'''
+if 'somaSpinnerGirar' not in s:
+    s=s.replace('  @keyframes analiseSpinner{',css+'  @keyframes analiseSpinner{',1)
+old="if(btn){ btn.disabled=true; setBtnLoading('somaAtualizarBtn', true, 'ANALISANDO'); }\n  if(status) status.textContent = `Analisando os últimos ${qtd} concursos…`;"
+new="""if(btn){\n    btn.disabled=true;\n    btn.setAttribute('aria-busy','true');\n    btn.innerHTML='<span class=\"soma-loading-spinner\" aria-hidden=\"true\"></span><span>ANALISANDO</span>';\n  }\n  if(status) status.textContent = `Analisando os últimos ${qtd} concursos…`;\n  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));"""
+s=s.replace(old,new,1)
+s=s.replace("if(req===somaRequestId && btn){ btn.disabled=false; setBtnLoading('somaAtualizarBtn', false); btn.textContent='ANALISAR'; }","if(req===somaRequestId && btn){ btn.disabled=false; btn.removeAttribute('aria-busy'); btn.textContent='ANALISAR'; }",1)
 p.write_text(s,encoding='utf-8')
 sw=Path('sw.js')
 t=sw.read_text(encoding='utf-8')
