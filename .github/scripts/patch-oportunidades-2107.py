@@ -40,3 +40,5 @@ sw = Path('sw.js')
 t = sw.read_text(encoding='utf-8')
 t = re.sub(r"const CACHE_NAME = 'thor-loterias-[^']+';", "const CACHE_NAME = 'thor-loterias-2026-09-11-2107';", t, count=1)
 sw.write_text(t, encoding='utf-8')
+
+# trigger 2107
