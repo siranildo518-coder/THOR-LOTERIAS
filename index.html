@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0059'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0104'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -1798,6 +1798,18 @@ document.addEventListener('selectstart', e=>{
       inset 0 -2px 3px rgba(0,0,0,.28),
       0 1px 0 #4A1080,
       0 2px 5px rgba(74,16,128,.4);
+  }
+
+
+  #tendAtualizarBtn{
+    box-sizing:border-box!important;
+    border:2px solid transparent!important;
+    transform:none!important;
+    transition:box-shadow .12s ease-out!important;
+  }
+  #tendAtualizarBtn:active, #tendAtualizarBtn.is-pressed{
+    transform:none!important;
+    border-color:rgba(255,255,255,.75)!important;
   }
 
   /* Botão 3D genérico (afunda suavemente ao pressionar e volta) — funciona com qualquer cor de fundo */
@@ -5525,14 +5537,17 @@ function selecionarLoteriaOficial(code){
 let tendGameAtual = LOTOFACIL_GAME; // qual loteria está sendo exibida na aba Tendência agora
 const tendCacheCarregou = {}; // slug -> já carregou pelo menos uma vez nesta sessão
 let tendVendoUltimo = true; // false quando o usuário navegou p/ um concurso antigo via Anterior/Próximo
+let tendCarregandoAgora = false; // evita cliques repetidos sem desativar visualmente o botão
 
 async function carregarTendencia(gameParam){
+  if(tendCarregandoAgora) return;
+  tendCarregandoAgora = true;
   const game = gameParam || tendGameAtual;
   const qtdEl = document.getElementById('tendQtdSelect');
   const qtd = qtdEl ? parseInt(qtdEl.value,10) : 25;
   const cont = document.getElementById('tendConteudo');
   const btn = document.getElementById('tendAtualizarBtn');
-  if(btn){ btn.disabled = true; setBtnLoading('tendAtualizarBtn', true); }
+  if(btn){ setBtnLoading('tendAtualizarBtn', true); }
   if(cont) cont.innerHTML = `<div class="res-loading">Buscando os últimos ${qtd} concursos…</div>`;
   const min = game.range.min, max = game.range.max;
   try{
@@ -5586,7 +5601,8 @@ async function carregarTendencia(gameParam){
     console.error('carregarTendencia falhou:', e);
     if(cont) cont.innerHTML = `<div class="res-error">Não foi possível buscar os concursos agora.<br>Verifique sua internet e toque em "ATUALIZAR" para tentar de novo.<br><span style="font-size:11px;opacity:.8;">${(e && e.message) ? e.message : ''}</span></div>`;
   }finally{
-    if(btn){ btn.disabled = false; setBtnLoading('tendAtualizarBtn', false); }
+    if(btn){ setBtnLoading('tendAtualizarBtn', false); }
+    tendCarregandoAgora = false;
   }
 }
 
