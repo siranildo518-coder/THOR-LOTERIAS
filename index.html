@@ -15,7 +15,7 @@ html,body{margin:0;min-height:100%;background:#030405;color:#fff;font-family:Ari
 <div id="thorBoot"><div class="thorBootBox"><div class="thorBootSpin"></div>THOR LOTERIAS</div></div>
 <script>
 (function(){
-  var VERSION='20260912-hqfix-01';
+  var VERSION='20260912-hqfix-02';
   var HOME_CSS = String.raw`
 html.thor-home-open,body.thor-home-open{overflow:hidden!important;background:#000!important}
 #thorExactHome{position:fixed;inset:0;z-index:2147483000;overflow:auto;overscroll-behavior:contain;background:#020304;color:#fff;-webkit-overflow-scrolling:touch}
@@ -57,12 +57,13 @@ function go(id){hide();setTimeout(function(){click(id)},20)}
 function resultado(){hide();try{if(typeof openResultadoOverlay==='function')openResultadoOverlay(window.homeGameAtual||window.LOTOFACIL_GAME);else click('btnResultadosAtalho')}catch(e){}}
 function drawer(){hide();try{if(typeof openDrawer==='function')openDrawer();else click('btnMenu')}catch(e){}}
 var HQ_PARTS=[
- './home-hq/p00.txt?v=20260912-hqfix-01',
- './home-hq/p01.txt?v=20260912-hqfix-01',
- './home-hq/p02.txt?v=20260912-hqfix-01',
- './home-hq/p03.txt?v=20260912-hqfix-01',
- './home-hq/p04.txt?v=20260912-hqfix-01',
- './home-hq/p05.txt?v=20260912-hqfix-01'
+ './home-hq/p00.txt?v=20260912-hqfix-02',
+ './home-hq/p01.txt?v=20260912-hqfix-02',
+ './home-hq/p02.txt?v=20260912-hqfix-02',
+ './home-hq/p03.txt?v=20260912-hqfix-02',
+ './home-hq/p04.txt?v=20260912-hqfix-02',
+ './home-hq/p05a.txt?v=20260912-hqfix-02',
+ './home-hq/p05b.txt?v=20260912-hqfix-02'
 ];
 function carregarImagemHQ(img){
  if(!img)return;
@@ -75,7 +76,7 @@ function carregarImagemHQ(img){
  })).then(function(parts){
    img.src='data:image/jpeg;base64,'+parts.join('');
  }).catch(function(){
-   img.src='./thor-home-reference.jpg?v=20260912-hqfix-01';
+   img.src='./thor-home-reference.jpg?v=20260912-hqfix-02';
  });
 }
 function makeHome(){
