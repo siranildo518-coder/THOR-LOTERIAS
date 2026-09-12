@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0104'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0110'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -4150,6 +4150,10 @@ document.addEventListener('selectstart', e=>{
             <span>Centro</span>
           </div>
           <div class="gfc-dark-input-wrap">
+            <input type="number" inputmode="numeric" id="gfcFiltroFixas" placeholder=" ">
+            <span>Fixas</span>
+          </div>
+          <div class="gfc-dark-input-wrap">
             <input type="number" inputmode="numeric" id="gfcFiltroMult3" placeholder=" ">
             <span>Múlt. de 3</span>
           </div>
@@ -6291,7 +6295,7 @@ function gfcInicializar(g){
   gfc.repetidas = gfcClamp(Math.round((depSize*depSize)/rangeSize), 0, depSize);
   gfc.qtd = 10;
   gfcAtualizarTela();
-  ['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3','gfcFiltroSoma'].forEach(id=>{
+  ['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroFixas','gfcFiltroMult3','gfcFiltroSoma'].forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.value = '';
   });
