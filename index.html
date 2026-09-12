@@ -91,9 +91,7 @@ async function verificarTravaAparelho(hash){
 const CREDENCIAIS_VALIDAS = [
   'giievh', // Irenildo (senha 142580)
   '1m290eo', // Maurício (senha 142580)
-  '1j4fg2y', // Soares (senha 142580)
-  '12apkmf', // IRANYLDO (senha 142580)
-  '1dmttpf', // Irenildo (senha 142580)
+  '15g49xu', // Vivem (senha 142580)
 ];
 
 const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
@@ -2720,6 +2718,7 @@ document.addEventListener('selectstart', e=>{
 #frequenciaConteudo .freq-dez-row{min-height:27px!important;}
 #frequenciaConteudo .freq-dez-row>div{padding-top:3px!important;padding-bottom:3px!important;}
 </style>
+
 <style id="gerador-cards-resultado-finos">
 /* Gerador de jogos: quadros Resultado e Repetidas bem mais baixos/finos */
 #geradorFiltroUltimoResultado{padding:3px 8px !important;margin-bottom:5px !important;border-radius:13px !important;}
@@ -5437,7 +5436,7 @@ async function fetchConcursoLoteria(game, concurso){
           CONCURSO_CACHE_LOTERIA.set(chaveCacheConcurso(game, Number(data.concurso)), data);
         }
         resolve(data);
-      }).catch(()=>{
+      }).catch(err=>{
         falhas++;
         if(falhas >= fontes.length && !terminou){
           terminou = true;
@@ -6223,8 +6222,8 @@ function renderManual(dezenas, atraso, totalAnalisado, numeroUltimo, falhaConjun
 }
 
 // ---------- Gerador multi-loteria: escolher loteria -> filtro (últimos N concursos) -> 50 jogos ----------
-// dezenas por jogo (padrão oficial mínimo de cada loteria). Lotomania (50 dezenas por jogo) e
-// Super Sete (funciona por colunas, não por dezenas) não entram nesse gerador.
+// dezenas por jogo (padrão oficial mínimo de cada loteria). A Lotomania usa 50 dezenas por jogo.
+// O Super Sete funciona por colunas e continua fora deste gerador numérico tradicional.
 const GERADOR_APOSTA_SIZE = {MS:6, LF:15, QN:5, DIA:7, LM:50, TM:10, DS:6};
 const GERADOR_GAMES = GAMES.filter(g => GERADOR_APOSTA_SIZE[g.code]);
 let geradorGameAtual = null;
@@ -6393,6 +6392,7 @@ function diagnosticarFiltrosIncompativeis(min, max, dezenasPorJogo, ultimoSet, r
 
   if(!ativos.length) return [];
 
+  // Contradição exata: pares + ímpares precisam totalizar a quantidade de dezenas do jogo.
   if(filtroPares!==null && filtroImpares!==null && filtroPares + filtroImpares !== dezenasPorJogo){
     return ativos.filter(f=>f.chave==='pares' || f.chave==='impares');
   }
@@ -6405,12 +6405,14 @@ function diagnosticarFiltrosIncompativeis(min, max, dezenasPorJogo, ultimoSet, r
     else if(chaveRemovida==='primos') primos = null;
     else extra[chaveRemovida] = null;
 
+    // Repete a busca algumas vezes para evitar apontar conflito por mero azar do sorteio aleatório.
     for(let i=0;i<24;i++){
       if(gerarJogoPersonalizado(min, max, dezenasPorJogo, ultimoSet, repetidasAlvo, pares, impares, primos, extra)) return true;
     }
     return false;
   }
 
+  // Se retirar um filtro faz a combinação voltar a ser possível, esse filtro participa do conflito.
   const conflitos = ativos.filter(f=>consegueSem(f.chave));
   return conflitos.length ? conflitos : ativos;
 }
@@ -6421,27 +6423,71 @@ function gfcValidarFiltrosInstantaneo(){
   const els = Object.fromEntries(ids.map(id=>[id,document.getElementById(id)]));
   ids.forEach(id=>els[id] && els[id].classList.remove('gfc-filtro-invalido'));
   if(!geradorGameAtual){ if(alerta){alerta.classList.remove('ativo'); alerta.textContent='';} return true; }
+
   const k = Number(gfc.dezenas) || GERADOR_APOSTA_SIZE[geradorGameAtual.code] || 0;
   const min = geradorGameAtual.range.min, max = geradorGameAtual.range.max;
   const total = max-min+1;
-  const ler = id => { const el=els[id]; if(!el || el.value==='') return null; const n=Number(el.value); return Number.isFinite(n) ? Math.trunc(n) : null; };
-  const v = {pares:ler('gfcFiltroPares'),impares:ler('gfcFiltroImpares'),primos:ler('gfcFiltroPrimos'),fib:ler('gfcFiltroFib'),moldura:ler('gfcFiltroMoldura'),centro:ler('gfcFiltroCentro'),mult3:ler('gfcFiltroMult3'),soma:ler('gfcFiltroSoma')};
+  const ler = id => {
+    const el=els[id]; if(!el || el.value==='') return null;
+    const n=Number(el.value); return Number.isFinite(n) ? Math.trunc(n) : null;
+  };
+  const v = {
+    pares:ler('gfcFiltroPares'), impares:ler('gfcFiltroImpares'), primos:ler('gfcFiltroPrimos'),
+    fib:ler('gfcFiltroFib'), moldura:ler('gfcFiltroMoldura'), centro:ler('gfcFiltroCentro'),
+    mult3:ler('gfcFiltroMult3'), soma:ler('gfcFiltroSoma')
+  };
   const conflitos = new Map();
-  const marcar=(id,msg)=>{ if(!conflitos.has(id)) conflitos.set(id,msg); };
+  const marcar = (id,msg)=>{ if(!conflitos.has(id)) conflitos.set(id,msg); };
+
   const nums=[]; for(let n=min;n<=max;n++) nums.push(n);
   const ehPrimo=n=>{ if(n<2)return false; for(let d=2;d*d<=n;d++) if(n%d===0)return false; return true; };
-  const centro=new Set(centroDoJogo(geradorGameAtual)||[]), moldura=new Set(molduraDoJogo(geradorGameAtual)||[]);
-  const props=[['gfcFiltroPares',v.pares,nums.filter(n=>n%2===0).length,'Pares'],['gfcFiltroImpares',v.impares,nums.filter(n=>n%2!==0).length,'Ímpares'],['gfcFiltroPrimos',v.primos,nums.filter(ehPrimo).length,'Primos'],['gfcFiltroFib',v.fib,nums.filter(n=>FIB.has(n)).length,'Fibonacci'],['gfcFiltroMoldura',v.moldura,moldura.size,'Moldura'],['gfcFiltroCentro',v.centro,centro.size,'Centro'],['gfcFiltroMult3',v.mult3,nums.filter(n=>n%3===0).length,'Múlt. de 3']];
-  for(const [id,val,disp,label] of props){ if(val===null) continue; const minimo=Math.max(0,k-(total-disp)), maximo=Math.min(k,disp); if(val<minimo || val>maximo) marcar(id,`${label} precisa ficar entre ${minimo} e ${maximo}.`); }
-  if(v.pares!==null && v.impares!==null && v.pares+v.impares!==k){ marcar('gfcFiltroPares',`Pares + Ímpares precisam somar ${k}.`); marcar('gfcFiltroImpares',`Pares + Ímpares precisam somar ${k}.`); }
-  if(v.moldura!==null && v.centro!==null && v.moldura+v.centro!==k){ marcar('gfcFiltroMoldura',`Moldura + Centro precisam somar ${k}.`); marcar('gfcFiltroCentro',`Moldura + Centro precisam somar ${k}.`); }
-  if(v.soma!==null){ const minSoma=k*(2*min+k-1)/2, maxSoma=k*(2*max-k+1)/2; if(v.soma<minSoma || v.soma>maxSoma) marcar('gfcFiltroSoma',`Soma precisa ficar entre ${minSoma} e ${maxSoma}.`); }
+  const centro = new Set(centroDoJogo(geradorGameAtual)||[]);
+  const moldura = new Set(molduraDoJogo(geradorGameAtual)||[]);
+  const props = [
+    ['gfcFiltroPares',v.pares,nums.filter(n=>n%2===0).length,'Pares'],
+    ['gfcFiltroImpares',v.impares,nums.filter(n=>n%2!==0).length,'Ímpares'],
+    ['gfcFiltroPrimos',v.primos,nums.filter(ehPrimo).length,'Primos'],
+    ['gfcFiltroFib',v.fib,nums.filter(n=>FIB.has(n)).length,'Fibonacci'],
+    ['gfcFiltroMoldura',v.moldura,moldura.size,'Moldura'],
+    ['gfcFiltroCentro',v.centro,centro.size,'Centro'],
+    ['gfcFiltroMult3',v.mult3,nums.filter(n=>n%3===0).length,'Múlt. de 3']
+  ];
+  for(const [id,val,disp,label] of props){
+    if(val===null) continue;
+    const minimo=Math.max(0,k-(total-disp)), maximo=Math.min(k,disp);
+    if(val<minimo || val>maximo) marcar(id,`${label} precisa ficar entre ${minimo} e ${maximo}.`);
+  }
+  if(v.pares!==null && v.impares!==null && v.pares+v.impares!==k){
+    marcar('gfcFiltroPares',`Pares + Ímpares precisam somar ${k}.`);
+    marcar('gfcFiltroImpares',`Pares + Ímpares precisam somar ${k}.`);
+  }
+  if(v.moldura!==null && v.centro!==null && v.moldura+v.centro!==k){
+    marcar('gfcFiltroMoldura',`Moldura + Centro precisam somar ${k}.`);
+    marcar('gfcFiltroCentro',`Moldura + Centro precisam somar ${k}.`);
+  }
+  if(v.soma!==null){
+    const minSoma = k*(2*min+k-1)/2;
+    const maxSoma = k*(2*max-k+1)/2;
+    if(v.soma<minSoma || v.soma>maxSoma) marcar('gfcFiltroSoma',`Soma precisa ficar entre ${minSoma} e ${maxSoma}.`);
+  }
+
   conflitos.forEach((_,id)=>els[id] && els[id].classList.add('gfc-filtro-invalido'));
-  if(alerta){ if(conflitos.size){ const msgs=[...new Set(conflitos.values())]; alerta.innerHTML='⚠️ <strong>Filtros incompatíveis:</strong><br>'+msgs.join('<br>'); alerta.classList.add('ativo'); } else { alerta.classList.remove('ativo'); alerta.textContent=''; } }
+  if(alerta){
+    if(conflitos.size){
+      const msgs=[...new Set(conflitos.values())];
+      alerta.innerHTML='⚠️ <strong>Filtros incompatíveis:</strong><br>'+msgs.join('<br>');
+      alerta.classList.add('ativo');
+    }else{
+      alerta.classList.remove('ativo'); alerta.textContent='';
+    }
+  }
   return conflitos.size===0;
 }
 
-['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3','gfcFiltroSoma'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input', gfcValidarFiltrosInstantaneo); });
+['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3','gfcFiltroSoma'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('input', gfcValidarFiltrosInstantaneo);
+});
 
 function renderGeradorAnalise(g, ultimo, anterior, repMedia, faixaMin, faixaMax, quentes, atrasados){
   const el = document.getElementById('geradorFiltroAnalise');
@@ -6470,9 +6516,10 @@ const FAIXAS_PREMIACAO_GERADOR = {
   LF:  [{h:15,label:'15 pontos'},   {h:14,label:'14 pontos'},  {h:13,label:'13 pontos — R$ 35,00'}, {h:12,label:'12 pontos — R$ 14,00'}, {h:11,label:'11 pontos — R$ 7,00'}],
   QN:  [{h:5, label:'Quina'},       {h:4, label:'Quadra'},     {h:3, label:'Terno'},     {h:2, label:'Duque'}],
   DIA: [{h:7, label:'7 acertos'},   {h:6, label:'6 acertos'},  {h:5, label:'5 acertos'}, {h:4, label:'4 acertos'}],
-  LM:  [{h:20,label:'20 acertos'}, {h:19,label:'19 acertos'}, {h:18,label:'18 acertos'}, {h:17,label:'17 acertos'}, {h:16,label:'16 acertos'}, {h:15,label:'15 acertos'}, {h:0,label:'0 acertos'}],
+  LM:  [{h:20,label:'20 acertos'},  {h:19,label:'19 acertos'}, {h:18,label:'18 acertos'}, {h:17,label:'17 acertos'}, {h:16,label:'16 acertos'}, {h:15,label:'15 acertos'}, {h:0,label:'0 acertos'}],
   TM:  [{h:7, label:'7 acertos'},   {h:6, label:'6 acertos'},  {h:5, label:'5 acertos'}, {h:4, label:'4 acertos — R$ 10,50'}, {h:3, label:'3 acertos — R$ 3,50'}],
   DS:  [{h:6, label:'Sena'},        {h:5, label:'Quina'},      {h:4, label:'Quadra'},    {h:3, label:'Terno'}],
+  S7:  [{h:7, label:'7 colunas'},   {h:6, label:'6 colunas'},  {h:5, label:'5 colunas'}, {h:4, label:'4 colunas'}, {h:3, label:'3 colunas — R$ 6,00'}],
 };
 function faixaPremioGerador(code, hits){
   const faixas = FAIXAS_PREMIACAO_GERADOR[code];
@@ -6632,6 +6679,7 @@ function renderUltimoResultadoGerador(g, data){
   if(btnProx) btnProx.addEventListener('click', ()=> abrirConcursoRapido(data.concurso+1));
 
   // Pré-carrega os concursos vizinhos enquanto o usuário olha a tela.
+  // Assim os botões Anterior/Próximo normalmente não precisam esperar a rede.
   fetchConcursoLoteria(g, data.concurso-1).catch(()=>{});
   if(podeAvancar) fetchConcursoLoteria(g, data.concurso+1).catch(()=>{});
 
@@ -6812,18 +6860,18 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
     }
 
     if(jogos.length === 0){
-    const conflitos = diagnosticarFiltrosIncompativeis(
-      min, max, dezenasPorJogo, ultimoSet, repetidasAlvo,
-      filtroPares, filtroImpares, filtroPrimos, filtrosExtra
-    );
-    if(conflitos.length){
-      const lista = conflitos.map(f=>`<div style="margin-top:5px;"><strong>${f.label}:</strong> ${f.valor}</div>`).join('');
-      out.innerHTML = `<div class="res-error">Não foi possível combinar esses filtros.<br><br><strong>Filtros que não estão combinando:</strong>${lista}<br><br><span style="font-size:12px;opacity:.85;">Altere pelo menos um dos filtros acima e toque em GERAR novamente.</span></div>`;
-    }else{
-      out.innerHTML = `<div class="res-error">Não foi possível gerar jogos com essa configuração de dezenas repetidas. Ajuste a quantidade de repetidas e toque em GERAR novamente.</div>`;
+      const conflitos = diagnosticarFiltrosIncompativeis(
+        min, max, dezenasPorJogo, ultimoSet, repetidasAlvo,
+        filtroPares, filtroImpares, filtroPrimos, filtrosExtra
+      );
+      if(conflitos.length){
+        const lista = conflitos.map(f=>`<div style="margin-top:5px;"><strong>${f.label}:</strong> ${f.valor}</div>`).join('');
+        out.innerHTML = `<div class="res-error">Não foi possível combinar esses filtros.<br><br><strong>Filtros que não estão combinando:</strong>${lista}<br><br><span style="font-size:12px;opacity:.85;">Altere pelo menos um dos filtros acima e toque em GERAR novamente.</span></div>`;
+      }else{
+        out.innerHTML = `<div class="res-error">Não foi possível gerar jogos com essa configuração de dezenas repetidas. Ajuste a quantidade de repetidas e toque em GERAR novamente.</div>`;
+      }
+      return;
     }
-    return;
-  }
 
     geradorUltimoJogosCtx = { g, jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo };
     salvarGeradorEstado(g.code, { jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo });
