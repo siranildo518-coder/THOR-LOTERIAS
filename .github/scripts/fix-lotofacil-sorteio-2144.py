@@ -1,13 +1,21 @@
 from pathlib import Path
 import re
 
-VERSAO = '2026-09-11-2153'
+VERSAO = '2026-09-11-2221'
 
 p = Path('index.html')
 s = p.read_text(encoding='utf-8')
 
 # Atualiza a versão do app.
 s = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{VERSAO}';", s, count=1)
+
+# Mantém a conta nova presente no arquivo enviado pelo usuário.
+if "'1m290eo', // Maurício (senha 142580)" not in s:
+    s = s.replace(
+        "  'giievh', // Irenildo (senha 142580)\n];",
+        "  'giievh', // Irenildo (senha 142580)\n  '1m290eo', // Maurício (senha 142580)\n];",
+        1
+    )
 
 # Corrige o erro que apareceu no app: distribuicaoAcertos is not defined.
 if 'const distribuicaoAcertos = new Map();' not in s:
