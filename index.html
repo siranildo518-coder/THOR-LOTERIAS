@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0536'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0537'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -6329,7 +6329,25 @@ function gfcOpcoesFiltro(id){
 }
 function gfcAtualizarMultiBotao(id){const el=document.getElementById(id),set=gfcMultiSelecionados[id];if(!el||!set)return;const label=el.dataset.label||'',vals=[...set].sort((a,b)=>a-b);el.textContent=vals.length?`${label} (${vals.join(' / ')})`:label;el.value=vals.join(',');el.classList.toggle('tem-valores',!!vals.length);}
 function gfcRenderMulti(){const box=document.getElementById('gfcMultiOptions'),title=document.getElementById('gfcMultiTitle'),count=document.getElementById('gfcMultiCount');if(!box||!gfcMultiAtual)return;const el=document.getElementById(gfcMultiAtual),set=gfcMultiSelecionados[gfcMultiAtual];title.textContent=`Escolha as quantidades de ${el.dataset.label}`;box.innerHTML='';gfcOpcoesFiltro(gfcMultiAtual).forEach(v=>{const b=document.createElement('button');b.type='button';b.className='gfc-multi-option'+(set.has(v)?' on':'');b.textContent=v;b.onclick=()=>{set.has(v)?set.delete(v):set.add(v);gfcAtualizarMultiBotao(gfcMultiAtual);gfcRenderMulti();};box.appendChild(b);});count.textContent=set.size;}
-function gfcAbrirMulti(id){gfcMultiAtual=id;gfcRenderMulti();document.getElementById('gfcFixasInline')?.classList.remove('show');document.getElementById('gfcMultiInline')?.classList.add('show');}
+function gfcAbrirMulti(id){
+  gfcMultiAtual=id;
+  const painel=document.getElementById('gfcMultiInline');
+  const repetidasBtn=document.getElementById('gfcFiltroRepetidas');
+  const filtrosGrid=document.querySelector('.gfc-dark-filtros');
+  const fixasInline=document.getElementById('gfcFixasInline');
+  if(painel){
+    if(id==='gfcFiltroRepetidas'){
+      const wrap=repetidasBtn?.closest('.gfc-dark-input-wrap');
+      if(wrap) wrap.insertAdjacentElement('afterend',painel);
+    }else if(filtrosGrid){
+      if(fixasInline && fixasInline.parentElement===filtrosGrid) filtrosGrid.insertBefore(painel,fixasInline);
+      else filtrosGrid.appendChild(painel);
+    }
+  }
+  gfcRenderMulti();
+  document.getElementById('gfcFixasInline')?.classList.remove('show');
+  painel?.classList.add('show');
+}
 GFC_MULTI_IDS.forEach(id=>document.getElementById(id)?.addEventListener('click',()=>gfcAbrirMulti(id)));document.getElementById('gfcMultiOk')?.addEventListener('click',()=>{document.getElementById('gfcMultiInline')?.classList.remove('show');gfcValidarFiltrosInstantaneo();});document.getElementById('gfcMultiLimpar')?.addEventListener('click',()=>{if(!gfcMultiAtual)return;gfcMultiSelecionados[gfcMultiAtual].clear();gfcAtualizarMultiBotao(gfcMultiAtual);gfcRenderMulti();gfcValidarFiltrosInstantaneo();});
 function gfcFiltroValores(id){const a=[...(gfcMultiSelecionados[id]||[])];return a.length?a:null;}function gfcAceitaFiltro(filtro,valor){return filtro===null||filtro===undefined||(Array.isArray(filtro)?filtro.includes(valor):filtro===valor);}
 
