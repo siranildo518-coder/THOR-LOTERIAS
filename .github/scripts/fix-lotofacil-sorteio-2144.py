@@ -31,14 +31,12 @@ cruzamento="""function gfcCruzarFiltrosSelecionados(k, filtros){
     mult3: lista(filtros.mult3),
     soma: filtros.soma
   };
-
   const cruzarComplementares = (a,b)=>{
     if(a===null || b===null) return [a,b];
     const aValidos = a.filter(x=>b.some(y=>x+y===k));
     const bValidos = b.filter(y=>a.some(x=>x+y===k));
     return [aValidos,bValidos];
   };
-
   [out.pares,out.impares] = cruzarComplementares(out.pares,out.impares);
   [out.moldura,out.centro] = cruzarComplementares(out.moldura,out.centro);
   return out;
@@ -50,13 +48,17 @@ if 'function gfcCruzarFiltrosSelecionados(k, filtros){' not in s:
     if anchor not in s: raise SystemExit('gfcValidarFiltrosInstantaneo nao encontrado')
     s=s.replace(anchor,cruzamento+anchor,1)
 
-old="""  const filtroPares = gfcFiltroValores('gfcFiltroPares');
-  const filtroImpares = gfcFiltroValores('gfcFiltroImpares');
-  const filtroPrimos = gfcFiltroValores('gfcFiltroPrimos');
-  const filtroFib = gfcFiltroValores('gfcFiltroFib');
-  const filtroMoldura = gfcFiltroValores('gfcFiltroMoldura');
-  const filtroCentro = gfcFiltroValores('gfcFiltroCentro');
-  const filtroMult3 = gfcFiltroValores('gfcFiltroMult3');
+old="""  const parseFiltro = id => {
+    const v = document.getElementById(id).value;
+    return v==='' ? null : gfcClamp(parseInt(v,10), 0, dezenasPorJogo);
+  };
+  const filtroPares = parseFiltro('gfcFiltroPares');
+  const filtroImpares = parseFiltro('gfcFiltroImpares');
+  const filtroPrimos = parseFiltro('gfcFiltroPrimos');
+  const filtroFib = parseFiltro('gfcFiltroFib');
+  const filtroMoldura = parseFiltro('gfcFiltroMoldura');
+  const filtroCentro = parseFiltro('gfcFiltroCentro');
+  const filtroMult3 = parseFiltro('gfcFiltroMult3');
   const somaValor = document.getElementById('gfcFiltroSoma').value;
   const filtroSoma = somaValor==='' ? null : Math.max(0, parseInt(somaValor,10) || 0);
 
@@ -77,8 +79,6 @@ new="""  let filtroPares = gfcFiltroValores('gfcFiltroPares');
   const somaValor = document.getElementById('gfcFiltroSoma').value;
   const filtroSoma = somaValor==='' ? null : Math.max(0, parseInt(somaValor,10) || 0);
 
-  // Cruza os filtros dependentes e mantém somente as opções selecionadas que podem coexistir.
-  // Ex.: Ímpares 7 + Pares [7,8] vira automaticamente Ímpares 7 + Pares 8.
   const filtrosCruzados = gfcCruzarFiltrosSelecionados(dezenasPorJogo, {
     pares:filtroPares, impares:filtroImpares, primos:filtroPrimos, fib:filtroFib,
     moldura:filtroMoldura, centro:filtroCentro, mult3:filtroMult3, soma:filtroSoma
