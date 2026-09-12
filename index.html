@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0116'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0130'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -670,6 +670,10 @@ document.addEventListener('selectstart', e=>{
   .gfc-dark-input-wrap input:not(:placeholder-shown){background:#F3E8FF;border-color:#A21CAF;color:#4C1D95;}
   .gfc-dark-input-wrap input.gfc-filtro-invalido{background:#FEE2E2 !important;border-color:#DC2626 !important;color:#991B1B !important;box-shadow:0 0 0 2px rgba(220,38,38,.10);}
   .gfc-dark-input-wrap input.gfc-filtro-invalido + span{color:#B91C1C !important;}
+  .gfc-fixas-btn{width:100%;box-sizing:border-box;padding:7px 4px;border-radius:8px;border:1.5px solid #D8DAE0;background:#fff;color:#9CA3AF;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;line-height:normal;cursor:pointer;transition:background .12s ease,border-color .12s ease,color .12s ease;}
+  .gfc-fixas-btn:focus,.gfc-fixas-btn:active{outline:none;border-color:#A21CAF;}
+  .gfc-fixas-btn.tem-fixas{background:#F3E8FF;border-color:#A21CAF;color:#4C1D95;}
+
   .gfc-filtro-alerta{display:none;margin:8px 0 12px;padding:9px 10px;border:1.5px solid #DC2626;border-radius:10px;background:#FEF2F2;color:#991B1B;font-size:12px;font-weight:700;line-height:1.35;text-align:center;}
   .gfc-filtro-alerta.ativo{display:block;}
   .gfc-dark-input-wrap span{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11.5px;color:#9CA3AF;pointer-events:none;transition:all .12s ease;}
@@ -4164,9 +4168,8 @@ document.addEventListener('selectstart', e=>{
             <input type="number" inputmode="numeric" id="gfcFiltroCentro" placeholder=" ">
             <span>Centro</span>
           </div>
-          <div class="gfc-dark-input-wrap" id="gfcFixasWrap" style="cursor:pointer;">
-            <input type="text" id="gfcFiltroFixas" placeholder=" " readonly inputmode="none" aria-label="Escolher dezenas fixas" style="cursor:pointer;">
-            <span>Fixas</span>
+          <div class="gfc-dark-input-wrap" id="gfcFixasWrap">
+            <button type="button" id="gfcFiltroFixas" class="gfc-fixas-btn" aria-label="Escolher dezenas fixas">Fixas</button>
           </div>
           <div class="gfc-dark-input-wrap">
             <input type="number" inputmode="numeric" id="gfcFiltroMult3" placeholder=" ">
@@ -6386,7 +6389,8 @@ function gfcAtualizarFixasCampo(){
   const el=document.getElementById('gfcFiltroFixas');
   if(!el) return;
   const arr=[...gfcFixasSelecionadas].sort((a,b)=>a-b);
-  el.value=arr.length ? `${arr.length} escolhida${arr.length===1?'':'s'}` : '';
+  el.textContent=arr.length ? `Fixas (${arr.length})` : 'Fixas';
+  el.classList.toggle('tem-fixas', arr.length>0);
   el.title=arr.length ? arr.map(n=>String(n).padStart(2,'0')).join(', ') : 'Escolher dezenas fixas';
 }
 
