@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
 
-VER='2026-09-12-0534'
+VER='2026-09-12-0535'
 p=Path('index.html')
 s=p.read_text(encoding='utf-8')
 s=re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{VER}';", s, count=1)
@@ -19,89 +19,51 @@ for nome,vals in opcoes.items():
     s,n=re.subn(rf"{nome}:\[[^\]]*\]", f"{nome}:{vals}", s, count=1)
     if n!=1: raise SystemExit(f'{nome} nao encontrado')
 
-cruzamento="""function gfcCruzarFiltrosSelecionados(k, filtros){
-  const lista = v => v===null || v===undefined ? null : (Array.isArray(v) ? [...v] : [v]);
-  const out = {
-    pares: lista(filtros.pares),
-    impares: lista(filtros.impares),
-    primos: lista(filtros.primos),
-    fib: lista(filtros.fib),
-    moldura: lista(filtros.moldura),
-    centro: lista(filtros.centro),
-    mult3: lista(filtros.mult3),
-    soma: filtros.soma
-  };
-  const cruzarComplementares = (a,b)=>{
-    if(a===null || b===null) return [a,b];
-    const aValidos = a.filter(x=>b.some(y=>x+y===k));
-    const bValidos = b.filter(y=>a.some(x=>x+y===k));
-    return [aValidos,bValidos];
-  };
-  [out.pares,out.impares] = cruzarComplementares(out.pares,out.impares);
-  [out.moldura,out.centro] = cruzarComplementares(out.moldura,out.centro);
-  return out;
+# Botao global para zerar todos os filtros.
+if 'id="gfcLimparFiltrosBtn"' not in s:
+    alvo='''        </div>\n        <div id="gfcFiltroAlerta" class="gfc-filtro-alerta" role="alert" aria-live="polite"></div>\n\n        <button type="button" class="gfc-dark-btn" id="geradorFiltroGerarBtn">'''
+    repl='''        </div>\n        <button type="button" id="gfcLimparFiltrosBtn" style="width:100%;margin-top:8px;padding:8px 10px;border:1.5px solid #A21CAF;border-radius:10px;background:#fff;color:#7E22CE;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">🧹 LIMPAR FILTROS</button>\n        <div id="gfcFiltroAlerta" class="gfc-filtro-alerta" role="alert" aria-live="polite"></div>\n\n        <button type="button" class="gfc-dark-btn" id="geradorFiltroGerarBtn">'''
+    if alvo not in s: raise SystemExit('ponto do botao limpar filtros nao encontrado')
+    s=s.replace(alvo,repl,1)
+
+novo_bloco="""function gfcLimparTodosFiltros(){
+  gfcFixasSelecionadas.clear();
+  GFC_MULTI_IDS.forEach(id=>{
+    gfcMultiSelecionados[id].clear();
+    gfcAtualizarMultiBotao(id);
+  });
+  const somaEl=document.getElementById('gfcFiltroSoma');
+  if(somaEl) somaEl.value='';
+  gfcAtualizarFixasCampo();
+  document.getElementById('gfcMultiInline')?.classList.remove('show');
+  document.getElementById('gfcFixasInline')?.classList.remove('show');
+  const alerta=document.getElementById('gfcFiltroAlerta');
+  if(alerta){ alerta.classList.remove('ativo'); alerta.textContent=''; }
+  if(typeof gfcRenderFixasGrid==='function' && geradorGameAtual) gfcRenderFixasGrid();
+  gfcValidarFiltrosInstantaneo();
 }
 
+function gfcInicializar(g){
+  const depSize = GERADOR_APOSTA_SIZE[g.code];
+  const rangeSize = g.range.max - g.range.min + 1;
+  gfc.dezenas = depSize;
+  gfc.repetidas = gfcClamp(Math.round((depSize*depSize)/rangeSize), 0, depSize);
+  gfc.qtd = 10;
+  gfcAtualizarTela();
+  gfcLimparTodosFiltros();
+  const analiseEl = document.getElementById('geradorFiltroAnalise');
+  if(analiseEl) analiseEl.innerHTML = '';
+}
+
+document.getElementById('gfcLimparFiltrosBtn')?.addEventListener('click',()=>{
+  gfcLimparTodosFiltros();
+});
 """
-if 'function gfcCruzarFiltrosSelecionados(k, filtros){' not in s:
-    anchor='function gfcValidarFiltrosInstantaneo(){'
-    if anchor not in s: raise SystemExit('gfcValidarFiltrosInstantaneo nao encontrado')
-    s=s.replace(anchor,cruzamento+anchor,1)
 
-old="""  const parseFiltro = id => {
-    const v = document.getElementById(id).value;
-    return v==='' ? null : gfcClamp(parseInt(v,10), 0, dezenasPorJogo);
-  };
-  const filtroPares = parseFiltro('gfcFiltroPares');
-  const filtroImpares = parseFiltro('gfcFiltroImpares');
-  const filtroPrimos = parseFiltro('gfcFiltroPrimos');
-  const filtroFib = parseFiltro('gfcFiltroFib');
-  const filtroMoldura = parseFiltro('gfcFiltroMoldura');
-  const filtroCentro = parseFiltro('gfcFiltroCentro');
-  const filtroMult3 = parseFiltro('gfcFiltroMult3');
-  const somaValor = document.getElementById('gfcFiltroSoma').value;
-  const filtroSoma = somaValor==='' ? null : Math.max(0, parseInt(somaValor,10) || 0);
-
-  const centroArr = centroDoJogo(g) || [];
-  const molduraArr = molduraDoJogo(g) || [];
-  const filtrosExtra = {
-    fib: filtroFib, moldura: filtroMoldura, centro: filtroCentro, mult3: filtroMult3, soma: filtroSoma,
-    fibSet: FIB, molduraSet: new Set(molduraArr), centroSet: new Set(centroArr), fixasSet: new Set(gfcFixasSelecionadas)
-  };
-"""
-new="""  let filtroPares = gfcFiltroValores('gfcFiltroPares');
-  let filtroImpares = gfcFiltroValores('gfcFiltroImpares');
-  let filtroPrimos = gfcFiltroValores('gfcFiltroPrimos');
-  let filtroFib = gfcFiltroValores('gfcFiltroFib');
-  let filtroMoldura = gfcFiltroValores('gfcFiltroMoldura');
-  let filtroCentro = gfcFiltroValores('gfcFiltroCentro');
-  let filtroMult3 = gfcFiltroValores('gfcFiltroMult3');
-  const somaValor = document.getElementById('gfcFiltroSoma').value;
-  const filtroSoma = somaValor==='' ? null : Math.max(0, parseInt(somaValor,10) || 0);
-
-  const filtrosCruzados = gfcCruzarFiltrosSelecionados(dezenasPorJogo, {
-    pares:filtroPares, impares:filtroImpares, primos:filtroPrimos, fib:filtroFib,
-    moldura:filtroMoldura, centro:filtroCentro, mult3:filtroMult3, soma:filtroSoma
-  });
-  filtroPares = filtrosCruzados.pares;
-  filtroImpares = filtrosCruzados.impares;
-  filtroPrimos = filtrosCruzados.primos;
-  filtroFib = filtrosCruzados.fib;
-  filtroMoldura = filtrosCruzados.moldura;
-  filtroCentro = filtrosCruzados.centro;
-  filtroMult3 = filtrosCruzados.mult3;
-
-  const centroArr = centroDoJogo(g) || [];
-  const molduraArr = molduraDoJogo(g) || [];
-  const filtrosExtra = {
-    fib: filtroFib, moldura: filtroMoldura, centro: filtroCentro, mult3: filtroMult3, soma: filtroSoma,
-    fibSet: FIB, molduraSet: new Set(molduraArr), centroSet: new Set(centroArr), fixasSet: new Set(gfcFixasSelecionadas)
-  };
-"""
-if old in s:
-    s=s.replace(old,new,1)
-elif 'const filtrosCruzados = gfcCruzarFiltrosSelecionados' not in s:
-    raise SystemExit('bloco de filtros do gerador nao encontrado')
+if 'function gfcLimparTodosFiltros(){' not in s:
+    padrao=r"function gfcInicializar\(g\)\{.*?\n\}\n\n(?=document\.getElementById\('gfcDezenasMenos'\))"
+    s,n=re.subn(padrao,novo_bloco+'\n',s,count=1,flags=re.S)
+    if n!=1: raise SystemExit('gfcInicializar nao encontrado')
 
 p.write_text(s,encoding='utf-8')
 sw=Path('sw.js')
