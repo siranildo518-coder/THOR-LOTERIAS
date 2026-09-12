@@ -1,37 +1,67 @@
 from pathlib import Path
 import re
 
-VERSAO = '2026-09-11-2358'
+VERSAO = '2026-09-12-0010'
 
 p = Path('index.html')
 s = p.read_text(encoding='utf-8')
 s = re.sub(r"const APP_VERSAO_ATUAL = '[^']+';", f"const APP_VERSAO_ATUAL = '{VERSAO}';", s, count=1)
 
-# Mantém sempre um espaço visível para a quantidade de acertos em cada cartão.
-old_badge = '''    const badge = conferindo
-      ? `<span class="gerador-hit-badge" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:${faixa ? '#1F9D74' : 'var(--muted)'};margin-left:auto;flex:none;text-align:right;">${hits} acerto${hits===1?'':'s'}<br><span style="font-size:9px;font-weight:700;">${faixa ? faixa.label : 'não premiado'}</span></span>`
-      : '';'''
-new_badge = '''    const badge = conferindo
-      ? `<span class="gerador-hit-badge" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:${faixa ? '#1F9D74' : 'var(--muted)'};margin-left:auto;flex:none;text-align:right;">${hits} acerto${hits===1?'':'s'}<br><span style="font-size:9px;font-weight:700;">${faixa ? faixa.label : 'não premiado'}</span></span>`
-      : `<span class="gerador-hit-badge" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:var(--muted);margin-left:auto;flex:none;text-align:right;">— acertos<br><span style="font-size:9px;font-weight:700;">aguardando resultado</span></span>`;'''
-if old_badge in s:
-    s = s.replace(old_badge, new_badge, 1)
+# Spinner próprio para os botões da aba Análise.
+if '.analise-loading-spinner' not in s:
+    s = s.replace(
+        "  @keyframes girarBtn{\n    from{transform:rotate(0deg);}\n    to{transform:rotate(360deg);}\n  }",
+        "  @keyframes girarBtn{\n    from{transform:rotate(0deg);}\n    to{transform:rotate(360deg);}\n  }\n  @keyframes analiseSpinner{\n    from{transform:rotate(0deg);}\n    to{transform:rotate(360deg);}\n  }\n  .analise-loading-spinner{\n    display:inline-block!important;\n    width:12px;height:12px;\n    border:2px solid rgba(255,255,255,.5);\n    border-top-color:#fff;\n    border-radius:50%;\n    margin-right:6px;\n    vertical-align:middle;\n    transform-origin:50% 50%;\n    will-change:transform;\n    animation:analiseSpinner .65s linear infinite!important;\n  }",
+        1
+    )
 
-# Mantém os elementos do resumo existentes mesmo antes da primeira conferência.
 s = s.replace(
-    '${conferindo ? `<span id="geradorTotalPremiados" style="font-family:\'Baloo 2\',sans-serif;font-size:10px;font-weight:800;color:#1F9D74;">${totalPremiados} premiado${totalPremiados===1?\'\':\'s\'}</span>` : \'\'}',
-    '<span id="geradorTotalPremiados" style="font-family:\'Baloo 2\',sans-serif;font-size:10px;font-weight:800;color:#1F9D74;">${conferindo ? `${totalPremiados} premiado${totalPremiados===1?\'\':\'s\'}` : \'—\'}</span>',
+    'btn.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span>${textoCarregando || \'ATUALIZANDO...\'}`;',
+    'btn.innerHTML = `<span class="analise-loading-spinner" aria-hidden="true"></span>${textoCarregando || \'ATUALIZANDO...\'}`;',
+    1
+)
+
+# Frequência - Dezenas também passa a usar o mesmo spinner.
+s = s.replace(
+    "if(btn){ btn.disabled = true; btn.classList.add('atualizando'); btn.textContent='ATUALIZANDO'; }",
+    "if(btn){ btn.disabled = true; btn.classList.add('atualizando'); setBtnLoading('frequenciaAtualizarBtn', true, 'ATUALIZANDO'); }",
     1
 )
 s = s.replace(
-    '${conferindo ? `<div id="geradorOportunidades" style="margin-top:7px;border:1px solid #EFE7F7;border-radius:10px;overflow:hidden;background:#FCFAFF;"><div style="padding:5px 7px;background:#F6F0FC;font-family:\'Baloo 2\',sans-serif;font-size:11px;font-weight:800;color:#7E22CE;">🏆 Oportunidades de premiação</div>${oportunidadesHtml}</div>` : \'\'}',
-    '<div id="geradorOportunidades" style="margin-top:7px;border:1px solid #EFE7F7;border-radius:10px;overflow:hidden;background:#FCFAFF;${conferindo ? \'\' : \'display:none;\'}"><div style="padding:5px 7px;background:#F6F0FC;font-family:\'Baloo 2\',sans-serif;font-size:11px;font-weight:800;color:#7E22CE;">🏆 Oportunidades de premiação</div>${oportunidadesHtml}</div>',
+    "if(requestId === frequenciaRequestId && btn){ btn.disabled = false; btn.classList.remove('atualizando'); btn.textContent='ATUALIZAR'; }",
+    "if(requestId === frequenciaRequestId && btn){ btn.disabled = false; btn.classList.remove('atualizando'); setBtnLoading('frequenciaAtualizarBtn', false); }",
+    1
+)
+
+# Frequência - Ternos e Quadras.
+s = s.replace(
+    "if(btn){btn.disabled=true;btn.textContent='CARREGANDO…';}",
+    "if(btn){btn.disabled=true;setBtnLoading(cfg.btn,true,'CARREGANDO…');}",
     1
 )
 s = s.replace(
-    "  const oportunidades = document.getElementById('geradorOportunidades');\n  if(oportunidades){\n",
-    "  const oportunidades = document.getElementById('geradorOportunidades');\n  if(oportunidades){\n    oportunidades.style.display = 'block';\n",
+    "if(btn){btn.disabled=false;btn.textContent='ATUALIZAR '+cfg.label;}",
+    "if(btn){btn.disabled=false;setBtnLoading(cfg.btn,false);}",
     1
+)
+
+# Frequência - Quinas.
+s = s.replace(
+    "if(btn){btn.disabled=true;btn.textContent='CARREGANDO…';}",
+    "if(btn){btn.disabled=true;setBtnLoading('frequenciaQuinasAtualizarBtn',true,'CARREGANDO…');}",
+    1
+)
+s = s.replace(
+    "if(btn){btn.disabled=false;btn.textContent='ATUALIZAR QUINAS';}",
+    "if(btn){btn.disabled=false;setBtnLoading('frequenciaQuinasAtualizarBtn',false);}",
+    1
+)
+
+# Ao limpar/resetar a frequência, restaura o HTML original do botão corretamente.
+s = s.replace(
+    "if(atualizar){ atualizar.disabled=false; atualizar.classList.remove('atualizando'); atualizar.textContent='ATUALIZAR'; }",
+    "if(atualizar){ atualizar.disabled=false; atualizar.classList.remove('atualizando'); setBtnLoading('frequenciaAtualizarBtn', false); }",
+    2
 )
 
 p.write_text(s, encoding='utf-8')
