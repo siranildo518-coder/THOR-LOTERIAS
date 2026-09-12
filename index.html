@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0535'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0536'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -4148,10 +4148,8 @@ document.addEventListener('selectstart', e=>{
         </div>
 
         <div class="gfc-dark-label">Repetidas do concurso anterior</div>
-        <div class="gfc-dark-stepper-row">
-          <button type="button" class="gfc-dark-stepper-btn" id="gfcRepMenos">−</button>
-          <input type="number" inputmode="numeric" class="gfc-dark-value-input" id="gfcRepValor" value="9">
-          <button type="button" class="gfc-dark-stepper-btn plus" id="gfcRepMais">+</button>
+        <div class="gfc-dark-input-wrap" style="margin-bottom:8px;">
+          <button type="button" id="gfcFiltroRepetidas" class="gfc-multi-btn" data-label="Repetidas" style="width:100%;">Repetidas</button>
         </div>
 
         <div class="gfc-dark-label">Quantidade de jogos (1-5000)</div>
@@ -6311,7 +6309,7 @@ let geradorGameAtual = null;
 const gfc = { dezenas: null, repetidas: null, qtd: 10 };
 let gfcFixasSelecionadas = new Set();
 
-const GFC_MULTI_IDS=['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3'];
+const GFC_MULTI_IDS=['gfcFiltroRepetidas','gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroMult3'];
 const gfcMultiSelecionados=Object.fromEntries(GFC_MULTI_IDS.map(id=>[id,new Set()]));let gfcMultiAtual=null;
 function gfcOpcoesFiltro(id){
   if(geradorGameAtual?.code==='LF'){
@@ -6339,11 +6337,10 @@ function gfcClamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
 
 function gfcAtualizarTela(){
   const elD = document.getElementById('gfcDezenasValor');
-  const elR = document.getElementById('gfcRepValor');
   const elQ = document.getElementById('gfcQtdValor');
   if(elD) elD.value = gfc.dezenas;
-  if(elR) elR.value = gfc.repetidas;
   if(elQ) elQ.value = gfc.qtd;
+  gfcAtualizarMultiBotao('gfcFiltroRepetidas');
 }
 
 function gfcLimparTodosFiltros(){
@@ -6392,16 +6389,6 @@ document.getElementById('gfcDezenasMais').addEventListener('click', ()=>{
   const rangeSize = geradorGameAtual.range.max - geradorGameAtual.range.min + 1;
   gfc.dezenas = gfcClamp(gfc.dezenas + 1, 2, rangeSize);
   gfc.repetidas = gfcClamp(gfc.repetidas, 0, gfc.dezenas);
-  gfcAtualizarTela();
-  gfcValidarFiltrosInstantaneo();
-});
-document.getElementById('gfcRepMenos').addEventListener('click', ()=>{
-  gfc.repetidas = gfcClamp(gfc.repetidas - 1, 0, gfc.dezenas || 99);
-  gfcAtualizarTela();
-  gfcValidarFiltrosInstantaneo();
-});
-document.getElementById('gfcRepMais').addEventListener('click', ()=>{
-  gfc.repetidas = gfcClamp(gfc.repetidas + 1, 0, gfc.dezenas || 99);
   gfcAtualizarTela();
   gfcValidarFiltrosInstantaneo();
 });
@@ -6947,7 +6934,8 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
   if(!gfcValidarFiltrosInstantaneo()) return;
 
   const dezenasPorJogo = gfc.dezenas;
-  const repetidasAlvo = gfc.repetidas;
+  const repetidasSelecionadas = gfcFiltroValores('gfcFiltroRepetidas');
+  const repetidasAlvos = repetidasSelecionadas || [gfc.repetidas];
   const qtdJogos = gfc.qtd;
   let filtroPares = gfcFiltroValores('gfcFiltroPares');
   let filtroImpares = gfcFiltroValores('gfcFiltroImpares');
@@ -7065,6 +7053,7 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
     const maxTries = Math.max(qtdJogos*350 + 3500, 5000);
     while(jogos.length < qtdJogos && tries < maxTries){
       tries++;
+      const repetidasAlvo = repetidasAlvos[(tries-1) % repetidasAlvos.length];
       const jogo = gerarJogoPersonalizado(min, max, dezenasPorJogo, ultimoSet, repetidasAlvo, filtroPares, filtroImpares, filtroPrimos, filtrosExtra);
       // Uma tentativa pode falhar por causa da combinação aleatória dos filtros.
       // Não interrompe a geração: tenta novamente até atingir o limite de tentativas.
@@ -7074,15 +7063,22 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
     }
 
     if(jogos.length === 0){
-      const conflitos = diagnosticarFiltrosIncompativeis(
-        min, max, dezenasPorJogo, ultimoSet, repetidasAlvo,
-        filtroPares, filtroImpares, filtroPrimos, filtrosExtra
-      );
+      let conflitos = [];
+      for(const repTeste of repetidasAlvos){
+        const c = diagnosticarFiltrosIncompativeis(
+          min, max, dezenasPorJogo, ultimoSet, repTeste,
+          filtroPares, filtroImpares, filtroPrimos, filtrosExtra
+        );
+        if(c.length && (!conflitos.length || c.length < conflitos.length)) conflitos = c;
+      }
+      if(repetidasSelecionadas && repetidasSelecionadas.length){
+        conflitos = [{chave:'repetidas', label:'Repetidas', valor:repetidasSelecionadas.join(' / ')}].concat(conflitos);
+      }
       if(conflitos.length){
         const lista = conflitos.map(f=>`<div style="margin-top:5px;"><strong>${f.label}:</strong> ${f.valor}</div>`).join('');
         out.innerHTML = `<div class="res-error">Não foi possível combinar esses filtros.<br><br><strong>Filtros que não estão combinando:</strong>${lista}<br><br><span style="font-size:12px;opacity:.85;">Altere pelo menos um dos filtros acima e toque em GERAR novamente.</span></div>`;
       }else{
-        out.innerHTML = `<div class="res-error">Não foi possível gerar jogos com essa configuração de dezenas repetidas. Ajuste a quantidade de repetidas e toque em GERAR novamente.</div>`;
+        out.innerHTML = `<div class="res-error">Não foi possível gerar jogos com essa combinação de filtros. Ajuste as repetidas ou outro filtro e toque em GERAR novamente.</div>`;
       }
       return;
     }
