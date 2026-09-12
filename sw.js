@@ -1,9 +1,9 @@
 // THOR LOTERIAS - Service Worker
 // Atualização automática + design da tela de seleção e da Calculadora de Probabilidade.
-const CACHE_NAME = 'thor-loterias-2026-09-12-prob-ref-03';
+const CACHE_NAME = 'thor-loterias-2026-09-12-prob-ref-04';
 const SELECTION_DESIGN_URL = './selection-design.css?v=20260912-design-neon-02';
-const PROBABILITY_DESIGN_URL = './probability-design.css?v=20260912-prob-ref-03';
-const PROBABILITY_SCRIPT_MARKER = 'thor-prob-ref-03';
+const PROBABILITY_DESIGN_URL = './probability-design.css?v=20260912-prob-ref-04';
+const PROBABILITY_SCRIPT_MARKER = 'thor-prob-ref-04';
 
 const CACHE_FILES = [
   './index.html',
@@ -20,10 +20,10 @@ function scriptDesignProbabilidade(){
 (function(){
   function aprimorarCalculadoraProbabilidade(){
     var overlay = document.getElementById('overlayProb');
-    if(!overlay || overlay.dataset.thorProbDesign === 'ref03') return;
+    if(!overlay || overlay.dataset.thorProbDesign === 'ref04') return;
     var modal = overlay.querySelector('.modal');
     if(!modal) return;
-    overlay.dataset.thorProbDesign = 'ref03';
+    overlay.dataset.thorProbDesign = 'ref04';
     modal.classList.add('prob-premium-modal');
 
     var cabecalho = modal.querySelector('.modal-head');
@@ -174,88 +174,70 @@ function aplicarDesignNoHtml(response){
     if(!html) return response;
 
     const links = [];
-    if(!html.includes('selection-design.css')){
-      links.push(`<link rel="stylesheet" href="${SELECTION_DESIGN_URL}">`);
-    }
-    if(!html.includes('probability-design.css')){
-      links.push(`<link rel="stylesheet" href="${PROBABILITY_DESIGN_URL}">`);
-    }
+    if(!html.includes('selection-design.css')) links.push(`<link rel="stylesheet" href="${SELECTION_DESIGN_URL}">`);
+    if(!html.includes('probability-design.css')) links.push(`<link rel="stylesheet" href="${PROBABILITY_DESIGN_URL}">`);
     if(links.length){
       const bloco = links.join('\n');
-      html = html.includes('</head>')
-        ? html.replace('</head>', `${bloco}\n</head>`)
-        : `${bloco}\n${html}`;
+      html = html.includes('</head>') ? html.replace('</head>', `${bloco}\n</head>`) : `${bloco}\n${html}`;
     }
 
     if(!html.includes(PROBABILITY_SCRIPT_MARKER)){
       const script = scriptDesignProbabilidade();
-      html = html.includes('</body>')
-        ? html.replace('</body>', `${script}\n</body>`)
-        : `${html}\n${script}`;
+      html = html.includes('</body>') ? html.replace('</body>', `${script}\n</body>`) : `${html}\n${script}`;
     }
 
     const headers = new Headers(response.headers);
     headers.set('content-type','text/html; charset=utf-8');
     headers.delete('content-length');
-    return new Response(html, {
-      status: response.status,
-      statusText: response.statusText,
-      headers
-    });
+    return new Response(html,{status:response.status,statusText:response.statusText,headers});
   }).catch(()=>response);
 }
 
-self.addEventListener('install', (event) => {
+self.addEventListener('install',(event)=>{
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) =>
-      Promise.all(
-        CACHE_FILES.map((url) =>
-          fetch(url, { cache: 'no-store' })
-            .then((res) => {
-              if (!res || !res.ok) throw new Error('Falha ao buscar ' + url);
-              return cache.put(url, res.clone());
-            })
-            .catch((err) => console.error('Falha ao pre-cachear', url, err))
-        )
-      )
-    )
+    caches.open(CACHE_NAME).then((cache)=>Promise.all(
+      CACHE_FILES.map((url)=>fetch(url,{cache:'no-store'}).then((res)=>{
+        if(!res || !res.ok) throw new Error('Falha ao buscar '+url);
+        return cache.put(url,res.clone());
+      }).catch((err)=>console.error('Falha ao pre-cachear',url,err)))
+    ))
   );
   self.skipWaiting();
 });
 
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+self.addEventListener('message',(event)=>{
+  if(event.data && event.data.type==='SKIP_WAITING') self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    Promise.all([
-      caches.keys().then((keys) =>
-        Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-      ),
-      self.clients.claim()
-    ])
-  );
+self.addEventListener('activate',(event)=>{
+  event.waitUntil((async()=>{
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((k)=>k!==CACHE_NAME).map((k)=>caches.delete(k)));
+    await self.clients.claim();
+    // força as janelas já abertas a navegar novamente sob este SW novo
+    const janelas = await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    await Promise.all(janelas.map((cliente)=>{
+      try{return cliente.navigate(cliente.url);}catch(e){return Promise.resolve();}
+    }));
+  })());
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch',(event)=>{
   const req = event.request;
   const aceita = req.headers.get('accept') || '';
 
-  if (req.mode === 'navigate' || aceita.includes('text/html')) {
+  if(req.mode==='navigate' || aceita.includes('text/html')){
     event.respondWith(
-      fetch(req, { cache: 'no-store' })
-        .then(async (res) => {
-          if (!res || !res.ok) throw new Error('Resposta invalida');
+      fetch(req,{cache:'no-store'})
+        .then(async(res)=>{
+          if(!res || !res.ok) throw new Error('Resposta invalida');
           const comDesign = await aplicarDesignNoHtml(res);
           const copia = comDesign.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, copia));
+          caches.open(CACHE_NAME).then((cache)=>cache.put(req,copia));
           return comDesign;
         })
-        .catch(async () => {
-          const fallback = (await caches.match(req)) || (await caches.match('./index.html')) || (await caches.match('./THOR-LOTERIAS.html'));
+        .catch(async()=>{
+          const fallback=(await caches.match(req))||(await caches.match('./index.html'))||(await caches.match('./THOR-LOTERIAS.html'));
           return aplicarDesignNoHtml(fallback);
         })
     );
@@ -263,15 +245,12 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) return cached;
-      return fetch(req, { cache: 'no-store' }).then((res) => {
-        if (req.method === 'GET' && res && res.ok) {
-          const copia = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, copia));
-        }
-        return res;
-      });
-    })
+    fetch(req,{cache:'no-store'}).then((res)=>{
+      if(req.method==='GET' && res && res.ok){
+        const copia=res.clone();
+        caches.open(CACHE_NAME).then((cache)=>cache.put(req,copia));
+      }
+      return res;
+    }).catch(()=>caches.match(req))
   );
 });
