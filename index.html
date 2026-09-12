@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0110'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0116'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -3070,6 +3070,21 @@ document.addEventListener('selectstart', e=>{
   </div>
 </div>
 
+<div class="overlay" id="overlayGfcFixas">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-head">DEZENAS FIXAS</div>
+    <div class="modal-info">Toque nas dezenas que devem aparecer em todos os jogos gerados.</div>
+    <div class="modal-card">
+      <div class="conf-grid" id="gfcFixasGrid"></div>
+      <div class="conf-count">Selecionadas: <strong id="gfcFixasCount">0</strong></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="gfcFixasLimpar">LIMPAR</button>
+      <button class="btn-confirm" id="gfcFixasConfirmar">CONFIRMAR</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="overlayHistorico">
   <div class="modal">
     <div class="modal-head">HISTÓRICO SALVO</div>
@@ -4149,8 +4164,8 @@ document.addEventListener('selectstart', e=>{
             <input type="number" inputmode="numeric" id="gfcFiltroCentro" placeholder=" ">
             <span>Centro</span>
           </div>
-          <div class="gfc-dark-input-wrap">
-            <input type="number" inputmode="numeric" id="gfcFiltroFixas" placeholder=" ">
+          <div class="gfc-dark-input-wrap" id="gfcFixasWrap" style="cursor:pointer;">
+            <input type="text" id="gfcFiltroFixas" placeholder=" " readonly inputmode="none" aria-label="Escolher dezenas fixas" style="cursor:pointer;">
             <span>Fixas</span>
           </div>
           <div class="gfc-dark-input-wrap">
@@ -6276,6 +6291,7 @@ let geradorGameAtual = null;
 
 // ---------- configurações avançadas do fechamento personalizado ----------
 const gfc = { dezenas: null, repetidas: null, qtd: 10 };
+let gfcFixasSelecionadas = new Set();
 
 function gfcClamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
 
@@ -6295,6 +6311,7 @@ function gfcInicializar(g){
   gfc.repetidas = gfcClamp(Math.round((depSize*depSize)/rangeSize), 0, depSize);
   gfc.qtd = 10;
   gfcAtualizarTela();
+  gfcFixasSelecionadas.clear();
   ['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroFixas','gfcFiltroMult3','gfcFiltroSoma'].forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.value = '';
@@ -6365,6 +6382,50 @@ gfcLigarEdicaoManual(document.getElementById('gfcQtdValor'), v=>{
 
 // gera um jogo respeitando: quantas dezenas repetem do último concurso, e as
 // contagens opcionais de pares / ímpares / primos (null = sem filtro nessa contagem)
+function gfcAtualizarFixasCampo(){
+  const el=document.getElementById('gfcFiltroFixas');
+  if(!el) return;
+  const arr=[...gfcFixasSelecionadas].sort((a,b)=>a-b);
+  el.value=arr.length ? `${arr.length} escolhida${arr.length===1?'':'s'}` : '';
+  el.title=arr.length ? arr.map(n=>String(n).padStart(2,'0')).join(', ') : 'Escolher dezenas fixas';
+}
+
+function gfcRenderFixasGrid(){
+  const grid=document.getElementById('gfcFixasGrid');
+  const count=document.getElementById('gfcFixasCount');
+  if(!grid || !geradorGameAtual) return;
+  const min=geradorGameAtual.range.min, max=geradorGameAtual.range.max;
+  grid.innerHTML='';
+  for(let n=min;n<=max;n++){
+    const b=document.createElement('button');
+    b.type='button'; b.className='conf-ball'+(gfcFixasSelecionadas.has(n)?' on':'');
+    b.textContent=String(n).padStart(2,'0'); b.dataset.n=n;
+    b.addEventListener('click',()=>{
+      if(gfcFixasSelecionadas.has(n)) gfcFixasSelecionadas.delete(n);
+      else if(gfcFixasSelecionadas.size < (gfc.dezenas||GERADOR_APOSTA_SIZE[geradorGameAtual.code]||0)) gfcFixasSelecionadas.add(n);
+      gfcRenderFixasGrid(); gfcAtualizarFixasCampo();
+    });
+    grid.appendChild(b);
+  }
+  if(count) count.textContent=gfcFixasSelecionadas.size;
+}
+
+function gfcAbrirFixas(){
+  if(!geradorGameAtual) return;
+  gfcRenderFixasGrid();
+  document.getElementById('overlayGfcFixas')?.classList.add('show');
+}
+
+document.getElementById('gfcFixasWrap')?.addEventListener('click', gfcAbrirFixas);
+document.getElementById('gfcFiltroFixas')?.addEventListener('click', e=>{ e.stopPropagation(); gfcAbrirFixas(); });
+document.getElementById('gfcFixasConfirmar')?.addEventListener('click',()=>{
+  gfcAtualizarFixasCampo();
+  document.getElementById('overlayGfcFixas')?.classList.remove('show');
+});
+document.getElementById('gfcFixasLimpar')?.addEventListener('click',()=>{
+  gfcFixasSelecionadas.clear(); gfcRenderFixasGrid(); gfcAtualizarFixasCampo();
+});
+
 function gerarJogoPersonalizado(min, max, dezenasPorJogo, ultimoSet, repetidasAlvo, filtroPares, filtroImpares, filtroPrimos, filtrosExtra){
   const fibSet = (filtrosExtra && filtrosExtra.fibSet) || new Set();
   const molduraSet = (filtrosExtra && filtrosExtra.molduraSet) || new Set();
@@ -6374,15 +6435,22 @@ function gerarJogoPersonalizado(min, max, dezenasPorJogo, ultimoSet, repetidasAl
   const filtroCentro = (filtrosExtra && filtrosExtra.centro !== undefined) ? filtrosExtra.centro : null;
   const filtroMult3 = (filtrosExtra && filtrosExtra.mult3 !== undefined) ? filtrosExtra.mult3 : null;
   const filtroSoma = (filtrosExtra && filtrosExtra.soma !== undefined) ? filtrosExtra.soma : null;
+  const fixasSet = (filtrosExtra && filtrosExtra.fixasSet) || new Set();
 
   const todosNums = [];
   for(let n=min;n<=max;n++) todosNums.push(n);
-  const doUltimo = todosNums.filter(n=>ultimoSet.has(n));
-  const outros = todosNums.filter(n=>!ultimoSet.has(n));
+  const fixas = todosNums.filter(n=>fixasSet.has(n));
+  if(fixas.length > dezenasPorJogo) return null;
+  const fixasDoUltimo = fixas.filter(n=>ultimoSet.has(n));
+  const fixasOutros = fixas.filter(n=>!ultimoSet.has(n));
+  const doUltimo = todosNums.filter(n=>ultimoSet.has(n) && !fixasSet.has(n));
+  const outros = todosNums.filter(n=>!ultimoSet.has(n) && !fixasSet.has(n));
 
-  const repAlvo = gfcClamp(repetidasAlvo, 0, Math.min(dezenasPorJogo, doUltimo.length));
+  const repAlvo = gfcClamp(repetidasAlvo, 0, Math.min(dezenasPorJogo, todosNums.filter(n=>ultimoSet.has(n)).length));
   const restantesAlvo = dezenasPorJogo - repAlvo;
-  if(restantesAlvo > outros.length) return null; // impossível com esses parâmetros
+  const repLivres = repAlvo - fixasDoUltimo.length;
+  const outrosLivres = restantesAlvo - fixasOutros.length;
+  if(repLivres < 0 || outrosLivres < 0 || repLivres > doUltimo.length || outrosLivres > outros.length) return null;
 
   function embaralhar(arr){
     const a = arr.slice();
@@ -6396,9 +6464,9 @@ function gerarJogoPersonalizado(min, max, dezenasPorJogo, ultimoSet, repetidasAl
   let ultimaTentativa = null;
   const maxTentativas = 240;
   for(let t=0;t<maxTentativas;t++){
-    const partA = embaralhar(doUltimo).slice(0, repAlvo);
-    const partB = embaralhar(outros).slice(0, restantesAlvo);
-    const jogo = partA.concat(partB).sort((a,b)=>a-b);
+    const partA = embaralhar(doUltimo).slice(0, repLivres);
+    const partB = embaralhar(outros).slice(0, outrosLivres);
+    const jogo = fixas.concat(partA,partB).sort((a,b)=>a-b);
     ultimaTentativa = jogo;
     const pares = jogo.filter(n=>n%2===0).length;
     const impares = jogo.length - pares;
@@ -6803,7 +6871,7 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
   const molduraArr = molduraDoJogo(g) || [];
   const filtrosExtra = {
     fib: filtroFib, moldura: filtroMoldura, centro: filtroCentro, mult3: filtroMult3, soma: filtroSoma,
-    fibSet: FIB, molduraSet: new Set(molduraArr), centroSet: new Set(centroArr)
+    fibSet: FIB, molduraSet: new Set(molduraArr), centroSet: new Set(centroArr), fixasSet: new Set(gfcFixasSelecionadas)
   };
 
   const qtdConcursos = 10;
