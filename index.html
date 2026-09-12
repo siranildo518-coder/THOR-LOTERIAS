@@ -101,7 +101,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = '2026-09-12-0534'; // mantido por compatibilidade
+const APP_VERSAO_ATUAL = '2026-09-12-0535'; // mantido por compatibilidade
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -4194,6 +4194,7 @@ document.addEventListener('selectstart', e=>{
             </div>
           </div>
         </div>
+        <button type="button" id="gfcLimparFiltrosBtn" style="width:100%;margin-top:8px;padding:8px 10px;border:1.5px solid #A21CAF;border-radius:10px;background:#fff;color:#7E22CE;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">🧹 LIMPAR FILTROS</button>
         <div id="gfcFiltroAlerta" class="gfc-filtro-alerta" role="alert" aria-live="polite"></div>
 
         <button type="button" class="gfc-dark-btn" id="geradorFiltroGerarBtn"><span id="geradorFiltroGerarSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="geradorFiltroGerarLabel">Gerar jogos</span></button>
@@ -6345,6 +6346,23 @@ function gfcAtualizarTela(){
   if(elQ) elQ.value = gfc.qtd;
 }
 
+function gfcLimparTodosFiltros(){
+  gfcFixasSelecionadas.clear();
+  GFC_MULTI_IDS.forEach(id=>{
+    gfcMultiSelecionados[id].clear();
+    gfcAtualizarMultiBotao(id);
+  });
+  const somaEl=document.getElementById('gfcFiltroSoma');
+  if(somaEl) somaEl.value='';
+  gfcAtualizarFixasCampo();
+  document.getElementById('gfcMultiInline')?.classList.remove('show');
+  document.getElementById('gfcFixasInline')?.classList.remove('show');
+  const alerta=document.getElementById('gfcFiltroAlerta');
+  if(alerta){ alerta.classList.remove('ativo'); alerta.textContent=''; }
+  if(typeof gfcRenderFixasGrid==='function' && geradorGameAtual) gfcRenderFixasGrid();
+  gfcValidarFiltrosInstantaneo();
+}
+
 function gfcInicializar(g){
   const depSize = GERADOR_APOSTA_SIZE[g.code];
   const rangeSize = g.range.max - g.range.min + 1;
@@ -6352,15 +6370,14 @@ function gfcInicializar(g){
   gfc.repetidas = gfcClamp(Math.round((depSize*depSize)/rangeSize), 0, depSize);
   gfc.qtd = 10;
   gfcAtualizarTela();
-  gfcFixasSelecionadas.clear();
-  ['gfcFiltroPares','gfcFiltroImpares','gfcFiltroPrimos','gfcFiltroFib','gfcFiltroMoldura','gfcFiltroCentro','gfcFiltroFixas','gfcFiltroMult3','gfcFiltroSoma'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.value = '';
-  });
+  gfcLimparTodosFiltros();
   const analiseEl = document.getElementById('geradorFiltroAnalise');
   if(analiseEl) analiseEl.innerHTML = '';
-  gfcValidarFiltrosInstantaneo();
 }
+
+document.getElementById('gfcLimparFiltrosBtn')?.addEventListener('click',()=>{
+  gfcLimparTodosFiltros();
+});
 
 document.getElementById('gfcDezenasMenos').addEventListener('click', ()=>{
   if(!geradorGameAtual) return;
