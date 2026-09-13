@@ -31,3 +31,4 @@ jobs:
           git add home-banner.jpg home-banner.css
           git commit -m "Converte banner da home em arquivo de imagem" || exit 0
           git push
+# execução 2
