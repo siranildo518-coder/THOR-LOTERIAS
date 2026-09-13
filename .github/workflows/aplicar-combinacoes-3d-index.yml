@@ -1,0 +1,41 @@
+name: Aplicar Combinacoes 3D no index
+on:
+  push:
+    paths:
+      - '.github/workflows/aplicar-combinacoes-3d-index.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Injetar design no carregamento direto
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace("var VERSION='20260912-calculadora-modelo-09';", "var VERSION='20260913-combinacoes-3d-58';")
+          marker=".then(function(html){html=html.replace("
+          inject=".then(function(html){html=html.replace('</head>','<link rel=\"stylesheet\" href=\"./combinacoes-3d.css?v=20260913-58\"></head>').replace('</body>','<script src=\"./combinacoes-3d.js?v=20260913-58\"><\\/script></body>');html=html.replace("
+          if marker not in s:
+              raise SystemExit('Ponto de injecao do index nao encontrado')
+          if 'combinacoes-3d.css?v=20260913-58' not in s:
+              s=s.replace(marker,inject,1)
+          p.write_text(s,encoding='utf-8')
+      - name: Atualizar versao do service worker
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('sw.js')
+          s=p.read_text(encoding='utf-8').replace("thor-loterias-2026-09-13-combinacoes-3d-57","thor-loterias-2026-09-13-combinacoes-3d-58").replace('combinacoes-3d.css?v=20260913-57','combinacoes-3d.css?v=20260913-58').replace('combinacoes-3d.js?v=20260913-57','combinacoes-3d.js?v=20260913-58')
+          p.write_text(s,encoding='utf-8')
+      - name: Publicar
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          git commit -m "Carrega design 3D de Combinacoes diretamente no index" || exit 0
+          git push
