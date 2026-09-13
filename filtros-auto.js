@@ -7,9 +7,11 @@ function homeTendencia(){
   if(old)old.style.setProperty('display','none','important');
   const cards=[...document.querySelectorAll('.home-feature-card')];
   if(!cards.length)return;
+  const grid=cards[0].parentElement;if(!grid)return;
+  if(!grid.dataset.thorAbaDescida){grid.dataset.thorAbaDescida='1';grid.style.setProperty('transform','translateY(18px)','important')}
   let exists=document.querySelector('.home-feature-card.thor-tendencia-real');
   if(exists)return;
-  const base=cards[0],grid=base.parentElement;if(!grid)return;
+  const base=cards[0];
   const c=base.cloneNode(true);c.classList.add('thor-tendencia-real');c.removeAttribute('id');c.setAttribute('data-home-target','btnTendenciaAtalho');c.removeAttribute('onclick');
   const strong=c.querySelector('strong'),small=c.querySelector('small'),ico=c.querySelector('.hfc-icon');
   if(strong)strong.textContent='Tendência';
