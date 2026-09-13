@@ -1,7 +1,7 @@
 // THOR LOTERIAS - Service Worker
-const CACHE_NAME='thor-loterias-2026-09-13-home-tela-completa-77';
+const CACHE_NAME='thor-loterias-2026-09-13-home-centralizada-78';
 const CORE=['./','./index.html','./app-main.html','./analysis-neon.css','./fechamento-personalizado-luxo.css','./home-topo-thor.css','./home-update-fix.js','./filtros-auto.js','./manifest.json','./icon-192.png','./icon-512.png','./icon-512-maskable.png'];
-function tema(html){let h=html;if(!h.includes('analysis-neon.css'))h=h.replace('</head>','<link rel="stylesheet" href="./analysis-neon.css?v=20260913-09"></head>');h=h.replace('</head>','<link rel="stylesheet" href="./fechamento-personalizado-luxo.css?v=20260913-36"><link rel="stylesheet" href="./home-topo-thor.css?v=20260913-topo-thor-15"></head>');h=h.replace('</body>','<script src="./home-update-fix.js?v=20260913-04"><\/script><script src="./filtros-auto.js?v=20260913-48"><\/script></body>');return h}
+function tema(html){let h=html;if(!h.includes('analysis-neon.css'))h=h.replace('</head>','<link rel="stylesheet" href="./analysis-neon.css?v=20260913-09"></head>');h=h.replace('</head>','<link rel="stylesheet" href="./fechamento-personalizado-luxo.css?v=20260913-36"><link rel="stylesheet" href="./home-topo-thor.css?v=20260913-topo-thor-16"></head>');h=h.replace('</body>','<script src="./home-update-fix.js?v=20260913-04"><\/script><script src="./filtros-auto.js?v=20260913-48"><\/script></body>');return h}
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>Promise.all(CORE.map(u=>fetch(u,{cache:'no-store'}).then(r=>r&&r.ok?c.put(u,r.clone()):null).catch(()=>null)))));self.skipWaiting()});
 self.addEventListener('message',e=>{if(e.data&&e.data.type==='SKIP_WAITING')self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil((async()=>{const k=await caches.keys();await Promise.all(k.filter(x=>x!==CACHE_NAME).map(x=>caches.delete(x)));await self.clients.claim()})())});
