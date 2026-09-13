@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
-// Versão sincronizada com index.html: barra lateral fixa removida; menu lateral abre somente pelo botão ☰.
-const CACHE_NAME = 'thor-loterias-2026-09-12-menu-click-02';
+// Versão sincronizada com index.html: removidos próximo sorteio, próximo concurso e estimativa acumulada da tela inicial.
+const CACHE_NAME = 'thor-loterias-2026-09-12-remove-proximo-premio-01';
 const CORE = [
   './',
   './index.html',
