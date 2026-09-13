@@ -1,6 +1,0 @@
-/* THOR LOTERIAS - banner promocional real na area inferior da home */
-#homePremiumCardTendencia{display:block!important;position:relative!important;width:100%!important;min-height:0!important;height:auto!important;aspect-ratio:852/435!important;margin:14px 0 0!important;padding:0!important;border:0!important;border-radius:18px!important;overflow:hidden!important;background:#07101f url("./home-banner.jpg?v=20260913-62") center/cover no-repeat!important;box-shadow:0 12px 32px rgba(0,0,0,.45)!important;font-size:0!important;color:transparent!important}
-#homePremiumCardTendencia>*{display:none!important}
-#homePremiumCardTendencia::before,#homePremiumCardTendencia::after{display:none!important;content:none!important}
-/* desativa a tentativa antiga de criar um segundo banner pelo grid */
-div:has(> .home-feature-card.thor-tendencia-real)::after{display:none!important;content:none!important}
