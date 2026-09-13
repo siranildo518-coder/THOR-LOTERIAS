@@ -14,54 +14,31 @@ html,body{margin:0;min-height:100%;background:#07101f;color:#fff;font-family:Ari
 <div id="thorBoot"><div class="thorBootBox"><div class="thorBootSpin"></div>THOR LOTERIAS</div></div>
 <script>
 (function(){
-  var VERSION='20260912-tema-megasena-verde-04';
-  fetch('./app-main.html?v='+VERSION,{cache:'no-store'})
-    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
-    .then(function(html){
-      html = html.replace("      <div class=\"hh-row\">📅 Próximo sorteio: ${data.dataProxConcurso || '—'}</div>\n", "");
-      html = html.replace("      <div class=\"hh-row\">🎟️ Concurso ${data.concurso + 1}</div>\n", "");
-      html = html.replace("      <div class=\"hh-premio-lbl\">${data.acumulou ? 'ESTIMATIVA ACUMULADA' : 'PRÊMIO ESTIMADO'}</div>\n", "");
-      html = html.replace("      <div class=\"hh-premio-val\">${formatBRL(data.acumuladaProxConcurso)}</div>\n", "");
-      var MENU_PATCH = String.raw`<style id="thor-home-dinamica-final">
+ var VERSION='20260912-cor-nativa-loteria-05';
+ fetch('./app-main.html?v='+VERSION,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(html){
+  html=html.replace("      <div class=\"hh-row\">📅 Próximo sorteio: ${data.dataProxConcurso || '—'}</div>\n","");
+  html=html.replace("      <div class=\"hh-row\">🎟️ Concurso ${data.concurso + 1}</div>\n","");
+  html=html.replace("      <div class=\"hh-premio-lbl\">${data.acumulou ? 'ESTIMATIVA ACUMULADA' : 'PRÊMIO ESTIMADO'}</div>\n","");
+  html=html.replace("      <div class=\"hh-premio-val\">${formatBRL(data.acumuladaProxConcurso)}</div>\n","");
+  var CSS=String.raw`<style id="thor-cor-nativa-05">
 #overlayListaResultados{padding-left:0!important;background:#07101f!important}
 #homeSideNav{display:none!important}
 #overlayListaResultados .home-topbar{position:relative!important}
 #overlayListaResultados .home-topbar-left{width:100%!important;justify-content:center!important;position:relative!important}
 #overlayListaResultados .home-icon-btn{display:none!important}
-#overlayListaResultados #listaResultadosVoltar{display:flex!important;position:absolute!important;left:0!important;top:50%!important;transform:translateY(-50%)!important;width:42px!important;height:42px!important;align-items:center!important;justify-content:center!important;border-radius:12px!important;border:1px solid #346aa7!important;background:#111d33!important;color:#fff!important;box-shadow:0 0 12px rgba(52,133,255,.22)!important;z-index:20!important}
+#overlayListaResultados #listaResultadosVoltar{display:flex!important;position:absolute!important;left:0!important;top:50%!important;transform:translateY(-50%)!important;width:42px!important;height:42px!important;align-items:center!important;justify-content:center!important;border-radius:12px!important;border:1px solid #346aa7!important;background:#111d33!important;color:#fff!important;z-index:20!important}
 #overlayListaResultados .home-hero::before{content:none!important;display:none!important}
-#overlayListaResultados .home-hero h2{display:block!important;margin:0 0 14px!important;font-size:clamp(28px,8vw,46px)!important;line-height:.95!important;color:#fff!important;text-transform:uppercase!important;font-style:italic!important;font-weight:1000!important;letter-spacing:-1.4px!important;text-shadow:0 3px 0 rgba(30,40,60,.9),0 0 18px var(--hero-color,#8B2FC9)!important}
-#overlayListaResultados .home-hero{border:2px solid var(--hero-border,#C86BFF)!important;background:radial-gradient(ellipse at 52% 30%,var(--hero-bright,#8B2FC9) 0%,var(--hero-mid,#3b155c) 38%,#07111d 88%)!important;box-shadow:inset 0 0 58px var(--hero-shadow,rgba(139,47,201,.55)),0 0 8px var(--hero-border,#C86BFF),0 0 30px var(--hero-shadow,rgba(139,47,201,.55))!important;transition:background .25s ease,border-color .25s ease,box-shadow .25s ease!important}
+#overlayListaResultados .home-hero h2{display:block!important;margin:0 0 14px!important;font-size:clamp(28px,8vw,46px)!important;line-height:.95!important;color:#fff!important;text-transform:uppercase!important;font-style:italic!important;font-weight:1000!important;letter-spacing:-1.4px!important;text-shadow:0 3px 0 rgba(30,40,60,.9),0 0 18px var(--hero-accent)!important}
+#overlayListaResultados .home-hero{border:2px solid color-mix(in srgb,var(--hero-accent) 72%,white)!important;background:radial-gradient(ellipse at 52% 28%,color-mix(in srgb,var(--hero-accent) 88%,transparent) 0%,color-mix(in srgb,var(--hero-accent) 42%,#07111d) 42%,#07111d 88%)!important;box-shadow:inset 0 0 58px color-mix(in srgb,var(--hero-accent) 55%,transparent),0 0 8px color-mix(in srgb,var(--hero-accent) 78%,white),0 0 30px color-mix(in srgb,var(--hero-accent) 58%,transparent)!important;transition:background .25s,border-color .25s,box-shadow .25s!important}
 #overlayListaResultados .hh-ball{background:radial-gradient(circle at 30% 22%,#fff7c7 0%,#ffe27a 16%,#dca62d 43%,#8b5a08 76%,#3b2200 100%)!important;border:1px solid #ffd85a!important;color:#111!important;text-shadow:0 1px 0 rgba(255,255,255,.65)!important;box-shadow:inset 2px 2px 5px rgba(255,255,255,.72),inset -3px -4px 7px rgba(74,38,0,.55),0 2px 5px rgba(0,0,0,.48),0 0 8px rgba(255,190,35,.38)!important}
-#overlayListaResultados .hh-stats-btn{background:linear-gradient(135deg,var(--hero-color,#8B2FC9),var(--hero-border,#C86BFF))!important;border-color:var(--hero-border,#C86BFF)!important;box-shadow:0 4px 0 var(--hero-deep,#5b167e),0 0 16px var(--hero-shadow,rgba(139,47,201,.5))!important}
-#overlayListaResultados .home-tab.active{background:linear-gradient(135deg,var(--tab-deep,#6b1ca1),var(--tab-color,#8B2FC9),var(--tab-border,#C86BFF))!important;border-color:var(--tab-light,#DDA8FF)!important;box-shadow:0 0 8px var(--tab-border,#C86BFF),0 0 20px var(--tab-color,#8B2FC9)!important}
+#overlayListaResultados .hh-stats-btn{background:linear-gradient(135deg,color-mix(in srgb,var(--hero-accent) 82%,#00140b),color-mix(in srgb,var(--hero-accent) 82%,white))!important;border:1px solid color-mix(in srgb,var(--hero-accent) 70%,white)!important;box-shadow:0 4px 0 color-mix(in srgb,var(--hero-accent) 55%,black),0 0 16px color-mix(in srgb,var(--hero-accent) 55%,transparent)!important}
+#overlayListaResultados .home-tab.active{background:linear-gradient(135deg,color-mix(in srgb,var(--tab-accent) 78%,black),var(--tab-accent),color-mix(in srgb,var(--tab-accent) 72%,white))!important;border-color:color-mix(in srgb,var(--tab-accent) 65%,white)!important;box-shadow:0 0 8px var(--tab-accent),0 0 20px color-mix(in srgb,var(--tab-accent) 60%,transparent)!important;color:#fff!important}
 #overlayListaResultados .home-free-banner{min-height:68px!important;padding:7px 14px!important;box-sizing:border-box!important}
 @media(max-width:360px){#overlayListaResultados{padding-left:0!important}}
 </style>`;
-      var DYNAMIC_PATCH = String.raw`<script id="thor-loteria-dinamica-final">
-(function(){
- const cores={
-  LF:{cor:'#8B2FC9',borda:'#C86BFF',clara:'#DDA8FF',meio:'#35144f',brilho:'#8B2FC9',deep:'#5b167e',shadow:'rgba(139,47,201,.62)'},
-  MS:{cor:'#00C864',borda:'#19F58A',clara:'#B5FFD7',meio:'#004b29',brilho:'#00a94f',deep:'#007a3d',shadow:'rgba(0,230,112,.62)'},
-  QN:{cor:'#2369E8',borda:'#43A0FF',clara:'#C2DEFF',meio:'#102f70',brilho:'#174fc1',deep:'#153d94',shadow:'rgba(35,105,232,.62)'},
-  DIA:{cor:'#E99522',borda:'#FFC257',clara:'#FFE1A8',meio:'#5c3510',brilho:'#c97812',deep:'#98580d',shadow:'rgba(233,149,34,.62)'},
-  LM:{cor:'#EE7541',borda:'#FFAA70',clara:'#FFD0B3',meio:'#5c2915',brilho:'#c85326',deep:'#963c1b',shadow:'rgba(238,117,65,.62)'},
-  SS:{cor:'#6830D8',borda:'#2794FF',clara:'#D0BCFF',meio:'#2c185f',brilho:'#5421ba',deep:'#42178e',shadow:'rgba(104,48,216,.62)'},
-  TM:{cor:'#E72867',borda:'#FF6098',clara:'#FFC2D7',meio:'#5a1531',brilho:'#bd174d',deep:'#93113b',shadow:'rgba(231,40,103,.62)'},
-  MIL:{cor:'#175DA7',borda:'#3694F2',clara:'#C0DEFF',meio:'#12375d',brilho:'#124c89',deep:'#0e3a69',shadow:'rgba(23,93,167,.62)'},
-  DS:{cor:'#B92237',borda:'#F14D61',clara:'#FFC5CC',meio:'#51141d',brilho:'#971828',deep:'#74121f',shadow:'rgba(185,34,55,.62)'}
- };
- function codigoAtivo(){const t=document.querySelector('#overlayListaResultados .home-tab.active');if(t&&t.dataset&&t.dataset.game)return t.dataset.game;const txt=((t&&t.textContent)||'').toUpperCase();if(txt.includes('MEGA'))return 'MS';if(txt.includes('LOTOFÁCIL'))return 'LF';if(txt.includes('QUINA'))return 'QN';if(txt.includes('DIA DE SORTE'))return 'DIA';if(txt.includes('LOTOMANIA'))return 'LM';if(txt.includes('SUPER SETE'))return 'SS';if(txt.includes('TIMEMANIA'))return 'TM';if(txt.includes('MILIONÁRIA'))return 'MIL';if(txt.includes('DUPLA SENA'))return 'DS';return 'LF'}
- function aplicar(){const hero=document.querySelector('#overlayListaResultados .home-hero');const tab=document.querySelector('#overlayListaResultados .home-tab.active');if(!hero||!tab)return;const code=codigoAtivo();const c=cores[code]||cores.LF;hero.style.setProperty('--hero-color',c.cor);hero.style.setProperty('--hero-border',c.borda);hero.style.setProperty('--hero-mid',c.meio);hero.style.setProperty('--hero-bright',c.brilho);hero.style.setProperty('--hero-deep',c.deep);hero.style.setProperty('--hero-shadow',c.shadow);tab.style.setProperty('--tab-color',c.cor);tab.style.setProperty('--tab-border',c.borda);tab.style.setProperty('--tab-light',c.clara);tab.style.setProperty('--tab-deep',c.deep)}
- document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#overlayListaResultados .home-tab')){setTimeout(aplicar,0);setTimeout(aplicar,100);setTimeout(aplicar,400)}},true);
- const obs=new MutationObserver(function(m){if(m.some(function(x){return x.type==='attributes'||x.type==='childList'}))requestAnimationFrame(aplicar)});function iniciar(){const r=document.getElementById('overlayListaResultados');if(r){obs.observe(r,{subtree:true,childList:true,attributes:true,attributeFilter:['class','data-game']});aplicar()}else setTimeout(iniciar,100)}iniciar();
-})();
-<\/script>`;
-      html = html.replace('</head>', MENU_PATCH + '\n</head>');
-      html = html.replace('</body>', DYNAMIC_PATCH + '\n</body>');
-      document.open();document.write(html);document.close();
-    })
-    .catch(function(err){var boot=document.getElementById('thorBoot');if(boot)boot.innerHTML='<div class="thorBootBox">Não foi possível carregar o app.<br><button onclick="location.reload()" style="margin-top:14px;padding:10px 18px;border:0;border-radius:9px;background:#7c21e8;color:#fff;font-weight:800">TENTAR NOVAMENTE</button></div>';console.error(err);});
+  html=html.replace('</head>',CSS+'\n</head>');
+  document.open();document.write(html);document.close();
+ }).catch(function(err){var b=document.getElementById('thorBoot');if(b)b.innerHTML='<div class="thorBootBox">Não foi possível carregar o app.<br><button onclick="location.reload()" style="margin-top:14px;padding:10px 18px;border:0;border-radius:9px;background:#7c21e8;color:#fff;font-weight:800">TENTAR NOVAMENTE</button></div>';console.error(err)});
 })();
 </script>
 </body>
