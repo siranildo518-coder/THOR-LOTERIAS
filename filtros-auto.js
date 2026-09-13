@@ -8,9 +8,10 @@ function homeTendencia(){
   const cards=[...document.querySelectorAll('.home-feature-card')];
   if(!cards.length)return;
   const grid=cards[0].parentElement;if(!grid)return;
-  if(!grid.dataset.thorAbaDescida){grid.dataset.thorAbaDescida='1';grid.style.setProperty('transform','translateY(18px)','important')}
+  function posicionar(){grid.style.setProperty('transform','none','important');const r=grid.getBoundingClientRect();const gap=2.5*96/2.54;const target=window.innerHeight-gap;const dy=Math.max(0,target-r.bottom);grid.style.setProperty('transform','translateY('+dy+'px)','important')}
+  if(!grid.dataset.thorAbaDescida25){grid.dataset.thorAbaDescida25='1';setTimeout(posicionar,0);window.addEventListener('resize',posicionar,{passive:true})}
   let exists=document.querySelector('.home-feature-card.thor-tendencia-real');
-  if(exists)return;
+  if(exists){setTimeout(posicionar,0);return}
   const base=cards[0];
   const c=base.cloneNode(true);c.classList.add('thor-tendencia-real');c.removeAttribute('id');c.setAttribute('data-home-target','btnTendenciaAtalho');c.removeAttribute('onclick');
   const strong=c.querySelector('strong'),small=c.querySelector('small'),ico=c.querySelector('.hfc-icon');
@@ -18,7 +19,7 @@ function homeTendencia(){
   if(small)small.textContent='Dezenas em alta e queda';
   if(ico)ico.textContent='↗';
   c.style.setProperty('--fc','#6d7fa8');
-  grid.appendChild(c)
+  grid.appendChild(c);setTimeout(posicionar,0)
 }
 const API={'lotofacil':'lotofacil','mega-sena':'megasena','quina':'quina','dia-de-sorte':'diadesorte','lotomania':'lotomania','super-sete':'supersete','timemania':'timemania','mais-milionaria':'maismilionaria','dupla-sena':'duplasena'};
 const LABEL={pares:'PARES',impares:'IMPARES',primos:'PRIMOS',fibonacci:'FIBONACCI',moldura:'MOLDURA',centro:'CENTRO',mult3:'MULT. DE 3',soma:'SOMA'};
