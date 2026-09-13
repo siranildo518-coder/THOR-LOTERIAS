@@ -1,0 +1,30 @@
+name: Conectar design 3D de Combinacoes
+on:
+  push:
+    paths:
+      - '.github/workflows/connect-combinacoes-3d.yml'
+permissions:
+  contents: write
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Conectar CSS e JS sem alterar o menu
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('sw.js')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace("thor-loterias-2026-09-13-home-banner-55","thor-loterias-2026-09-13-combinacoes-3d-56")
+          s=s.replace("'./filtros-auto.js','./home-banner.css'","'./filtros-auto.js','./combinacoes-3d.css','./combinacoes-3d.js','./home-banner.css'")
+          s=s.replace('<link rel="stylesheet" href="./home-banner.css?v=20260913-55">','<link rel="stylesheet" href="./home-banner.css?v=20260913-55"><link rel="stylesheet" href="./combinacoes-3d.css?v=20260913-56">')
+          s=s.replace('<script src="./filtros-auto.js?v=20260913-55"><\\/script></body>','<script src="./filtros-auto.js?v=20260913-55"><\\/script><script src="./combinacoes-3d.js?v=20260913-56"><\\/script></body>')
+          p.write_text(s,encoding='utf-8')
+      - name: Publicar
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sw.js
+          git commit -m "Ativa design 3D brilhante dentro de Combinações" || exit 0
+          git push
