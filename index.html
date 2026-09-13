@@ -14,7 +14,7 @@ html,body{margin:0;min-height:100%;background:#07101f;color:#fff;font-family:Ari
 <div id="thorBoot"><div class="thorBootBox"><div class="thorBootSpin"></div>THOR LOTERIAS</div></div>
 <script>
 (function(){
-  var VERSION='20260912-remove-proximo-premio-02';
+  var VERSION='20260912-home-loteria-dinamica-01';
   fetch('./app-main.html?v='+VERSION,{cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
     .then(function(html){
@@ -31,9 +31,24 @@ html,body{margin:0;min-height:100%;background:#07101f;color:#fff;font-family:Ari
 #overlayListaResultados .home-topbar-left{width:100%!important;justify-content:center!important;position:relative!important}
 #overlayListaResultados .home-icon-btn{display:none!important}
 #overlayListaResultados #listaResultadosVoltar{display:flex!important;position:absolute!important;left:0!important;top:50%!important;transform:translateY(-50%)!important;width:42px!important;height:42px!important;align-items:center!important;justify-content:center!important;border-radius:12px!important;border:1px solid #346aa7!important;background:#111d33!important;color:#fff!important;box-shadow:0 0 12px rgba(52,133,255,.22)!important;z-index:20!important}
+/* A loteria selecionada vira o título principal e todo o destaque acompanha a cor dela */
+#overlayListaResultados .home-hero::before{content:none!important;display:none!important}
+#overlayListaResultados .home-hero h2{display:block!important;margin:0 0 14px!important;font-size:clamp(28px,8vw,46px)!important;line-height:.95!important;color:#fff!important;text-transform:uppercase!important;font-style:italic!important;font-weight:1000!important;letter-spacing:-1.4px!important;text-shadow:0 3px 0 color-mix(in srgb,var(--hero-accent,#8B2FC9) 45%,#142033),0 0 16px color-mix(in srgb,var(--hero-accent,#8B2FC9) 40%,transparent)!important}
+#overlayListaResultados .home-hero{border-color:color-mix(in srgb,var(--hero-accent,#8B2FC9) 78%,white)!important;background:radial-gradient(circle at 72% 38%,color-mix(in srgb,var(--hero-accent,#8B2FC9) 72%,transparent),transparent 30%),linear-gradient(145deg,color-mix(in srgb,var(--hero-accent,#8B2FC9) 24%,#101d38),#07111f 62%,color-mix(in srgb,var(--hero-accent,#8B2FC9) 22%,#10152a))!important;box-shadow:inset 0 0 25px color-mix(in srgb,var(--hero-accent,#8B2FC9) 18%,transparent),0 0 18px color-mix(in srgb,var(--hero-accent,#8B2FC9) 42%,transparent)!important}
+#overlayListaResultados .hh-last-draw{border-color:color-mix(in srgb,var(--hero-accent,#8B2FC9) 45%,#8aa3ce)!important}
+#overlayListaResultados .hh-ball{background:radial-gradient(circle at 30% 25%,#fff,color-mix(in srgb,var(--hero-accent,#8B2FC9) 52%,white) 38%,var(--hero-accent,#8B2FC9) 78%)!important;border-color:color-mix(in srgb,var(--hero-accent,#8B2FC9) 58%,white)!important}
+#overlayListaResultados .hh-stats-btn{background:linear-gradient(135deg,color-mix(in srgb,var(--hero-accent,#8B2FC9) 86%,#075cff),color-mix(in srgb,var(--hero-accent,#8B2FC9) 76%,#00c8ff))!important;border-color:color-mix(in srgb,var(--hero-accent,#8B2FC9) 50%,white)!important}
+#overlayListaResultados .home-tab.active{background:linear-gradient(135deg,var(--tab-accent,#8B2FC9),color-mix(in srgb,var(--tab-accent,#8B2FC9) 74%,#061229))!important;border-color:color-mix(in srgb,var(--tab-accent,#8B2FC9) 60%,white)!important;box-shadow:0 0 14px color-mix(in srgb,var(--tab-accent,#8B2FC9) 48%,transparent)!important}
+/* Dia de Sorte mais claro na Home, como solicitado */
+#overlayListaResultados .home-tab[style*="#7A5211"]{--tab-accent:#F2A23A!important}
 @media(max-width:360px){#overlayListaResultados{padding-left:0!important}}
 </style>`;
-      html += MENU_PATCH;
+      // Injeta o estilo antes de o documento ser executado.
+      html = html.replace('</head>', MENU_PATCH + '\n</head>');
+      // Na Home, Dia de Sorte usa laranja claro; as demais seguem a cor da loteria escolhida.
+      html = html.replace(/--hero-accent:\$\{g\.color\};--hero-accent-deep:\$\{g\.color\}/g, "--hero-accent:${g.code==='DIA'?'#F2A23A':g.color};--hero-accent-deep:${g.code==='DIA'?'#F2A23A':g.color}");
+      // O destaque da aba da Home também segue a cor escolhida.
+      html = html.replace("  tab.style.setProperty('--tab-accent', g.color);", "  tab.style.setProperty('--tab-accent', g.code==='DIA'?'#F2A23A':g.color);");
       document.open();
       document.write(html);
       document.close();
