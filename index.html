@@ -14,7 +14,7 @@ html,body{margin:0;min-height:100%;background:#07101f;color:#fff;font-family:Ari
 <div id="thorBoot"><div class="thorBootBox"><div class="thorBootSpin"></div>THOR LOTERIAS</div></div>
 <script>
 (function(){
-  var VERSION='20260912-fundo-neon-corrigido-03';
+  var VERSION='20260912-tema-megasena-verde-04';
   fetch('./app-main.html?v='+VERSION,{cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
     .then(function(html){
@@ -23,41 +23,38 @@ html,body{margin:0;min-height:100%;background:#07101f;color:#fff;font-family:Ari
       html = html.replace("      <div class=\"hh-premio-lbl\">${data.acumulou ? 'ESTIMATIVA ACUMULADA' : 'PRÊMIO ESTIMADO'}</div>\n", "");
       html = html.replace("      <div class=\"hh-premio-val\">${formatBRL(data.acumuladaProxConcurso)}</div>\n", "");
       var MENU_PATCH = String.raw`<style id="thor-home-dinamica-final">
-#overlayListaResultados{padding-left:0!important;background:radial-gradient(ellipse at 50% 42%,var(--page-color,#8B2FC9) 0%,var(--page-dark,#26113f) 32%,#07101f 72%)!important;transition:background .3s ease!important}
+#overlayListaResultados{padding-left:0!important;background:#07101f!important}
 #homeSideNav{display:none!important}
 #overlayListaResultados .home-topbar{position:relative!important}
 #overlayListaResultados .home-topbar-left{width:100%!important;justify-content:center!important;position:relative!important}
 #overlayListaResultados .home-icon-btn{display:none!important}
 #overlayListaResultados #listaResultadosVoltar{display:flex!important;position:absolute!important;left:0!important;top:50%!important;transform:translateY(-50%)!important;width:42px!important;height:42px!important;align-items:center!important;justify-content:center!important;border-radius:12px!important;border:1px solid #346aa7!important;background:#111d33!important;color:#fff!important;box-shadow:0 0 12px rgba(52,133,255,.22)!important;z-index:20!important}
 #overlayListaResultados .home-hero::before{content:none!important;display:none!important}
-#overlayListaResultados .home-hero h2{display:block!important;margin:0 0 14px!important;font-size:clamp(28px,8vw,46px)!important;line-height:.95!important;color:#fff!important;text-transform:uppercase!important;font-style:italic!important;font-weight:1000!important;letter-spacing:-1.4px!important;text-shadow:0 3px 0 rgba(30,40,60,.9),0 0 16px var(--hero-color,#8B2FC9)!important}
-#overlayListaResultados .home-hero{border:2px solid var(--hero-border,#C86BFF)!important;background:radial-gradient(ellipse at 50% 35%,var(--hero-color,#8B2FC9) 0%,var(--hero-mid,#3b155c) 40%,#08101f 88%)!important;box-shadow:inset 0 0 48px var(--hero-shadow,rgba(139,47,201,.55)),0 0 8px var(--hero-border,#C86BFF),0 0 28px var(--hero-shadow,rgba(139,47,201,.55))!important;transition:background .3s ease,border-color .3s ease,box-shadow .3s ease!important}
+#overlayListaResultados .home-hero h2{display:block!important;margin:0 0 14px!important;font-size:clamp(28px,8vw,46px)!important;line-height:.95!important;color:#fff!important;text-transform:uppercase!important;font-style:italic!important;font-weight:1000!important;letter-spacing:-1.4px!important;text-shadow:0 3px 0 rgba(30,40,60,.9),0 0 18px var(--hero-color,#8B2FC9)!important}
+#overlayListaResultados .home-hero{border:2px solid var(--hero-border,#C86BFF)!important;background:radial-gradient(ellipse at 52% 30%,var(--hero-bright,#8B2FC9) 0%,var(--hero-mid,#3b155c) 38%,#07111d 88%)!important;box-shadow:inset 0 0 58px var(--hero-shadow,rgba(139,47,201,.55)),0 0 8px var(--hero-border,#C86BFF),0 0 30px var(--hero-shadow,rgba(139,47,201,.55))!important;transition:background .25s ease,border-color .25s ease,box-shadow .25s ease!important}
 #overlayListaResultados .hh-ball{background:radial-gradient(circle at 30% 22%,#fff7c7 0%,#ffe27a 16%,#dca62d 43%,#8b5a08 76%,#3b2200 100%)!important;border:1px solid #ffd85a!important;color:#111!important;text-shadow:0 1px 0 rgba(255,255,255,.65)!important;box-shadow:inset 2px 2px 5px rgba(255,255,255,.72),inset -3px -4px 7px rgba(74,38,0,.55),0 2px 5px rgba(0,0,0,.48),0 0 8px rgba(255,190,35,.38)!important}
-#overlayListaResultados .hh-stats-btn{background:linear-gradient(135deg,var(--hero-color,#8B2FC9),var(--hero-border,#C86BFF))!important;border-color:var(--hero-border,#C86BFF)!important}
-#overlayListaResultados .home-tab.active{background:linear-gradient(135deg,var(--tab-color,#8B2FC9),var(--tab-border,#C86BFF))!important;border-color:var(--tab-light,#DDA8FF)!important;box-shadow:0 0 8px var(--tab-border,#C86BFF),0 0 20px var(--tab-color,#8B2FC9)!important}
-#overlayListaResultados .thor-fechamento-compacto{min-height:74px!important;height:74px!important;max-height:74px!important;padding:7px 14px!important;box-sizing:border-box!important;overflow:hidden!important}
-#overlayListaResultados .thor-fechamento-compacto button{min-height:40px!important;height:40px!important;padding-top:6px!important;padding-bottom:6px!important}
-#overlayListaResultados .thor-fechamento-compacto img,#overlayListaResultados .thor-fechamento-compacto .icon,#overlayListaResultados .thor-fechamento-compacto [class*="icon"]{max-height:46px!important;max-width:46px!important}
+#overlayListaResultados .hh-stats-btn{background:linear-gradient(135deg,var(--hero-color,#8B2FC9),var(--hero-border,#C86BFF))!important;border-color:var(--hero-border,#C86BFF)!important;box-shadow:0 4px 0 var(--hero-deep,#5b167e),0 0 16px var(--hero-shadow,rgba(139,47,201,.5))!important}
+#overlayListaResultados .home-tab.active{background:linear-gradient(135deg,var(--tab-deep,#6b1ca1),var(--tab-color,#8B2FC9),var(--tab-border,#C86BFF))!important;border-color:var(--tab-light,#DDA8FF)!important;box-shadow:0 0 8px var(--tab-border,#C86BFF),0 0 20px var(--tab-color,#8B2FC9)!important}
+#overlayListaResultados .home-free-banner{min-height:68px!important;padding:7px 14px!important;box-sizing:border-box!important}
 @media(max-width:360px){#overlayListaResultados{padding-left:0!important}}
 </style>`;
       var DYNAMIC_PATCH = String.raw`<script id="thor-loteria-dinamica-final">
 (function(){
  const cores={
-  'LOTOFÁCIL':['#8B2FC9','#C86BFF','#DDA8FF','#3b155c','#26113f','rgba(139,47,201,.62)'],
-  'MEGA-SENA':['#00B85C','#28F18A','#B0FFD2','#07552e','#052b1c','rgba(0,210,105,.62)'],
-  'QUINA':['#2369E8','#43A0FF','#C2DEFF','#102f70','#0b214d','rgba(35,105,232,.62)'],
-  'DIA DE SORTE':['#E99522','#FFC257','#FFE1A8','#5c3510','#34200c','rgba(233,149,34,.62)'],
-  'LOTOMANIA':['#EE7541','#FFAA70','#FFD0B3','#5c2915','#32180d','rgba(238,117,65,.62)'],
-  'SUPER SETE':['#6830D8','#2794FF','#D0BCFF','#2c185f','#18123c','rgba(104,48,216,.62)'],
-  'TIMEMANIA':['#E72867','#FF6098','#FFC2D7','#5a1531','#310d20','rgba(231,40,103,.62)'],
-  '+MILIONÁRIA':['#175DA7','#3694F2','#C0DEFF','#12375d','#0a2039','rgba(23,93,167,.62)'],
-  'DUPLA SENA':['#B92237','#F14D61','#FFC5CC','#51141d','#2d0d12','rgba(185,34,55,.62)']
+  LF:{cor:'#8B2FC9',borda:'#C86BFF',clara:'#DDA8FF',meio:'#35144f',brilho:'#8B2FC9',deep:'#5b167e',shadow:'rgba(139,47,201,.62)'},
+  MS:{cor:'#00C864',borda:'#19F58A',clara:'#B5FFD7',meio:'#004b29',brilho:'#00a94f',deep:'#007a3d',shadow:'rgba(0,230,112,.62)'},
+  QN:{cor:'#2369E8',borda:'#43A0FF',clara:'#C2DEFF',meio:'#102f70',brilho:'#174fc1',deep:'#153d94',shadow:'rgba(35,105,232,.62)'},
+  DIA:{cor:'#E99522',borda:'#FFC257',clara:'#FFE1A8',meio:'#5c3510',brilho:'#c97812',deep:'#98580d',shadow:'rgba(233,149,34,.62)'},
+  LM:{cor:'#EE7541',borda:'#FFAA70',clara:'#FFD0B3',meio:'#5c2915',brilho:'#c85326',deep:'#963c1b',shadow:'rgba(238,117,65,.62)'},
+  SS:{cor:'#6830D8',borda:'#2794FF',clara:'#D0BCFF',meio:'#2c185f',brilho:'#5421ba',deep:'#42178e',shadow:'rgba(104,48,216,.62)'},
+  TM:{cor:'#E72867',borda:'#FF6098',clara:'#FFC2D7',meio:'#5a1531',brilho:'#bd174d',deep:'#93113b',shadow:'rgba(231,40,103,.62)'},
+  MIL:{cor:'#175DA7',borda:'#3694F2',clara:'#C0DEFF',meio:'#12375d',brilho:'#124c89',deep:'#0e3a69',shadow:'rgba(23,93,167,.62)'},
+  DS:{cor:'#B92237',borda:'#F14D61',clara:'#FFC5CC',meio:'#51141d',brilho:'#971828',deep:'#74121f',shadow:'rgba(185,34,55,.62)'}
  };
- function compactarFechamento(){const raiz=document.getElementById('overlayListaResultados');if(!raiz)return;const titulo=Array.from(raiz.querySelectorAll('*')).find(function(e){return e.children.length===0&&(e.textContent||'').trim()==='Fechamento personalizado'});if(!titulo)return;let p=titulo.parentElement;while(p&&p!==raiz){const btn=Array.from(p.querySelectorAll('button')).find(function(b){return (b.textContent||'').trim()==='Gerar'});if(btn){p.classList.add('thor-fechamento-compacto');break}p=p.parentElement}}
- function nomeAtivo(){const t=document.querySelector('#overlayListaResultados .home-tab.active');const hero=document.querySelector('#overlayListaResultados .home-hero h2');const txt=((t&&t.textContent)||'')+' '+((hero&&hero.textContent)||'');const s=txt.toUpperCase();if(s.includes('MEGA-SENA')||s.includes('MEGA SENA'))return 'MEGA-SENA';if(s.includes('LOTOFÁCIL'))return 'LOTOFÁCIL';if(s.includes('DIA DE SORTE'))return 'DIA DE SORTE';if(s.includes('LOTOMANIA'))return 'LOTOMANIA';if(s.includes('SUPER SETE'))return 'SUPER SETE';if(s.includes('TIMEMANIA'))return 'TIMEMANIA';if(s.includes('+MILIONÁRIA')||s.includes('MILIONÁRIA'))return '+MILIONÁRIA';if(s.includes('DUPLA SENA'))return 'DUPLA SENA';if(s.includes('QUINA'))return 'QUINA';return ''}
- function aplicar(){compactarFechamento();const raiz=document.getElementById('overlayListaResultados');const hero=document.querySelector('#overlayListaResultados .home-hero');if(!hero||!raiz)return;const nome=nomeAtivo();if(!nome)return;const c=cores[nome];if(!c)return;raiz.style.setProperty('--page-color',c[0]);raiz.style.setProperty('--page-dark',c[4]);hero.style.setProperty('--hero-color',c[0]);hero.style.setProperty('--hero-border',c[1]);hero.style.setProperty('--hero-mid',c[3]);hero.style.setProperty('--hero-shadow',c[5]);document.querySelectorAll('#overlayListaResultados .home-tab').forEach(function(t){if(t.classList.contains('active')){t.style.setProperty('--tab-color',c[0]);t.style.setProperty('--tab-border',c[1]);t.style.setProperty('--tab-light',c[2])}})}
- document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#overlayListaResultados .home-tab')){setTimeout(aplicar,30);setTimeout(aplicar,250);setTimeout(aplicar,700)}},true);
- const obs=new MutationObserver(function(){requestAnimationFrame(aplicar)});function iniciar(){const r=document.getElementById('overlayListaResultados');if(r){obs.observe(r,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class']});aplicar()}else setTimeout(iniciar,100)}iniciar();
+ function codigoAtivo(){const t=document.querySelector('#overlayListaResultados .home-tab.active');if(t&&t.dataset&&t.dataset.game)return t.dataset.game;const txt=((t&&t.textContent)||'').toUpperCase();if(txt.includes('MEGA'))return 'MS';if(txt.includes('LOTOFÁCIL'))return 'LF';if(txt.includes('QUINA'))return 'QN';if(txt.includes('DIA DE SORTE'))return 'DIA';if(txt.includes('LOTOMANIA'))return 'LM';if(txt.includes('SUPER SETE'))return 'SS';if(txt.includes('TIMEMANIA'))return 'TM';if(txt.includes('MILIONÁRIA'))return 'MIL';if(txt.includes('DUPLA SENA'))return 'DS';return 'LF'}
+ function aplicar(){const hero=document.querySelector('#overlayListaResultados .home-hero');const tab=document.querySelector('#overlayListaResultados .home-tab.active');if(!hero||!tab)return;const code=codigoAtivo();const c=cores[code]||cores.LF;hero.style.setProperty('--hero-color',c.cor);hero.style.setProperty('--hero-border',c.borda);hero.style.setProperty('--hero-mid',c.meio);hero.style.setProperty('--hero-bright',c.brilho);hero.style.setProperty('--hero-deep',c.deep);hero.style.setProperty('--hero-shadow',c.shadow);tab.style.setProperty('--tab-color',c.cor);tab.style.setProperty('--tab-border',c.borda);tab.style.setProperty('--tab-light',c.clara);tab.style.setProperty('--tab-deep',c.deep)}
+ document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#overlayListaResultados .home-tab')){setTimeout(aplicar,0);setTimeout(aplicar,100);setTimeout(aplicar,400)}},true);
+ const obs=new MutationObserver(function(m){if(m.some(function(x){return x.type==='attributes'||x.type==='childList'}))requestAnimationFrame(aplicar)});function iniciar(){const r=document.getElementById('overlayListaResultados');if(r){obs.observe(r,{subtree:true,childList:true,attributes:true,attributeFilter:['class','data-game']});aplicar()}else setTimeout(iniciar,100)}iniciar();
 })();
 <\/script>`;
       html = html.replace('</head>', MENU_PATCH + '\n</head>');
