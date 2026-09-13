@@ -1,0 +1,2 @@
+.home-feature-card.thor-tendencia-real{position:relative;--thor-banner-ready:1}
+div:has(> .home-feature-card.thor-tendencia-real)::after{content:""!important;display:block!important;grid-column:1/-1!important;width:100%!important;aspect-ratio:852/435!important;min-height:0!important;margin-top:12px!important;border-radius:18px!important;background:#07101f url("./home-banner.jpg?v=20260913-60") center/cover no-repeat!important;box-shadow:0 12px 32px rgba(0,0,0,.45)!important;overflow:hidden!important}
