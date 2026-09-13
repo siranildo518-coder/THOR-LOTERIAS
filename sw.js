@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
-// Versão sincronizada com index.html: tela inicial restaurada do modelo salvo.
-const CACHE_NAME = 'thor-loterias-2026-09-12-home-salva-01';
+// Versão sincronizada com index.html: barra lateral fixa removida; menu lateral abre somente pelo botão ☰.
+const CACHE_NAME = 'thor-loterias-2026-09-12-menu-click-02';
 const CORE = [
   './',
   './index.html',
