@@ -1,1 +1,21 @@
-/* THOR LOTERIAS — correção: não alterar painéis das loterias. O novo design será aplicado somente ao cabeçalho superior da tela inicial. */
+/* THOR LOTERIAS — ajuste somente do painel de resultados/home */
+#overlayListaResultados .home-hero{
+  min-height:0!important;
+  padding-top:8px!important;
+  padding-bottom:8px!important;
+  margin-top:4px!important;
+  margin-bottom:8px!important;
+}
+#overlayListaResultados .home-hero h2{
+  margin-top:2px!important;
+  margin-bottom:5px!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+}
+#overlayListaResultados .home-hero:before,
+#overlayListaResultados .home-hero:after,
+#overlayListaResultados .home-hero h2:before,
+#overlayListaResultados .home-hero h2:after{
+  content:none!important;
+  display:none!important;
+}
