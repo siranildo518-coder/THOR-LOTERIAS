@@ -1,21 +1,7 @@
-/* THOR LOTERIAS — ajuste somente do painel de resultados/home */
-#overlayListaResultados .home-hero{
-  min-height:0!important;
-  padding-top:8px!important;
-  padding-bottom:8px!important;
-  margin-top:4px!important;
-  margin-bottom:8px!important;
-}
-#overlayListaResultados .home-hero h2{
-  margin-top:2px!important;
-  margin-bottom:5px!important;
-  padding-top:0!important;
-  padding-bottom:0!important;
-}
-#overlayListaResultados .home-hero:before,
-#overlayListaResultados .home-hero:after,
-#overlayListaResultados .home-hero h2:before,
-#overlayListaResultados .home-hero h2:after{
-  content:none!important;
-  display:none!important;
-}
+/* THOR LOTERIAS — ajustes restritos à tela inicial/resultados */
+#overlayListaResultados .home-hero{min-height:0!important;padding:6px 8px 7px!important;margin-top:3px!important;margin-bottom:7px!important}
+#overlayListaResultados .home-hero h2{margin:1px 0 4px!important;padding:0!important;line-height:.94!important}
+#overlayListaResultados .home-hero::before,#overlayListaResultados .home-hero::after,#overlayListaResultados .home-hero h2::before,#overlayListaResultados .home-hero h2::after{content:none!important;display:none!important}
+/* topo principal: mantém estrutura e funções; apenas acabamento visual */
+#overlayListaResultados .home-topbar{min-height:58px!important;padding-top:4px!important;padding-bottom:4px!important;background:radial-gradient(circle at 50% 0,rgba(25,117,255,.28),transparent 58%),linear-gradient(180deg,#0a1730,#07101f)!important;border-bottom:1px solid rgba(55,143,255,.42)!important;box-shadow:0 5px 18px rgba(0,76,190,.20)!important}
+#overlayListaResultados .home-topbar-left{min-height:50px!important}
