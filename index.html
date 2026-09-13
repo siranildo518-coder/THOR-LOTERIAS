@@ -14,10 +14,16 @@ html,body{margin:0;min-height:100%;background:#07101f;color:#fff;font-family:Ari
 <div id="thorBoot"><div class="thorBootBox"><div class="thorBootSpin"></div>THOR LOTERIAS</div></div>
 <script>
 (function(){
-  var VERSION='20260912-remove-proximo-premio-01';
+  var VERSION='20260912-remove-proximo-premio-02';
   fetch('./app-main.html?v='+VERSION,{cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
     .then(function(html){
+      // Remove de verdade, antes de executar o app, o bloco mostrado na imagem:
+      // Próximo sorteio, próximo concurso e estimativa/prêmio.
+      html = html.replace("      <div class=\"hh-row\">📅 Próximo sorteio: ${data.dataProxConcurso || '—'}</div>\n", "");
+      html = html.replace("      <div class=\"hh-row\">🎟️ Concurso ${data.concurso + 1}</div>\n", "");
+      html = html.replace("      <div class=\"hh-premio-lbl\">${data.acumulou ? 'ESTIMATIVA ACUMULADA' : 'PRÊMIO ESTIMADO'}</div>\n", "");
+      html = html.replace("      <div class=\"hh-premio-val\">${formatBRL(data.acumuladaProxConcurso)}</div>\n", "");
       var MENU_PATCH = String.raw`<style id="thor-menu-lateral-sob-demanda">
 #overlayListaResultados{padding-left:0!important}
 #homeSideNav{display:none!important}
@@ -25,9 +31,6 @@ html,body{margin:0;min-height:100%;background:#07101f;color:#fff;font-family:Ari
 #overlayListaResultados .home-topbar-left{width:100%!important;justify-content:center!important;position:relative!important}
 #overlayListaResultados .home-icon-btn{display:none!important}
 #overlayListaResultados #listaResultadosVoltar{display:flex!important;position:absolute!important;left:0!important;top:50%!important;transform:translateY(-50%)!important;width:42px!important;height:42px!important;align-items:center!important;justify-content:center!important;border-radius:12px!important;border:1px solid #346aa7!important;background:#111d33!important;color:#fff!important;box-shadow:0 0 12px rgba(52,133,255,.22)!important;z-index:20!important}
-#overlayListaResultados .home-hero > .hh-row,
-#overlayListaResultados .home-hero > .hh-premio-lbl,
-#overlayListaResultados .home-hero > .hh-premio-val{display:none!important}
 @media(max-width:360px){#overlayListaResultados{padding-left:0!important}}
 </style>`;
       html += MENU_PATCH;
