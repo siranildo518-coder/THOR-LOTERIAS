@@ -1,0 +1,44 @@
+name: Aplicar banner real no index
+on:
+  push:
+    paths:
+      - '.github/workflows/aplicar-banner-real-index.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ligar banner real no index
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace("var VERSION='20260913-combinacoes-3d-58';", "var VERSION='20260913-banner-real-60';")
+          old='<link rel="stylesheet" href="./combinacoes-3d.css?v=20260913-58"></head>'
+          new='<link rel="stylesheet" href="./combinacoes-3d.css?v=20260913-59"><link rel="stylesheet" href="./home-banner-real.css?v=20260913-60"></head>'
+          if old in s:
+              s=s.replace(old,new,1)
+          elif 'home-banner-real.css?v=20260913-60' not in s:
+              s=s.replace('</head>',new,1)
+          s=s.replace('combinacoes-3d.js?v=20260913-58','combinacoes-3d.js?v=20260913-59')
+          p.write_text(s,encoding='utf-8')
+      - name: Atualizar service worker
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('sw.js')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace("thor-loterias-2026-09-13-combinacoes-3d-59","thor-loterias-2026-09-13-banner-real-60")
+          s=s.replace("'./home-banner.css'","'./home-banner.css','./home-banner-real.css','./home-banner.jpg'")
+          p.write_text(s,encoding='utf-8')
+      - name: Publicar
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          git commit -m "Carrega foto de fundo real na tela inicial" || exit 0
+          git push
