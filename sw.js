@@ -1,8 +1,7 @@
 // THOR LOTERIAS - Service Worker
-// Cores dinâmicas usando a cor nativa de cada loteria.
-const CACHE_NAME = 'thor-loterias-2026-09-12-cor-nativa-loteria-05';
-const CORE = ['./','./index.html','./app-main.html','./manifest.json','./icon-192.png','./icon-512.png','./icon-512-maskable.png'];
-self.addEventListener('install',(event)=>{event.waitUntil(caches.open(CACHE_NAME).then((cache)=>Promise.all(CORE.map((url)=>fetch(url,{cache:'no-store'}).then((res)=>res&&res.ok?cache.put(url,res.clone()):null).catch(()=>null)))));self.skipWaiting();});
-self.addEventListener('message',(event)=>{if(event.data&&event.data.type==='SKIP_WAITING')self.skipWaiting();});
-self.addEventListener('activate',(event)=>{event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter((k)=>k!==CACHE_NAME).map((k)=>caches.delete(k)));await self.clients.claim();})());});
-self.addEventListener('fetch',(event)=>{const req=event.request;if(req.method!=='GET')return;const url=new URL(req.url),accept=req.headers.get('accept')||'';const isHtml=req.mode==='navigate'||accept.includes('text/html')||/\/(index|app-main)\.html$/.test(url.pathname)||url.pathname.endsWith('/');if(isHtml){event.respondWith(fetch(req,{cache:'no-store'}).then((res)=>{if(!res||!res.ok)throw new Error('network');const copy=res.clone();caches.open(CACHE_NAME).then((cache)=>cache.put(req,copy));return res;}).catch(async()=>(await caches.match(req))||(await caches.match('./index.html'))||(await caches.match('./app-main.html'))));return;}event.respondWith(fetch(req,{cache:'no-store'}).then((res)=>{if(res&&res.ok){const copy=res.clone();caches.open(CACHE_NAME).then((cache)=>cache.put(req,copy))}return res;}).catch(()=>caches.match(req)));});
+const CACHE_NAME='thor-loterias-2026-09-12-cor-selecao-direta-06';
+const CORE=['./','./index.html','./app-main.html','./manifest.json','./icon-192.png','./icon-512.png','./icon-512-maskable.png'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>Promise.all(CORE.map(u=>fetch(u,{cache:'no-store'}).then(r=>r&&r.ok?c.put(u,r.clone()):null).catch(()=>null)))));self.skipWaiting()});
+self.addEventListener('message',e=>{if(e.data&&e.data.type==='SKIP_WAITING')self.skipWaiting()});
+self.addEventListener('activate',e=>{e.waitUntil((async()=>{const k=await caches.keys();await Promise.all(k.filter(x=>x!==CACHE_NAME).map(x=>caches.delete(x)));await self.clients.claim()})())});
+self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const a=r.headers.get('accept')||'',h=r.mode==='navigate'||a.includes('text/html');if(h){e.respondWith(fetch(r,{cache:'no-store'}).then(x=>{if(!x||!x.ok)throw 0;const y=x.clone();caches.open(CACHE_NAME).then(c=>c.put(r,y));return x}).catch(async()=>(await caches.match(r))||(await caches.match('./index.html'))));return}e.respondWith(fetch(r,{cache:'no-store'}).catch(()=>caches.match(r))) });
