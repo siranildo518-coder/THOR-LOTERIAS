@@ -1,7 +1,8 @@
-/* THOR LOTERIAS — ajustes restritos à tela inicial/resultados */
+/* THOR LOTERIAS — somente tela inicial/resultados */
 #overlayListaResultados .home-hero{min-height:0!important;padding:6px 8px 7px!important;margin-top:3px!important;margin-bottom:7px!important}
-#overlayListaResultados .home-hero h2{margin:1px 0 4px!important;padding:0!important;line-height:.94!important}
+#overlayListaResultados .home-hero h2{font-size:clamp(46px,11vw,76px)!important;font-weight:950!important;font-style:italic!important;line-height:.92!important;letter-spacing:-2.5px!important;text-transform:uppercase!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 7px 0 rgba(0,0,0,.34),0 2px 18px rgba(255,255,255,.18)!important;margin:2px 0 6px!important;padding:0!important}
 #overlayListaResultados .home-hero::before,#overlayListaResultados .home-hero::after,#overlayListaResultados .home-hero h2::before,#overlayListaResultados .home-hero h2::after{content:none!important;display:none!important}
-/* topo principal: mantém estrutura e funções; apenas acabamento visual */
-#overlayListaResultados .home-topbar{min-height:58px!important;padding-top:4px!important;padding-bottom:4px!important;background:radial-gradient(circle at 50% 0,rgba(25,117,255,.28),transparent 58%),linear-gradient(180deg,#0a1730,#07101f)!important;border-bottom:1px solid rgba(55,143,255,.42)!important;box-shadow:0 5px 18px rgba(0,76,190,.20)!important}
-#overlayListaResultados .home-topbar-left{min-height:50px!important}
+/* topo combinado: THOR LOTERIAS em destaque, sem mexer no menu nem nas abas */
+#overlayListaResultados .home-topbar{min-height:74px!important;padding:6px 8px!important;background:radial-gradient(circle at 50% 0,rgba(30,121,255,.34),transparent 60%),linear-gradient(180deg,#0b1933 0%,#07101f 100%)!important;border-bottom:1px solid rgba(55,143,255,.55)!important;box-shadow:inset 0 -1px 0 rgba(255,210,70,.20),0 5px 18px rgba(0,76,190,.28)!important}
+#overlayListaResultados .home-topbar-left{min-height:62px!important}
+#overlayListaResultados .home-topbar-left::after{content:'ESTRATÉGIA EM CADA JOGO';position:absolute!important;left:50%!important;bottom:2px!important;transform:translateX(-50%)!important;color:#e9c458!important;font-size:10px!important;font-weight:900!important;letter-spacing:3px!important;white-space:nowrap!important;text-shadow:0 0 8px rgba(255,199,65,.35)!important;pointer-events:none!important}
