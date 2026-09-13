@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
-// Versão sincronizada com index.html: bloco de próximo sorteio, próximo concurso e estimativa removido da tela inicial.
-const CACHE_NAME = 'thor-loterias-2026-09-12-remove-proximo-premio-02';
+// Versão sincronizada com index.html: nome e cores da loteria selecionada agora mudam dinamicamente na tela inicial.
+const CACHE_NAME = 'thor-loterias-2026-09-12-home-loteria-dinamica-01';
 const CORE = [
   './',
   './index.html',
