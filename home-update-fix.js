@@ -1,4 +1,4 @@
-/* THOR LOTERIAS — atualização leve, sem desmontar a home antes da hora */
+/* THOR LOTERIAS — atualização em segundo plano, sem desmontar a home */
 (function(){
   let atualizando=false;
   function fixarHome(){
@@ -15,6 +15,10 @@
     }
     document.documentElement.classList.add('thor-home-atualizando');
   }
+  function liberarHome(){
+    document.documentElement.classList.remove('thor-home-atualizando');
+    atualizando=false;
+  }
   async function atualizar(){
     if(atualizando)return;
     atualizando=true;
@@ -24,14 +28,18 @@
         const reg=await navigator.serviceWorker.getRegistration();
         if(reg){
           await Promise.race([reg.update(),new Promise(r=>setTimeout(r,1800))]);
-          if(reg.waiting){try{reg.waiting.postMessage({type:'SKIP_WAITING'})}catch(_){}}
+          if(reg.waiting){
+            try{reg.waiting.postMessage({type:'SKIP_WAITING'})}catch(_){}
+          }
         }
       }
+      /* Atualiza os arquivos no cache em segundo plano. Não navega nem desmonta a tela atual. */
+      await Promise.allSettled([
+        fetch('./index.html?_thor_refresh='+Date.now(),{cache:'reload'}),
+        fetch('./app-main.html?_thor_refresh='+Date.now(),{cache:'reload'})
+      ]);
     }catch(_){ }
-    sessionStorage.setItem('thor_voltando_home','1');
-    const u=new URL(location.href);
-    u.searchParams.set('_thor_update',Date.now().toString());
-    location.replace(u.toString());
+    liberarHome();
   }
   document.addEventListener('click',function(e){
     const btn=e.target&&e.target.closest?e.target.closest('#menuAtualizar'):null;
