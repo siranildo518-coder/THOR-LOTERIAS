@@ -1,5 +1,5 @@
 // THOR LOTERIAS - Service Worker
-const CACHE_NAME='thor-loterias-2026-09-13-tendencia-azul-metalico-100';
+const CACHE_NAME='thor-loterias-2026-09-13-menu-cor-original-101';
 const CORE=['./','./index.html','./app-main.html','./analysis-neon.css','./fechamento-personalizado-luxo.css','./home-topo-thor.css','./home-update-fix.js','./filtros-auto.js','./manifest.json','./icon-192.png','./icon-512.png','./icon-512-maskable.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>Promise.all(CORE.map(u=>fetch(u,{cache:'no-store'}).then(r=>r&&r.ok?c.put(u,r.clone()):null).catch(()=>null)))));self.skipWaiting()});
 self.addEventListener('message',e=>{if(e.data&&e.data.type==='SKIP_WAITING')self.skipWaiting()});
