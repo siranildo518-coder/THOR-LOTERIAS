@@ -14,7 +14,7 @@ html,body{margin:0;min-height:100%;background:#07101f;color:#fff;font-family:Ari
 <div id="thorBoot"><div class="thorBootBox"><div class="thorBootSpin"></div>THOR LOTERIAS</div></div>
 <script>
 (function(){
-  var VERSION='20260912-fundo-neon-forte-02';
+  var VERSION='20260912-fundo-neon-corrigido-03';
   fetch('./app-main.html?v='+VERSION,{cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
     .then(function(html){
@@ -45,7 +45,6 @@ html,body{margin:0;min-height:100%;background:#07101f;color:#fff;font-family:Ari
  const cores={
   'LOTOFÁCIL':['#8B2FC9','#C86BFF','#DDA8FF','#3b155c','#26113f','rgba(139,47,201,.62)'],
   'MEGA-SENA':['#00B85C','#28F18A','#B0FFD2','#07552e','#052b1c','rgba(0,210,105,.62)'],
-  'MEGA SENA':['#00B85C','#28F18A','#B0FFD2','#07552e','#052b1c','rgba(0,210,105,.62)'],
   'QUINA':['#2369E8','#43A0FF','#C2DEFF','#102f70','#0b214d','rgba(35,105,232,.62)'],
   'DIA DE SORTE':['#E99522','#FFC257','#FFE1A8','#5c3510','#34200c','rgba(233,149,34,.62)'],
   'LOTOMANIA':['#EE7541','#FFAA70','#FFD0B3','#5c2915','#32180d','rgba(238,117,65,.62)'],
@@ -55,10 +54,10 @@ html,body{margin:0;min-height:100%;background:#07101f;color:#fff;font-family:Ari
   'DUPLA SENA':['#B92237','#F14D61','#FFC5CC','#51141d','#2d0d12','rgba(185,34,55,.62)']
  };
  function compactarFechamento(){const raiz=document.getElementById('overlayListaResultados');if(!raiz)return;const titulo=Array.from(raiz.querySelectorAll('*')).find(function(e){return e.children.length===0&&(e.textContent||'').trim()==='Fechamento personalizado'});if(!titulo)return;let p=titulo.parentElement;while(p&&p!==raiz){const btn=Array.from(p.querySelectorAll('button')).find(function(b){return (b.textContent||'').trim()==='Gerar'});if(btn){p.classList.add('thor-fechamento-compacto');break}p=p.parentElement}}
- function nomeAtivo(){const t=document.querySelector('#overlayListaResultados .home-tab.active');return t?(t.textContent||'').trim().toUpperCase():''}
- function aplicar(){compactarFechamento();const raiz=document.getElementById('overlayListaResultados');const hero=document.querySelector('#overlayListaResultados .home-hero');if(!hero||!raiz)return;const nome=nomeAtivo();if(!nome)return;const c=cores[nome]||cores['LOTOFÁCIL'];const h2=hero.querySelector('h2');if(h2)h2.textContent=nome;raiz.style.setProperty('--page-color',c[0]);raiz.style.setProperty('--page-dark',c[4]);hero.style.setProperty('--hero-color',c[0]);hero.style.setProperty('--hero-border',c[1]);hero.style.setProperty('--hero-mid',c[3]);hero.style.setProperty('--hero-shadow',c[5]);document.querySelectorAll('#overlayListaResultados .home-tab').forEach(function(t){if(t.classList.contains('active')){t.style.setProperty('--tab-color',c[0]);t.style.setProperty('--tab-border',c[1]);t.style.setProperty('--tab-light',c[2])}})}
- document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#overlayListaResultados .home-tab')){setTimeout(aplicar,20);setTimeout(aplicar,180)}},true);
- const obs=new MutationObserver(function(){requestAnimationFrame(aplicar)});function iniciar(){const r=document.getElementById('overlayListaResultados');if(r){obs.observe(r,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});aplicar()}else setTimeout(iniciar,100)}iniciar();
+ function nomeAtivo(){const t=document.querySelector('#overlayListaResultados .home-tab.active');const hero=document.querySelector('#overlayListaResultados .home-hero h2');const txt=((t&&t.textContent)||'')+' '+((hero&&hero.textContent)||'');const s=txt.toUpperCase();if(s.includes('MEGA-SENA')||s.includes('MEGA SENA'))return 'MEGA-SENA';if(s.includes('LOTOFÁCIL'))return 'LOTOFÁCIL';if(s.includes('DIA DE SORTE'))return 'DIA DE SORTE';if(s.includes('LOTOMANIA'))return 'LOTOMANIA';if(s.includes('SUPER SETE'))return 'SUPER SETE';if(s.includes('TIMEMANIA'))return 'TIMEMANIA';if(s.includes('+MILIONÁRIA')||s.includes('MILIONÁRIA'))return '+MILIONÁRIA';if(s.includes('DUPLA SENA'))return 'DUPLA SENA';if(s.includes('QUINA'))return 'QUINA';return ''}
+ function aplicar(){compactarFechamento();const raiz=document.getElementById('overlayListaResultados');const hero=document.querySelector('#overlayListaResultados .home-hero');if(!hero||!raiz)return;const nome=nomeAtivo();if(!nome)return;const c=cores[nome];if(!c)return;raiz.style.setProperty('--page-color',c[0]);raiz.style.setProperty('--page-dark',c[4]);hero.style.setProperty('--hero-color',c[0]);hero.style.setProperty('--hero-border',c[1]);hero.style.setProperty('--hero-mid',c[3]);hero.style.setProperty('--hero-shadow',c[5]);document.querySelectorAll('#overlayListaResultados .home-tab').forEach(function(t){if(t.classList.contains('active')){t.style.setProperty('--tab-color',c[0]);t.style.setProperty('--tab-border',c[1]);t.style.setProperty('--tab-light',c[2])}})}
+ document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#overlayListaResultados .home-tab')){setTimeout(aplicar,30);setTimeout(aplicar,250);setTimeout(aplicar,700)}},true);
+ const obs=new MutationObserver(function(){requestAnimationFrame(aplicar)});function iniciar(){const r=document.getElementById('overlayListaResultados');if(r){obs.observe(r,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class']});aplicar()}else setTimeout(iniciar,100)}iniciar();
 })();
 <\/script>`;
       html = html.replace('</head>', MENU_PATCH + '\n</head>');
