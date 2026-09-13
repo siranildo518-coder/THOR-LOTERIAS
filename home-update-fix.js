@@ -16,6 +16,13 @@
   }
   document.addEventListener('click',function(e){const btn=e.target&&e.target.closest?e.target.closest('#menuAtualizar'):null;if(!btn)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();atualizar()},true);
 
+  /* Remove o bloco de contatos que ficou solto no rodape da tela. */
+  function removerContatoSolto(){
+    document.querySelectorAll('.contatos-conteudo').forEach(function(el){el.remove()});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',removerContatoSolto,{once:true});else removerContatoSolto();
+  new MutationObserver(removerContatoSolto).observe(document.documentElement,{childList:true,subtree:true});
+
   /* Fechamento Personalizado: pula a tela "Escolha a loteria" e abre direto a configuração. */
   document.addEventListener('click',function(e){
     const btn=e.target&&e.target.closest?e.target.closest('#btnAbrirFechamentoAtalho'):null;
