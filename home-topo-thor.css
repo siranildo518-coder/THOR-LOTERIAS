@@ -26,5 +26,8 @@ html.thor-home-atualizando #overlayListaResultados{display:block!important;visib
 #overlayListaResultados{background:linear-gradient(100deg,#06101d 0%,#263c52 14%,#71899e 28%,#20384f 42%,#0b1c2d 52%,#607b92 66%,#21394f 80%,#050d18 100%)!important;background-attachment:fixed!important}
 #overlayListaResultados #homeFeatureGrid::before{background:linear-gradient(100deg,#06101d 0%,#263c52 14%,#71899e 28%,#20384f 42%,#0b1c2d 52%,#607b92 66%,#21394f 80%,#050d18 100%)!important;box-shadow:inset 5px 0 9px rgba(255,255,255,.22),inset -6px 0 10px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.26)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 
-/* Desce em 1 cm o conjunto completo a partir das abas das loterias, sem alterar nenhum botão. */
-#overlayListaResultados .home-tabs-wrap{margin-top:1cm!important}
+/* Deslocamento real: move o conjunto completo das loterias para baixo em 1 cm, sem redimensionar os botões. */
+#overlayListaResultados .home-tabs-wrap,
+#overlayListaResultados .home-free-banner,
+#overlayListaResultados>div:has(>#homeHero),
+#overlayListaResultados #homeFeatureGrid{transform:translateY(1cm)!important}
