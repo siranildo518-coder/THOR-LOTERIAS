@@ -3,16 +3,20 @@
 function N(s){return(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase()}
 function hideContact(){let e=[...document.querySelectorAll('div,section,footer,p,h1,h2,h3,h4,strong,span')].find(x=>N(x.textContent).trim()==='ENTRE EM CONTATO');if(!e)return;let p=e;for(let i=0;i<5&&p.parentElement;i++){let t=N(p.textContent);if(t.includes('WHATSAPP')&&t.includes('E-MAIL'))break;p=p.parentElement}p.style.setProperty('display','none','important')}
 function homeTendencia(){
-  let old=[...document.querySelectorAll('div,section,article,button,a')].filter(e=>N(e.textContent).includes('DEZENAS EM ALTA E EM QUEDA')).sort((a,b)=>a.querySelectorAll('*').length-b.querySelectorAll('*').length)[0];
-  if(old){let p=old;for(let i=0;i<4&&p.parentElement;i++){if(p.classList.contains('home-feature-card')||p.classList.contains('home-card')||p.classList.contains('card'))break;p=p.parentElement}p.style.setProperty('display','none','important')}
-  let cards=[...document.querySelectorAll('.home-feature-card')];if(!cards.length)return;
-  let exists=cards.find(c=>N(c.textContent).includes('TENDENCIA'));
-  if(exists){exists.classList.add('thor-tendencia-real');exists.style.removeProperty('height');exists.style.removeProperty('min-height');exists.style.removeProperty('max-height');return}
-  let base=cards[0],grid=base.parentElement;if(!grid)return;
-  let c=base.cloneNode(true);c.classList.add('thor-tendencia-real');c.removeAttribute('id');c.removeAttribute('data-home-target');c.removeAttribute('onclick');
-  let walker=document.createTreeWalker(c,NodeFilter.SHOW_TEXT);let node;while(node=walker.nextNode()){let q=N(node.nodeValue).trim();if(q==='ANALISE')node.nodeValue=node.nodeValue.replace(/Análise/i,'Tendência');else if(q.includes('ESTATISTICAS')&&q.includes('FREQUENCIAS'))node.nodeValue='Análise de alta e queda'}
-  let ico=[...c.querySelectorAll('span,div')].find(e=>e.children.length===0&&e.textContent.trim()&&e.textContent.trim().length<=3);if(ico)ico.textContent='↗';
-  c.style.removeProperty('height');c.style.removeProperty('min-height');c.style.removeProperty('max-height');grid.appendChild(c)
+  const old=document.getElementById('homePremiumCardTendencia');
+  if(old)old.style.setProperty('display','none','important');
+  const cards=[...document.querySelectorAll('.home-feature-card')];
+  if(!cards.length)return;
+  let exists=document.querySelector('.home-feature-card.thor-tendencia-real');
+  if(exists)return;
+  const base=cards[0],grid=base.parentElement;if(!grid)return;
+  const c=base.cloneNode(true);c.classList.add('thor-tendencia-real');c.removeAttribute('id');c.setAttribute('data-home-target','btnTendenciaAtalho');c.removeAttribute('onclick');
+  const strong=c.querySelector('strong'),small=c.querySelector('small'),ico=c.querySelector('.hfc-icon');
+  if(strong)strong.textContent='Tendência';
+  if(small)small.textContent='Dezenas em alta e queda';
+  if(ico)ico.textContent='↗';
+  c.style.setProperty('--fc','#6d7fa8');
+  grid.appendChild(c)
 }
 const API={'lotofacil':'lotofacil','mega-sena':'megasena','quina':'quina','dia-de-sorte':'diadesorte','lotomania':'lotomania','super-sete':'supersete','timemania':'timemania','mais-milionaria':'maismilionaria','dupla-sena':'duplasena'};
 const LABEL={pares:'PARES',impares:'IMPARES',primos:'PRIMOS',fibonacci:'FIBONACCI',moldura:'MOLDURA',centro:'CENTRO',mult3:'MULT. DE 3',soma:'SOMA'};
