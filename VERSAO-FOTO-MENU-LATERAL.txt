@@ -1,3 +1,0 @@
-THOR LOTERIAS
-Versão escolhida pelo usuário como base: interface com menu lateral fixo à esquerda, conforme foto enviada em 13/09/2026.
-Commit de referência original: df7c50bf4f02d1f871e25cca0f7c31f86d8c19ef

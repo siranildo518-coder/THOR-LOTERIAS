@@ -1,1 +1,0 @@
-Versão ativa escolhida: interface completa com menu lateral fixo à esquerda, referência df7c50bf4f02d1f871e25cca0f7c31f86d8c19ef.
