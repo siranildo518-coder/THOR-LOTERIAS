@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
-// Versão sincronizada com index.html: correção da detecção da loteria ativa.
-const CACHE_NAME = 'thor-loterias-2026-09-12-fundo-neon-corrigido-03';
+// Sincronizado com tema dinâmico por loteria.
+const CACHE_NAME = 'thor-loterias-2026-09-12-tema-megasena-verde-04';
 const CORE = ['./','./index.html','./app-main.html','./manifest.json','./icon-192.png','./icon-512.png','./icon-512-maskable.png'];
 self.addEventListener('install',(event)=>{event.waitUntil(caches.open(CACHE_NAME).then((cache)=>Promise.all(CORE.map((url)=>fetch(url,{cache:'no-store'}).then((res)=>res&&res.ok?cache.put(url,res.clone()):null).catch(()=>null)))));self.skipWaiting();});
 self.addEventListener('message',(event)=>{if(event.data&&event.data.type==='SKIP_WAITING')self.skipWaiting();});
