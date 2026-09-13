@@ -18,3 +18,7 @@
 /* fundo azul de vidro atrás dos botões da tela inicial, desaparecendo de baixo para cima */
 #overlayListaResultados #homeFeatureGrid{position:relative!important;isolation:isolate!important}
 #overlayListaResultados #homeFeatureGrid::before{content:''!important;position:absolute!important;z-index:-1!important;left:-22px!important;right:-22px!important;bottom:-135px!important;top:-16px!important;pointer-events:none!important;background:linear-gradient(to top,rgba(3,40,126,.98) 0%,rgba(5,91,205,.82) 26%,rgba(8,136,238,.54) 50%,rgba(65,197,255,.25) 70%,rgba(65,197,255,.08) 86%,transparent 100%)!important;box-shadow:inset 0 -24px 55px rgba(0,90,255,.32)!important}
+/* fechamento personalizado: borda laranja neon somente na home */
+#overlayListaResultados .thor-fechamento-abaixo-tendencia{border:2px solid #ff9d18!important;box-shadow:inset 0 0 12px rgba(255,153,24,.22),0 0 5px rgba(255,238,188,.95),0 0 12px #ff9d18,0 0 22px rgba(255,112,0,.88)!important}
+/* durante o Atualizar, a home continua cobrindo a tela-base */
+html.thor-home-atualizando #overlayListaResultados{display:block!important;visibility:visible!important;opacity:1!important;z-index:2147483000!important;background:#050a16!important}
