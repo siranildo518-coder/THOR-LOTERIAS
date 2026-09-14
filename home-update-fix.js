@@ -16,6 +16,17 @@
   }
   document.addEventListener('click',function(e){const btn=e.target&&e.target.closest?e.target.closest('#menuAtualizar'):null;if(!btn)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();atualizar()},true);
 
+  /* Espacamento exato de 0,5 cm entre os botoes do menu lateral. */
+  function ajustarEspacoMenu(){
+    const nav=document.getElementById('homeSideNav');
+    if(!nav)return;
+    nav.style.setProperty('gap','0','important');
+    const botoes=nav.querySelectorAll('.hs-menu,.hs-item');
+    botoes.forEach(function(btn,i){btn.style.setProperty('margin-bottom',i===botoes.length-1?'0':'0.5cm','important')});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ajustarEspacoMenu,{once:true});else ajustarEspacoMenu();
+  new MutationObserver(ajustarEspacoMenu).observe(document.documentElement,{childList:true,subtree:true});
+
   /* Remove o bloco de contatos que ficou solto no rodape da tela. */
   function removerContatoSolto(){
     document.querySelectorAll('.contatos-conteudo').forEach(function(el){el.remove()});
