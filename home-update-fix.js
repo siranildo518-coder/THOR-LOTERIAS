@@ -19,6 +19,7 @@
   function carregarEstilos(){
     if(!document.getElementById('thorMenuClaroLaranja')){const link=document.createElement('link');link.id='thorMenuClaroLaranja';link.rel='stylesheet';link.href='./menu-lateral-claro-laranja.css?v=20260914-1114';document.head.appendChild(link)}
     if(!document.getElementById('thorTopoVerdeRetangular')){const link=document.createElement('link');link.id='thorTopoVerdeRetangular';link.rel='stylesheet';link.href='./topo-verde-retangular.css?v=base142-retangular-1';document.head.appendChild(link)}
+    if(!document.getElementById('thorCardsSomenteBorda')){const style=document.createElement('style');style.id='thorCardsSomenteBorda';style.textContent='#overlayListaResultados .home-feature-card{border:3px solid #ff9800!important;box-shadow:none!important}';document.head.appendChild(style)}
   }
   carregarEstilos();
 
