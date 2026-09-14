@@ -1,7 +1,8 @@
 // THOR LOTERIAS - Service Worker
-const CACHE_NAME='thor-loterias-2026-09-14-menu-espaco-05cm-133';
+// Forca atualizacao da versao restaurada / cache 138
+const CACHE_NAME='thor-loterias-2026-09-14-restaurado-138';
 const CORE=['./','./index.html','./app-main.html','./analysis-neon.css','./fechamento-personalizado-luxo.css','./home-topo-thor.css','./home-update-fix.js','./filtros-auto.js','./manifest.json','./icon-192.png','./icon-512.png','./icon-512-maskable.png'];
-self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>Promise.all(CORE.map(u=>fetch(u,{cache:'no-store'}).then(r=>r&&r.ok?c.put(u,r.clone()):null).catch(()=>null)))));self.skipWaiting()});
-self.addEventListener('message',e=>{if(e.data&&e.data.type==='SKIP_WAITING')self.skipWaiting()});
-self.addEventListener('activate',e=>{e.waitUntil((async()=>{const k=await caches.keys();await Promise.all(k.filter(x=>x!==CACHE_NAME).map(x=>caches.delete(x)));await self.clients.claim()})())});
-self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;e.respondWith(caches.match(r).then(c=>c||fetch(r,{cache:'no-store'}).then(x=>{if(x&&x.ok)caches.open(CACHE_NAME).then(k=>k.put(r,x.clone()));return x}))) });
+self.addEventListener('install',event=>{event.waitUntil((async()=>{const cache=await caches.open(CACHE_NAME);await Promise.all(CORE.map(async url=>{try{const res=await fetch(url,{cache:'no-store'});if(res&&res.ok)await cache.put(url,res.clone())}catch(_){}}))})());self.skipWaiting()});
+self.addEventListener('message',event=>{if(event.data&&event.data.type==='SKIP_WAITING')self.skipWaiting()});
+self.addEventListener('activate',event=>{event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)));if(self.registration.navigationPreload){try{await self.registration.navigationPreload.enable()}catch(_){}}await self.clients.claim();const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});clients.forEach(c=>c.postMessage({type:'THOR_UPDATED',version:'138'}))})())});
+self.addEventListener('fetch',event=>{const req=event.request;if(req.method!=='GET')return;event.respondWith((async()=>{try{const fresh=await fetch(req,{cache:'no-store'});if(fresh&&fresh.ok){const cache=await caches.open(CACHE_NAME);cache.put(req,fresh.clone())}return fresh}catch(_){return(await caches.match(req))||(req.mode==='navigate'?await caches.match('./index.html'):Response.error())}})())});
