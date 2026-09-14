@@ -11,10 +11,16 @@
     if(atualizando)return;atualizando=true;fixarHome();
     try{
       if('serviceWorker' in navigator){const reg=await navigator.serviceWorker.getRegistration();if(reg){await Promise.race([reg.update(),new Promise(r=>setTimeout(r,1800))]);if(reg.waiting){try{reg.waiting.postMessage({type:'SKIP_WAITING'})}catch(_){}}}}
-      await Promise.allSettled([fetch('./index.html?_thor_refresh='+Date.now(),{cache:'reload'}),fetch('./app-main.html?_thor_refresh='+Date.now(),{cache:'reload'}),fetch('./home-update-fix.js?_thor_refresh='+Date.now(),{cache:'reload'})]);
+      await Promise.allSettled([fetch('./index.html?_thor_refresh='+Date.now(),{cache:'reload'}),fetch('./app-main.html?_thor_refresh='+Date.now(),{cache:'reload'}),fetch('./home-update-fix.js?_thor_refresh='+Date.now(),{cache:'reload'}),fetch('./menu-lateral-claro-laranja.css?_thor_refresh='+Date.now(),{cache:'reload'})]);
     }catch(_){} liberarHome();
   }
   document.addEventListener('click',function(e){const btn=e.target&&e.target.closest?e.target.closest('#menuAtualizar'):null;if(!btn)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();atualizar()},true);
+
+  function carregarEstiloMenu(){
+    if(document.getElementById('thorMenuClaroLaranja'))return;
+    const link=document.createElement('link');link.id='thorMenuClaroLaranja';link.rel='stylesheet';link.href='./menu-lateral-claro-laranja.css?v=20260914-1114';document.head.appendChild(link);
+  }
+  carregarEstiloMenu();
 
   function ajustarEspacoMenu(){
     const nav=document.getElementById('homeSideNav');if(!nav)return;
