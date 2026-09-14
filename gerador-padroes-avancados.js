@@ -1,0 +1,18 @@
+// THOR LOTERIAS - score avançado de padrões históricos
+// Base 142 preservada. Acrescenta linhas/colunas, ciclo, pares, soma e repetição ao índice histórico.
+(function(){
+ const originalFetch=window.fetch.bind(window), cache=new Map();
+ function keyFromUrl(u){let m=String(u).match(/\/api\/([^/?]+)(?:\/(\d+))?/);return m?m[1]+':'+(m[2]||'ultimo'):''}
+ window.fetch=async function(){let r=await originalFetch.apply(this,arguments);try{let k=keyFromUrl(arguments[0] instanceof Request?arguments[0].url:arguments[0]);if(k&&r.ok){let d=await r.clone().json();cache.set(k,d)}}catch(_){}return r};
+ function nums(d){let a=d&&(d.listaDezenas||d.dezenas||d.numeros);return Array.isArray(a)?a.map(Number).filter(Number.isFinite):[]}
+ function avg(a){return a.length?a.reduce((s,x)=>s+x,0)/a.length:0} function sd(a){let m=avg(a);return Math.sqrt(avg(a.map(x=>(x-m)*(x-m))))||1}
+ function zscore(v,a){return Math.max(0,1-Math.abs(v-avg(a))/(2.5*sd(a)))}
+ function overlap(a,b){let s=new Set(b);return a.filter(x=>s.has(x)).length}
+ function grid(c){if(c.max===25)return 5;if(c.max===60)return 10;if(c.max===80)return 10;if(c.max===50)return 10;if(c.max===31)return 7;if(c.max===99)return 10;return Math.ceil(Math.sqrt(c.max-c.min+1))}
+ function patt(j,c){let w=grid(c),rows={},cols={},even=0,sum=0;j.forEach(x=>{let q=x-c.min,r=Math.floor(q/w),cl=((q%w)+w)%w;rows[r]=(rows[r]||0)+1;cols[cl]=(cols[cl]||0)+1;if(x%2===0)even++;sum+=x});return {rows:Object.values(rows).sort((a,b)=>a-b).join(','),cols:Object.values(cols).sort((a,b)=>a-b).join(','),even,sum}}
+ function modeScore(v,a){let n=a.filter(x=>x===v).length,m=Math.max(1,...a.map(x=>a.filter(y=>y===x).length));return n/m}
+ function cycleScore(j,hist,c){let seen=new Set(),cycles=[];for(let i=0;i<hist.length;i++){hist[i].forEach(x=>seen.add(x));if(seen.size>=c.max-c.min+1){cycles.push(i+1);seen.clear()}}let missing=[];for(let x=c.min;x<=c.max;x++)if(!seen.has(x))missing.push(x);let hit=overlap(j,missing);let expected=j.length*missing.length/Math.max(1,c.max-c.min+1);return missing.length?Math.max(0,1-Math.abs(hit-expected)/Math.max(1,j.length*.45)):1}
+ function scoreGame(j,hist,c){let ps=hist.map(x=>patt(x,c)),p=patt(j,c),row=modeScore(p.rows,ps.map(x=>x.rows)),col=modeScore(p.cols,ps.map(x=>x.cols)),par=zscore(p.even,ps.map(x=>x.even)),soma=zscore(p.sum,ps.map(x=>x.sum)),rep=hist.length?zscore(overlap(j,hist[0]),hist.slice(0,Math.min(40,hist.length-1)).map((x,i)=>overlap(x,hist[i+1]||[]))):1,cyc=cycleScore(j,hist,c);return {extra:.18*row+.18*col+.16*cyc+.16*par+.16*soma+.16*rep,row,col,cyc,par,soma,rep}}
+ function install(){if(typeof window.render!=='function'||!window.cfg)return setTimeout(install,20);if(window.__thorPadroesAvancados)return;let old=window.render;window.render=function(jogos,key,n){let c=window.cfg[key],entries=[...cache.entries()].filter(([k])=>k.startsWith(c.api+':')),hist=entries.map(x=>nums(x[1])).filter(a=>a.length);if(hist.length&&key!=='supersete'){jogos=(Array.isArray(jogos)?jogos:[]).map(o=>{let q=scoreGame(o.j,hist,c),base=Math.max(0,Math.min(1,Number(o.p||0)/100)),final=Math.round(100*(.52*base+.48*q.extra));return Object.assign({},o,{p:Math.max(1,Math.min(99,final)),thor:q})}).sort((a,b)=>b.p-a.p)}old(jogos,key,n);let st=document.getElementById('status');if(st&&hist.length&&key!=='supersete')st.textContent+=' Cálculo avançado inclui frequência, recência, atraso, linhas, colunas, ciclo de dezenas, pares/ímpares, soma e repetição.'};window.__thorPadroesAvancados=true}
+ install();
+})();
