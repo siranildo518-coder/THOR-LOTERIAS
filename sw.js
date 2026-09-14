@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
-// Forca recarregamento da versao base / cache 142
-const CACHE_NAME='thor-loterias-2026-09-14-base-forcada-142';
+// Base 142 preservada - novo Palpites em branco
+const CACHE_NAME='thor-loterias-2026-09-14-base-forcada-142-palpite-vazio';
 const CORE=['./','./index.html','./app-main.html','./analysis-neon.css','./fechamento-personalizado-luxo.css','./home-topo-thor.css','./home-update-fix.js','./filtros-auto.js','./manifest.json','./icon-192.png','./icon-512.png','./icon-512-maskable.png'];
 self.addEventListener('install',event=>{event.waitUntil((async()=>{const cache=await caches.open(CACHE_NAME);await Promise.all(CORE.map(async url=>{try{const res=await fetch(url+'?v=142',{cache:'no-store'});if(res&&res.ok)await cache.put(url,res.clone())}catch(_){}}))})());self.skipWaiting()});
 self.addEventListener('message',event=>{if(event.data&&event.data.type==='SKIP_WAITING')self.skipWaiting()});
