@@ -28,9 +28,7 @@
   new MutationObserver(ajustarEspacoMenu).observe(document.documentElement,{childList:true,subtree:true});
 
   /* Remove o bloco de contatos que ficou solto no rodape da tela. */
-  function removerContatoSolto(){
-    document.querySelectorAll('.contatos-conteudo').forEach(function(el){el.remove()});
-  }
+  function removerContatoSolto(){document.querySelectorAll('.contatos-conteudo').forEach(function(el){el.remove()})}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',removerContatoSolto,{once:true});else removerContatoSolto();
   new MutationObserver(removerContatoSolto).observe(document.documentElement,{childList:true,subtree:true});
 
@@ -45,4 +43,33 @@
       if(typeof abrirGeradorFiltro==='function')abrirGeradorFiltro(code);
     }catch(err){console.error('Falha ao abrir Fechamento Personalizado:',err);try{if(typeof abrirGeradorFiltro==='function')abrirGeradorFiltro('LF')}catch(_){}}
   },true);
+
+  /* PALPITES NOVO: substitui somente o botao antigo por um novo, sem alterar o restante da home. */
+  function abrirPalpitesNovo(){
+    let tela=document.getElementById('thorPalpitesNovo');
+    if(!tela){
+      tela=document.createElement('section');
+      tela.id='thorPalpitesNovo';
+      tela.setAttribute('aria-label','Palpites');
+      tela.innerHTML='<header class="tpn-top"><button id="tpnVoltar" type="button" aria-label="Voltar">←</button><strong>Palpites</strong></header><main class="tpn-vazio"></main>';
+      const st=document.createElement('style');
+      st.id='thorPalpitesNovoCss';
+      st.textContent='#thorPalpitesNovo{position:fixed;inset:0;z-index:2147483646;background:#07101f;color:#fff;display:block;overflow:auto;font-family:Arial,sans-serif}#thorPalpitesNovo .tpn-top{height:52px;box-sizing:border-box;display:flex;align-items:center;gap:12px;padding:0 14px;background:#07101f;border-bottom:1px solid rgba(255,255,255,.12)}#thorPalpitesNovo .tpn-top button{border:0;background:transparent;color:#fff;font-size:25px;padding:4px 8px;cursor:pointer}#thorPalpitesNovo .tpn-top strong{font-size:18px}#thorPalpitesNovo .tpn-vazio{min-height:calc(100vh - 52px);background:#07101f}';
+      document.head.appendChild(st);document.body.appendChild(tela);
+      document.getElementById('tpnVoltar').onclick=function(){tela.remove()};
+    }
+  }
+  function recriarBotaoPalpites(){
+    if(document.getElementById('btnPalpitesNovo'))return;
+    const candidatos=[].slice.call(document.querySelectorAll('button,.home-feature-card'));
+    const antigo=candidatos.find(function(b){return /palpites/i.test((b.textContent||'').trim())});
+    if(!antigo)return;
+    const novo=antigo.cloneNode(true);
+    novo.id='btnPalpitesNovo';
+    novo.removeAttribute('data-home-target');novo.removeAttribute('onclick');
+    novo.onclick=function(e){e.preventDefault();e.stopPropagation();abrirPalpitesNovo()};
+    antigo.replaceWith(novo);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',recriarBotaoPalpites,{once:true});else recriarBotaoPalpites();
+  new MutationObserver(recriarBotaoPalpites).observe(document.documentElement,{childList:true,subtree:true});
 })();
