@@ -11,16 +11,16 @@
     if(atualizando)return;atualizando=true;fixarHome();
     try{
       if('serviceWorker' in navigator){const reg=await navigator.serviceWorker.getRegistration();if(reg){await Promise.race([reg.update(),new Promise(r=>setTimeout(r,1800))]);if(reg.waiting){try{reg.waiting.postMessage({type:'SKIP_WAITING'})}catch(_){}}}}
-      await Promise.allSettled([fetch('./index.html?_thor_refresh='+Date.now(),{cache:'reload'}),fetch('./app-main.html?_thor_refresh='+Date.now(),{cache:'reload'}),fetch('./home-update-fix.js?_thor_refresh='+Date.now(),{cache:'reload'}),fetch('./menu-lateral-claro-laranja.css?_thor_refresh='+Date.now(),{cache:'reload'})]);
+      await Promise.allSettled([fetch('./index.html?_thor_refresh='+Date.now(),{cache:'reload'}),fetch('./app-main.html?_thor_refresh='+Date.now(),{cache:'reload'}),fetch('./home-update-fix.js?_thor_refresh='+Date.now(),{cache:'reload'}),fetch('./menu-lateral-claro-laranja.css?_thor_refresh='+Date.now(),{cache:'reload'}),fetch('./topo-verde-retangular.css?_thor_refresh='+Date.now(),{cache:'reload'})]);
     }catch(_){} liberarHome();
   }
   document.addEventListener('click',function(e){const btn=e.target&&e.target.closest?e.target.closest('#menuAtualizar'):null;if(!btn)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();atualizar()},true);
 
-  function carregarEstiloMenu(){
-    if(document.getElementById('thorMenuClaroLaranja'))return;
-    const link=document.createElement('link');link.id='thorMenuClaroLaranja';link.rel='stylesheet';link.href='./menu-lateral-claro-laranja.css?v=20260914-1114';document.head.appendChild(link);
+  function carregarEstilos(){
+    if(!document.getElementById('thorMenuClaroLaranja')){const link=document.createElement('link');link.id='thorMenuClaroLaranja';link.rel='stylesheet';link.href='./menu-lateral-claro-laranja.css?v=20260914-1114';document.head.appendChild(link)}
+    if(!document.getElementById('thorTopoVerdeRetangular')){const link=document.createElement('link');link.id='thorTopoVerdeRetangular';link.rel='stylesheet';link.href='./topo-verde-retangular.css?v=base142-retangular-1';document.head.appendChild(link)}
   }
-  carregarEstiloMenu();
+  carregarEstilos();
 
   function ajustarEspacoMenu(){
     const nav=document.getElementById('homeSideNav');if(!nav)return;
@@ -41,11 +41,8 @@
     try{const escolha=document.getElementById('overlayGeradorLoteria');if(escolha)escolha.classList.remove('show');const code=(typeof homeGameAtual!=='undefined'&&typeof GERADOR_APOSTA_SIZE!=='undefined'&&GERADOR_APOSTA_SIZE[homeGameAtual.code])?homeGameAtual.code:'LF';if(typeof abrirGeradorFiltro==='function')abrirGeradorFiltro(code)}catch(err){console.error('Falha ao abrir Fechamento Personalizado:',err);try{if(typeof abrirGeradorFiltro==='function')abrirGeradorFiltro('LF')}catch(_){}}
   },true);
 
-  /* Remove completamente o botão Palpites da tela inicial. */
   function removerBotaoPalpites(){
-    document.querySelectorAll('button,.home-feature-card').forEach(function(btn){
-      if(/palpites/i.test((btn.textContent||'').trim())) btn.remove();
-    });
+    document.querySelectorAll('button,.home-feature-card').forEach(function(btn){if(/palpites/i.test((btn.textContent||'').trim())) btn.remove()});
     const tela=document.getElementById('thorPalpitesNovo');if(tela)tela.remove();
     const css=document.getElementById('thorPalpitesNovoCss');if(css)css.remove();
   }
