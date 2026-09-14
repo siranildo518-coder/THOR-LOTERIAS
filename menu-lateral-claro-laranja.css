@@ -35,6 +35,9 @@
 #homeSideNav .hs-item:nth-child(8){animation-delay:.21s!important}
 #homeSideNav .hs-menu{font-size:0!important}
 #homeSideNav .hs-menu::after{content:'MENU';font-size:10px!important;font-weight:800!important;color:#fff!important;width:100%!important;text-align:center!important}
+/* Correção definitiva: sem o A que aparecia por causa do escape CSS/JavaScript. */
+html body #homeSideNav .hs-item:nth-of-type(4)::after{content:'COMEÇO FINAL'!important;white-space:normal!important;font-size:7px!important;line-height:1.02!important;font-weight:800!important;text-align:center!important}
+html body #homeSideNav .hs-item:last-child::after{content:'JOGOS OFICIAIS'!important;white-space:normal!important;font-size:7px!important;line-height:1.02!important;font-weight:800!important;text-align:center!important}
 #homeSideNav .hs-item:active,
 #homeSideNav .hs-menu:active{
   transform:translateY(4px) scale(.985)!important;
