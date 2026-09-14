@@ -1,7 +1,5 @@
-/* THOR LOTERIAS — menu lateral: botoes mais altos, um pouco mais estreitos, azul claro e borda laranja brilhante */
-#homeSideNav{
-  align-items:center!important;
-}
+/* THOR LOTERIAS — menu lateral azul metálico 3D, borda laranja brilhante e efeito de afundar */
+#homeSideNav{align-items:center!important}
 #homeSideNav .hs-menu,
 #homeSideNav .hs-item{
   width:88%!important;
@@ -12,19 +10,35 @@
   margin-right:auto!important;
   margin-bottom:8px!important;
   box-sizing:border-box!important;
-  background:linear-gradient(180deg,#eefaff 0%,#d8f2ff 45%,#c3e9fb 100%)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  background:linear-gradient(180deg,#c8edff 0%,#76c5ec 30%,#3f9dce 58%,#2679ad 82%,#175d8d 100%)!important;
   border:2px solid #ff8a00!important;
   border-radius:6px!important;
-  color:#17334a!important;
+  color:#fff!important;
   font-size:10px!important;
   font-weight:800!important;
-  text-shadow:0 1px 0 rgba(255,255,255,.9)!important;
-  box-shadow:inset 0 2px 2px rgba(255,255,255,.95),inset 0 -2px 3px rgba(70,150,190,.18),0 0 5px #ff9b22,0 0 11px rgba(255,119,0,.95),0 0 18px rgba(255,98,0,.58)!important;
+  text-shadow:0 1px 2px rgba(0,52,88,.95)!important;
+  box-shadow:inset 0 3px 3px rgba(255,255,255,.92),inset 0 -4px 6px rgba(0,54,94,.52),inset 2px 0 3px rgba(255,255,255,.28),inset -2px 0 3px rgba(0,45,78,.28),0 3px 0 #a84b00,0 5px 8px rgba(0,0,0,.42),0 0 5px #ffb13b,0 0 11px rgba(255,119,0,.95)!important;
+  transform:translateY(0) scale(1)!important;
+  transition:transform .10s ease,box-shadow .10s ease,filter .10s ease!important;
+  animation:thorMenuEntrada .32s ease-out both!important;
 }
+#homeSideNav .hs-item:nth-child(2){animation-delay:.03s!important}
+#homeSideNav .hs-item:nth-child(3){animation-delay:.06s!important}
+#homeSideNav .hs-item:nth-child(4){animation-delay:.09s!important}
+#homeSideNav .hs-item:nth-child(5){animation-delay:.12s!important}
+#homeSideNav .hs-item:nth-child(6){animation-delay:.15s!important}
+#homeSideNav .hs-item:nth-child(7){animation-delay:.18s!important}
+#homeSideNav .hs-item:nth-child(8){animation-delay:.21s!important}
 #homeSideNav .hs-menu{font-size:0!important}
-#homeSideNav .hs-menu::after{content:'MENU';font-size:10px!important;font-weight:800!important;color:#17334a!important}
+#homeSideNav .hs-menu::after{content:'MENU';font-size:10px!important;font-weight:800!important;color:#fff!important;width:100%!important;text-align:center!important}
 #homeSideNav .hs-item:active,
 #homeSideNav .hs-menu:active{
-  transform:translateY(2px)!important;
-  box-shadow:inset 0 3px 6px rgba(37,104,140,.32),0 0 5px #ff9b22,0 0 10px rgba(255,119,0,.9)!important;
+  transform:translateY(4px) scale(.985)!important;
+  filter:brightness(.88)!important;
+  box-shadow:inset 0 5px 9px rgba(0,42,75,.72),inset 0 -1px 2px rgba(255,255,255,.38),0 1px 0 #8d3e00,0 1px 3px rgba(0,0,0,.35),0 0 5px #ffb13b,0 0 9px rgba(255,119,0,.82)!important;
 }
+@keyframes thorMenuEntrada{0%{transform:translateY(-5px) scale(.97);filter:brightness(1.28)}60%{transform:translateY(2px) scale(1.01)}100%{transform:translateY(0) scale(1);filter:brightness(1)}}
