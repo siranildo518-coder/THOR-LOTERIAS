@@ -1,8 +1,7 @@
 (function(){
 'use strict';
-// THOR 3 - Base 142 preservada. Busca leve: somente a loteria selecionada.
-const jogos=[
-{slug:'megasena',nome:'Mega-Sena'},{slug:'lotofacil',nome:'Lotofácil'},{slug:'quina',nome:'Quina'},{slug:'diadesorte',nome:'Dia de Sorte'},{slug:'lotomania',nome:'Lotomania'},{slug:'supersete',nome:'Super Sete'},{slug:'timemania',nome:'Timemania'},{slug:'duplasena',nome:'Dupla Sena'}];
+// THOR 3 - Base 142 - revisão botões menores. Busca leve: somente a loteria selecionada.
+const jogos=[{slug:'megasena',nome:'Mega-Sena'},{slug:'lotofacil',nome:'Lotofácil'},{slug:'quina',nome:'Quina'},{slug:'diadesorte',nome:'Dia de Sorte'},{slug:'lotomania',nome:'Lotomania'},{slug:'supersete',nome:'Super Sete'},{slug:'timemania',nome:'Timemania'},{slug:'duplasena',nome:'Dupla Sena'}];
 const emBusca={};
 function numero(d){return Number(d&&(d.numero||d.concurso||d.numero_concurso)||0)}
 function dezenas(d){if(!d)return[];const a=d.listaDezenas||d.dezenas||d.numeros||d.lista_dezenas||[];return Array.isArray(a)?a.map(String):[]}
@@ -16,6 +15,5 @@ async function buscar(slug){if(!navigator.onLine||emBusca[slug])return;const g=j
 function selecionar(b){const slug=slugBotao(b);if(!slug)return;render(slug,cache(slug));setTimeout(()=>buscar(slug),0)}
 function ligar(){css();const bar=document.getElementById('thorJogosLoterias');if(!bar)return false;bar.querySelectorAll('.thorJogoLoteria').forEach(b=>{if(b.dataset.thorResultadoLigado)return;b.dataset.thorResultadoLigado='1';b.addEventListener('click',()=>selecionar(b),{passive:true})});const ativa=bar.querySelector('.thorJogoLoteria.ativa')||bar.querySelector('.thorJogoLoteria');if(ativa&&!document.getElementById('thorJogosResultado'))selecionar(ativa);return true}
 let tentativas=0;function iniciar(){if(ligar())return;if(++tentativas<40)setTimeout(iniciar,250)}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar,{once:true});else iniciar();
-window.thorAtualizarResultados=function(){const a=document.querySelector('#thorJogosLoterias .thorJogoLoteria.ativa');if(a)return buscar(slugBotao(a))};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar,{once:true});else iniciar();window.thorAtualizarResultados=function(){const a=document.querySelector('#thorJogosLoterias .thorJogoLoteria.ativa');if(a)return buscar(slugBotao(a))};
 })();
