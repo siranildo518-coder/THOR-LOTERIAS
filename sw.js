@@ -1,2 +1,2 @@
-// THOR 7 V2.3 - removidos Análise e Começo Final do menu lateral.
-importScripts('./sw-core-thor7.js?v=thor7-v2-3');
+// THOR 7 V2.4 - Análise e Começo Final removidos do HTML antes da abertura do app.
+importScripts('./sw-core-thor7.js?v=thor7-v2-4');
