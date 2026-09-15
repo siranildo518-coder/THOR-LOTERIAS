@@ -1,8 +1,7 @@
-/* THOR LOTERIAS — THOR 6: atualização em segundo plano + home sem piscar */
+/* THOR LOTERIAS — THOR 6: atualização + troca de loteria sem reconstruir a Home */
 (function(){
-  const VERSAO='thor6-20260915-home-sem-piscar-4';
+  const VERSAO='thor6-20260915-home-direta-4';
   let atualizando=false;
-  const cacheHomeThor={};
   function botao(){return document.getElementById('menuAtualizar')}
   function estilo(){if(document.getElementById('thorUpdateAvisoCss'))return;const s=document.createElement('style');s.id='thorUpdateAvisoCss';s.textContent='#menuAtualizar.thor-update-disponivel{background:linear-gradient(180deg,#fff36b,#ffb000 45%,#e75b00)!important;border:2px solid #fff!important;color:#3a1700!important;box-shadow:inset 0 2px 3px rgba(255,255,255,.95),inset 0 -3px 5px rgba(126,43,0,.4),0 0 8px #ffb000,0 0 18px #ff7200!important;animation:thorUpdatePisca 1s ease-in-out infinite alternate!important}#menuAtualizar.thor-update-disponivel:after{content:" • NOVO";font-size:7px;font-weight:1000}@keyframes thorUpdatePisca{from{filter:brightness(1)}to{filter:brightness(1.35)}}#overlayListaResultados,#overlayListaResultados #homeHero,#overlayListaResultados .home-hero{transition:none!important;animation:none!important}';document.head.appendChild(s)}
   function destacar(){estilo();const b=botao();if(b)b.classList.add('thor-update-disponivel')}
@@ -19,57 +18,45 @@
   document.addEventListener('click',function(e){const b=e.target&&e.target.closest?e.target.closest('#btnAbrirFechamentoAtalho'):null;if(!b)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();try{const escolha=document.getElementById('overlayGeradorLoteria');if(escolha)escolha.classList.remove('show');const code=(typeof homeGameAtual!=='undefined'&&typeof GERADOR_APOSTA_SIZE!=='undefined'&&GERADOR_APOSTA_SIZE[homeGameAtual.code])?homeGameAtual.code:'LF';if(typeof abrirGeradorFiltro==='function')abrirGeradorFiltro(code)}catch(_){try{if(typeof abrirGeradorFiltro==='function')abrirGeradorFiltro('LF')}catch(__){}}},true);
   function removerBotaoPalpites(){document.querySelectorAll('button,.home-feature-card').forEach(b=>{if(/palpites/i.test((b.textContent||'').trim()))b.remove()});const t=document.getElementById('thorPalpitesNovo');if(t)t.remove();const c=document.getElementById('thorPalpitesNovoCss');if(c)c.remove()}
 
-  function atualizarHeroNoLugar(g,data){
-    const host=document.getElementById('homeHero');
-    const hero=host&&host.querySelector('.home-hero');
-    if(!hero||!data)return false;
-    hero.style.setProperty('--hero-accent',g.color);
-    hero.style.setProperty('--hero-accent-deep',g.color);
-    const titulo=hero.querySelector('h2');if(titulo)titulo.textContent=g.nome;
-    const linhas=hero.querySelectorAll(':scope > .hh-row');
-    if(linhas[0])linhas[0].textContent='📅 Próximo sorteio: '+(data.dataProxConcurso||'—');
-    if(linhas[1])linhas[1].textContent='🎟️ Concurso '+(Number(data.concurso)+1);
-    const lbl=hero.querySelector('.hh-premio-lbl');if(lbl)lbl.textContent=data.acumulou?'ESTIMATIVA ACUMULADA':'PRÊMIO ESTIMADO';
-    const val=hero.querySelector('.hh-premio-val');if(val){try{val.textContent=typeof formatBRL==='function'?formatBRL(data.acumuladaProxConcurso):('R$ '+(data.acumuladaProxConcurso||'0,00'))}catch(_){}}
-    const last=hero.querySelector('.hh-last-draw');
-    if(last){const lr=last.querySelectorAll('.hh-row');if(lr[0])lr[0].textContent='📅 '+(data.data||'—');if(lr[1])lr[1].textContent='🎟️ Concurso '+data.concurso;const box=last.querySelector('.hh-balls');if(box){const nums=(data.dezenas||[]);const atuais=box.querySelectorAll('.hh-ball');if(atuais.length===nums.length){atuais.forEach((el,i)=>el.textContent=String(nums[i]).padStart(2,'0'))}else{box.innerHTML=nums.map(n=>'<div class="hh-ball">'+String(n).padStart(2,'0')+'</div>').join('')}}}
-    const stats=hero.querySelector('#homeVerStats');if(stats)stats.onclick=function(){try{openResultadoOverlay(g)}catch(_){}};
-    return true;
-  }
-
-  async function trocarLoteriaSemPiscar(g){
-    if(!g)return;
-    try{homeGameAtual=g}catch(_){}
-    const tabs=[...document.querySelectorAll('#homeTabs .home-tab')];
-    tabs.forEach((t,i)=>{const gg=(typeof GAMES!=='undefined'&&GAMES[i])?GAMES[i]:null;const ativo=gg&&gg.code===g.code;t.classList.toggle('active',!!ativo);const cw=t.querySelector('.clover-wrap');if(cw&&gg)cw.innerHTML=ativo?gg.iconActive:gg.iconInactive});
-    let data=cacheHomeThor[g.slug];
-    try{if(!data&&typeof homeCache!=='undefined'&&homeCache[g.slug])data=homeCache[g.slug]}catch(_){}
-    if(data)atualizarHeroNoLugar(g,data);
-    try{
-      const nova=await fetchConcursoLoteria(g);
-      if(!nova)return;
-      cacheHomeThor[g.slug]=nova;
-      try{homeCache[g.slug]=nova}catch(_){}
-      try{if(homeGameAtual.code!==g.code)return}catch(_){}
-      try{concursoMaisRecentePorJogo[g.slug]=nova.concurso}catch(_){}
-      atualizarHeroNoLugar(g,nova);
-    }catch(_){/* mantém o card anterior visível; nada de tela de erro piscando */}
-  }
-
-  function instalarTrocaHomeSemPiscar(){
-    if(document.documentElement.dataset.thorHomeDireto4)return;
-    document.documentElement.dataset.thorHomeDireto4='1';
-    document.addEventListener('click',function(e){
+  /* Corrige a origem da piscada: bloqueia o click original que chama carregarHomeHero(),
+     mantém o mesmo .home-hero no DOM e troca somente os textos/bolinhas quando os dados chegam. */
+  function instalarTrocaHomeDireta(){
+    if(document.documentElement.dataset.thorHomeDireta4)return;
+    document.documentElement.dataset.thorHomeDireta4='1';
+    let token=0;
+    const pad=n=>String(n).padStart(2,'0');
+    function aplicar(g,data){
+      const host=document.getElementById('homeHero');
+      const hero=host&&host.querySelector('.home-hero');
+      if(!hero||!data)return false;
+      hero.style.setProperty('--hero-accent',g.color);
+      hero.style.setProperty('--hero-accent-deep',g.color);
+      const h2=hero.querySelector('h2'); if(h2)h2.textContent=g.nome;
+      const rows=hero.querySelectorAll(':scope > .hh-row');
+      if(rows[0])rows[0].textContent='📅 Próximo sorteio: '+(data.dataProxConcurso||'—');
+      if(rows[1])rows[1].textContent='🎟️ Concurso '+(Number(data.concurso)+1);
+      const lbl=hero.querySelector('.hh-premio-lbl'); if(lbl)lbl.textContent=data.acumulou?'ESTIMATIVA ACUMULADA':'PRÊMIO ESTIMADO';
+      const val=hero.querySelector('.hh-premio-val'); if(val){try{val.textContent=formatBRL(data.acumuladaProxConcurso)}catch(_){val.textContent=data.acumuladaProxConcurso||'—'}}
+      const last=hero.querySelector('.hh-last-draw');
+      if(last){const lr=last.querySelectorAll('.hh-row');if(lr[0])lr[0].textContent='📅 '+(data.data||'—');if(lr[1])lr[1].textContent='🎟️ Concurso '+data.concurso;const box=last.querySelector('.hh-balls');if(box){const nums=data.dezenas||[];const atuais=box.querySelectorAll('.hh-ball');if(atuais.length===nums.length){atuais.forEach((b,i)=>b.textContent=pad(nums[i]))}else{box.replaceChildren(...nums.map(n=>{const b=document.createElement('div');b.className='hh-ball';b.textContent=pad(n);return b}))}}}
+      const stats=hero.querySelector('#homeVerStats');if(stats){stats.onclick=function(e){e.stopImmediatePropagation();try{openResultadoOverlay(g)}catch(_){}}}
+      return true;
+    }
+    document.addEventListener('click',async function(e){
       const tab=e.target&&e.target.closest?e.target.closest('#homeTabs .home-tab'):null;
       if(!tab)return;
-      let lista=[];try{lista=Array.from(GAMES||[])}catch(_){return}
-      const tabs=[...document.querySelectorAll('#homeTabs .home-tab')];
-      const idx=tabs.indexOf(tab);const g=lista[idx];if(!g)return;
+      let refs;try{refs=homeTabRefs}catch(_){return}
+      const ref=refs&&refs.find(r=>r.tab===tab);if(!ref)return;
       e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
-      trocarLoteriaSemPiscar(g);
+      const g=ref.g;const meu=++token;
+      refs.forEach(r=>{r.tab.classList.toggle('active',r===ref);const w=r.tab.querySelector('.clover-wrap');if(w)w.innerHTML=r===ref?r.g.iconActive:r.g.iconInactive});
+      try{homeGameAtual=g}catch(_){}
+      let data=null;try{data=homeCache[g.slug]}catch(_){}
+      if(data){aplicar(g,data);return}
+      try{data=await fetchConcursoLoteria(g);if(meu!==token)return;try{homeCache[g.slug]=data;concursoMaisRecentePorJogo[g.slug]=data.concurso}catch(_){}aplicar(g,data)}catch(_){/* mantém o resultado anterior visível, sem piscar */}
     },true);
   }
 
-  function iniciar(){carregarEstilos();ajustarEspacoMenu();removerContatoSolto();removerBotaoPalpites();instalarTrocaHomeSemPiscar();setTimeout(verificar,1200)}
+  function iniciar(){carregarEstilos();ajustarEspacoMenu();removerContatoSolto();removerBotaoPalpites();instalarTrocaHomeDireta();setTimeout(verificar,1200)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar,{once:true});else iniciar();new MutationObserver(()=>{ajustarEspacoMenu();removerContatoSolto();removerBotaoPalpites()}).observe(document.documentElement,{childList:true,subtree:true});
 })();
