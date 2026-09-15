@@ -35,7 +35,6 @@
 #homeSideNav .hs-item:nth-child(8){animation-delay:.21s!important}
 #homeSideNav .hs-menu{font-size:0!important}
 #homeSideNav .hs-menu::after{content:'MENU';font-size:10px!important;font-weight:800!important;color:#fff!important;width:100%!important;text-align:center!important}
-/* Correção definitiva: sem o A que aparecia por causa do escape CSS/JavaScript. */
 html body #homeSideNav .hs-item:nth-of-type(4)::after{content:'COMEÇO FINAL'!important;white-space:normal!important;font-size:7px!important;line-height:1.02!important;font-weight:800!important;text-align:center!important}
 html body #homeSideNav .hs-item:last-child::after{content:'JOGOS OFICIAIS'!important;white-space:normal!important;font-size:7px!important;line-height:1.02!important;font-weight:800!important;text-align:center!important}
 #homeSideNav .hs-item:active,
@@ -45,3 +44,6 @@ html body #homeSideNav .hs-item:last-child::after{content:'JOGOS OFICIAIS'!impor
   box-shadow:inset 0 5px 9px rgba(0,42,75,.72),inset 0 -1px 2px rgba(255,255,255,.38),0 1px 0 #8d3e00,0 1px 3px rgba(0,0,0,.35),0 0 5px #ffb13b,0 0 9px rgba(255,119,0,.82)!important;
 }
 @keyframes thorMenuEntrada{0%{transform:translateY(-5px) scale(.97);filter:brightness(1.28)}60%{transform:translateY(2px) scale(1.01)}100%{transform:translateY(0) scale(1);filter:brightness(1)}}
+
+/* THOR 6 — remove somente o botão/seta do cabeçalho da tela Jogos. */
+#thorJogosVoltar{display:none!important}
