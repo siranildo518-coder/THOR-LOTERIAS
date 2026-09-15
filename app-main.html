@@ -3186,11 +3186,35 @@ document.addEventListener('selectstart', e=>{
 <aside id="homeSideNav" aria-label="Atalhos da tela inicial">
 <button class="hs-menu" id="homeSideMenu" aria-label="Abrir menu">☰</button>
 <button class="hs-item active" data-home-target="btnInicioAtalho"><span>⌂</span>Início</button>
-
-
+<button class="hs-item thor-menu-novo thor-menu-analise" id="thorMenuAnaliseNovo" type="button" aria-label="Análise"></button>
+<button class="hs-item thor-menu-novo thor-menu-comeco-final" id="thorMenuComecoFinalNovo" type="button" aria-label="Começo e Final"></button>
 <button class="hs-item" data-home-target="btnSimularAtalho"><span>▤</span>Calculadora</button>
 <button class="hs-item" data-home-target="btnJogosSalvosAtalho2"><span>★</span>Jogos</button>
 </aside>
+<style id="thorTelasNovasCss">
+  #homeSideNav .thor-menu-novo::after{font-size:7px;font-weight:800;line-height:1.05;text-align:center;white-space:normal}
+  #homeSideNav .thor-menu-analise::after{content:'ANÁLISE'}
+  #homeSideNav .thor-menu-comeco-final::after{content:'COMEÇO E FINAL'}
+  .thor-tela-nova{display:none;position:fixed;inset:0;z-index:2147483000;background:#fff;overflow:hidden}
+  .thor-tela-nova.ativa{display:block}
+  .thor-tela-nova img{display:block;width:100%;height:auto;margin:0;border:0}
+</style>
+<div class="thor-tela-nova" id="thorTelaAnaliseNova" aria-label="Análise">
+  <img src="./thor-header-no-arrow.jpg" alt="THOR LOTERIAS">
+</div>
+<div class="thor-tela-nova" id="thorTelaComecoFinalNova" aria-label="Começo e Final">
+  <img src="./thor-header-no-arrow.jpg" alt="THOR LOTERIAS">
+</div>
+<script>
+(function(){
+  var telas=['thorTelaAnaliseNova','thorTelaComecoFinalNova'];
+  function fecharTelas(){telas.forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('ativa')})}
+  function abrir(id){fecharTelas();var el=document.getElementById(id);if(!el)return;el.classList.add('ativa');try{history.pushState({thorTelaNova:id},'',location.href)}catch(_){}}
+  document.getElementById('thorMenuAnaliseNovo').onclick=function(e){e.preventDefault();e.stopPropagation();if(typeof closeDrawer==='function')closeDrawer();abrir('thorTelaAnaliseNova')};
+  document.getElementById('thorMenuComecoFinalNovo').onclick=function(e){e.preventDefault();e.stopPropagation();if(typeof closeDrawer==='function')closeDrawer();abrir('thorTelaComecoFinalNova')};
+  window.addEventListener('popstate',fecharTelas);
+})();
+</script>
   <header class="home-header">
     <div class="home-topbar">
       <div class="home-topbar-left">
@@ -15108,4 +15132,3 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
   }));
 };
 </script>
-
