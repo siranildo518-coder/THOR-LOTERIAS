@@ -1,6 +1,6 @@
 /* THOR LOTERIAS — THOR 6: atualização + troca de loteria sem reconstruir a Home */
 (function(){
-  const VERSAO='thor6-20260915-home-direta-4';
+  const VERSAO='thor6-20260915-home-direta-5';
   let atualizando=false;
   function botao(){return document.getElementById('menuAtualizar')}
   function estilo(){if(document.getElementById('thorUpdateAvisoCss'))return;const s=document.createElement('style');s.id='thorUpdateAvisoCss';s.textContent='#menuAtualizar.thor-update-disponivel{background:linear-gradient(180deg,#fff36b,#ffb000 45%,#e75b00)!important;border:2px solid #fff!important;color:#3a1700!important;box-shadow:inset 0 2px 3px rgba(255,255,255,.95),inset 0 -3px 5px rgba(126,43,0,.4),0 0 8px #ffb000,0 0 18px #ff7200!important;animation:thorUpdatePisca 1s ease-in-out infinite alternate!important}#menuAtualizar.thor-update-disponivel:after{content:" • NOVO";font-size:7px;font-weight:1000}@keyframes thorUpdatePisca{from{filter:brightness(1)}to{filter:brightness(1.35)}}#overlayListaResultados,#overlayListaResultados #homeHero,#overlayListaResultados .home-hero{transition:none!important;animation:none!important}';document.head.appendChild(s)}
@@ -18,11 +18,29 @@
   document.addEventListener('click',function(e){const b=e.target&&e.target.closest?e.target.closest('#btnAbrirFechamentoAtalho'):null;if(!b)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();try{const escolha=document.getElementById('overlayGeradorLoteria');if(escolha)escolha.classList.remove('show');const code=(typeof homeGameAtual!=='undefined'&&typeof GERADOR_APOSTA_SIZE!=='undefined'&&GERADOR_APOSTA_SIZE[homeGameAtual.code])?homeGameAtual.code:'LF';if(typeof abrirGeradorFiltro==='function')abrirGeradorFiltro(code)}catch(_){try{if(typeof abrirGeradorFiltro==='function')abrirGeradorFiltro('LF')}catch(__){}}},true);
   function removerBotaoPalpites(){document.querySelectorAll('button,.home-feature-card').forEach(b=>{if(/palpites/i.test((b.textContent||'').trim()))b.remove()});const t=document.getElementById('thorPalpitesNovo');if(t)t.remove();const c=document.getElementById('thorPalpitesNovoCss');if(c)c.remove()}
 
-  /* Corrige a origem da piscada: bloqueia o click original que chama carregarHomeHero(),
-     mantém o mesmo .home-hero no DOM e troca somente os textos/bolinhas quando os dados chegam. */
+  /* Impede especificamente o estado temporário "Buscando..." da Home.
+     O resultado que já está na tela permanece visível até o próximo ficar pronto. */
+  function protegerHomeHero(){
+    const host=document.getElementById('homeHero');
+    if(!host||host.dataset.thorProtegido5)return;
+    host.dataset.thorProtegido5='1';
+    const proto=Element.prototype;
+    const desc=Object.getOwnPropertyDescriptor(proto,'innerHTML');
+    if(!desc||!desc.get||!desc.set)return;
+    Object.defineProperty(host,'innerHTML',{
+      configurable:true,
+      get(){return desc.get.call(this)},
+      set(v){
+        const texto=String(v||'');
+        if(this.querySelector('.home-hero') && /home-loading|Buscando\s/i.test(texto)) return;
+        desc.set.call(this,v);
+      }
+    });
+  }
+
   function instalarTrocaHomeDireta(){
-    if(document.documentElement.dataset.thorHomeDireta4)return;
-    document.documentElement.dataset.thorHomeDireta4='1';
+    if(document.documentElement.dataset.thorHomeDireta5)return;
+    document.documentElement.dataset.thorHomeDireta5='1';
     let token=0;
     const pad=n=>String(n).padStart(2,'0');
     function aplicar(g,data){
@@ -31,15 +49,15 @@
       if(!hero||!data)return false;
       hero.style.setProperty('--hero-accent',g.color);
       hero.style.setProperty('--hero-accent-deep',g.color);
-      const h2=hero.querySelector('h2'); if(h2)h2.textContent=g.nome;
+      const h2=hero.querySelector('h2');if(h2)h2.textContent=g.nome;
       const rows=hero.querySelectorAll(':scope > .hh-row');
       if(rows[0])rows[0].textContent='📅 Próximo sorteio: '+(data.dataProxConcurso||'—');
       if(rows[1])rows[1].textContent='🎟️ Concurso '+(Number(data.concurso)+1);
-      const lbl=hero.querySelector('.hh-premio-lbl'); if(lbl)lbl.textContent=data.acumulou?'ESTIMATIVA ACUMULADA':'PRÊMIO ESTIMADO';
-      const val=hero.querySelector('.hh-premio-val'); if(val){try{val.textContent=formatBRL(data.acumuladaProxConcurso)}catch(_){val.textContent=data.acumuladaProxConcurso||'—'}}
+      const lbl=hero.querySelector('.hh-premio-lbl');if(lbl)lbl.textContent=data.acumulou?'ESTIMATIVA ACUMULADA':'PRÊMIO ESTIMADO';
+      const val=hero.querySelector('.hh-premio-val');if(val){try{val.textContent=formatBRL(data.acumuladaProxConcurso)}catch(_){val.textContent=data.acumuladaProxConcurso||'—'}}
       const last=hero.querySelector('.hh-last-draw');
       if(last){const lr=last.querySelectorAll('.hh-row');if(lr[0])lr[0].textContent='📅 '+(data.data||'—');if(lr[1])lr[1].textContent='🎟️ Concurso '+data.concurso;const box=last.querySelector('.hh-balls');if(box){const nums=data.dezenas||[];const atuais=box.querySelectorAll('.hh-ball');if(atuais.length===nums.length){atuais.forEach((b,i)=>b.textContent=pad(nums[i]))}else{box.replaceChildren(...nums.map(n=>{const b=document.createElement('div');b.className='hh-ball';b.textContent=pad(n);return b}))}}}
-      const stats=hero.querySelector('#homeVerStats');if(stats){stats.onclick=function(e){e.stopImmediatePropagation();try{openResultadoOverlay(g)}catch(_){}}}
+      const stats=hero.querySelector('#homeVerStats');if(stats)stats.onclick=function(e){e.stopImmediatePropagation();try{openResultadoOverlay(g)}catch(_){}};
       return true;
     }
     document.addEventListener('click',async function(e){
@@ -53,10 +71,10 @@
       try{homeGameAtual=g}catch(_){}
       let data=null;try{data=homeCache[g.slug]}catch(_){}
       if(data){aplicar(g,data);return}
-      try{data=await fetchConcursoLoteria(g);if(meu!==token)return;try{homeCache[g.slug]=data;concursoMaisRecentePorJogo[g.slug]=data.concurso}catch(_){}aplicar(g,data)}catch(_){/* mantém o resultado anterior visível, sem piscar */}
+      try{data=await fetchConcursoLoteria(g);if(meu!==token)return;try{homeCache[g.slug]=data;concursoMaisRecentePorJogo[g.slug]=data.concurso}catch(_){}aplicar(g,data)}catch(_){}
     },true);
   }
 
-  function iniciar(){carregarEstilos();ajustarEspacoMenu();removerContatoSolto();removerBotaoPalpites();instalarTrocaHomeDireta();setTimeout(verificar,1200)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar,{once:true});else iniciar();new MutationObserver(()=>{ajustarEspacoMenu();removerContatoSolto();removerBotaoPalpites()}).observe(document.documentElement,{childList:true,subtree:true});
+  function iniciar(){carregarEstilos();ajustarEspacoMenu();removerContatoSolto();removerBotaoPalpites();protegerHomeHero();instalarTrocaHomeDireta();setTimeout(verificar,1200)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar,{once:true});else iniciar();new MutationObserver(()=>{ajustarEspacoMenu();removerContatoSolto();removerBotaoPalpites();protegerHomeHero()}).observe(document.documentElement,{childList:true,subtree:true});
 })();
