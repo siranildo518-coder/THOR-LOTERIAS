@@ -1,0 +1,4 @@
+THOR 8
+Jogos salvos conferidos contra o Resultado Oficial.
+Exibe quantidade de acertos e destaca jogos que atingem faixa de premiação.
+Base preservada: THOR 7.
