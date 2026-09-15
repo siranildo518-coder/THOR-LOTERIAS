@@ -3189,8 +3189,34 @@ document.addEventListener('selectstart', e=>{
 
 
 <button class="hs-item" data-home-target="btnSimularAtalho"><span>▤</span>Calculadora</button>
+<button class="hs-item thor-comeco-final" id="thorMenuComecoFinal" type="button" aria-label="Começo e Final"></button>
 <button class="hs-item" data-home-target="btnJogosSalvosAtalho2"><span>★</span>Jogos</button>
 </aside>
+<style id="thorMenuComecoFinalCss">
+  #homeSideNav .thor-comeco-final{order:999!important}
+  #homeSideNav .thor-comeco-final::after{content:'COMEÇO E FINAL';font-size:7px;font-weight:800;line-height:1.02;text-align:center;white-space:normal}
+  #thorComecoFinalBranco{display:none;position:fixed;inset:0;z-index:2147483000;background:#fff;overflow:hidden}
+  #thorComecoFinalBranco.ativo{display:block}
+  #thorComecoFinalBranco img{display:block;width:100%;height:auto;margin:0;border:0}
+</style>
+<div id="thorComecoFinalBranco" aria-label="Começo e Final">
+  <img src="./thor-comeco-final-topo.jpg" alt="TOR LOTERIAS">
+</div>
+<script>
+(function(){
+  var botao=document.getElementById('thorMenuComecoFinal');
+  var tela=document.getElementById('thorComecoFinalBranco');
+  if(!botao||!tela)return;
+  botao.addEventListener('click',function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    if(typeof closeDrawer==='function')closeDrawer();
+    tela.classList.add('ativo');
+    try{history.pushState({thorComecoFinalBranco:true},'',location.href)}catch(_){}
+  });
+  window.addEventListener('popstate',function(){tela.classList.remove('ativo')});
+})();
+</script>
   <header class="home-header">
     <div class="home-topbar">
       <div class="home-topbar-left">
@@ -15108,4 +15134,3 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
   }));
 };
 </script>
-
