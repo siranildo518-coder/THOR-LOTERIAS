@@ -1,1 +1,1 @@
-temporary
+thor3-sync
