@@ -1,0 +1,109 @@
+@import url('./combinacoes-botoes-v350.css');
+
+/* V3.51 — globo tipo loterias CAIXA, com bolinhas misturando */
+#resultsSection #sorteio2Bola{
+  width:145px!important;
+  height:145px!important;
+  background:
+    radial-gradient(circle at 30% 20%,rgba(255,255,255,.98) 0 3%,rgba(255,255,255,.46) 5%,transparent 14%),
+    radial-gradient(circle at 50% 58%,rgba(45,124,203,.12),rgba(46,16,115,.42) 68%,rgba(14,3,48,.82) 100%)!important;
+}
+
+#resultsSection #sorteio2Bolario{
+  position:absolute;
+  z-index:2;
+  inset:12px;
+  overflow:hidden;
+  border-radius:50%;
+  pointer-events:none;
+}
+
+#resultsSection #sorteio2Bolario .caixa-mini-bola{
+  position:absolute;
+  left:var(--x);
+  top:var(--y);
+  width:22px;
+  height:22px;
+  transform:translate(-50%,-50%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.78);
+  color:#07122e;
+  font:900 8px/1 Arial,sans-serif;
+  text-shadow:0 1px 0 #fff;
+  background:radial-gradient(circle at 34% 24%,#fff 0 8%,var(--cor-clara) 19%,var(--cor) 65%,var(--cor-escura) 100%);
+  box-shadow:inset 2px 2px 3px rgba(255,255,255,.72),inset -3px -3px 4px rgba(0,0,0,.28),0 2px 4px rgba(0,0,0,.48);
+  transition:left .24s ease,top .24s ease,opacity .2s ease;
+}
+
+#resultsSection #sorteio2Bolario.girando .caixa-mini-bola{
+  animation:misturarBolasCaixa .32s ease-in-out infinite alternate;
+  animation-delay:var(--delay);
+}
+
+#resultsSection #sorteio2Bolario .caixa-mini-bola.caindo{
+  z-index:10;
+  left:50%!important;
+  top:78%!important;
+  transform:translate(-50%,-50%) scale(2.15)!important;
+  opacity:0;
+  transition:left .42s cubic-bezier(.2,.7,.25,1),top .42s cubic-bezier(.2,.7,.25,1),transform .42s ease,opacity .12s linear .31s!important;
+  animation:none!important;
+}
+
+@keyframes misturarBolasCaixa{
+  0%{transform:translate(-50%,-50%) rotate(-18deg) translate(var(--dx),var(--dy));}
+  55%{transform:translate(-50%,-50%) rotate(15deg) translate(calc(var(--dy) * -1),var(--dx));}
+  100%{transform:translate(-50%,-50%) rotate(32deg) translate(calc(var(--dx) * -1),calc(var(--dy) * -1));}
+}
+
+#resultsSection #sorteio2BolaMiolo{
+  z-index:6!important;
+  width:57px!important;
+  height:57px!important;
+  border:2px solid rgba(255,255,255,.9)!important;
+  background:radial-gradient(circle at 34% 24%,#fff 0 8%,var(--bola-clara,#f7f7fa) 20%,var(--bola-cor,#e1dfe8) 65%,var(--bola-escura,#aaa4b7) 100%)!important;
+  transition:transform .18s ease,box-shadow .18s ease,background .18s ease!important;
+}
+
+#resultsSection #sorteio2Bola.bola-animando #sorteio2BolaMiolo{
+  animation:bolaCaixaSai .52s cubic-bezier(.18,.8,.25,1.2);
+}
+
+@keyframes bolaCaixaSai{
+  0%{transform:translate(-50%,-50%) scale(.45);opacity:.25;}
+  65%{transform:translate(-50%,-50%) scale(1.18);opacity:1;}
+  100%{transform:translate(-50%,-50%) scale(1);opacity:1;}
+}
+
+#resultsSection #sorteio2Bola::after{
+  bottom:-34px!important;
+  width:174px!important;
+}
+
+#resultsSection #sorteio2Mao{
+  position:absolute;
+  z-index:12;
+  right:-72px;
+  bottom:30px;
+  font-size:58px;
+  line-height:1;
+  opacity:0;
+  transform:rotate(-18deg);
+  filter:drop-shadow(0 6px 5px rgba(0,0,0,.55));
+  pointer-events:none;
+}
+
+#resultsSection #sorteio2Mao.pegando{
+  animation:maoPegaBolaCaixa .78s ease-in-out forwards;
+}
+
+@keyframes maoPegaBolaCaixa{
+  0%{right:-72px;bottom:25px;opacity:0;transform:rotate(-18deg) scale(.85);}
+  25%{right:19%;bottom:46px;opacity:1;transform:rotate(-12deg) scale(1);}
+  58%{right:34%;bottom:70px;opacity:1;transform:rotate(-5deg) scale(1.03);}
+  82%{right:7%;bottom:-8px;opacity:1;transform:rotate(12deg) scale(.94);}
+  100%{right:-70px;bottom:-35px;opacity:0;transform:rotate(18deg) scale(.8);}
+}
