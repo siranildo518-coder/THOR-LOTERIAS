@@ -2,7 +2,7 @@
   function iniciar(){
     var head=document.querySelector('.head'),controls=document.querySelector('.controls'),out=document.getElementById('out'),status=document.getElementById('status'),go=document.getElementById('gerar'),save=document.getElementById('salvar');
     if(!head||!controls||!out||!go||window.__thorGeradorVisual)return;window.__thorGeradorVisual=true;
-    head.innerHTML='<strong>Gerador de <em>Palpites</em></strong>';
+    head.innerHTML='<img class="thor-gerador-topo" src="./gerador-topo-v319.jpg" alt="Gerador de Palpites">';
     document.querySelectorAll('.opt').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.opt').forEach(function(x){x.classList.remove('active')});b.classList.add('active')})});
     var modes=document.createElement('div');modes.className='thor-mode-wrap';modes.innerHTML='<div class="thor-mode-title"><b>3</b> TIPO DE PALPITE</div><button class="thor-mode active" type="button">⚙ Sequencial</button><button class="thor-mode" type="button">⤨ Aleatório</button><button class="thor-mode" type="button">▥ Equilibrado</button>';controls.after(modes);
     modes.querySelectorAll('.thor-mode').forEach(function(b){b.onclick=function(){modes.querySelectorAll('.thor-mode').forEach(function(x){x.classList.remove('active')});b.classList.add('active')}});
