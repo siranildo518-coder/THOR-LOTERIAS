@@ -34,3 +34,9 @@ html,body{width:100%;overflow-x:hidden}
 /* Gerar Novos removido; Limpar fica logo abaixo do botao principal */
 .thor-actions{display:flex!important;justify-content:center!important;align-items:center!important;gap:7px!important;margin:0 0 7px!important}
 .thor-actions .save,.thor-actions .thor-clear{width:34%!important;flex:0 1 34%!important}
+
+/* Circulos 1, 2 e 3 menores e perfeitamente centralizados */
+.controls>label{display:flex!important;align-items:center!important;min-height:27px!important;padding:4px 8px!important}
+.controls>label:before{position:static!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 18px!important;width:18px!important;height:18px!important;margin:0 7px 0 0!important;font-size:10px!important;line-height:18px!important;text-align:center!important}
+.controls>#thorQtdJogos .label,.thor-mode-title{display:flex!important;align-items:center!important;min-height:24px!important}
+.controls>#thorQtdJogos .label:before,.thor-mode-title b{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 18px!important;width:18px!important;height:18px!important;margin:0 7px 0 0!important;font-size:10px!important;line-height:18px!important;text-align:center!important}
