@@ -1,2 +1,2 @@
-// THOR 7 V3.22 - todos os botões do Gerador com o mesmo tamanho; cache sincronizado.
-importScripts('./sw-core-thor7.js?v=thor7-v3-22');
+// THOR 7 V3.23 - blocos e números menores no Gerador; cache sincronizado.
+importScripts('./sw-core-thor7.js?v=thor7-v3-23');
