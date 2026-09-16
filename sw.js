@@ -1,2 +1,2 @@
-// THOR 7 V3.16 - topo da tela inicial sem botões da imagem; cache sincronizado.
-importScripts('./sw-core-thor7.js?v=thor7-v3-16');
+// THOR 7 V3.17 - topo centralizado e preenchido junto à barra lateral; cache sincronizado.
+importScripts('./sw-core-thor7.js?v=thor7-v3-17');
