@@ -1,2 +1,2 @@
-// THOR 7 V3.23 - blocos e números menores no Gerador; cache sincronizado.
-importScripts('./sw-core-thor7.js?v=thor7-v3-23');
+// THOR 7 V3.24 - remover somente o botão Gerar Novos; cache sincronizado.
+importScripts('./sw-core-thor7.js?v=thor7-v3-24');
