@@ -1,0 +1,10 @@
+/* THOR 7 V3.21 - ajustes finais do topo e dos botoes do Gerador */
+html,body{width:100%;overflow-x:hidden}
+.head{display:block!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;background:#03152d!important;border:0!important;border-bottom:2px solid #1fd0ff!important;box-shadow:none!important;overflow:hidden!important}
+.head:before,.head:after,.head strong{display:none!important}
+.thor-gerador-topo{display:block!important;width:100%!important;max-width:none!important;height:auto!important;margin:0!important;padding:0!important;border:0!important;object-fit:cover!important;object-position:center!important}
+.filter{margin-top:0!important;padding-top:0!important}
+.menu{gap:3px!important;padding:4px!important}
+.menu .opt{height:29px!important;min-height:29px!important;max-height:29px!important;padding:0 2px!important;gap:3px!important;border-radius:8px!important;font-size:8px!important;line-height:1!important}
+.menu .opt .flower{font-size:10px!important}
+@media(max-width:520px){.menu .opt{font-size:7px!important;padding:0 1px!important}.menu .opt .flower{display:none!important}}
