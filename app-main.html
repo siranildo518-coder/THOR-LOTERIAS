@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THOR LOTERIAS</title>
-<link rel="stylesheet" href="./analise-visual-v344.css?v=thor7-v3-44">
-<script defer src="./analise-repeticao-v343.js?v=thor7-v3-44"></script>
+<link rel="stylesheet" href="./analise-frequencia-v345.css?v=thor7-v3-45">
+<script defer src="./analise-repeticao-v343.js?v=thor7-v3-45"></script>
 <script>
 // ---------- Firebase: usado só para travar cada conta em um único aparelho ----------
 // Carregado sob demanda (só na hora do login), pra não atrasar a abertura do app.
@@ -106,7 +106,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v3-44'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v3-45'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -8426,8 +8426,8 @@ function renderFrequencia(linhas, numeroUltimo, total){
     const pctTxt = pct === 0 ? '0%' : (Math.abs(pct - Math.round(pct)) < 0.005 ? `${Math.round(pct)}%` : `${pct.toFixed(2)}%`);
     const largura = pct <= 0 ? 0.8 : pct;
     return `
-      <div class="freq-dez-row">
-        <div class="freq-dez-num">${l.n.toString().padStart(2,'0')}</div>
+      <div class="freq-dez-row ${pct > 49 ? 'freq-alta' : (pct < 20 ? 'freq-baixa' : 'freq-media')}">
+        <div class="freq-dez-num"><span class="freq-bola-v345">${l.n.toString().padStart(2,'0')}</span></div>
         <div class="freq-dez-vezes">${l.sequencia > 0 ? l.sequencia + 'x' : '0'}</div>
         <div>
           <div class="freq-dez-pct">
