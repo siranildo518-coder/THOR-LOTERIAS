@@ -8,3 +8,12 @@ html,body{width:100%;overflow-x:hidden}
 .menu .opt{height:29px!important;min-height:29px!important;max-height:29px!important;padding:0 2px!important;gap:3px!important;border-radius:8px!important;font-size:8px!important;line-height:1!important}
 .menu .opt .flower{font-size:10px!important}
 @media(max-width:520px){.menu .opt{font-size:7px!important;padding:0 1px!important}.menu .opt .flower{display:none!important}}
+
+/* Todos os botoes com a mesma altura dos botoes das loterias */
+.thor-mode,.go,.thor-action,.save,.copy-game{height:29px!important;min-height:29px!important;max-height:29px!important;border-radius:8px!important;font-size:9px!important;line-height:1!important;padding:0 7px!important;margin-top:7px!important;margin-bottom:7px!important}
+.go{width:72%!important;margin-left:14%!important;margin-right:14%!important;border-width:2px!important}
+.thor-mode{margin:0!important}
+.thor-actions{align-items:center!important}
+.thor-action,.save{margin:0!important}
+.copy-game{margin:0!important}
+@media(max-width:520px){.thor-mode,.go,.thor-action,.save,.copy-game{font-size:8px!important}.go{width:86%!important;margin-left:7%!important;margin-right:7%!important}}
