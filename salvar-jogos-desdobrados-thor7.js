@@ -1,5 +1,12 @@
-// THOR 7 V97 - botão Salvar Jogos preso ao local exato da tela Jogos Desdobrados.
+// THOR 7 V98 - salva e abre diretamente a tela Jogos Salvos.
 (function(){'use strict';
+function abrirSalvos(){
+  var homeBtn=document.getElementById('thorJogosSalvosHome');
+  if(homeBtn){homeBtn.click();return true}
+  var tela=document.getElementById('thorJogosSalvosTelaIndependente');
+  if(tela){tela.style.display='block';return true}
+  return false;
+}
 function instalar(){
   if(document.getElementById('thorSalvarJogosCompacto'))return true;
   var label=document.getElementById('gamesCountLabel2');
@@ -16,7 +23,9 @@ function instalar(){
       if(!jogos.length){btn.textContent='NENHUM JOGO PARA SALVAR';setTimeout(function(){btn.innerHTML='▣ &nbsp; SALVAR JOGOS'},1300);return}
       var chave='thor_meus_jogos',banco=[];try{banco=JSON.parse(localStorage.getItem(chave)||'[]');if(!Array.isArray(banco))banco=[]}catch(_){banco=[]}
       banco.push({data:new Date().toISOString(),jogos:jogos.map(function(j){return j.slice()})});
-      localStorage.setItem(chave,JSON.stringify(banco));btn.textContent='✓ JOGOS SALVOS';setTimeout(function(){btn.innerHTML='▣ &nbsp; SALVAR JOGOS'},1300);
+      localStorage.setItem(chave,JSON.stringify(banco));
+      btn.textContent='✓ JOGOS SALVOS';
+      setTimeout(function(){abrirSalvos()},180);
     }catch(e){btn.textContent='NÃO FOI POSSÍVEL SALVAR';setTimeout(function(){btn.innerHTML='▣ &nbsp; SALVAR JOGOS'},1300)}
   };
   return true;
