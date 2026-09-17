@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THOR LOTERIAS</title>
-<link rel="stylesheet" href="./combinacoes-selecao-v375.css?v=thor7-v3-75">
-<script defer src="./analise-repeticao-v343.js?v=thor7-v3-75"></script>
+<link rel="stylesheet" href="./combinacoes-selecao-v375.css?v=thor7-v3-76">
+<script defer src="./analise-repeticao-v343.js?v=thor7-v3-76"></script>
 <script>
 // ---------- Firebase: usado só para travar cada conta em um único aparelho ----------
 // Carregado sob demanda (só na hora do login), pra não atrasar a abertura do app.
@@ -104,7 +104,21 @@ async function verificarTravaAparelho(hash){
       return {ok:true};
     }
 
-    const dados = snap.data();
+    const dados = snap.data() || {};
+    if(dados.ativo === false || dados.bloqueado === true){
+      return {ok:false, motivo:'conta_bloqueada'};
+    }
+
+    // Conta nova já cadastrada, mas ainda sem aparelho: vincula ao primeiro app.
+    if(!dados.clientId && !dados.deviceId){
+      await ref.set({
+        deviceId,
+        clientId,
+        ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      }, {merge:true});
+      return {ok:true};
+    }
+
     if(dados.clientId){
       return dados.clientId === clientId
         ? {ok:true}
@@ -151,7 +165,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v3-75'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v3-76'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -228,8 +242,20 @@ function contaExtraHash(item){
   return (item && typeof item === 'object') ? item.hash : item; // compatibilidade com formato antigo (string)
 }
 
-function credencialValida(hash){
-  return CREDENCIAIS_VALIDAS.includes(hash) || carregarContasExtras().some(item=> contaExtraHash(item) === hash);
+async function credencialValida(hash){
+  if(CREDENCIAIS_VALIDAS.includes(hash) || carregarContasExtras().some(item=> contaExtraHash(item) === hash)){
+    return true;
+  }
+  try{
+    await carregarFirebase();
+    const snap = await dbFirestore.collection('contas_ativadas').doc(hash).get();
+    if(!snap.exists) return false;
+    const dados = snap.data() || {};
+    return dados.ativo !== false && dados.bloqueado !== true;
+  }catch(e){
+    console.error('Falha ao validar a credencial:', e);
+    return false;
+  }
 }
 
 // reduz a foto pra um tamanho leve antes de guardar no localStorage (evita estourar o limite de espaço)
@@ -325,7 +351,7 @@ function montarTelaLogin(){
       return;
     }
     const hash = hashLogin(`${usuario}|${senha}`);
-    if(credencialValida(hash)){
+    if(await credencialValida(hash)){
       const btn = document.getElementById('loginBtn');
       erroEl.style.color = '#8B80A3';
       erroEl.textContent = 'Verificando...';
@@ -2971,12 +2997,10 @@ document.addEventListener('selectstart', e=>{
             <div id="sorteio2Progresso" style="text-align:center;font-family:'Baloo 2',sans-serif;font-weight:800;color:var(--violet-deep);font-size:13px;margin-bottom:8px;">Sorteando (0/15)</div>
             <div style="background:var(--bg,#F0EAFA);border-radius:16px;padding:22px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
               <div id="sorteio2Bola" style="width:84px;height:84px;border-radius:50%;position:relative;background:radial-gradient(circle at 30% 24%, #ff9a9a 0%, #ff4d4d 18%, #e00000 40%, #b30000 65%, #6e0000 100%);box-shadow:0 10px 18px rgba(0,0,0,.35), inset -6px -8px 12px rgba(0,0,0,.35), inset 6px 8px 10px rgba(255,255,255,.55);">
-                <div id="sorteio2Bolario" aria-hidden="true"></div>
                 <div id="sorteio2BolaMiolo" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:#ffffff;box-shadow:inset 0 2px 4px rgba(0,0,0,.18), inset 0 -2px 3px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;">
                   <span id="sorteio2BolaNum" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:21px;color:#1a1a1a;">–</span>
                 </div>
               </div>
-              <div id="sorteio2Mao" aria-hidden="true">🫴</div>
             </div>
             <div style="display:flex;gap:8px;">
               <button id="btnSorteioBola2" class="btn-3d-gold" style="flex:1;padding:7px;border-radius:9px;border:none;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">BOLA 1</button>
@@ -4731,63 +4755,6 @@ let sorteio2Qtd = 0;
 let sorteio2Drawn = [];
 let sorteio2Animando = false;
 
-const CORES_BOLARIO_CAIXA = [
-  ['#f9e260','#f5b900','#b66a00'],['#8fe8ff','#1aaee8','#05689b'],
-  ['#ff9db1','#ed436b','#9f1535'],['#a7f08d','#39c85e','#137b31'],
-  ['#d8aeff','#9851e8','#542192'],['#ffb87b','#f07424','#9c3809']
-];
-function renderSorteio2Bolario(girando=false){
-  const bolario = document.getElementById('sorteio2Bolario');
-  if(!bolario) return;
-  // Mantém o globo sempre cheio, como o globo real da CAIXA.
-  // A bola sorteada desce pela saída, sem esvaziar visualmente o tambor.
-  const exibidas = sorteio2Pool.slice(0, 20);
-  bolario.classList.toggle('girando', girando);
-  bolario.innerHTML = exibidas.map((n,i)=>{
-    const ang = (i * 137.5) * Math.PI / 180;
-    const raio = 12 + (i % 4) * 8;
-    const x = 50 + Math.cos(ang) * raio;
-    const y = 53 + Math.sin(ang) * raio;
-    const c = CORES_BOLARIO_CAIXA[(Math.abs(n)-1) % CORES_BOLARIO_CAIXA.length];
-    const dx = ((i % 3) - 1) * 16;
-    const dy = (((i + 1) % 3) - 1) * 14;
-    return `<span class="caixa-mini-bola" data-num="${n}" style="--x:${x.toFixed(1)}%;--y:${y.toFixed(1)}%;--dx:${dx}px;--dy:${dy}px;--delay:${(-i*.035).toFixed(3)}s;--cor-clara:${c[0]};--cor:${c[1]};--cor-escura:${c[2]}">${n.toString().padStart(2,'0')}</span>`;
-  }).join('');
-}
-
-function coresDaBolaCaixa(numero){
-  return CORES_BOLARIO_CAIXA[(Math.abs(numero)-1) % CORES_BOLARIO_CAIXA.length];
-}
-function aplicarCorBolaCaixa(numero){
-  const miolo = document.getElementById('sorteio2BolaMiolo');
-  if(!miolo) return;
-  if(numero == null){
-    miolo.style.removeProperty('--bola-clara');
-    miolo.style.removeProperty('--bola-cor');
-    miolo.style.removeProperty('--bola-escura');
-    return;
-  }
-  const c = coresDaBolaCaixa(numero);
-  miolo.style.setProperty('--bola-clara',c[0]);
-  miolo.style.setProperty('--bola-cor',c[1]);
-  miolo.style.setProperty('--bola-escura',c[2]);
-}
-function animarQuedaBolaCaixa(numero, aoTerminar){
-  const bolario = document.getElementById('sorteio2Bolario');
-  if(!bolario){ aoTerminar(); return; }
-  bolario.classList.remove('girando');
-  const bola = bolario.querySelector(`.caixa-mini-bola[data-num="${numero}"]`);
-  if(!bola){ aoTerminar(); return; }
-  bola.classList.add('caindo');
-  const mao = document.getElementById('sorteio2Mao');
-  if(mao){
-    mao.classList.remove('pegando');
-    void mao.offsetWidth;
-    mao.classList.add('pegando');
-  }
-  setTimeout(aoTerminar,430);
-}
-
 // --- sons do sorteio (gerados via Web Audio API, sem precisar de arquivo) ---
 let sorteioAudioCtx = null;
 function getSorteioAudioCtx(){
@@ -4898,7 +4865,6 @@ function iniciarSorteio2(){
   const bolaEl = document.getElementById('sorteio2Bola');
   const bolaNumEl = document.getElementById('sorteio2BolaNum');
   if(bolaNumEl) bolaNumEl.textContent = '–';
-  aplicarCorBolaCaixa(null);
   if(bolaEl){
     bolaEl.style.background = 'radial-gradient(circle at 32% 26%, #ffffff 0%, #EDEDEF 22%, #CBCBCF 55%, #9C9CA2 100%)';
     bolaEl.style.boxShadow = '0 10px 18px rgba(0,0,0,.2), inset 0 -8px 14px rgba(0,0,0,.1), inset 0 6px 10px rgba(255,255,255,.6)';
@@ -4907,7 +4873,6 @@ function iniciarSorteio2(){
   if(toast) toast.style.display = 'none';
   const qtdRef = document.getElementById('sorteio2QtdBadge');
   if(qtdRef) qtdRef.value = qtd2;
-  renderSorteio2Bolario(false);
 
   document.getElementById('sorteio2Setup').style.display = 'none';
   document.getElementById('sorteio2Anim').style.display = 'block';
@@ -4921,7 +4886,6 @@ function finalizarBolaSorteio2(numero, onDepoisDeAnimar){
   const bolaEl = document.getElementById('sorteio2Bola');
   const bolaNumEl = document.getElementById('sorteio2BolaNum');
   if(bolaNumEl) bolaNumEl.textContent = numero.toString().padStart(2,'0');
-  aplicarCorBolaCaixa(numero);
   if(bolaEl){
     bolaEl.classList.remove('bola-animando');
     void bolaEl.offsetWidth; // força reiniciar a animação mesmo em bolas seguidas
@@ -4929,7 +4893,6 @@ function finalizarBolaSorteio2(numero, onDepoisDeAnimar){
   }
   tocarSomBolaSorteada();
   sorteio2Drawn.push(numero);
-  renderSorteio2Bolario(false);
   confResultSorteio2 = new Set(sorteio2Drawn);
   confResult = confResultSorteio2;
   atualizarUISorteio2();
@@ -4954,7 +4917,6 @@ let corBolaSorteioIndex = 0;
 function sortearProximaBola2(onDepoisDeAnimar){
   if(sorteio2Animando || sorteio2Drawn.length >= sorteio2Qtd) return;
   sorteio2Animando = true;
-  renderSorteio2Bolario(true);
   const bolaEl = document.getElementById('sorteio2Bola');
   const toast = document.getElementById('sorteio2Toast');
   if(toast) toast.style.display = 'none';
@@ -4976,7 +4938,7 @@ function sortearProximaBola2(onDepoisDeAnimar){
     ticks++;
     if(ticks >= maxTicks){
       clearInterval(interval);
-      animarQuedaBolaCaixa(numeroFinal, ()=>finalizarBolaSorteio2(numeroFinal, onDepoisDeAnimar));
+      finalizarBolaSorteio2(numeroFinal, onDepoisDeAnimar);
     }
   }, 70);
 }
@@ -5002,9 +4964,6 @@ function resetarSorteio2UI(){
   const bolaEl = document.getElementById('sorteio2Bola');
   const bolaNumEl = document.getElementById('sorteio2BolaNum');
   if(bolaNumEl) bolaNumEl.textContent = '–';
-  aplicarCorBolaCaixa(null);
-  const bolario = document.getElementById('sorteio2Bolario');
-  if(bolario){ bolario.classList.remove('girando'); bolario.innerHTML = ''; }
   if(bolaEl){
     bolaEl.style.background = 'radial-gradient(circle at 32% 26%, #ffffff 0%, #EDEDEF 22%, #CBCBCF 55%, #9C9CA2 100%)';
     bolaEl.style.boxShadow = '0 10px 18px rgba(0,0,0,.2), inset 0 -8px 14px rgba(0,0,0,.1), inset 0 6px 10px rgba(255,255,255,.6)';
@@ -5028,7 +4987,6 @@ function resetarSorteio2UI(){
         const j = Math.floor(Math.random()*(i+1));
         [sorteio2Pool[i], sorteio2Pool[j]] = [sorteio2Pool[j], sorteio2Pool[i]];
       }
-      renderSorteio2Bolario(false);
       const qtdBadge = document.getElementById('sorteio2QtdBadge');
       if(qtdBadge) qtdBadge.value = sorteio2Qtd;
     } else {
@@ -5073,7 +5031,6 @@ function novoSorteio2(){
   const bolaEl = document.getElementById('sorteio2Bola');
   const bolaNumEl = document.getElementById('sorteio2BolaNum');
   if(bolaNumEl) bolaNumEl.textContent = '–';
-  aplicarCorBolaCaixa(null);
   if(bolaEl){
     bolaEl.style.background = 'radial-gradient(circle at 32% 26%, #ffffff 0%, #EDEDEF 22%, #CBCBCF 55%, #9C9CA2 100%)';
     bolaEl.style.boxShadow = '0 10px 18px rgba(0,0,0,.2), inset 0 -8px 14px rgba(0,0,0,.1), inset 0 6px 10px rgba(255,255,255,.6)';
@@ -5084,7 +5041,6 @@ function novoSorteio2(){
   if(qtdBadge) qtdBadge.value = sorteio2Qtd;
   const qtdInput = document.getElementById('qtdSorteio2');
   if(qtdInput) qtdInput.value = sorteio2Qtd;
-  renderSorteio2Bolario(false);
 
   atualizarUISorteio2();
   refreshConfUI();
