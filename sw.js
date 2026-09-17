@@ -1,2 +1,2 @@
-// THOR 7 V3.71 - topo da Mega-Sena e bolinhas coloridas no resultado; cache sincronizado.
-importScripts('./sw-core-thor7.js?v=thor7-v3-71');
+// THOR 7 V3.72 - topo da Mega-Sena e bolinhas coloridas no resultado; cache sincronizado.
+importScripts('./sw-core-thor7.js?v=thor7-v3-72');
