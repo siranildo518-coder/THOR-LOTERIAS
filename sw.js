@@ -1,2 +1,2 @@
-// THOR 7 V107 - remoção direta de Minhas Sequências, Padrões e Gerador de Palpites do menu lateral; login e trava preservados.
-importScripts('./sw-core-thor7.js?v=thor7-v107');
+// THOR 7 V105 - Posicionamento usa quantidade exata digitada e remove faixa das loterias; login e trava preservados.
+importScripts('./sw-core-thor7.js?v=thor7-v105');
