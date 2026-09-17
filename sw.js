@@ -1,2 +1,2 @@
-// THOR 7 V3.85 - restaura a bolinha girando na abertura; cache sincronizado.
-importScripts('./sw-core-thor7.js?v=thor7-v3-85');
+// THOR 7 V3.86 - força atualização do cache/carregador sem alterar login ou trava.
+importScripts('./sw-core-thor7.js?v=thor7-v3-86');
