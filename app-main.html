@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THOR LOTERIAS</title>
-<link rel="stylesheet" href="./combinacoes-globo-caixa-v351.css?v=thor7-v3-60">
-<script defer src="./analise-repeticao-v343.js?v=thor7-v3-60"></script>
+<link rel="stylesheet" href="./combinacoes-globo-caixa-v351.css?v=thor7-v3-68">
+<script defer src="./analise-repeticao-v343.js?v=thor7-v3-68"></script>
 <script>
 // ---------- Firebase: usado só para travar cada conta em um único aparelho ----------
 // Carregado sob demanda (só na hora do login), pra não atrasar a abertura do app.
@@ -150,7 +150,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v3-60'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v3-68'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -251,12 +251,12 @@ function comprimirFoto(dataUrl, maxLado){
 
 function loginJaValidado(){
   if(obterContextoAcesso() !== 'app') return false;
-  try{ return sessionStorage.getItem(LOGIN_STORAGE_KEY) === '1'; }catch(e){ return false; }
+  try{ return localStorage.getItem(LOGIN_STORAGE_KEY) === '1' && !!localStorage.getItem('tl_hash_atual'); }catch(e){ return false; }
 }
 
 // Derruba o login deste aparelho/navegador e volta pra tela de usuário/senha.
 function sairDoLogin(){
-  try{ sessionStorage.removeItem(LOGIN_STORAGE_KEY); }catch(e){}
+  try{ localStorage.removeItem(LOGIN_STORAGE_KEY); localStorage.removeItem('tl_hash_atual'); }catch(e){}
   location.reload();
 }
 
@@ -333,7 +333,7 @@ function montarTelaLogin(){
       btn.disabled = false;
       if(resultado.ok){
         try{
-          sessionStorage.setItem(LOGIN_STORAGE_KEY, '1');
+          localStorage.setItem(LOGIN_STORAGE_KEY, '1');
           localStorage.setItem('tl_hash_atual', hash);
           localStorage.setItem('tl_nome_conta_'+hash, usuario.trim());
           if(loginFotoSelecionada){
