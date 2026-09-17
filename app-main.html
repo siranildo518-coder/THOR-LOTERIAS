@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THOR LOTERIAS</title>
-<link rel="stylesheet" href="./combinacoes-globo-caixa-v351.css?v=thor7-v3-55">
-<script defer src="./analise-repeticao-v343.js?v=thor7-v3-55"></script>
+<link rel="stylesheet" href="./combinacoes-globo-caixa-v351.css?v=thor7-v3-56">
+<script defer src="./analise-repeticao-v343.js?v=thor7-v3-56"></script>
 <script>
 // ---------- Firebase: usado só para travar cada conta em um único aparelho ----------
 // Carregado sob demanda (só na hora do login), pra não atrasar a abertura do app.
@@ -82,6 +82,13 @@ async function verificarTravaAparelho(hash){
   const deviceId = obterDeviceId();
   const contexto = obterContextoAcesso();
   const clientId = obterClientId();
+
+  // Acesso permitido somente pelo aplicativo instalado.
+  // O navegador é sempre recusado, mesmo no mesmo celular.
+  if(contexto !== 'app'){
+    return {ok:false, motivo:'outro_aparelho'};
+  }
+
   try{
     await carregarFirebase();
     const ref = dbFirestore.collection('contas_ativadas').doc(hash);
@@ -142,7 +149,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v3-55'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v3-56'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
