@@ -355,3 +355,12 @@ html,body,.app{height:auto!important;min-height:100%!important;overflow-y:auto!i
   background:linear-gradient(180deg,#28f36c,#009d35)!important;
   box-shadow:inset 0 2px 3px rgba(255,255,255,.55),inset 0 -3px 5px rgba(0,65,20,.5),0 0 12px rgba(26,255,102,.9)!important;
 }
+
+
+/* V3.66 — modo Excluir ativo em vermelho */
+.app>section:first-of-type #btnExcluirModo.active{
+  color:#fff!important;
+  border-color:#ff6672!important;
+  background:linear-gradient(180deg,#ff313f,#c00018)!important;
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.5),inset 0 -3px 5px rgba(80,0,8,.55),0 0 12px rgba(255,25,47,.88)!important;
+}
