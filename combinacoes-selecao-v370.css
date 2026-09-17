@@ -397,3 +397,85 @@ html,body,.app{height:auto!important;min-height:100%!important;overflow-y:auto!i
 @media(max-width:370px){
   #resultsSection>header.top{height:78px!important;min-height:78px!important}
 }
+
+
+/* V3.72 — restaura o modelo antigo completo da segunda tela */
+body:has(#resultsSection[style*="display: block"]) #appHeader{
+  height:88px!important;
+  min-height:88px!important;
+  padding:0 18px!important;
+  background:linear-gradient(180deg,#2fa552,#238d43)!important;
+  border-bottom:2px solid #28e47d!important;
+  box-shadow:none!important;
+}
+body:has(#resultsSection[style*="display: block"]) #appHeader>div{
+  display:flex!important;
+  width:100%!important;
+  height:100%!important;
+  align-items:center!important;
+  padding:0!important;
+}
+body:has(#resultsSection[style*="display: block"]) #appHeader h1{
+  display:block!important;
+  font-size:19px!important;
+  color:#fff!important;
+  text-shadow:0 2px 2px rgba(0,0,0,.35)!important;
+}
+body:has(#resultsSection[style*="display: block"]) #appHeader h1::after{display:none!important}
+body:has(#resultsSection[style*="display: block"]) #appHeader #btnMenu{display:none!important}
+
+#resultsSection>header.top{
+  height:auto!important;
+  min-height:72px!important;
+  padding:10px 15px!important;
+  display:flex!important;
+  gap:10px!important;
+  background:linear-gradient(180deg,#741ee7,#4f09bd)!important;
+  border-bottom:2px solid #8a49ff!important;
+  box-shadow:0 4px 12px rgba(69,0,167,.35)!important;
+}
+#resultsSection>header.top>div{
+  display:block!important;
+}
+#resultsSection>header.top h1{
+  display:block!important;
+  color:#fff!important;
+  font-size:20px!important;
+  font-weight:900!important;
+}
+#resultsSection #floatingSave,
+#resultsSection #floatingExcel,
+#resultsSection #floatingShare,
+#resultsSection #floatingSalvarNome{
+  display:flex!important;
+}
+#resultsSection #backToSelection{
+  position:static!important;
+  transform:none!important;
+  width:auto!important;
+  height:auto!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:none!important;
+  color:#fff!important;
+  font-size:18px!important;
+}
+#resultsSection>div{
+  display:block!important;
+  padding:16px 16px 110px!important;
+}
+#resultsSection>div>.conf-card:not(#dezenasEscolhidasCard){
+  display:block!important;
+}
+#resultsSection #btnLimparEscolhidasResultado{display:none!important}
+#resultsSection #gamesList{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+#resultsSection #gamesList .game-card{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
