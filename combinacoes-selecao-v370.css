@@ -326,3 +326,74 @@ html,body,.app{height:auto!important;min-height:100%!important;overflow-y:auto!i
   padding:2px 4px!important;
   font-size:9px!important;
 }
+
+
+/* V3.71 — resultados destravados: topo verde e jogos visíveis */
+#resultsSection{
+  min-height:100vh!important;
+  background:#061526!important;
+  overflow-y:auto!important;
+}
+#resultsSection>header.top{
+  height:89px!important;
+  min-height:89px!important;
+  padding:0!important;
+  position:relative!important;
+  overflow:hidden!important;
+  background-color:#03121f!important;
+  background-image:url('./combinacoes-topo-v366.png')!important;
+  background-repeat:no-repeat!important;
+  background-size:115% 100%!important;
+  background-position:right center!important;
+  border:0!important;
+  border-bottom:2px solid #20ed92!important;
+  box-shadow:none!important;
+}
+#resultsSection>header.top>div,
+#resultsSection #floatingSave,
+#resultsSection #floatingExcel,
+#resultsSection #floatingShare,
+#resultsSection #floatingSalvarNome{
+  display:none!important;
+}
+#resultsSection #backToSelection{
+  position:absolute!important;
+  left:8px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  z-index:4!important;
+  width:35px!important;
+  height:35px!important;
+  padding:0!important;
+  border:1px solid rgba(255,255,255,.65)!important;
+  border-radius:50%!important;
+  background:rgba(0,45,35,.65)!important;
+  color:#fff!important;
+  font-size:20px!important;
+}
+#resultsSection>div{
+  display:flex!important;
+  flex-direction:column!important;
+  padding:10px 10px 110px!important;
+}
+#resultsSection #summaryBox2{order:0!important}
+#resultsSection #dezenasEscolhidasCard{order:1!important}
+#resultsSection>div>div:has(#gamesCountLabel2){order:2!important;display:block!important}
+#resultsSection #gamesList{
+  order:3!important;
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+#resultsSection>div>.conf-card:not(#dezenasEscolhidasCard){
+  order:4!important;
+  display:none!important;
+}
+#resultsSection #gamesList .game-card{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+@media(max-width:370px){
+  #resultsSection>header.top{height:78px!important;min-height:78px!important}
+}
