@@ -107,3 +107,19 @@
   82%{right:7%;bottom:-8px;opacity:1;transform:rotate(12deg) scale(.94);}
   100%{right:-70px;bottom:-35px;opacity:0;transform:rotate(18deg) scale(.8);}
 }
+
+
+/* V3.61 — a bola sorteada sai pela abertura inferior do globo */
+#resultsSection #sorteio2BolaMiolo{
+  top:calc(100% + 34px)!important;
+  left:50%!important;
+}
+#resultsSection #sorteio2Bolario .caixa-mini-bola.caindo{
+  left:50%!important;
+  top:108%!important;
+}
+@keyframes bolaCaixaSai{
+  0%{transform:translate(-50%,-115%) scale(.45);opacity:.2;}
+  58%{transform:translate(-50%,-50%) scale(1.14);opacity:1;}
+  100%{transform:translate(-50%,-50%) scale(1);opacity:1;}
+}
