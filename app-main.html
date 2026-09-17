@@ -4738,9 +4738,11 @@ const CORES_BOLARIO_CAIXA = [
 function renderSorteio2Bolario(girando=false){
   const bolario = document.getElementById('sorteio2Bolario');
   if(!bolario) return;
-  const restantes = sorteio2Pool.slice(sorteio2Drawn.length, sorteio2Drawn.length + 18);
+  // Mantém o globo sempre cheio, como o globo real da CAIXA.
+  // A bola sorteada desce pela saída, sem esvaziar visualmente o tambor.
+  const exibidas = sorteio2Pool.slice(0, 20);
   bolario.classList.toggle('girando', girando);
-  bolario.innerHTML = restantes.map((n,i)=>{
+  bolario.innerHTML = exibidas.map((n,i)=>{
     const ang = (i * 137.5) * Math.PI / 180;
     const raio = 12 + (i % 4) * 8;
     const x = 50 + Math.cos(ang) * raio;
