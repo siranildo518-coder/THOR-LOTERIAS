@@ -1,2 +1,2 @@
-// THOR 7 V108 - Jogos Salvos com destaque apenas do premio principal, anterior/proximo nos concursos e voltar do celular para a tela inicial; login e trava preservados.
-importScripts('./sw-core-thor7.js?v=thor7-v108');
+// THOR 7 V110 - adiciona botao pequeno COLAR para preencher dezenas copiadas; login e trava preservados sem alteracao.
+importScripts('./sw-core-thor7.js?v=thor7-v110');
