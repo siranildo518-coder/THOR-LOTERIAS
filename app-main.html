@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THOR LOTERIAS</title>
-<link rel="stylesheet" href="./combinacoes-globo-caixa-v351.css?v=thor7-v3-52">
-<script defer src="./analise-repeticao-v343.js?v=thor7-v3-52"></script>
+<link rel="stylesheet" href="./combinacoes-globo-caixa-v351.css?v=thor7-v3-53">
+<script defer src="./analise-repeticao-v343.js?v=thor7-v3-53"></script>
 <script>
 // ---------- Firebase: usado só para travar cada conta em um único aparelho ----------
 // Carregado sob demanda (só na hora do login), pra não atrasar a abertura do app.
@@ -85,26 +85,36 @@ async function verificarTravaAparelho(hash){
   try{
     await carregarFirebase();
     const ref = dbFirestore.collection('contas_ativadas').doc(hash);
-    return await dbFirestore.runTransaction(async transacao=>{
-      const snap = await transacao.get(ref);
-      if(snap.exists){
-        const dados = snap.data();
-        if(dados.clientId && dados.clientId !== clientId){
-          return {ok:false, motivo:'outro_aparelho'};
-        }
-        if(!dados.clientId && dados.deviceId !== deviceId){
-          return {ok:false, motivo:'outro_aparelho'};
-        }
-      }
-      transacao.set(ref, {
+    const snap = await ref.get();
+
+    if(!snap.exists){
+      await ref.set({
         deviceId,
         clientId,
         contexto,
         ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
-      }, {merge:true});
+      });
       return {ok:true};
-    });
+    }
+
+    const dados = snap.data();
+    if(dados.clientId){
+      return dados.clientId === clientId
+        ? {ok:true}
+        : {ok:false, motivo:'outro_aparelho'};
+    }
+
+    if(dados.deviceId !== deviceId){
+      return {ok:false, motivo:'outro_aparelho'};
+    }
+
+    // Contas antigas já vinculadas a este celular ficam autorizadas somente no app.
+    if(contexto !== 'app'){
+      return {ok:false, motivo:'outro_aparelho'};
+    }
+    return {ok:true};
   }catch(e){
+    console.error('Falha ao verificar a trava:', e);
     return {ok:false, motivo:'sem_internet'};
   }
 }
@@ -129,7 +139,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v3-52'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v3-53'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
