@@ -1,2 +1,2 @@
-// THOR 7 V105 - Posicionamento usa quantidade exata digitada e remove faixa das loterias; login e trava preservados.
-importScripts('./sw-core-thor7.js?v=thor7-v105');
+// THOR 7 V108 - Jogos Salvos com destaque apenas do premio principal, anterior/proximo nos concursos e voltar do celular para a tela inicial; login e trava preservados.
+importScripts('./sw-core-thor7.js?v=thor7-v108');
