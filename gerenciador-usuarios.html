@@ -110,17 +110,28 @@
         headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${token}`,'X-GitHub-Api-Version':'2022-11-28',...(opcoes.headers||{})}
       });
       const dados=await resposta.json().catch(()=>({}));
-      if(!resposta.ok) throw new Error(dados.message||`Falha do GitHub (${resposta.status}).`);
+      if(!resposta.ok){const erro=new Error(dados.message||`Falha do GitHub (${resposta.status}).`);erro.status=resposta.status;throw erro}
       return dados;
     }
 
     async function atualizarArquivo(path,alterar,mensagem){
-      const atual=await github(path+'?ref=main');
-      const texto=base64ParaUtf8(atual.content);
-      const novo=alterar(texto);
-      if(novo===texto) return false;
-      await github(path,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:mensagem,content:utf8ParaBase64(novo),sha:atual.sha,branch:'main'})});
-      return true;
+      let ultimoErro;
+      for(let tentativa=1;tentativa<=3;tentativa++){
+        try{
+          const atual=await github(path+'?ref=main&_='+Date.now());
+          const texto=base64ParaUtf8(atual.content);
+          const novo=alterar(texto);
+          if(novo===texto) return false;
+          await github(path,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:mensagem,content:utf8ParaBase64(novo),sha:atual.sha,branch:'main'})});
+          return true;
+        }catch(e){
+          ultimoErro=e;
+          const conflito=e.status===409||e.status===422||/does not match|sha/i.test(e.message||'');
+          if(!conflito||tentativa===3) throw e;
+          await new Promise(resolve=>setTimeout(resolve,700*tentativa));
+        }
+      }
+      throw ultimoErro;
     }
 
     function extrairClientes(texto){
