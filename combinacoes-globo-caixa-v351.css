@@ -217,3 +217,70 @@
   .app>section:first-of-type #ballGrid .ball{width:42px!important;height:42px!important;min-width:42px!important}
   #combinacoesTabs .home-tab{min-width:112px!important;font-size:12px!important}
 }
+
+
+/* V3.65 — correções da tela de abertura de Combinações */
+html,body,.app{height:auto!important;min-height:100%!important;overflow-y:auto!important}
+#appHeader{
+  height:112px!important;min-height:112px!important;padding:0!important;
+  background:#03121f url('./gerador-topo-v319.jpg') center/cover no-repeat!important;
+  border-bottom:2px solid #20ed92!important;
+}
+#appHeader>div{width:100%!important;height:100%!important;align-items:center!important;padding:0 16px!important}
+#appHeader h1{display:none!important}
+#appHeader #btnMenu{
+  position:relative!important;z-index:3!important;width:48px!important;height:48px!important;
+  margin:0!important;font-size:28px!important;background:rgba(0,59,44,.88)!important;
+}
+.app>section:first-of-type{padding-top:10px!important;padding-bottom:170px!important;overflow:visible!important}
+.app>section:first-of-type>.card{padding-top:50px!important}
+.app>section:first-of-type>.card:nth-of-type(1)>div:first-child{
+  display:none!important;
+}
+#combinacoesTabs{width:100%!important;padding:0!important}
+#combinacoesTabs .home-tab{
+  min-width:105px!important;min-height:42px!important;padding:5px 8px!important;
+  font-size:11px!important;color:#fff!important;
+  background:linear-gradient(180deg,#2b4965,#0b2137)!important;
+}
+#combinacoesTabs .home-tab.active{
+  color:#fff!important;background:linear-gradient(180deg,#c32fff,#6410db)!important;
+}
+#combinacoesTabs .home-tab .clover-wrap{width:14px!important;height:14px!important}
+.app>section:first-of-type #sliderHint span{color:#fff!important;font-size:11px!important}
+.app>section:first-of-type #qtdSliderMinus,
+.app>section:first-of-type #qtdSliderPlus{
+  width:40px!important;height:40px!important;font-size:23px!important;color:#fff!important;
+}
+.app>section:first-of-type>.card:nth-of-type(3){gap:8px!important;padding-left:10px!important;padding-right:10px!important}
+.app>section:first-of-type #ballGrid{
+  grid-template-columns:repeat(10,minmax(0,1fr))!important;
+  gap:6px 4px!important;padding:0 1px 5px!important;
+}
+.app>section:first-of-type #ballGrid .ball{
+  width:27px!important;height:27px!important;min-width:27px!important;min-height:27px!important;
+  padding:0!important;font-size:10px!important;line-height:27px!important;color:#fff!important;
+  background:radial-gradient(circle at 32% 22%,#d7e0e8 0 7%,#718092 28%,#35475c 62%,#152437 100%)!important;
+  border:1px solid #91a5ba!important;
+  text-shadow:0 1px 2px #000!important;
+  box-shadow:inset 2px 2px 3px rgba(255,255,255,.5),inset -3px -3px 4px rgba(0,0,0,.38),0 2px 3px rgba(0,0,0,.5)!important;
+}
+.app>section:first-of-type #ballGrid .ball span{color:#fff!important}
+.app>section:first-of-type #ballGrid .ball.on{
+  color:#fff!important;background:radial-gradient(circle at 32% 22%,#f3b3ff 0 5%,#c82fff 22%,#7d08d8 60%,#390073 100%)!important;
+}
+.app>section:first-of-type #btnFixarModo,
+.app>section:first-of-type #btnExcluirModo,
+.app>section:first-of-type #btnGerar,
+.app>section:first-of-type #btnLimparSelecao{
+  min-height:45px!important;height:45px!important;padding:5px 6px!important;font-size:11px!important;line-height:1.05!important;
+}
+.app>section:first-of-type #btnFixarModo,
+.app>section:first-of-type #btnExcluirModo{white-space:normal!important}
+.app>section:first-of-type #statsGrid>*{color:#fff!important}
+.app>section:first-of-type #statsGrid *{color:#fff!important}
+@media(max-width:370px){
+  .app>section:first-of-type #ballGrid{gap:5px 2px!important}
+  .app>section:first-of-type #ballGrid .ball{width:25px!important;height:25px!important;min-width:25px!important;min-height:25px!important;font-size:9px!important;line-height:25px!important}
+  #appHeader{height:96px!important;min-height:96px!important}
+}
