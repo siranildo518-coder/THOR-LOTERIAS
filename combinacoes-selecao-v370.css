@@ -504,3 +504,16 @@ html,body{
   transform:translateZ(0);
   backface-visibility:hidden;
 }
+
+
+/* V3.74 — desempenho da lista grande de jogos */
+#resultsSection .game-card{
+  transform:none!important;
+  backface-visibility:visible!important;
+  content-visibility:auto;
+  contain:layout paint style;
+  contain-intrinsic-size:auto 245px;
+}
+#resultsSection #gamesList{
+  will-change:auto!important;
+}
