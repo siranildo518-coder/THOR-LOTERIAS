@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THOR LOTERIAS</title>
-<link rel="stylesheet" href="./combinacoes-selecao-v382.css?v=thor7-v3-82">
-<script defer src="./analise-repeticao-v343.js?v=thor7-v3-82"></script>
+<link rel="stylesheet" href="./analise-frequencia-v347.css?v=thor7-v3-83">
+<script defer src="./analise-repeticao-v343.js?v=thor7-v3-83"></script>
 <script>
 // ---------- Firebase: usado só para travar cada conta em um único aparelho ----------
 // Carregado sob demanda (só na hora do login), pra não atrasar a abertura do app.
@@ -165,7 +165,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v3-82'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v3-83'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -4672,13 +4672,11 @@ function renderConfLista(){
     return;
   }
   const ordenadas = Array.from(confResult).sort((a,b)=>a-b);
-  confListaEl.innerHTML = ordenadas.map((n,i)=>{
-    const c = coresDaBolaCaixa(n);
-    return `
-    <span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 34% 24%,#fff 0 8%,${c[0]} 19%,${c[1]} 65%,${c[2]} 100%);box-shadow:0 3px 6px rgba(0,0,0,.25), inset 0 -3px 5px rgba(0,0,0,.15), inset 0 3px 4px rgba(255,255,255,.5);">
+  confListaEl.innerHTML = ordenadas.map((n,i)=>`
+    <span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:${CORES_BOLINHA_LISTA[i % CORES_BOLINHA_LISTA.length]};box-shadow:0 3px 6px rgba(0,0,0,.25), inset 0 -3px 5px rgba(0,0,0,.15), inset 0 3px 4px rgba(255,255,255,.5);">
       <span style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:13px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);">${n.toString().padStart(2,'0')}</span>
     </span>
-  `}).join('');
+  `).join('');
 }
 
 function refreshConfUI(){
@@ -4702,8 +4700,6 @@ function mostrarDezenasEscolhidas(){
   const lista = document.getElementById('dezenasEscolhidasLista');
   if(!lista) return;
   const nums = Array.from(selected).sort((a,b)=>a-b);
-  const card = document.getElementById('dezenasEscolhidasCard');
-  if(card) card.dataset.count = nums.length;
   if(nums.length === 0){
     lista.innerHTML = '<span style="font-size:12.5px;color:var(--muted,#888);">Nenhuma dezena escolhida.</span>';
     return;
@@ -10058,7 +10054,6 @@ function irParaSelecao(){
   const drawerOv = document.getElementById('drawerOverlay');
   if(drawerOv) drawerOv.classList.remove('show');
   document.getElementById('resultsSection').style.display='none';
-  document.body.classList.remove('tela-resultados-ativa');
   document.querySelector('.app > section:not(#resultsSection)').style.display='block';
   resetScroll();
   setActiveTab('tabCombinacoes');
@@ -10067,7 +10062,6 @@ function irParaSelecao(){
 function irParaResultados(){
   document.querySelector('.app > section:not(#resultsSection)').style.display='none';
   document.getElementById('resultsSection').style.display='none';
-  document.body.classList.remove('tela-resultados-ativa');
   document.getElementById('overlayListaResultados').classList.add('show');
   resetScroll();
   setActiveTab('tabInicio');
@@ -11538,7 +11532,6 @@ function showResultsScreen(summaryHtml, games, skipHistorico){
   if(drawerOv) drawerOv.classList.remove('show');
   document.querySelector('.app > section:not(#resultsSection)').style.display='none';
   document.getElementById('resultsSection').style.display='block';
-  document.body.classList.add('tela-resultados-ativa');
   window.scrollTo(0,0);
   // não salva mais automaticamente no histórico ao gerar — só quando o usuário aperta "Salvar"
 }
@@ -11598,11 +11591,6 @@ function renderGameCards(){
 }
 
 document.getElementById('backToSelection').addEventListener('click', ()=>{
-  irParaSelecao();
-});
-
-document.getElementById('btnLimparEscolhidasResultado')?.addEventListener('click', ()=>{
-  document.getElementById('btnLimparSelecao')?.click();
   irParaSelecao();
 });
 
