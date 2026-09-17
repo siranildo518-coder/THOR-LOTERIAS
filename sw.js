@@ -1,2 +1,2 @@
-// THOR 7 V108 - Jogos Salvos com destaque apenas do premio principal, anterior/proximo nos concursos e voltar do celular para a tela inicial; login e trava preservados.
-importScripts('./sw-core-thor7.js?v=thor7-v108');
+// THOR 7 V109 - topo da tela inicial fixo durante a rolagem; login e trava preservados.
+importScripts('./sw-core-thor7.js?v=thor7-v109');
