@@ -1,35 +1,27 @@
-// THOR 7 V96 - botão compacto Salvar Jogos na tela Jogos Desdobrados.
+// THOR 7 V97 - botão Salvar Jogos preso ao local exato da tela Jogos Desdobrados.
 (function(){'use strict';
 function instalar(){
-  if(document.getElementById('thorSalvarJogosCompacto')) return true;
-  var els=[].slice.call(document.querySelectorAll('div,span,p,strong,h1,h2,h3'));
-  var resumo=els.find(function(el){return /jogos gerados de .*dezenas cada/i.test((el.textContent||'').trim())});
-  if(!resumo)return false;
+  if(document.getElementById('thorSalvarJogosCompacto'))return true;
+  var label=document.getElementById('gamesCountLabel2');
+  if(!label)return false;
+  var faixa=label.parentElement;
+  if(!faixa||!faixa.parentElement)return false;
   var btn=document.createElement('button');
-  btn.id='thorSalvarJogosCompacto';
-  btn.type='button';
-  btn.innerHTML='<span style="font-size:15px">▣</span>&nbsp; SALVAR JOGOS';
-  btn.style.cssText='display:block;width:calc(100% - 28px);height:34px;margin:8px auto 12px;padding:0 12px;border:2px solid #f1b82d;border-radius:11px;background:linear-gradient(180deg,#22c85b,#07923b);color:#fff;font-weight:900;font-size:13px;line-height:30px;text-align:center;box-shadow:0 3px 0 #066a2e;cursor:pointer;';
-  resumo.insertAdjacentElement('afterend',btn);
-  btn.addEventListener('click',function(){
-    var candidatos=['thor_meus_jogos','thorMeusJogos','thorJogosSalvos'];
-    var salvo=false;
+  btn.id='thorSalvarJogosCompacto';btn.type='button';btn.innerHTML='▣ &nbsp; SALVAR JOGOS';
+  btn.style.cssText='display:block;width:calc(100% - 28px);height:32px;margin:0 auto 12px;padding:0 10px;border:2px solid #f1b82d;border-radius:10px;background:linear-gradient(180deg,#22c85b,#07923b);color:#fff;font-weight:900;font-size:12px;line-height:28px;text-align:center;box-shadow:0 3px 0 #066a2e;cursor:pointer;';
+  faixa.insertAdjacentElement('afterend',btn);
+  btn.onclick=function(){
     try{
-      var jogos=[];
-      document.querySelectorAll('[class*="game"],[class*="jogo"]').forEach(function(el){
-        var nums=(el.textContent||'').match(/\b\d{1,2}\b/g);
-        if(nums&&nums.length>=5)jogos.push(nums.map(function(n){return String(parseInt(n,10)).padStart(2,'0')}));
-      });
-      if(jogos.length){
-        var chave=candidatos[0], banco=[];try{banco=JSON.parse(localStorage.getItem(chave)||'[]');if(!Array.isArray(banco))banco=[]}catch(e){banco=[]}
-        banco.push({data:new Date().toISOString(),jogos:jogos});localStorage.setItem(chave,JSON.stringify(banco));salvo=true;
-      }
-    }catch(e){}
-    var antigo=btn.innerHTML;btn.innerHTML=salvo?'✓ JOGOS SALVOS':'✓ SALVAR JOGOS';setTimeout(function(){btn.innerHTML=antigo},1400);
-  });
+      var jogos=(typeof lastGames!=='undefined'&&Array.isArray(lastGames))?lastGames:[];
+      if(!jogos.length){btn.textContent='NENHUM JOGO PARA SALVAR';setTimeout(function(){btn.innerHTML='▣ &nbsp; SALVAR JOGOS'},1300);return}
+      var chave='thor_meus_jogos',banco=[];try{banco=JSON.parse(localStorage.getItem(chave)||'[]');if(!Array.isArray(banco))banco=[]}catch(_){banco=[]}
+      banco.push({data:new Date().toISOString(),jogos:jogos.map(function(j){return j.slice()})});
+      localStorage.setItem(chave,JSON.stringify(banco));btn.textContent='✓ JOGOS SALVOS';setTimeout(function(){btn.innerHTML='▣ &nbsp; SALVAR JOGOS'},1300);
+    }catch(e){btn.textContent='NÃO FOI POSSÍVEL SALVAR';setTimeout(function(){btn.innerHTML='▣ &nbsp; SALVAR JOGOS'},1300)}
+  };
   return true;
 }
-function tentar(){if(instalar())return;setTimeout(tentar,250)}
+function tentar(){if(!instalar())setTimeout(tentar,200)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',tentar,{once:true});else tentar();
-new MutationObserver(instalar).observe(document.documentElement,{childList:true,subtree:true});
+new MutationObserver(function(){instalar()}).observe(document.documentElement,{childList:true,subtree:true});
 })();
