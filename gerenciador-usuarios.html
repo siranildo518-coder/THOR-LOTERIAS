@@ -19,7 +19,7 @@
     .config{margin-top:24px;border-top:1px solid #ece7f2;padding-top:16px}.config summary{cursor:pointer;color:var(--roxo);font-weight:800}
     .info{margin-top:16px;min-height:46px;padding:12px;border-radius:12px;background:#f5f1fb;color:#635a70;line-height:1.45}.info.ok{background:#e7f8ed;color:#126833}.info.erro{background:#fff0f0;color:#a61d27}
     .nota{font-size:12px;color:#81798b;margin-top:10px;line-height:1.4}.tag{display:inline-block;background:#eee8f8;color:#5b21b6;border-radius:999px;padding:4px 9px;font-weight:700;margin-top:8px}
-    .clientes{margin-top:22px;border-top:1px solid #ece7f2;padding-top:18px}.clientes-topo{display:flex;align-items:center;justify-content:space-between;gap:10px}.clientes h2{margin:0;color:var(--roxo);font-size:19px}.atualizar{height:38px;padding:0 13px;background:linear-gradient(#7950d7,#4d1c9c);box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:12px}.lista{display:grid;gap:9px;margin-top:13px}.cliente{border:1px solid #e5dfec;border-radius:13px;padding:11px;background:#fbfaff}.cliente-linha{display:flex;align-items:center;justify-content:space-between;gap:8px}.cliente strong{font-size:15px}.codigo{font:11px monospace;color:#81798b;margin-top:4px}.protegida{color:#6a6175;font-size:12px}.redefinir{height:34px;padding:0 10px;border-radius:9px;background:linear-gradient(#7c2be8,#5317ac);box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:11px}.vazio{color:#81798b;text-align:center;padding:14px}
+    .clientes{margin-top:22px;border-top:1px solid #ece7f2;padding-top:18px}.clientes-topo{display:flex;align-items:center;justify-content:space-between;gap:10px}.clientes h2{margin:0;color:var(--roxo);font-size:19px}.atualizar{height:38px;padding:0 13px;background:linear-gradient(#7950d7,#4d1c9c);box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:12px}.lista{display:grid;gap:9px;margin-top:13px}.cliente{border:1px solid #e5dfec;border-radius:13px;padding:11px;background:#fbfaff}.cliente-linha{display:flex;align-items:center;justify-content:space-between;gap:8px}.cliente strong{font-size:15px}.codigo{font:11px monospace;color:#81798b;margin-top:4px}.protegida{color:#6a6175;font-size:12px}.acoes{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.redefinir,.ver,.remover{height:32px;padding:0 8px;border-radius:8px;box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:10px}.redefinir{background:linear-gradient(#7c2be8,#5317ac)}.ver{background:linear-gradient(#2686dc,#14549a)}.remover{background:linear-gradient(#ee5353,#aa2028)}.vazio{color:#81798b;text-align:center;padding:14px}
     @media(max-width:380px){.linha{grid-template-columns:1fr}.card{padding:20px 16px}}
   </style>
 </head>
@@ -49,7 +49,7 @@
         <h2>Clientes cadastrados</h2>
         <button class="atualizar" id="carregarClientes" type="button">ATUALIZAR</button>
       </div>
-      <p class="nota">As senhas ficam protegidas e não podem ser visualizadas. Use “Redefinir senha” quando o cliente esquecer.</p>
+      <p class="nota">Senhas novas criadas neste gerenciador podem ser visualizadas somente neste aparelho. Para senhas antigas indisponíveis, use “Redefinir”.</p>
       <div id="listaClientes" class="lista"><div class="vazio">Toque em ATUALIZAR para ver os clientes.</div></div>
     </section>
 
@@ -70,6 +70,7 @@
     const $=id=>document.getElementById(id);
     const TOKEN_KEY='thor_gerenciador_github_token_v2';
     const REPO_KEY='thor_gerenciador_repo_v2';
+    const SENHAS_KEY='thor_gerenciador_senhas_v1';
     $('token').value=localStorage.getItem(TOKEN_KEY)||'';
     $('repo').value=localStorage.getItem(REPO_KEY)||$('repo').value;
 
@@ -79,6 +80,9 @@
       for(let i=0;i<str.length;i++) h=((h*33)^str.charCodeAt(i))>>>0;
       return h.toString(36);
     }
+    function carregarSenhas(){try{return JSON.parse(localStorage.getItem(SENHAS_KEY)||'{}')}catch(e){return {}}}
+    function salvarSenha(hash,usuario,senha){const dados=carregarSenhas();dados[hash]={usuario,senha};localStorage.setItem(SENHAS_KEY,JSON.stringify(dados))}
+    function apagarSenha(hash){const dados=carregarSenhas();delete dados[hash];localStorage.setItem(SENHAS_KEY,JSON.stringify(dados))}
     function utf8ParaBase64(texto){
       const bytes=new TextEncoder().encode(texto);let bin='';
       for(let i=0;i<bytes.length;i+=0x8000) bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000));
@@ -128,8 +132,11 @@
       const re=/'([a-z0-9]+)'\s*,\s*\/\/\s*([^\n\r]+)/gi;
       let m;
       while((m=re.exec(bloco))){
-        const nome=m[2].replace(/\s*\(senha.*$/i,'').trim();
-        clientes.push({hash:m[1],nome:nome||'Cliente'});
+        const comentario=m[2].trim();
+        const senhaComentario=(comentario.match(/\(senha\s+([^\)]+)\)/i)||[])[1]||null;
+        const nome=comentario.replace(/\s*\(senha.*$/i,'').trim();
+        const cofre=carregarSenhas()[m[1]];
+        clientes.push({hash:m[1],nome:nome||'Cliente',senha:(cofre&&cofre.senha)||senhaComentario});
       }
       return clientes;
     }
@@ -146,11 +153,14 @@
           const linha=document.createElement('div');linha.className='cliente-linha';
           const dados=document.createElement('div');
           const nome=document.createElement('strong');nome.textContent=cliente.nome;
-          const senha=document.createElement('div');senha.className='protegida';senha.textContent='Senha: protegida ••••••';
+          const senha=document.createElement('div');senha.className='protegida';senha.textContent='Senha: ••••••';
           const codigo=document.createElement('div');codigo.className='codigo';codigo.textContent='Código: '+cliente.hash;
-          const btn=document.createElement('button');btn.type='button';btn.className='redefinir';btn.textContent='REDEFINIR SENHA';
-          btn.onclick=()=>redefinirSenha(cliente);
-          dados.append(nome,senha,codigo);linha.append(dados,btn);item.append(linha);area.append(item);
+          const acoes=document.createElement('div');acoes.className='acoes';
+          const ver=document.createElement('button');ver.type='button';ver.className='ver';ver.textContent='VER SENHA';
+          ver.onclick=()=>{if(cliente.senha){senha.textContent='Senha: '+cliente.senha;setTimeout(()=>senha.textContent='Senha: ••••••',10000)}else alert('A senha antiga não pode ser recuperada. Use Redefinir.')};
+          const redefinir=document.createElement('button');redefinir.type='button';redefinir.className='redefinir';redefinir.textContent='REDEFINIR';redefinir.onclick=()=>redefinirSenha(cliente);
+          const remover=document.createElement('button');remover.type='button';remover.className='remover';remover.textContent='REMOVER';remover.onclick=()=>removerCliente(cliente);
+          acoes.append(ver,redefinir,remover);dados.append(nome,senha,codigo);linha.append(dados,acoes);item.append(linha);area.append(item);
         });
       }catch(e){area.innerHTML='<div class="vazio">'+String(e.message||e)+'</div>'}
     }
@@ -168,9 +178,26 @@
           return texto.replace(re,`'${novoHash}', // ${cliente.nome}`);
         },`Redefinir senha de ${cliente.nome}`);
         await atualizarArquivo('index-core-thor7.html',texto=>texto.replace(/var VERSION='[^']+'/,`var VERSION='gerenciador-${Date.now()}'`),`Atualizar senha de ${cliente.nome}`);
+        apagarSenha(cliente.hash);salvarSenha(novoHash,cliente.nome,nova.trim());
         mostrar('Senha de <b>'+cliente.nome+'</b> redefinida e publicada.','ok');
         await carregarClientes();
       }catch(e){mostrar(e.message||'Não foi possível redefinir a senha.','erro')}
+    }
+
+    async function removerCliente(cliente){
+      if(!confirm('Remover o usuário '+cliente.nome+'? Ele não conseguirá mais entrar no aplicativo.')) return;
+      mostrar('Removendo '+cliente.nome+'…');
+      try{
+        await atualizarArquivo('app-main.html',texto=>{
+          const re=new RegExp("\\s*'"+cliente.hash+"'\\s*,\\s*//[^\\n\\r]*(?:\\r?\\n)?");
+          if(!re.test(texto)) throw new Error('O cliente não foi encontrado para remoção.');
+          return texto.replace(re,'\n');
+        },`Remover usuário ${cliente.nome}`);
+        await atualizarArquivo('index-core-thor7.html',texto=>texto.replace(/var VERSION='[^']+'/,`var VERSION='gerenciador-${Date.now()}'`),`Atualizar remoção de ${cliente.nome}`);
+        apagarSenha(cliente.hash);
+        mostrar('Usuário <b>'+cliente.nome+'</b> removido do aplicativo.','ok');
+        await carregarClientes();
+      }catch(e){mostrar(e.message||'Não foi possível remover o usuário.','erro')}
     }
 
     $('carregarClientes').onclick=carregarClientes;
@@ -197,6 +224,7 @@
           if(!/var VERSION='[^']+'/.test(texto)) throw new Error('O carregador do aplicativo não foi encontrado.');
           return texto.replace(/var VERSION='[^']+'/,`var VERSION='${versao}'`);
         },`Atualizar acesso do usuário ${usuario}`);
+        salvarSenha(hash,usuario,senha);
         mostrar(`Usuário <b>${usuario.replace(/[<>&]/g,'')}</b> criado e publicado com sucesso.<br><span class="tag">Código: ${hash}</span>`,'ok');
         $('usuario').value='';$('senha').value='';
         await carregarClientes();
