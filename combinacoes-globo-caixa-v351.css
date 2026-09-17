@@ -346,3 +346,12 @@ html,body,.app{height:auto!important;min-height:100%!important;overflow-y:auto!i
   .app>section:first-of-type #btnGerar,
   .app>section:first-of-type #btnLimparSelecao{height:34px!important;min-height:34px!important;font-size:9px!important}
 }
+
+
+/* V3.66 — modo Fixar ativo em verde */
+.app>section:first-of-type #btnFixarModo.active{
+  color:#fff!important;
+  border-color:#69ff9a!important;
+  background:linear-gradient(180deg,#28f36c,#009d35)!important;
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.55),inset 0 -3px 5px rgba(0,65,20,.5),0 0 12px rgba(26,255,102,.9)!important;
+}
