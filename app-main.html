@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THOR LOTERIAS</title>
-<link rel="stylesheet" href="./combinacoes-selecao-v379.css?v=thor7-v3-79">
-<script defer src="./analise-repeticao-v343.js?v=thor7-v3-79"></script>
+<link rel="stylesheet" href="./combinacoes-selecao-v379.css?v=thor7-v3-80">
+<script defer src="./analise-repeticao-v343.js?v=thor7-v3-80"></script>
 <script>
 // ---------- Firebase: usado só para travar cada conta em um único aparelho ----------
 // Carregado sob demanda (só na hora do login), pra não atrasar a abertura do app.
@@ -165,7 +165,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v3-79'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v3-80'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVO = 'index.html';
@@ -2882,7 +2882,22 @@ document.addEventListener('selectstart', e=>{
 @media(max-width:360px){#overlayListaResultados{padding-left:66px!important}#homeSideNav{width:60px}.home-feature-grid{grid-template-columns:1fr}.home-feature-card{min-height:44px}}
 </style>
 
-</head>
+<style id="segundaTelaV344Forcada">
+body.tela-resultados-ativa #resultsSection{background:linear-gradient(135deg,#10283b,#274d66)!important;color:#241B2F!important}
+body.tela-resultados-ativa #resultsSection>div{padding-top:16px!important}
+body.tela-resultados-ativa #resultsSection .conf-card,
+body.tela-resultados-ativa #resultsSection .game-card{background:#fff!important;border:1px solid #E7DFF5!important;box-shadow:none!important;color:#241B2F!important}
+body.tela-resultados-ativa #resultsSection .conf-title{color:#4C1D95!important;text-shadow:none!important;background:none!important}
+body.tela-resultados-ativa #resultsSection .subtab-row{background:#EFE9FA!important;border:none!important;box-shadow:none!important}
+body.tela-resultados-ativa #resultsSection .subtab-btn{background:transparent!important;color:#8B80A3!important;text-shadow:none!important;box-shadow:none!important}
+body.tela-resultados-ativa #resultsSection .subtab-btn.active{background:#fff!important;color:#4C1D95!important;box-shadow:0 2px 6px rgba(76,29,149,.15)!important}
+body.tela-resultados-ativa #resultsSection #sorteio2Anim>div:nth-of-type(3){background:#F0EAFA!important;border:none!important;box-shadow:none!important}
+body.tela-resultados-ativa #resultsSection #sorteio2Bola{width:84px!important;height:84px!important}
+body.tela-resultados-ativa #resultsSection #sorteio2Bola::before,
+body.tela-resultados-ativa #resultsSection #sorteio2Bola::after{display:none!important;content:none!important}
+body.tela-resultados-ativa #resultsSection .conf-title::before,
+body.tela-resultados-ativa #resultsSection .conf-title::after{display:none!important}
+</style></head>
 <body>
 <div class="app">
 
