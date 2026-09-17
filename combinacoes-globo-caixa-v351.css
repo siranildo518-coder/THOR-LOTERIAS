@@ -310,3 +310,39 @@ html,body,.app{height:auto!important;min-height:100%!important;overflow-y:auto!i
 .app>section:first-of-type #btnFixarModo,.app>section:first-of-type #btnExcluirModo{white-space:normal!important}
 .app>section:first-of-type #statsGrid>*,.app>section:first-of-type #statsGrid *{color:#fff!important}
 @media(max-width:370px){.app>section:first-of-type #ballGrid{gap:5px 2px!important}.app>section:first-of-type #ballGrid .ball{width:25px!important;height:25px!important;min-width:25px!important;min-height:25px!important;font-size:9px!important;line-height:25px!important}#appHeader{height:96px!important;min-height:96px!important}}
+
+
+/* V3.66 — topo correto sem menu e botões mais baixos */
+#appHeader{
+  height:89px!important;
+  min-height:89px!important;
+  padding:0!important;
+  position:relative!important;
+  overflow:hidden!important;
+  background-color:#03121f!important;
+  background-image:url('./combinacoes-topo-v366.png')!important;
+  background-repeat:no-repeat!important;
+  background-size:115% 100%!important;
+  background-position:right center!important;
+  border-bottom:2px solid #20ed92!important;
+}
+#appHeader>div{display:none!important}
+#appHeader #btnMenu{display:none!important}
+.app>section:first-of-type #btnFixarModo,
+.app>section:first-of-type #btnExcluirModo,
+.app>section:first-of-type #btnGerar,
+.app>section:first-of-type #btnLimparSelecao{
+  min-height:36px!important;
+  height:36px!important;
+  padding:3px 5px!important;
+  font-size:10px!important;
+  line-height:1!important;
+  border-radius:10px!important;
+}
+@media(max-width:370px){
+  #appHeader{height:78px!important;min-height:78px!important}
+  .app>section:first-of-type #btnFixarModo,
+  .app>section:first-of-type #btnExcluirModo,
+  .app>section:first-of-type #btnGerar,
+  .app>section:first-of-type #btnLimparSelecao{height:34px!important;min-height:34px!important;font-size:9px!important}
+}
