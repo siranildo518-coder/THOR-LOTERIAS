@@ -479,3 +479,28 @@ body:has(#resultsSection[style*="display: block"]) #appHeader #btnMenu{display:n
   visibility:visible!important;
   opacity:1!important;
 }
+
+
+/* V3.73 — rolagem lisa na segunda tela e na lista de jogos */
+html,body{
+  scroll-behavior:smooth!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+#resultsSection{
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  scroll-behavior:smooth!important;
+  -webkit-overflow-scrolling:touch!important;
+  touch-action:pan-y!important;
+  overscroll-behavior-y:contain!important;
+}
+#resultsSection>div,
+#resultsSection #gamesList{
+  scroll-behavior:smooth!important;
+  -webkit-overflow-scrolling:touch!important;
+  touch-action:pan-y!important;
+}
+#resultsSection .game-card{
+  transform:translateZ(0);
+  backface-visibility:hidden;
+}
