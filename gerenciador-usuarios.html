@@ -19,6 +19,7 @@
     .config{margin-top:24px;border-top:1px solid #ece7f2;padding-top:16px}.config summary{cursor:pointer;color:var(--roxo);font-weight:800}
     .info{margin-top:16px;min-height:46px;padding:12px;border-radius:12px;background:#f5f1fb;color:#635a70;line-height:1.45}.info.ok{background:#e7f8ed;color:#126833}.info.erro{background:#fff0f0;color:#a61d27}
     .nota{font-size:12px;color:#81798b;margin-top:10px;line-height:1.4}.tag{display:inline-block;background:#eee8f8;color:#5b21b6;border-radius:999px;padding:4px 9px;font-weight:700;margin-top:8px}
+    .clientes{margin-top:22px;border-top:1px solid #ece7f2;padding-top:18px}.clientes-topo{display:flex;align-items:center;justify-content:space-between;gap:10px}.clientes h2{margin:0;color:var(--roxo);font-size:19px}.atualizar{height:38px;padding:0 13px;background:linear-gradient(#7950d7,#4d1c9c);box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:12px}.lista{display:grid;gap:9px;margin-top:13px}.cliente{border:1px solid #e5dfec;border-radius:13px;padding:11px;background:#fbfaff}.cliente-linha{display:flex;align-items:center;justify-content:space-between;gap:8px}.cliente strong{font-size:15px}.codigo{font:11px monospace;color:#81798b;margin-top:4px}.protegida{color:#6a6175;font-size:12px}.redefinir{height:34px;padding:0 10px;border-radius:9px;background:linear-gradient(#7c2be8,#5317ac);box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:11px}.vazio{color:#81798b;text-align:center;padding:14px}
     @media(max-width:380px){.linha{grid-template-columns:1fr}.card{padding:20px 16px}}
   </style>
 </head>
@@ -42,6 +43,15 @@
     </div>
 
     <div id="status" class="info">Preencha o usuário e a senha para cadastrar.</div>
+
+    <section class="clientes">
+      <div class="clientes-topo">
+        <h2>Clientes cadastrados</h2>
+        <button class="atualizar" id="carregarClientes" type="button">ATUALIZAR</button>
+      </div>
+      <p class="nota">As senhas ficam protegidas e não podem ser visualizadas. Use “Redefinir senha” quando o cliente esquecer.</p>
+      <div id="listaClientes" class="lista"><div class="vazio">Toque em ATUALIZAR para ver os clientes.</div></div>
+    </section>
 
     <details class="config">
       <summary>Configuração do GitHub</summary>
@@ -109,6 +119,63 @@
       return true;
     }
 
+    function extrairClientes(texto){
+      const inicio=texto.indexOf('const CREDENCIAIS_VALIDAS = [');
+      const fim=texto.indexOf('];',inicio);
+      if(inicio<0||fim<0) throw new Error('A lista de clientes não foi encontrada.');
+      const bloco=texto.slice(inicio,fim);
+      const clientes=[];
+      const re=/'([a-z0-9]+)'\s*,\s*\/\/\s*([^\n\r]+)/gi;
+      let m;
+      while((m=re.exec(bloco))){
+        const nome=m[2].replace(/\s*\(senha.*$/i,'').trim();
+        clientes.push({hash:m[1],nome:nome||'Cliente'});
+      }
+      return clientes;
+    }
+
+    async function carregarClientes(){
+      const area=$('listaClientes');area.innerHTML='<div class="vazio">Carregando clientes…</div>';
+      try{
+        const atual=await github('app-main.html?ref=main');
+        const clientes=extrairClientes(base64ParaUtf8(atual.content));
+        if(!clientes.length){area.innerHTML='<div class="vazio">Nenhum cliente encontrado.</div>';return}
+        area.innerHTML='';
+        clientes.forEach(cliente=>{
+          const item=document.createElement('div');item.className='cliente';
+          const linha=document.createElement('div');linha.className='cliente-linha';
+          const dados=document.createElement('div');
+          const nome=document.createElement('strong');nome.textContent=cliente.nome;
+          const senha=document.createElement('div');senha.className='protegida';senha.textContent='Senha: protegida ••••••';
+          const codigo=document.createElement('div');codigo.className='codigo';codigo.textContent='Código: '+cliente.hash;
+          const btn=document.createElement('button');btn.type='button';btn.className='redefinir';btn.textContent='REDEFINIR SENHA';
+          btn.onclick=()=>redefinirSenha(cliente);
+          dados.append(nome,senha,codigo);linha.append(dados,btn);item.append(linha);area.append(item);
+        });
+      }catch(e){area.innerHTML='<div class="vazio">'+String(e.message||e)+'</div>'}
+    }
+
+    async function redefinirSenha(cliente){
+      const nova=prompt('Digite a nova senha de '+cliente.nome+':');
+      if(nova===null) return;
+      if(nova.trim().length<4){mostrar('A nova senha precisa ter pelo menos 4 caracteres.','erro');return}
+      const novoHash=hashLogin(`${cliente.nome}|${nova.trim()}`);
+      mostrar('Redefinindo a senha de '+cliente.nome+'…');
+      try{
+        await atualizarArquivo('app-main.html',texto=>{
+          const re=new RegExp("'"+cliente.hash+"'\\s*,\\s*//[^\\n\\r]*");
+          if(!re.test(texto)) throw new Error('O cliente não foi encontrado para atualização.');
+          return texto.replace(re,`'${novoHash}', // ${cliente.nome}`);
+        },`Redefinir senha de ${cliente.nome}`);
+        await atualizarArquivo('index-core-thor7.html',texto=>texto.replace(/var VERSION='[^']+'/,`var VERSION='gerenciador-${Date.now()}'`),`Atualizar senha de ${cliente.nome}`);
+        mostrar('Senha de <b>'+cliente.nome+'</b> redefinida e publicada.','ok');
+        await carregarClientes();
+      }catch(e){mostrar(e.message||'Não foi possível redefinir a senha.','erro')}
+    }
+
+    $('carregarClientes').onclick=carregarClientes;
+    if($('token').value.trim()) carregarClientes();
+
     $('criar').onclick=async()=>{
       const usuario=$('usuario').value.trim();const senha=$('senha').value.trim();
       if(!usuario||!senha){mostrar('Preencha o usuário e a senha.','erro');return}
@@ -132,6 +199,7 @@
         },`Atualizar acesso do usuário ${usuario}`);
         mostrar(`Usuário <b>${usuario.replace(/[<>&]/g,'')}</b> criado e publicado com sucesso.<br><span class="tag">Código: ${hash}</span>`,'ok');
         $('usuario').value='';$('senha').value='';
+        await carregarClientes();
       }catch(e){mostrar(e.message||'Não foi possível criar o usuário.','erro')}
       finally{btn.disabled=false}
     };
