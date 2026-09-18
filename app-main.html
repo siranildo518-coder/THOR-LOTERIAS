@@ -3288,6 +3288,11 @@ document.addEventListener('selectstart', e=>{
   #thorComecoFinalBranco{display:none;position:fixed;inset:0;z-index:2147483000;background:#fff;overflow:hidden}
   #thorComecoFinalBranco.ativo{display:block}
   #thorComecoFinalBranco img{display:block;width:100%;height:auto;margin:0;border:0}
+  /* Começo e Final: não exibir a barra/botões de loterias nesta tela */
+  #thorComecoFinalBranco .home-tabs-wrap,
+  #thorComecoFinalBranco .home-tabs,
+  #thorComecoFinalBranco [id*="Tabs"],
+  #thorComecoFinalBranco [class*="loteria"]{display:none!important}
 </style>
 <div id="thorComecoFinalBranco" aria-label="Começo e Final">
   <img src="./thor-comeco-final-topo.jpg" alt="TOR LOTERIAS">
