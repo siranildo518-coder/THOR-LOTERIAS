@@ -449,12 +449,36 @@ async function vincularFabioromeuLogado(){
   }
 }
 
+// Presença online: grava somente atividade/horário; não altera a trava do aparelho.
+let _thorPresencaTimer = null;
+async function atualizarPresencaOnline(){
+  try{
+    if(!loginJaValidado() || document.visibilityState === 'hidden') return;
+    const hash = localStorage.getItem('tl_hash_atual');
+    if(!hash) return;
+    await carregarFirebase();
+    await dbFirestore.collection('presenca_online').doc(hash).set({
+      online: true,
+      ultimaAtividade: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
+  }catch(e){ console.error('Falha ao atualizar presença:', e); }
+}
+function iniciarPresencaOnline(){
+  setTimeout(atualizarPresencaOnline, 1800);
+  clearInterval(_thorPresencaTimer);
+  _thorPresencaTimer = setInterval(atualizarPresencaOnline, 30000);
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible') atualizarPresencaOnline();
+});
+
 document.addEventListener('DOMContentLoaded', ()=>{
   document.documentElement.style.visibility = 'visible';
   if(!loginJaValidado()){
     montarTelaLogin();
   }else{
     vincularFabioromeuLogado();
+    iniciarPresencaOnline();
   }
 });
 
