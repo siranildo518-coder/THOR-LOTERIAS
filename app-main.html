@@ -83,8 +83,12 @@ async function verificarTravaAparelho(hash){
   const contexto = obterContextoAcesso();
   const clientId = obterClientId();
 
-  // Acesso permitido somente pelo aplicativo instalado.
-  // O navegador é sempre recusado, mesmo no mesmo celular.
+  // Liberação temporária e exclusiva: Gisele pode entrar pelo navegador.
+  // Todas as demais contas continuam obrigatoriamente no aplicativo instalado.
+  const GISELE_NAVEGADOR_TEMP = '1bfwxkb';
+  if(contexto === 'navegador' && hash === GISELE_NAVEGADOR_TEMP){
+    return {ok:true};
+  }
   if(contexto !== 'app'){
     return {ok:false, motivo:'outro_aparelho'};
   }
