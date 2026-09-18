@@ -7053,9 +7053,9 @@ function renderUltimoResultadoGerador(g, data){
   box.innerHTML = `
     <div class="res-card-title" style="margin-bottom:6px;font-size:12.5px;">Resultado — ${g.nome}</div>
     <div class="res-nav-row" style="margin-bottom:6px;">
-      <button class="res-nav-btn" id="geradorResAnterior" style="padding:6px 9px;font-size:10.5px;">← Anterior</button>
+      <button class="res-nav-btn" id="geradorResAnterior" aria-label="Concurso anterior" style="width:46px;height:46px;padding:0;border-radius:50%;font-size:19px;font-weight:900;background:linear-gradient(180deg,#2f9bea 0%,#0869b4 70%,#064d87 100%);color:#fff;border:2px solid #e4b44a;box-shadow:0 5px 0 #6b5320,0 7px 12px rgba(0,0,0,.30);display:flex;align-items:center;justify-content:center;">◀◀</button>
       <div class="res-concurso-num" style="font-size:16px;">Nº ${data.concurso}</div>
-      <button class="res-nav-btn" id="geradorResProximo" style="padding:6px 9px;font-size:10.5px;" ${podeAvancar ? '' : 'disabled'}>Próximo →</button>
+      <button class="res-nav-btn" id="geradorResProximo" aria-label="Próximo concurso" style="width:46px;height:46px;padding:0;border-radius:50%;font-size:19px;font-weight:900;background:linear-gradient(180deg,#2f9bea 0%,#0869b4 70%,#064d87 100%);color:#fff;border:2px solid #e4b44a;box-shadow:0 5px 0 #6b5320,0 7px 12px rgba(0,0,0,.30);display:flex;align-items:center;justify-content:center;" ${podeAvancar ? '' : 'disabled'}>▶▶</button>
     </div>
     ${ballsHtml}
     <div class="res-local" style="font-size:10.5px;text-align:center;">${data.local ? `Sorteio em ${data.local} • ` : ''}${data.data || '—'}</div>`;
