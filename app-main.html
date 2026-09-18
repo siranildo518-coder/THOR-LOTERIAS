@@ -181,22 +181,25 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 const APP_VERSAO_ATUAL = 'thor7-v3-84'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
-const GITHUB_ARQUIVO = 'index.html';
-const GITHUB_SHA_VISTO_KEY = 'tl_github_sha_visto_v1';
+const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
+const GITHUB_SHA_VISTO_KEY = 'tl_github_sha_visto_v2';
 let GITHUB_SHA_ATUAL = null;
 
 async function obterShaAtualGithub(){
   try{
-    const url = `https://api.github.com/repos/${GITHUB_REPO}/commits?path=${encodeURIComponent(GITHUB_ARQUIVO)}&per_page=1&_=${Date.now()}`;
-    const r = await fetch(url, {
-      cache:'no-store',
-      headers:{ 'Accept':'application/vnd.github+json' }
+    const consultas = GITHUB_ARQUIVOS.map(async arquivo=>{
+      const url = `https://api.github.com/repos/${GITHUB_REPO}/commits?path=${encodeURIComponent(arquivo)}&per_page=1&_=${Date.now()}`;
+      const r = await fetch(url, {
+        cache:'no-store',
+        headers:{ 'Accept':'application/vnd.github+json' }
+      });
+      if(!r.ok) throw new Error('GitHub '+r.status);
+      const dados = await r.json();
+      return (Array.isArray(dados) && dados[0] && dados[0].sha) ? dados[0].sha : '';
     });
-    if(!r.ok) throw new Error('GitHub '+r.status);
-    const dados = await r.json();
-    if(Array.isArray(dados) && dados[0] && dados[0].sha){
-      return dados[0].sha;
-    }
+    const shas = await Promise.all(consultas);
+    const assinatura = shas.filter(Boolean).join('|');
+    return assinatura || null;
   }catch(e){}
   return null;
 }
