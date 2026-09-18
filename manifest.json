@@ -1,12 +1,12 @@
 {
-  "name": "THOR LOTERIAS",
-  "short_name": "THOR",
-  "description": "THOR LOTERIAS",
-  "start_url": "./index.html?v=2",
+  "name": "THOR MATRIZ",
+  "short_name": "THOR MATRIZ",
+  "description": "THOR LOTERIAS - ambiente matriz de testes",
+  "start_url": "./index.html?matriz=1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#07101f",
-  "theme_color": "#5521a5",
+  "theme_color": "#07101f",
   "orientation": "portrait",
   "icons": [
     {
