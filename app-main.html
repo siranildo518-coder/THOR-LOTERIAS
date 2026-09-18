@@ -83,13 +83,18 @@ async function verificarTravaAparelho(hash){
   const contexto = obterContextoAcesso();
   const clientId = obterClientId();
 
-  // Liberação temporária e exclusiva: Gisele pode entrar pelo navegador.
-  // Todas as demais contas continuam obrigatoriamente no aplicativo instalado.
-  const GISELE_NAVEGADOR_TEMP = 'oybgb0';
-  if(contexto === 'navegador' && hash === GISELE_NAVEGADOR_TEMP){
-    return {ok:true};
-  }
-  if(contexto !== 'app'){
+  // Exceções de navegador administradas pelo Gerenciador de Usuários.
+  // Gisele permanece liberada; outros clientes podem ser liberados/bloqueados pelo gerenciador.
+  const GISELE_NAVEGADOR = 'oybgb0';
+  if(contexto === 'navegador'){
+    if(hash === GISELE_NAVEGADOR) return {ok:true};
+    try{
+      await carregarFirebase();
+      const permissao = await dbFirestore.collection('acesso_navegador').doc(hash).get();
+      if(permissao.exists && (permissao.data()||{}).liberado === true) return {ok:true};
+    }catch(e){
+      console.error('Falha ao consultar acesso pelo navegador:', e);
+    }
     return {ok:false, motivo:'outro_aparelho'};
   }
 
