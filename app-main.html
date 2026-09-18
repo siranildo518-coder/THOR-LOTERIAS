@@ -82,7 +82,8 @@ async function verificarTravaAparelho(hash){
   // Exceção temporária solicitada: Gil pode entrar sem vínculo de aparelho.
   // A trava continua ativa normalmente para todos os outros usuários.
   const GIL_SEM_TRAVA = 'gpi1n5';
-  if(hash === GIL_SEM_TRAVA) return {ok:true};
+  const MARLON_SEM_TRAVA = '19i2sp';
+  if(hash === GIL_SEM_TRAVA || hash === MARLON_SEM_TRAVA) return {ok:true};
 
   const deviceId = obterDeviceId();
   const contexto = obterContextoAcesso();
