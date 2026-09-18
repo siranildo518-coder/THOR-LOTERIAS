@@ -1,2 +1,2 @@
-// THOR 7 V116 - abertura direta na tela inicial confirmada; login, senha e trava preservados sem alteracao.
-importScripts('./sw-core-thor7.js?v=thor7-v116');
+// THOR 7 V117 TESTE - atualizacao em segundo plano sem recarregar a tela atual; login, senha e trava preservados sem alteracao.
+importScripts('./sw-core-thor7.js?v=thor7-v117-teste');
