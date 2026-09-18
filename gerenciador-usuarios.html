@@ -19,7 +19,7 @@
     .config{margin-top:24px;border-top:1px solid #ece7f2;padding-top:16px}.config summary{cursor:pointer;color:var(--roxo);font-weight:800}
     .info{margin-top:16px;min-height:46px;padding:12px;border-radius:12px;background:#f5f1fb;color:#635a70;line-height:1.45}.info.ok{background:#e7f8ed;color:#126833}.info.erro{background:#fff0f0;color:#a61d27}
     .nota{font-size:12px;color:#81798b;margin-top:10px;line-height:1.4}.tag{display:inline-block;background:#eee8f8;color:#5b21b6;border-radius:999px;padding:4px 9px;font-weight:700;margin-top:8px}
-    .clientes{margin-top:22px;border-top:1px solid #ece7f2;padding-top:18px}.clientes-topo{display:flex;align-items:center;justify-content:space-between;gap:10px}.clientes h2{margin:0;color:var(--roxo);font-size:19px}.atualizar{height:38px;padding:0 13px;background:linear-gradient(#7950d7,#4d1c9c);box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:12px}.lista{display:grid;gap:9px;margin-top:13px}.cliente{border:1px solid #e5dfec;border-radius:13px;padding:11px;background:#fbfaff}.cliente-linha{display:flex;align-items:center;justify-content:space-between;gap:8px}.cliente strong{font-size:15px}.codigo{font:11px monospace;color:#81798b;margin-top:4px}.protegida{color:#6a6175;font-size:12px}.acoes{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.redefinir,.ver,.remover{height:32px;padding:0 8px;border-radius:8px;box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:10px}.redefinir{background:linear-gradient(#7c2be8,#5317ac)}.ver{background:linear-gradient(#2686dc,#14549a)}.remover{background:linear-gradient(#ee5353,#aa2028)}.vazio{color:#81798b;text-align:center;padding:14px}
+    .clientes{margin-top:22px;border-top:1px solid #ece7f2;padding-top:18px}.clientes-topo{display:flex;align-items:center;justify-content:space-between;gap:10px}.clientes h2{margin:0;color:var(--roxo);font-size:19px}.atualizar{height:38px;padding:0 13px;background:linear-gradient(#7950d7,#4d1c9c);box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:12px}.lista{display:grid;gap:9px;margin-top:13px}.cliente{border:1px solid #e5dfec;border-radius:13px;padding:11px;background:#fbfaff}.cliente-linha{display:flex;align-items:center;justify-content:space-between;gap:8px}.cliente strong{font-size:15px}.codigo{font:11px monospace;color:#81798b;margin-top:4px}.protegida{color:#6a6175;font-size:12px}.acoes{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.redefinir,.ver,.remover,.liberar{height:32px;padding:0 8px;border-radius:8px;box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:10px}.redefinir{background:linear-gradient(#7c2be8,#5317ac)}.ver{background:linear-gradient(#2686dc,#14549a)}.remover{background:linear-gradient(#ee5353,#aa2028)}.liberar{background:linear-gradient(#f3a51f,#c66a00)}.vazio{color:#81798b;text-align:center;padding:14px}
     @media(max-width:380px){.linha{grid-template-columns:1fr}.card{padding:20px 16px}}
   </style>
 </head>
@@ -66,7 +66,12 @@
     </details>
   </main>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script>
+    const firebaseConfig={apiKey:"AIzaSyB3C4umom-ke5d339tcDgRD3A9Oqg4OydE",authDomain:"thor-loterias.firebaseapp.com",projectId:"thor-loterias",storageBucket:"thor-loterias.firebasestorage.app",messagingSenderId:"234375514263",appId:"1:234375514263:web:2259ad7a822c259cfa41d2",measurementId:"G-K1M35B2VH4"};
+    if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const dbTrava=firebase.firestore();
     const $=id=>document.getElementById(id);
     const TOKEN_KEY='thor_gerenciador_github_token_v2';
     const REPO_KEY='thor_gerenciador_repo_v2';
@@ -171,9 +176,21 @@
           ver.onclick=()=>{if(cliente.senha){senha.textContent='Senha: '+cliente.senha;setTimeout(()=>senha.textContent='Senha: ••••••',10000)}else alert('A senha antiga não pode ser recuperada. Use Redefinir.')};
           const redefinir=document.createElement('button');redefinir.type='button';redefinir.className='redefinir';redefinir.textContent='REDEFINIR';redefinir.onclick=()=>redefinirSenha(cliente);
           const remover=document.createElement('button');remover.type='button';remover.className='remover';remover.textContent='REMOVER';remover.onclick=()=>removerCliente(cliente);
-          acoes.append(ver,redefinir,remover);dados.append(nome,senha,codigo);linha.append(dados,acoes);item.append(linha);area.append(item);
+          const liberar=document.createElement('button');liberar.type='button';liberar.className='liberar';liberar.textContent='LIBERAR APARELHO';liberar.onclick=()=>liberarAparelho(cliente);
+          acoes.append(ver,redefinir,liberar,remover);dados.append(nome,senha,codigo);linha.append(dados,acoes);item.append(linha);area.append(item);
         });
       }catch(e){area.innerHTML='<div class="vazio">'+String(e.message||e)+'</div>'}
+    }
+
+    async function liberarAparelho(cliente){
+      if(!confirm('Liberar o aparelho da conta '+cliente.nome+'? O próximo login no aplicativo instalado ficará vinculado ao novo aparelho.')) return;
+      mostrar('Liberando aparelho de '+cliente.nome+'…');
+      try{
+        await dbTrava.collection('contas_ativadas').doc(cliente.hash).delete();
+        mostrar('Aparelho de <b>'+cliente.nome+'</b> liberado. Agora faça o próximo login no aplicativo instalado.','ok');
+      }catch(e){
+        mostrar('Não foi possível liberar o aparelho: '+String(e.message||e),'erro');
+      }
     }
 
     async function redefinirSenha(cliente){
