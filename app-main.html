@@ -7045,10 +7045,8 @@ function renderUltimoResultadoGerador(g, data){
     ? `<div class="result-balls" style="justify-content:center;flex-wrap:wrap;gap:5px;margin-bottom:6px;">${nums.map(n=>`<div class="result-ball-sm">${n.toString().padStart(2,'0')}</div>`).join('')}</div>`
     : '';
   const maisRecente = concursoMaisRecentePorJogo[g.slug];
-  // O botão Próximo deve tentar o concurso seguinte sempre que o usuário
-  // estiver navegando por um resultado antigo. A própria API valida se ele existe.
-  // Isso evita o botão ficar travado quando o cache de "mais recente" está desatualizado.
-  const podeAvancar = !maisRecente || data.concurso < maisRecente;
+  // Mantém Próximo clicável: ao tocar, consulta diretamente o concurso seguinte.
+  const podeAvancar = true;
   box.innerHTML = `
     <div class="res-card-title" style="margin-bottom:6px;font-size:12.5px;">Resultado — ${g.nome}</div>
     <div class="res-nav-row" style="margin-bottom:6px;">
@@ -7074,7 +7072,12 @@ function renderUltimoResultadoGerador(g, data){
   // Pré-carrega os concursos vizinhos enquanto o usuário olha a tela.
   // Assim os botões Anterior/Próximo normalmente não precisam esperar a rede.
   fetchConcursoLoteria(g, data.concurso-1).catch(()=>{});
-  if(podeAvancar) fetchConcursoLoteria(g, data.concurso+1).catch(()=>{});
+  fetchConcursoLoteria(g, data.concurso+1).then(prox=>{
+    if(prox && prox.concurso){
+      const n=Number(prox.concurso);
+      if(!concursoMaisRecentePorJogo[g.slug] || n>concursoMaisRecentePorJogo[g.slug]) concursoMaisRecentePorJogo[g.slug]=n;
+    }
+  }).catch(()=>{});
 
   // guarda o resultado oficial mostrado agora e, se já existem 50 jogos gerados pra essa
   // mesma loteria, re-confere eles na hora contra esse resultado (inclusive ao navegar
