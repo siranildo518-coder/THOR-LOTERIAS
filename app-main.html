@@ -7064,10 +7064,7 @@ function renderUltimoResultadoGerador(g, data){
   };
   document.getElementById('geradorResAnterior').addEventListener('click', ()=> abrirConcursoRapido(data.concurso-1));
   const btnProx = document.getElementById('geradorResProximo');
-  if(btnProx) btnProx.addEventListener('click', ()=>{
-    btnProx.disabled = true;
-    carregarUltimoResultadoGerador(g, data.concurso+1);
-  });
+  if(btnProx) btnProx.addEventListener('click', ()=> abrirConcursoRapido(Number(data.concurso)+1));
 
   // Pré-carrega os concursos vizinhos enquanto o usuário olha a tela.
   // Assim os botões Anterior/Próximo normalmente não precisam esperar a rede.
