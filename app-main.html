@@ -79,11 +79,6 @@ function obterClientId(){
 // A primeira vez que uma conta loga em algum aparelho, ela fica "casada" com ele.
 // Retorna {ok:true} se pode entrar, ou {ok:false, motivo:'outro_aparelho'|'sem_internet'}.
 async function verificarTravaAparelho(hash){
-  // Exceção solicitada: Fabioromeu pode entrar sem vínculo de aparelho.
-  // A trava continua ativa normalmente para todos os outros usuários.
-  const FABIOROMEU_SEM_TRAVA = '10n4xkg';
-  if(hash === FABIOROMEU_SEM_TRAVA) return {ok:true};
-
   const deviceId = obterDeviceId();
   const contexto = obterContextoAcesso();
   const clientId = obterClientId();
@@ -425,10 +420,32 @@ function montarTelaLogin(){
   });
 }
 
+// Se Fabioromeu já entrou durante a liberação temporária, vincula silenciosamente
+// o aparelho atual sem apagar a sessão nem pedir usuário/senha novamente.
+async function vincularFabioromeuLogado(){
+  try{
+    if(!loginJaValidado()) return;
+    const hash = localStorage.getItem('tl_hash_atual');
+    if(hash !== '10n4xkg') return;
+    await carregarFirebase();
+    await dbFirestore.collection('contas_ativadas').doc(hash).set({
+      deviceId: obterDeviceId(),
+      clientId: obterClientId(),
+      ativo: true,
+      bloqueado: false,
+      ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
+  }catch(e){
+    console.error('Falha ao vincular aparelho do Fabioromeu:', e);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', ()=>{
   document.documentElement.style.visibility = 'visible';
   if(!loginJaValidado()){
     montarTelaLogin();
+  }else{
+    vincularFabioromeuLogado();
   }
 });
 
