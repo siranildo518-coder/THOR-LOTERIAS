@@ -79,7 +79,9 @@ function obterClientId(){
 // A primeira vez que uma conta loga em algum aparelho, ela fica "casada" com ele.
 // Retorna {ok:true} se pode entrar, ou {ok:false, motivo:'outro_aparelho'|'sem_internet'}.
 async function verificarTravaAparelho(hash){
-  // Todos os clientes, inclusive Fabioromeu e Gil, usam a trava normal de aparelho.
+  // Fabioromeu liberado da trava de aparelho.
+  const FABIOROMEU_SEM_TRAVA = '10n4xkg';
+  if(hash === FABIOROMEU_SEM_TRAVA) return {ok:true};
 
   const deviceId = obterDeviceId();
   const contexto = obterContextoAcesso();
