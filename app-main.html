@@ -79,10 +79,7 @@ function obterClientId(){
 // A primeira vez que uma conta loga em algum aparelho, ela fica "casada" com ele.
 // Retorna {ok:true} se pode entrar, ou {ok:false, motivo:'outro_aparelho'|'sem_internet'}.
 async function verificarTravaAparelho(hash){
-  // Exceção temporária mantida somente para Fabioromeu.
-  // Gil voltou a usar a trava normal de aparelho.
-  const FABIOROMEU_SEM_TRAVA = '10n4xkg';
-  if(hash === FABIOROMEU_SEM_TRAVA) return {ok:true};
+  // Todos os clientes, inclusive Fabioromeu e Gil, usam a trava normal de aparelho.
 
   const deviceId = obterDeviceId();
   const contexto = obterContextoAcesso();
@@ -204,7 +201,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v3-85'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v3-86'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
