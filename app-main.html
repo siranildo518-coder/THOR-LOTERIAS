@@ -81,7 +81,8 @@ function obterClientId(){
 async function verificarTravaAparelho(hash){
   // Fabioromeu liberado da trava de aparelho.
   const FABIOROMEU_SEM_TRAVA = '10n4xkg';
-  if(hash === FABIOROMEU_SEM_TRAVA) return {ok:true};
+  const GIL_SEM_TRAVA = 'gpi1n5';
+  if(hash === FABIOROMEU_SEM_TRAVA || hash === GIL_SEM_TRAVA) return {ok:true};
 
   const deviceId = obterDeviceId();
   const contexto = obterContextoAcesso();
