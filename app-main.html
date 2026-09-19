@@ -11746,15 +11746,18 @@ document.getElementById('floatingSave').addEventListener('click', function(e){
 });
 
 document.getElementById('floatingShare').addEventListener('click', async function(){
-  const text = formatAllGamesText(lastGames);
+  // Compartilha somente as dezenas: uma linha por jogo, sem título e sem "Jogo 1".
+  const text = (lastGames || []).map(game =>
+    game.slice().sort((a,b)=>a-b).map(n=>String(n).padStart(2,'0')).join(' ')
+  ).join('\n');
+  if(!text) return;
   if(navigator.share){
     try{
-      await navigator.share({ title:'Jogos Lotofácil', text });
+      await navigator.share({ text });
     }catch(err){
       // usuário cancelou o compartilhamento — nada a fazer
     }
   } else {
-    // navegador sem suporte a compartilhamento nativo: copia como alternativa
     navigator.clipboard?.writeText(text);
     const original = this.innerHTML;
     this.innerHTML = '✅';
