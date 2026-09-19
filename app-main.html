@@ -201,7 +201,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v3-86'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v3-87'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3417,6 +3417,7 @@ document.addEventListener('selectstart', e=>{
 <button class="home-feature-card" style="--fc:#e98a00" data-home-target="btnSimularAtalho"><span class="hfc-icon">▤</span><span><strong>Calculadora</strong><small>Probabilidades e estimativas</small></span></button>
 <button class="home-feature-card" style="--fc:#d41948" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">◎</span><span><strong>Palpites</strong><small>Sugestões inteligentes</small></span></button>
 <button class="home-feature-card" style="--fc:#08b7cf" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">♛</span><span><strong>Resultados</strong><small>Consulte os últimos concursos</small></span></button>
+<button class="home-feature-card" id="btnFalhasConcursosHome" style="--fc:#c23b67"><span class="hfc-icon">↯</span><span><strong>Falhas e concursos</strong><small>Estudos de falhas por concurso</small></span></button>
 </div>
   <div class="home-premium-card" id="homePremiumCardTendencia" style="cursor:pointer;">
     <span class="home-premium-tag">TENDÊNCIA</span>
@@ -3468,6 +3469,19 @@ document.addEventListener('selectstart', e=>{
       <button class="btn-confirm btn-3d" id="altaQuedaAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
     </div>
     <div id="altaQuedaConteudo"></div>
+  </div>
+</div>
+
+<div class="overlay-full" id="overlayFalhasConcursos" style="z-index:76;background:#f6f2fb;">
+  <header class="top" style="border-radius:0;display:flex;align-items:center;gap:12px;">
+    <button id="falhasConcursosVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
+    <h1 style="font-size:19px;">Falhas e concursos</h1>
+  </header>
+  <div style="padding:18px 16px 40px;">
+    <div class="card" style="text-align:center;padding:22px 14px;">
+      <strong style="display:block;font-size:18px;color:#4C1D95;">Falhas e concursos</strong>
+      <span style="display:block;margin-top:7px;font-size:12px;color:#8B80A3;">Nova área de estudos</span>
+    </div>
   </div>
 </div>
 
@@ -9745,6 +9759,17 @@ async function carregarHomeHero(g){
   document.getElementById('homeVerStats').addEventListener('click', ()=>openResultadoOverlay(g));
 }
 carregarHomeHero(homeGameAtual);
+
+// ---------- Falhas e concursos ----------
+const btnFalhasConcursosHome = document.getElementById('btnFalhasConcursosHome');
+const overlayFalhasConcursos = document.getElementById('overlayFalhasConcursos');
+const falhasConcursosVoltar = document.getElementById('falhasConcursosVoltar');
+if(btnFalhasConcursosHome && overlayFalhasConcursos){
+  btnFalhasConcursosHome.addEventListener('click', ()=> overlayFalhasConcursos.classList.add('show'));
+}
+if(falhasConcursosVoltar && overlayFalhasConcursos){
+  falhasConcursosVoltar.addEventListener('click', ()=> overlayFalhasConcursos.classList.remove('show'));
+}
 
 // ---------- atualização automática quando sai um novo resultado da CAIXA ----------
 async function silentFetchLatest(game){
