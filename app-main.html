@@ -201,7 +201,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v3-87'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v3-88'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3472,17 +3472,12 @@ document.addEventListener('selectstart', e=>{
   </div>
 </div>
 
-<div class="overlay-full" id="overlayFalhasConcursos" style="z-index:76;background:#f6f2fb;">
+<div class="overlay-full" id="overlayFalhasConcursos" style="z-index:76;background:#eef2f6;">
   <header class="top" style="border-radius:0;display:flex;align-items:center;gap:12px;">
     <button id="falhasConcursosVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
     <h1 style="font-size:19px;">Falhas e concursos</h1>
   </header>
-  <div style="padding:18px 16px 40px;">
-    <div class="card" style="text-align:center;padding:22px 14px;">
-      <strong style="display:block;font-size:18px;color:#4C1D95;">Falhas e concursos</strong>
-      <span style="display:block;margin-top:7px;font-size:12px;color:#8B80A3;">Nova área de estudos</span>
-    </div>
-  </div>
+  <iframe id="falhasConcursosFrame" src="falhas-concursos.html" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
 </div>
 
 <nav class="home-bottom-nav" id="bottomNav">
