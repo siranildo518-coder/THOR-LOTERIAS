@@ -123,6 +123,21 @@ async function verificarTravaAparelho(hash){
       return {ok:false, motivo:'conta_bloqueada'};
     }
 
+    // Quando o gerenciador libera a troca de aparelho, o PRIMEIRO login no app
+    // assume o aparelho atual e consome a liberação imediatamente.
+    // Assim a conta não fica aberta: depois deste login, outro aparelho volta a ser bloqueado.
+    if(contexto === 'app' && dados.redefinirAparelho === true){
+      await ref.set({
+        deviceId,
+        clientId,
+        redefinirAparelho: false,
+        ativo: true,
+        bloqueado: false,
+        ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      }, {merge:true});
+      return {ok:true};
+    }
+
     // Conta nova já cadastrada, mas ainda sem aparelho: vincula ao primeiro app.
     if(!dados.clientId && !dados.deviceId){
       await ref.set({
@@ -189,7 +204,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v3-84'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v3-85'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
