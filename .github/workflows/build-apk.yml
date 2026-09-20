@@ -120,12 +120,16 @@ jobs:
                   WebSettings s = webView.getSettings();
                   s.setJavaScriptEnabled(true);
                   s.setDomStorageEnabled(true);
+                  s.setCacheMode(WebSettings.LOAD_DEFAULT);
+                  android.webkit.CookieManager.getInstance().setAcceptCookie(true);
+                  android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
                   s.setDatabaseEnabled(true);
                   s.setAllowFileAccess(true);
                   s.setLoadWithOverviewMode(true);
                   s.setUseWideViewPort(true);
                   webView.setWebViewClient(new WebViewClient());
-                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/");
+                  // Mantem sempre a mesma origem do site para preservar localStorage/login.
+                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/THOR-LOTERIAS.html");
               }
               @Override public void onBackPressed() {
                   if (webView != null && webView.canGoBack()) webView.goBack();
