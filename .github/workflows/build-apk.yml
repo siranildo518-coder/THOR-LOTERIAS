@@ -155,10 +155,65 @@ jobs:
                   if (webView != null && webView.canGoBack()) {
                       webView.goBack();
                   } else {
-                      new android.app.AlertDialog.Builder(this)
-                          .setMessage("Você deseja realmente sair?")
-                          .setPositiveButton("OK", (dialog, which) -> finish())
-                          .show();
+                      final android.app.Dialog dialog = new android.app.Dialog(this);
+                      android.widget.LinearLayout caixa = new android.widget.LinearLayout(this);
+                      caixa.setOrientation(android.widget.LinearLayout.VERTICAL);
+                      caixa.setGravity(android.view.Gravity.CENTER);
+                      int p = (int)(24 * getResources().getDisplayMetrics().density);
+                      caixa.setPadding(p, p, p, p);
+
+                      android.graphics.drawable.GradientDrawable fundo = new android.graphics.drawable.GradientDrawable(
+                          android.graphics.drawable.GradientDrawable.Orientation.TL_BR,
+                          new int[]{0xFF172554, 0xFF5B21B6, 0xFF7C3AED});
+                      fundo.setCornerRadius(28 * getResources().getDisplayMetrics().density);
+                      fundo.setStroke((int)(1 * getResources().getDisplayMetrics().density), 0xFFBDA7FF);
+                      caixa.setBackground(fundo);
+
+                      android.widget.TextView titulo = new android.widget.TextView(this);
+                      titulo.setText("THOR LOTERIAS");
+                      titulo.setTextColor(0xFFFFFFFF);
+                      titulo.setTextSize(21);
+                      titulo.setTypeface(null, android.graphics.Typeface.BOLD);
+                      titulo.setGravity(android.view.Gravity.CENTER);
+                      caixa.addView(titulo);
+
+                      android.widget.TextView mensagem = new android.widget.TextView(this);
+                      mensagem.setText("Você deseja realmente sair?");
+                      mensagem.setTextColor(0xFFF2ECFF);
+                      mensagem.setTextSize(16);
+                      mensagem.setGravity(android.view.Gravity.CENTER);
+                      mensagem.setPadding(0, p, 0, p);
+                      caixa.addView(mensagem);
+
+                      android.widget.Button ok = new android.widget.Button(this);
+                      ok.setText("OK");
+                      ok.setTextColor(0xFFFFFFFF);
+                      ok.setTextSize(15);
+                      ok.setTypeface(null, android.graphics.Typeface.BOLD);
+                      android.graphics.drawable.GradientDrawable botao = new android.graphics.drawable.GradientDrawable(
+                          android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+                          new int[]{0xFF22C55E, 0xFF15803D});
+                      botao.setCornerRadius(14 * getResources().getDisplayMetrics().density);
+                      ok.setBackground(botao);
+                      android.widget.LinearLayout.LayoutParams bp = new android.widget.LinearLayout.LayoutParams(
+                          (int)(150 * getResources().getDisplayMetrics().density),
+                          (int)(48 * getResources().getDisplayMetrics().density));
+                      ok.setLayoutParams(bp);
+                      ok.setOnClickListener(v -> { dialog.dismiss(); finish(); });
+                      caixa.addView(ok);
+
+                      dialog.setContentView(caixa);
+                      android.view.Window w = dialog.getWindow();
+                      if (w != null) {
+                          w.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+                          w.setDimAmount(0.65f);
+                          w.addFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                          w.setLayout((int)(320 * getResources().getDisplayMetrics().density), android.view.WindowManager.LayoutParams.WRAP_CONTENT);
+                      }
+                      dialog.show();
+                      if (dialog.getWindow() != null) {
+                          dialog.getWindow().setLayout((int)(320 * getResources().getDisplayMetrics().density), android.view.WindowManager.LayoutParams.WRAP_CONTENT);
+                      }
                   }
               }
           }
