@@ -139,7 +139,9 @@ jobs:
                       }
                   });
                   // Mantem sempre a mesma origem do site para preservar localStorage/login.
-                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html");
+                  webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+                  webView.clearCache(true);
+                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?v=thor7-v126");
               }
               @Override protected void onPause() {
                   android.webkit.CookieManager.getInstance().flush();
