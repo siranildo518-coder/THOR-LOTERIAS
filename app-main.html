@@ -331,6 +331,36 @@ function sairDoLogin(){
   location.reload();
 }
 
+// Verifica periodicamente se o usuário ainda existe no gerenciador.
+// Se ele for excluído, a sessão aberta é encerrada automaticamente.
+let _thorSessaoTimer = null;
+async function verificarSessaoRemota(){
+  let hash = '';
+  try{ hash = localStorage.getItem('tl_hash_atual') || ''; }catch(e){}
+  if(!hash || !loginJaValidado()) return;
+  try{
+    await carregarFirebase();
+    const cadastro = await dbFirestore.collection('usuarios_login').doc(hash).get();
+    if(!cadastro.exists){
+      sairDoLogin();
+      return;
+    }
+    const dados = cadastro.data() || {};
+    if(dados.ativo === false || dados.bloqueado === true) sairDoLogin();
+  }catch(e){
+    // Sem internet: mantém a sessão atual e tenta novamente depois.
+  }
+}
+function iniciarVerificacaoSessao(){
+  clearInterval(_thorSessaoTimer);
+  setTimeout(verificarSessaoRemota, 1200);
+  _thorSessaoTimer = setInterval(verificarSessaoRemota, 15000);
+}
+window.addEventListener('load', iniciarVerificacaoSessao);
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible') verificarSessaoRemota();
+});
+
 if(!loginJaValidado()){
   document.documentElement.style.visibility = 'hidden';
 }
