@@ -7234,6 +7234,19 @@ function gfcMostrarTab(tab){
     Object.assign(btnJogos.style, inativa);
   }
 }
+// Blindagem das abas internas do Fechamento personalizado: impede que o toque
+// atravesse o overlay e acione a barra inferior (principalmente o botão Jogos).
+['geradorFiltroTabs','geradorFiltroTabConfig','geradorFiltroTabJogos'].forEach(function(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  ['pointerdown','touchstart','mousedown'].forEach(function(tipo){
+    el.addEventListener(tipo,function(e){
+      if(document.getElementById('overlayGeradorFiltro')?.classList.contains('show')){
+        e.stopPropagation();
+      }
+    },true);
+  });
+});
 document.getElementById('geradorFiltroTabConfig').addEventListener('click', (e)=>{
   e.preventDefault();
   e.stopPropagation();
