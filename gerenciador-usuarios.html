@@ -223,12 +223,6 @@
       const novoHash=hashLogin(`${cliente.nome}|${nova.trim()}`);
       mostrar('Redefinindo a senha de '+cliente.nome+'…');
       try{
-        await dbTrava.collection('usuarios_login').doc(novoHash).set({
-          usuario: cliente.nome, ativo: true, bloqueado: false,
-          criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-        }, {merge:true});
-        await dbTrava.collection('usuarios_login').doc(cliente.hash).delete().catch(()=>{});
-        await dbTrava.collection('contas_ativadas').doc(cliente.hash).delete().catch(()=>{});
         await atualizarArquivo('app-main.html',texto=>{
           const re=new RegExp("'"+cliente.hash+"'\\s*,\\s*//[^\\n\\r]*");
           if(!re.test(texto)) throw new Error('O cliente não foi encontrado para atualização.');
@@ -245,14 +239,11 @@
       if(!confirm('Remover o usuário '+cliente.nome+'? Ele não conseguirá mais entrar no aplicativo.')) return;
       mostrar('Removendo '+cliente.nome+'…');
       try{
-        await dbTrava.collection('usuarios_login').doc(cliente.hash).delete().catch(()=>{});
-        await dbTrava.collection('contas_ativadas').doc(cliente.hash).delete().catch(()=>{});
         await atualizarArquivo('app-main.html',texto=>{
           const re=new RegExp("\\s*'"+cliente.hash+"'\\s*,\\s*//[^\\n\\r]*(?:\\r?\\n)?");
           if(!re.test(texto)) throw new Error('O cliente não foi encontrado para remoção.');
           return texto.replace(re,'\n');
         },`Remover usuário ${cliente.nome}`);
-        await atualizarArquivo('index-core-thor7.html',texto=>texto.replace(/var VERSION='[^']+'/,`var VERSION='gerenciador-${Date.now()}'`),`Atualizar remoção de ${cliente.nome}`);
         apagarSenha(cliente.hash);
         mostrar('Usuário <b>'+cliente.nome+'</b> removido do aplicativo.','ok');
         await carregarClientes();
@@ -270,15 +261,6 @@
       const btn=$('criar');btn.disabled=true;mostrar('Enviando o cadastro para o aplicativo…');
       try{
         const hash=hashLogin(`${usuario}|${senha}`);
-        // Publica primeiro no Firebase: o APK reconhece o novo cliente imediatamente.
-        await dbTrava.collection('usuarios_login').doc(hash).set({
-          usuario: usuario,
-          ativo: true,
-          bloqueado: false,
-          criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-        }, {merge:true});
-        // Garante que a conta começa sem aparelho preso; o primeiro login no APK fará a vinculação.
-        await dbTrava.collection('contas_ativadas').doc(hash).delete().catch(()=>{});
         await atualizarArquivo('app-main.html',texto=>{
           if(texto.includes(`'${hash}'`)) throw new Error('Esse usuário e senha já estão cadastrados.');
           const inicio=texto.indexOf('const CREDENCIAIS_VALIDAS = [');
@@ -287,13 +269,8 @@
           const linha=`  '${hash}', // ${usuario}\n`;
           return texto.slice(0,fim)+linha+texto.slice(fim);
         },`Cadastrar usuário ${usuario}`);
-        await atualizarArquivo('index-core-thor7.html',texto=>{
-          const versao=`gerenciador-${Date.now()}`;
-          if(!/var VERSION='[^']+'/.test(texto)) throw new Error('O carregador do aplicativo não foi encontrado.');
-          return texto.replace(/var VERSION='[^']+'/,`var VERSION='${versao}'`);
-        },`Atualizar acesso do usuário ${usuario}`);
         salvarSenha(hash,usuario,senha);
-        mostrar(`Usuário <b>${usuario.replace(/[<>&]/g,'')}</b> criado e publicado com sucesso.<br><span class="tag">Código: ${hash}</span>`,'ok');
+        mostrar(`Usuário <b>${usuario.replace(/[<>&]/g,'')}</b> criado e publicado no THOR 125 com sucesso.<br><span class="tag">Código: ${hash}</span>`,'ok');
         $('usuario').value='';$('senha').value='';
         await carregarClientes();
       }catch(e){mostrar(e.message||'Não foi possível criar o usuário.','erro')}
