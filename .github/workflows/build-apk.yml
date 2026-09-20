@@ -152,8 +152,15 @@ jobs:
                   super.onStop();
               }
               @Override public void onBackPressed() {
-                  if (webView != null && webView.canGoBack()) webView.goBack();
-                  else super.onBackPressed();
+                  if (webView != null && webView.canGoBack()) {
+                      webView.goBack();
+                  } else {
+                      new android.app.AlertDialog.Builder(this)
+                          .setMessage("Você deseja realmente sair?")
+                          .setNegativeButton("NÃO", null)
+                          .setPositiveButton("SIM", (dialog, which) -> finish())
+                          .show();
+                  }
               }
           }
           EOF
