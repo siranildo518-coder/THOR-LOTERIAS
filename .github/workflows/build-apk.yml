@@ -66,8 +66,8 @@ jobs:
                   applicationId 'com.thorloterias.app'
                   minSdk 23
                   targetSdk 35
-                  versionCode 125
-                  versionName '125-test'
+                  versionCode 126
+                  versionName '126'
               }
           }
           EOF
@@ -125,7 +125,7 @@ jobs:
                   s.setJavaScriptEnabled(true);
                   s.setDomStorageEnabled(true);
                   s.setJavaScriptCanOpenWindowsAutomatically(true);
-                  s.setCacheMode(WebSettings.LOAD_DEFAULT);
+                  s.setCacheMode(WebSettings.LOAD_NO_CACHE);
                   android.webkit.CookieManager.getInstance().setAcceptCookie(true);
                   android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
                   s.setDatabaseEnabled(true);
@@ -138,10 +138,10 @@ jobs:
                           android.webkit.CookieManager.getInstance().flush();
                       }
                   });
-                  // Mantem a mesma origem e permite ao WebView reutilizar os arquivos ja baixados.
-                  // Isso evita baixar toda a interface novamente em cada abertura.
-                  webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
-                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?v=thor7-v125");
+                  // THOR 126: preserva cookies/localStorage da trava, mas nao reutiliza HTML antigo.
+                  // Assim novos usuarios publicados pelo gerenciador chegam ao APK dos clientes.
+                  webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?v=thor7-v126");
               }
               @Override protected void onPause() {
                   android.webkit.CookieManager.getInstance().flush();
