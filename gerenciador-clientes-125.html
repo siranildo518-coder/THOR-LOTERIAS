@@ -269,16 +269,8 @@
           const linha=`  '${hash}', // ${usuario}\n`;
           return texto.slice(0,fim)+linha+texto.slice(fim);
         },`Cadastrar usuário ${usuario}`);
-        // Registra também no Firestore: assim o APK reconhece o usuário novo
-        // imediatamente, mesmo se ainda estiver com uma cópia antiga do HTML.
-        await dbTrava.collection('usuarios_login').doc(hash).set({
-          nome: usuario,
-          ativo: true,
-          bloqueado: false,
-          criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-        }, {merge:true});
         salvarSenha(hash,usuario,senha);
-        mostrar(`Usuário <b>${usuario.replace(/[<>&]/g,'')}</b> criado e sincronizado com sucesso.<br><span class="tag">Código: ${hash}</span>`,'ok');
+        mostrar(`Usuário <b>${usuario.replace(/[<>&]/g,'')}</b> criado e publicado com sucesso.<br><span class="tag">Código: ${hash}</span>`,'ok');
         $('usuario').value='';$('senha').value='';
         await carregarClientes();
       }catch(e){mostrar(e.message||'Não foi possível criar o usuário.','erro')}
