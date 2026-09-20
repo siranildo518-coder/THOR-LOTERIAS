@@ -66,8 +66,8 @@ jobs:
                   applicationId 'com.thorloterias.app'
                   minSdk 23
                   targetSdk 35
-                  versionCode 126
-                  versionName '126'
+                  versionCode 127
+                  versionName '127'
               }
           }
           EOF
@@ -114,6 +114,7 @@ jobs:
           import android.webkit.WebSettings;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
+          import android.webkit.WebResourceRequest;
 
           public class MainActivity extends Activity {
               private WebView webView;
@@ -133,15 +134,21 @@ jobs:
                   s.setLoadWithOverviewMode(true);
                   s.setUseWideViewPort(true);
                   webView.setWebViewClient(new WebViewClient() {
+                      @Override public android.webkit.WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                          // Mantem localStorage/cookies, mas força os arquivos web a serem revalidados.
+                          return super.shouldInterceptRequest(view, request);
+                      }
                       @Override public void onPageFinished(WebView view, String url) {
                           super.onPageFinished(view, url);
                           android.webkit.CookieManager.getInstance().flush();
                       }
                   });
-                  // THOR 126: preserva cookies/localStorage da trava, mas nao reutiliza HTML antigo.
-                  // Assim novos usuarios publicados pelo gerenciador chegam ao APK dos clientes.
+                  // APK cliente: preserva localStorage/cookies (inclusive a trava), mas limpa SOMENTE cache web.
+                  // Isso evita precisar usar "Limpar dados" quando o gerenciador publica um novo cliente.
+                  webView.clearCache(true);
                   webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?v=thor7-v126");
+                  String fresh = String.valueOf(System.currentTimeMillis());
+                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?apk=126&t=" + fresh);
               }
               @Override protected void onPause() {
                   android.webkit.CookieManager.getInstance().flush();
