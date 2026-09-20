@@ -223,6 +223,12 @@
       const novoHash=hashLogin(`${cliente.nome}|${nova.trim()}`);
       mostrar('Redefinindo a senha de '+cliente.nome+'…');
       try{
+        await dbTrava.collection('usuarios_login').doc(novoHash).set({
+          usuario: cliente.nome, ativo: true, bloqueado: false,
+          criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+        }, {merge:true});
+        await dbTrava.collection('usuarios_login').doc(cliente.hash).delete().catch(()=>{});
+        await dbTrava.collection('contas_ativadas').doc(cliente.hash).delete().catch(()=>{});
         await atualizarArquivo('app-main.html',texto=>{
           const re=new RegExp("'"+cliente.hash+"'\\s*,\\s*//[^\\n\\r]*");
           if(!re.test(texto)) throw new Error('O cliente não foi encontrado para atualização.');
@@ -239,6 +245,8 @@
       if(!confirm('Remover o usuário '+cliente.nome+'? Ele não conseguirá mais entrar no aplicativo.')) return;
       mostrar('Removendo '+cliente.nome+'…');
       try{
+        await dbTrava.collection('usuarios_login').doc(cliente.hash).delete().catch(()=>{});
+        await dbTrava.collection('contas_ativadas').doc(cliente.hash).delete().catch(()=>{});
         await atualizarArquivo('app-main.html',texto=>{
           const re=new RegExp("\\s*'"+cliente.hash+"'\\s*,\\s*//[^\\n\\r]*(?:\\r?\\n)?");
           if(!re.test(texto)) throw new Error('O cliente não foi encontrado para remoção.');
@@ -262,6 +270,15 @@
       const btn=$('criar');btn.disabled=true;mostrar('Enviando o cadastro para o aplicativo…');
       try{
         const hash=hashLogin(`${usuario}|${senha}`);
+        // Publica primeiro no Firebase: o APK reconhece o novo cliente imediatamente.
+        await dbTrava.collection('usuarios_login').doc(hash).set({
+          usuario: usuario,
+          ativo: true,
+          bloqueado: false,
+          criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+        }, {merge:true});
+        // Garante que a conta começa sem aparelho preso; o primeiro login no APK fará a vinculação.
+        await dbTrava.collection('contas_ativadas').doc(hash).delete().catch(()=>{});
         await atualizarArquivo('app-main.html',texto=>{
           if(texto.includes(`'${hash}'`)) throw new Error('Esse usuário e senha já estão cadastrados.');
           const inicio=texto.indexOf('const CREDENCIAIS_VALIDAS = [');
