@@ -65,13 +65,7 @@
       <p class="nota">O token fica guardado somente neste aparelho. Ele precisa ter permissão para editar o conteúdo do repositório.</p>
     </details>
   </main>
-
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script>
-    const firebaseConfig={apiKey:"AIzaSyB3C4umom-ke5d339tcDgRD3A9Oqg4OydE",authDomain:"thor-loterias.firebaseapp.com",projectId:"thor-loterias",storageBucket:"thor-loterias.firebasestorage.app",messagingSenderId:"234375514263",appId:"1:234375514263:web:2259ad7a822c259cfa41d2",measurementId:"G-K1M35B2VH4"};
-    if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const dbTrava=firebase.firestore();
     const $=id=>document.getElementById(id);
     const TOKEN_KEY='thor_gerenciador_github_token_v2';
     const REPO_KEY='thor_gerenciador_repo_v2';
@@ -185,35 +179,16 @@
     }
 
     async function atualizarBotaoNavegador(cliente,botao){
-      try{
-        const snap=await dbTrava.collection('acesso_navegador').doc(cliente.hash).get();
-        const liberado=snap.exists&&(snap.data()||{}).liberado===true;
-        botao.textContent=liberado?'BLOQUEAR NAVEGADOR':'LIBERAR NAVEGADOR';
-      }catch(e){botao.textContent='ACESSO NAVEGADOR'}
+      botao.textContent='NAVEGADOR';
+      botao.title='Função desativada neste gerenciador para evitar erro de permissão.';
     }
 
     async function alternarAcessoNavegador(cliente,botao){
-      try{
-        const ref=dbTrava.collection('acesso_navegador').doc(cliente.hash);
-        const snap=await ref.get();
-        const liberado=snap.exists&&(snap.data()||{}).liberado===true;
-        await ref.set({liberado:!liberado},{merge:true});
-        botao.textContent=!liberado?'BLOQUEAR NAVEGADOR':'LIBERAR NAVEGADOR';
-        mostrar('Acesso pelo navegador de <b>'+cliente.nome+'</b> '+(!liberado?'liberado':'bloqueado')+'.','ok');
-      }catch(e){
-        mostrar('Não foi possível alterar o acesso pelo navegador: '+String(e.message||e),'erro');
-      }
+      mostrar('Acesso pelo navegador não é alterado por este gerenciador.','erro');
     }
 
     async function liberarAparelho(cliente){
-      if(!confirm('Liberar o aparelho da conta '+cliente.nome+'? O próximo login no aplicativo instalado ficará vinculado ao novo aparelho.')) return;
-      mostrar('Liberando aparelho de '+cliente.nome+'…');
-      try{
-        await dbTrava.collection('contas_ativadas').doc(cliente.hash).set({redefinirAparelho:true,ativo:true,bloqueado:false,deviceId:null,clientId:null},{merge:true});
-        mostrar('Aparelho de <b>'+cliente.nome+'</b> liberado. No próximo login pelo APK, o novo celular será reconhecido e a trava será ativada automaticamente.','ok');
-      }catch(e){
-        mostrar('Não foi possível liberar o aparelho: '+String(e.message||e),'erro');
-      }
+      mostrar('A liberação de aparelho está desativada neste gerenciador para evitar erro de permissão.','erro');
     }
 
     async function redefinirSenha(cliente){
@@ -228,7 +203,6 @@
           if(!re.test(texto)) throw new Error('O cliente não foi encontrado para atualização.');
           return texto.replace(re,`'${novoHash}', // ${cliente.nome}`);
         },`Redefinir senha de ${cliente.nome}`);
-        try{ await dbTrava.collection('contas_ativadas').doc(cliente.hash).delete(); }catch(e){}
         apagarSenha(cliente.hash);salvarSenha(novoHash,cliente.nome,nova.trim());
         mostrar('Senha de <b>'+cliente.nome+'</b> redefinida e publicada.','ok');
         await carregarClientes();
