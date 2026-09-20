@@ -85,18 +85,11 @@ function obterClientId(){
 // A primeira vez que uma conta loga em algum aparelho, ela fica "casada" com ele.
 // Retorna {ok:true} se pode entrar, ou {ok:false, motivo:'outro_aparelho'|'sem_internet'}.
 async function verificarTravaAparelho(hash){
-  // Fabioromeu liberado da trava de aparelho.
-  const FABIOROMEU_SEM_TRAVA = '10n4xkg';
-  const GIL_SEM_TRAVA = 'gpi1n5';
-  const ELZIANE_SEM_TRAVA = '1165s8q';
-  if(hash === FABIOROMEU_SEM_TRAVA || hash === GIL_SEM_TRAVA || hash === ELZIANE_SEM_TRAVA) return {ok:true};
-
   const deviceId = obterDeviceId();
   const contexto = obterContextoAcesso();
   const clientId = obterClientId();
 
-  // Exceções de navegador administradas pelo Gerenciador de Usuários.
-  // Gisele permanece liberada; outros clientes podem ser liberados/bloqueados pelo gerenciador.
+  // No navegador, só entra quem foi liberado pelo gerenciador.
   const GISELE_NAVEGADOR = 'oybgb0';
   if(contexto === 'navegador'){
     if(hash === GISELE_NAVEGADOR) return {ok:true};
@@ -115,11 +108,16 @@ async function verificarTravaAparelho(hash){
     const ref = dbFirestore.collection('contas_ativadas').doc(hash);
     const snap = await ref.get();
 
+    // REGRA GERAL: usuário recém-criado nasce sem aparelho vinculado.
+    // No primeiro login válido pelo APK, este aparelho é gravado automaticamente
+    // e, a partir daí, a trava passa a valer para qualquer outro aparelho.
     if(!snap.exists){
-      // O gerenciador pode ainda não ter criado o registro da trava.
-      // Libera o primeiro acesso e tenta registrar o aparelho em segundo plano.
       await ref.set({
         deviceId,
+        clientId,
+        ativo: true,
+        bloqueado: false,
+        redefinirAparelho: false,
         ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
       });
       return {ok:true};
@@ -130,10 +128,9 @@ async function verificarTravaAparelho(hash){
       return {ok:false, motivo:'conta_bloqueada'};
     }
 
-    // Quando o gerenciador libera a troca de aparelho, o PRIMEIRO login no app
-    // assume o aparelho atual e consome a liberação imediatamente.
-    // Assim a conta não fica aberta: depois deste login, outro aparelho volta a ser bloqueado.
-    if(contexto === 'app' && dados.redefinirAparelho === true){
+    // Liberação feita pelo gerenciador: o próximo aparelho que entrar assume a conta
+    // e a liberação é consumida, reativando a trava imediatamente.
+    if(dados.redefinirAparelho === true){
       await ref.set({
         deviceId,
         clientId,
@@ -145,7 +142,7 @@ async function verificarTravaAparelho(hash){
       return {ok:true};
     }
 
-    // Conta nova já cadastrada, mas ainda sem aparelho: vincula ao primeiro app.
+    // Registro criado sem vínculo: primeiro login válido define o aparelho.
     if(!dados.clientId && !dados.deviceId){
       await ref.set({
         deviceId,
@@ -161,15 +158,9 @@ async function verificarTravaAparelho(hash){
         : {ok:false, motivo:'outro_aparelho'};
     }
 
-    if(dados.deviceId !== deviceId){
-      return {ok:false, motivo:'outro_aparelho'};
-    }
-
-    // Contas antigas já vinculadas a este celular ficam autorizadas somente no app.
-    if(contexto !== 'app'){
-      return {ok:false, motivo:'outro_aparelho'};
-    }
-    return {ok:true};
+    return dados.deviceId === deviceId
+      ? {ok:true}
+      : {ok:false, motivo:'outro_aparelho'};
   }catch(e){
     console.error('Falha ao verificar a trava:', e);
     return {ok:false, motivo:'sem_internet'};
