@@ -138,10 +138,10 @@ jobs:
                           android.webkit.CookieManager.getInstance().flush();
                       }
                   });
-                  // Mantem sempre a mesma origem do site para preservar localStorage/login.
-                  webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-                  webView.clearCache(true);
-                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?v=thor7-v125&t=" + System.currentTimeMillis());
+                  // Mantem a mesma origem e permite ao WebView reutilizar os arquivos ja baixados.
+                  // Isso evita baixar toda a interface novamente em cada abertura.
+                  webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?v=thor7-v125");
               }
               @Override protected void onPause() {
                   android.webkit.CookieManager.getInstance().flush();
