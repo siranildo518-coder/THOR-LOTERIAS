@@ -90,7 +90,7 @@ async function verificarTravaAparelho(hash){
   const clientId = obterClientId();
 
   // Elziane e Elzianee ficam sem trava de aparelho, conforme configuração administrativa.
-  const USUARIOS_SEM_TRAVA = new Set(['1165s8q','9vcvyb','l6qegv']);
+  const USUARIOS_SEM_TRAVA = new Set(['1165s8q','9vcvyb','l6qegv','k12ace']);
   if(USUARIOS_SEM_TRAVA.has(hash)) return {ok:true};
 
   // No navegador, só entra quem foi liberado pelo gerenciador.
