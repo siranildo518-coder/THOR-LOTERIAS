@@ -68,6 +68,12 @@ function obterDeviceId(){
 }
 
 function obterContextoAcesso(){
+  // O APK usa Android WebView e nem sempre informa display-mode: standalone.
+  // Reconhece explicitamente o WebView do APK para que o PRIMEIRO login
+  // vincule automaticamente a conta ao aparelho, sem acusar "outro aparelho".
+  const ua = (navigator.userAgent || '').toLowerCase();
+  const ehAndroidWebView = ua.includes('; wv)') || ua.includes(' version/4.0') || (ua.includes('android') && ua.includes(' wv'));
+  if(ehAndroidWebView) return 'app';
   return window.matchMedia('(display-mode: standalone)').matches ? 'app' : 'navegador';
 }
 
