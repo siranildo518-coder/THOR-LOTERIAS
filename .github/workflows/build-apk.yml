@@ -148,7 +148,10 @@ jobs:
                   webView.clearCache(true);
                   webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
                   String fresh = String.valueOf(System.currentTimeMillis());
-                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?apk=126&t=" + fresh);
+                  java.util.HashMap<String,String> headers = new java.util.HashMap<>();
+                  headers.put("Cache-Control", "no-cache, no-store, must-revalidate");
+                  headers.put("Pragma", "no-cache");
+                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?apk=126&t=" + fresh, headers);
               }
               @Override protected void onPause() {
                   android.webkit.CookieManager.getInstance().flush();
