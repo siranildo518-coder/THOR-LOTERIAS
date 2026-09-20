@@ -284,6 +284,14 @@ async function credencialValida(hash){
   }
   try{
     await carregarFirebase();
+    // Fonte oficial do gerenciador: todo usuário criado passa a existir aqui
+    // imediatamente, sem depender do cache/versão do HTML no celular do cliente.
+    const cadastro = await dbFirestore.collection('usuarios_login').doc(hash).get();
+    if(cadastro.exists){
+      const dadosCadastro = cadastro.data() || {};
+      return dadosCadastro.ativo !== false && dadosCadastro.bloqueado !== true;
+    }
+    // Compatibilidade com clientes antigos já registrados pela trava.
     const snap = await dbFirestore.collection('contas_ativadas').doc(hash).get();
     if(!snap.exists) return false;
     const dados = snap.data() || {};
