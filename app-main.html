@@ -14603,12 +14603,11 @@ html body #overlayMinhasSequencias .freq-shell{
 
 <script>
 document.addEventListener('DOMContentLoaded', ()=>{
-  // Checa o GitHub logo ao abrir o app.
-  setTimeout(verificarAtualizacaoGithub, 500);
+  // Não disputa rede/CPU com a abertura. A checagem de atualização roda depois.
+  setTimeout(verificarAtualizacaoGithub, 5000);
 
-  // Também checa novamente quando o app volta para primeiro plano.
   document.addEventListener('visibilitychange', ()=>{
-    if(document.visibilityState === 'visible') verificarAtualizacaoGithub();
+    if(document.visibilityState === 'visible') setTimeout(verificarAtualizacaoGithub, 1500);
   });
 });
 
