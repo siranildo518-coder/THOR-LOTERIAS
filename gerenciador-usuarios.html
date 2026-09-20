@@ -50,7 +50,7 @@
         <button class="atualizar" id="carregarClientes" type="button">ATUALIZAR</button>
       </div>
       <p class="nota">Senhas novas criadas neste gerenciador podem ser visualizadas somente neste aparelho. Para senhas antigas indisponíveis, use “Redefinir”.</p>
-      <div id="painelUso" class="info">Painel: carregue os clientes para ver dispositivos ativos.</div><div id="listaClientes" class="lista"><div class="vazio">Toque em ATUALIZAR para ver os clientes.</div></div>
+      <div id="listaClientes" class="lista"><div class="vazio">Toque em ATUALIZAR para ver os clientes.</div></div>
     </section>
 
     <details class="config">
@@ -157,25 +157,6 @@
       return clientes;
     }
 
-    function tempoMs(v){try{return v&&v.toMillis?v.toMillis():0}catch(e){return 0}}
-    async function usoCliente(hash){
-      try{
-        const q=await dbTrava.collection('sessoes_clientes').doc(hash).collection('dispositivos').get();
-        let total=0,ativos=0;const agora=Date.now();
-        q.forEach(d=>{total++;const x=d.data()||{};if(agora-tempoMs(x.ultimaAtividade)<=90000)ativos++});
-        return {total,ativos};
-      }catch(e){return {total:0,ativos:0}}
-    }
-    async function deslogarTodos(cliente){
-      await dbTrava.collection('usuarios_login').doc(cliente.hash).set({bloqueado:true},{merge:true});
-      mostrar('Conta de <b>'+cliente.nome+'</b> bloqueada. Os aparelhos serão deslogados na próxima verificação.','ok');
-    }
-    async function reativarCliente(cliente){
-      await dbTrava.collection('usuarios_login').doc(cliente.hash).set({ativo:true,bloqueado:false},{merge:true});
-      await dbTrava.collection('contas_ativadas').doc(cliente.hash).delete().catch(()=>{});
-      mostrar('Conta de <b>'+cliente.nome+'</b> reativada. O próximo login no APK vinculará o aparelho.','ok');
-    }
-
     async function carregarClientes(){
       const area=$('listaClientes');area.innerHTML='<div class="vazio">Carregando clientes…</div>';
       try{
@@ -183,19 +164,13 @@
         const clientes=extrairClientes(base64ParaUtf8(atual.content));
         if(!clientes.length){area.innerHTML='<div class="vazio">Nenhum cliente encontrado.</div>';return}
         area.innerHTML='';
-        let ativosPainel=0,dispositivosPainel=0;
-        for(const cliente of clientes){
-          const uso=await usoCliente(cliente.hash);
-          if(uso.ativos>0) ativosPainel++;
-          dispositivosPainel+=uso.total;
+        clientes.forEach(cliente=>{
           const item=document.createElement('div');item.className='cliente';
           const linha=document.createElement('div');linha.className='cliente-linha';
           const dados=document.createElement('div');
           const nome=document.createElement('strong');nome.textContent=cliente.nome;
           const senha=document.createElement('div');senha.className='protegida';senha.textContent='Senha: ••••••';
           const codigo=document.createElement('div');codigo.className='codigo';codigo.textContent='Código: '+cliente.hash;
-          const usoTxt=document.createElement('div');usoTxt.className='protegida';
-          usoTxt.textContent=(uso.ativos>0?'ATIVO · ':'OFFLINE · ')+uso.total+' dispositivo(s)'+(uso.total>1?' ⚠️':'');
           const acoes=document.createElement('div');acoes.className='acoes';
           const ver=document.createElement('button');ver.type='button';ver.className='ver';ver.textContent='VER SENHA';
           ver.onclick=()=>{if(cliente.senha){senha.textContent='Senha: '+cliente.senha;setTimeout(()=>senha.textContent='Senha: ••••••',10000)}else alert('A senha antiga não pode ser recuperada. Use Redefinir.')};
@@ -204,11 +179,8 @@
           const liberar=document.createElement('button');liberar.type='button';liberar.className='liberar';liberar.textContent='LIBERAR APARELHO';liberar.onclick=()=>liberarAparelho(cliente);
           const navegador=document.createElement('button');navegador.type='button';navegador.className='navegador';navegador.textContent='ACESSO NAVEGADOR';navegador.onclick=()=>alternarAcessoNavegador(cliente,navegador);
           atualizarBotaoNavegador(cliente,navegador);
-          const sair=document.createElement('button');sair.type='button';sair.className='remover';sair.textContent='DESLOGAR TODOS';sair.onclick=()=>deslogarTodos(cliente);
-          const trava=document.createElement('button');trava.type='button';trava.className='redefinir';trava.textContent='TRAVA 1 APARELHO';trava.onclick=()=>reativarCliente(cliente);
-          acoes.append(ver,redefinir,liberar,navegador,sair,trava,remover);dados.append(nome,senha,codigo,usoTxt);linha.append(dados,acoes);item.append(linha);area.append(item);
-        }
-        $('painelUso').innerHTML='<b>'+clientes.length+'</b> clientes · <b>'+ativosPainel+'</b> ativos · <b>'+dispositivosPainel+'</b> dispositivos detectados';
+          acoes.append(ver,redefinir,liberar,navegador,remover);dados.append(nome,senha,codigo);linha.append(dados,acoes);item.append(linha);area.append(item);
+        });
       }catch(e){area.innerHTML='<div class="vazio">'+String(e.message||e)+'</div>'}
     }
 
