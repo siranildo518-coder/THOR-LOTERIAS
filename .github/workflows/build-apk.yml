@@ -66,8 +66,8 @@ jobs:
                   applicationId 'com.thorloterias.app'
                   minSdk 23
                   targetSdk 35
-                  versionCode 1
-                  versionName '1.0'
+                  versionCode 125
+                  versionName '125-test'
               }
           }
           EOF
@@ -141,7 +141,7 @@ jobs:
                   // Mantem sempre a mesma origem do site para preservar localStorage/login.
                   webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
                   webView.clearCache(true);
-                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?v=thor7-v126");
+                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?v=thor7-v125&t=" + System.currentTimeMillis());
               }
               @Override protected void onPause() {
                   android.webkit.CookieManager.getInstance().flush();
