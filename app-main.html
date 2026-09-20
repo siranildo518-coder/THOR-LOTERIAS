@@ -475,9 +475,10 @@ async function atualizarPresencaOnline(){
   }catch(e){ console.error('Falha ao atualizar presença:', e); }
 }
 function iniciarPresencaOnline(){
-  setTimeout(atualizarPresencaOnline, 1800);
+  // Deixa a interface terminar de abrir antes de iniciar tarefas de presença.
+  setTimeout(atualizarPresencaOnline, 8000);
   clearInterval(_thorPresencaTimer);
-  _thorPresencaTimer = setInterval(atualizarPresencaOnline, 30000);
+  _thorPresencaTimer = setInterval(atualizarPresencaOnline, 60000);
 }
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'visible') atualizarPresencaOnline();
