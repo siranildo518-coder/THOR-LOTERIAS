@@ -10281,8 +10281,25 @@ document.getElementById('btnJogosSalvos')?.addEventListener('click', ()=>{
     }
   }, true);
 });
+document.getElementById('btnJogosSalvosAtalho2')?.addEventListener('click', function(e){
+  const ov=document.getElementById('overlayGeradorFiltro');
+  if(ov && ov.classList.contains('show')){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    gfcMostrarTab('jogos');
+  }
+}, true);
 document.getElementById('btnInicioAtalho').addEventListener('click', goHome);
-document.getElementById('btnJogosSalvosAtalho2').addEventListener('click', ()=>{
+document.getElementById('btnJogosSalvosAtalho2').addEventListener('click', (e)=>{
+  // Enquanto o Fechamento personalizado estiver aberto, nunca permitir que
+  // um toque nessa região abra a tela global de Jogos/Histórico.
+  const geradorAberto=document.getElementById('overlayGeradorFiltro');
+  if(geradorAberto && geradorAberto.classList.contains('show')){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    gfcMostrarTab('jogos');
+    return;
+  }
   fecharModaisGlobais('overlayHistorico');
   renderHistorico();
   document.getElementById('overlayHistorico').classList.add('show');
