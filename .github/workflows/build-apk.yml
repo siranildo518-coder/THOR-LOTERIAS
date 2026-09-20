@@ -1,0 +1,149 @@
+name: Gerar APK THOR LOTERIAS
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'index.html'
+      - 'app-main.html'
+      - 'THOR-LOTERIAS.html'
+      - '*.js'
+      - '*.css'
+      - 'manifest.json'
+      - '.github/workflows/build-apk.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Criar projeto Android
+        shell: bash
+        run: |
+          mkdir -p android-apk/app/src/main/java/com/thorloterias/app
+          mkdir -p android-apk/app/src/main/res/layout
+          mkdir -p android-apk/app/src/main/res/values
+
+          cat > android-apk/settings.gradle <<'EOF'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
+          rootProject.name = 'ThorLoterias'
+          include ':app'
+          EOF
+
+          cat > android-apk/build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application' version '8.7.3' apply false
+          }
+          EOF
+
+          cat > android-apk/app/build.gradle <<'EOF'
+          plugins { id 'com.android.application' }
+          android {
+              namespace 'com.thorloterias.app'
+              compileSdk 35
+              defaultConfig {
+                  applicationId 'com.thorloterias.app'
+                  minSdk 23
+                  targetSdk 35
+                  versionCode 1
+                  versionName '1.0'
+              }
+          }
+          EOF
+
+          cat > android-apk/app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET"/>
+              <application android:theme="@style/AppTheme" android:label="THOR LOTERIAS" android:usesCleartextTraffic="true">
+                  <activity android:name=".MainActivity" android:screenOrientation="portrait" android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+          cat > android-apk/app/src/main/res/values/styles.xml <<'EOF'
+          <resources>
+              <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+                  <item name="android:fontFamily">sans</item>
+                  <item name="android:colorAccent">#0B3975</item>
+                  <item name="android:windowLightStatusBar">false</item>
+                  <item name="android:statusBarColor">#081D43</item>
+                  <item name="android:navigationBarColor">#081D43</item>
+              </style>
+          </resources>
+          EOF
+
+          cat > android-apk/app/src/main/res/layout/activity_main.xml <<'EOF'
+          <WebView xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/webview"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"/>
+          EOF
+
+          cat > android-apk/app/src/main/java/com/thorloterias/app/MainActivity.java <<'EOF'
+          package com.thorloterias.app;
+
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+
+          public class MainActivity extends Activity {
+              private WebView webView;
+              @Override public void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  setContentView(com.thorloterias.app.R.layout.activity_main);
+                  webView = findViewById(com.thorloterias.app.R.id.webview);
+                  WebSettings s = webView.getSettings();
+                  s.setJavaScriptEnabled(true);
+                  s.setDomStorageEnabled(true);
+                  s.setDatabaseEnabled(true);
+                  s.setAllowFileAccess(true);
+                  s.setLoadWithOverviewMode(true);
+                  s.setUseWideViewPort(true);
+                  webView.setWebViewClient(new WebViewClient());
+                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/");
+              }
+              @Override public void onBackPressed() {
+                  if (webView != null && webView.canGoBack()) webView.goBack();
+                  else super.onBackPressed();
+              }
+          }
+          EOF
+
+      - name: Gerar APK
+        working-directory: android-apk
+        run: gradle :app:assembleDebug --stacktrace
+
+      - name: Preparar APK
+        run: cp android-apk/app/build/outputs/apk/debug/app-debug.apk THOR-LOTERIAS.apk
+
+      - name: Disponibilizar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: THOR-LOTERIAS-APK
+          path: THOR-LOTERIAS.apk
+          retention-days: 30
