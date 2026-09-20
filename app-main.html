@@ -9763,11 +9763,22 @@ const btnFalhasConcursosHome = document.getElementById('btnFalhasConcursosHome')
 const overlayFalhasConcursos = document.getElementById('overlayFalhasConcursos');
 const falhasConcursosVoltar = document.getElementById('falhasConcursosVoltar');
 if(btnFalhasConcursosHome && overlayFalhasConcursos){
-  btnFalhasConcursosHome.addEventListener('click', ()=> overlayFalhasConcursos.classList.add('show'));
+  btnFalhasConcursosHome.addEventListener('click', ()=>{
+    overlayFalhasConcursos.classList.add('show');
+    try{ history.pushState({thorFalhasConcursos:true},'',location.href); }catch(_){}
+  });
 }
 if(falhasConcursosVoltar && overlayFalhasConcursos){
-  falhasConcursosVoltar.addEventListener('click', ()=> overlayFalhasConcursos.classList.remove('show'));
+  falhasConcursosVoltar.addEventListener('click', ()=>{
+    if(history.state && history.state.thorFalhasConcursos){ history.back(); }
+    else { overlayFalhasConcursos.classList.remove('show'); }
+  });
 }
+window.addEventListener('popstate', function(e){
+  if(overlayFalhasConcursos && overlayFalhasConcursos.classList.contains('show')){
+    overlayFalhasConcursos.classList.remove('show');
+  }
+});
 
 // ---------- atualização automática quando sai um novo resultado da CAIXA ----------
 async function silentFetchLatest(game){
