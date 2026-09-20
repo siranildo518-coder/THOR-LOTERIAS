@@ -24,8 +24,9 @@ const API='https://servicebus2.caixa.gov.br/portaldeloterias/api/';const LATEST_
   // que pode bloquear WebView/CORS em alguns aparelhos.
   const slug=LOT[key][1];
   const urls=[
-    // Consulta oficial da CAIXA sempre sem cache. O parâmetro único impede o
-    // WebView/CDN de reaproveitar o concurso anterior quando um novo acaba de sair.
+    // Portal oficial informado pelo usuário. O parâmetro modalConcurso permite
+    // consultar diretamente o concurso conhecido; para o mais recente, usamos
+    // primeiro o endpoint oficial de dados da CAIXA e mantemos o portal como referência.
     'https://servicebus2.caixa.gov.br/portaldeloterias/api/'+slug+(n?'/'+n:'')+'?timestamp='+Date.now(),
     'https://servicebus2.caixa.gov.br/portaldeloterias/api/'+slug+(n?'/'+n:'')+'?v='+Date.now(),
     'https://loteriascaixa-api.herokuapp.com/api/'+slug+(n?'/'+n:'/latest'),
@@ -92,5 +93,7 @@ setInterval(()=>{
   if(document.visibilityState==='visible' && navigator.onLine!==false) atualizarConcursosCaixa();
 },10*1000);
 
+// Força nova consulta também quando o iframe é restaurado do cache do Android/WebView.
+window.addEventListener('pageshow',()=>atualizarConcursosCaixa());
 atualizarConcursosCaixa();
 </script></body></html>
