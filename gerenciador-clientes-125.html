@@ -209,8 +209,8 @@
       if(!confirm('Liberar o aparelho da conta '+cliente.nome+'? O próximo login no aplicativo instalado ficará vinculado ao novo aparelho.')) return;
       mostrar('Liberando aparelho de '+cliente.nome+'…');
       try{
-        await dbTrava.collection('contas_ativadas').doc(cliente.hash).delete();
-        mostrar('Aparelho de <b>'+cliente.nome+'</b> liberado. Agora faça o próximo login no aplicativo instalado.','ok');
+        await dbTrava.collection('contas_ativadas').doc(cliente.hash).set({redefinirAparelho:true,ativo:true,bloqueado:false,deviceId:null,clientId:null},{merge:true});
+        mostrar('Aparelho de <b>'+cliente.nome+'</b> liberado. No próximo login pelo APK, o novo celular será reconhecido e a trava será ativada automaticamente.','ok');
       }catch(e){
         mostrar('Não foi possível liberar o aparelho: '+String(e.message||e),'erro');
       }
@@ -228,7 +228,7 @@
           if(!re.test(texto)) throw new Error('O cliente não foi encontrado para atualização.');
           return texto.replace(re,`'${novoHash}', // ${cliente.nome}`);
         },`Redefinir senha de ${cliente.nome}`);
-        await atualizarArquivo('index-core-thor7.html',texto=>texto.replace(/var VERSION='[^']+'/,`var VERSION='gerenciador-${Date.now()}'`),`Atualizar senha de ${cliente.nome}`);
+        try{ await dbTrava.collection('contas_ativadas').doc(cliente.hash).delete(); }catch(e){}
         apagarSenha(cliente.hash);salvarSenha(novoHash,cliente.nome,nova.trim());
         mostrar('Senha de <b>'+cliente.nome+'</b> redefinida e publicada.','ok');
         await carregarClientes();
