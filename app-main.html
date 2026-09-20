@@ -9814,6 +9814,20 @@ const falhasConcursosVoltar = document.getElementById('falhasConcursosVoltar');
 if(btnFalhasConcursosHome && overlayFalhasConcursos){
   btnFalhasConcursosHome.addEventListener('click', ()=>{
     overlayFalhasConcursos.classList.add('show');
+    // Ao abrir, força a tela de Falhas e Concursos a consultar a CAIXA novamente,
+    // sem reutilizar uma cópia antiga do iframe.
+    const frame = document.getElementById('falhasConcursosFrame');
+    if(frame){
+      try{
+        if(frame.contentWindow && typeof frame.contentWindow.atualizarConcursosCaixa === 'function'){
+          frame.contentWindow.atualizarConcursosCaixa();
+        }else{
+          frame.src = 'falhas-concursos.html?v=thor7-v130&t=' + Date.now();
+        }
+      }catch(_){
+        frame.src = 'falhas-concursos.html?v=thor7-v130&t=' + Date.now();
+      }
+    }
     try{ history.pushState({thorFalhasConcursos:true},'',location.href); }catch(_){}
   });
 }
