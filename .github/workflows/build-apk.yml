@@ -132,7 +132,7 @@ jobs:
                   s.setUseWideViewPort(true);
                   webView.setWebViewClient(new WebViewClient());
                   // Mantem sempre a mesma origem do site para preservar localStorage/login.
-                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/THOR-LOTERIAS.html");
+                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html");
               }
               @Override public void onBackPressed() {
                   if (webView != null && webView.canGoBack()) webView.goBack();
