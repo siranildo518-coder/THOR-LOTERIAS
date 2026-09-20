@@ -110,6 +110,7 @@ jobs:
 
           import android.app.Activity;
           import android.os.Bundle;
+          import android.webkit.WebStorage;
           import android.webkit.WebSettings;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
@@ -123,6 +124,7 @@ jobs:
                   WebSettings s = webView.getSettings();
                   s.setJavaScriptEnabled(true);
                   s.setDomStorageEnabled(true);
+                  s.setJavaScriptCanOpenWindowsAutomatically(true);
                   s.setCacheMode(WebSettings.LOAD_DEFAULT);
                   android.webkit.CookieManager.getInstance().setAcceptCookie(true);
                   android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
@@ -130,9 +132,22 @@ jobs:
                   s.setAllowFileAccess(true);
                   s.setLoadWithOverviewMode(true);
                   s.setUseWideViewPort(true);
-                  webView.setWebViewClient(new WebViewClient());
+                  webView.setWebViewClient(new WebViewClient() {
+                      @Override public void onPageFinished(WebView view, String url) {
+                          super.onPageFinished(view, url);
+                          android.webkit.CookieManager.getInstance().flush();
+                      }
+                  });
                   // Mantem sempre a mesma origem do site para preservar localStorage/login.
                   webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html");
+              }
+              @Override protected void onPause() {
+                  android.webkit.CookieManager.getInstance().flush();
+                  super.onPause();
+              }
+              @Override protected void onStop() {
+                  android.webkit.CookieManager.getInstance().flush();
+                  super.onStop();
               }
               @Override public void onBackPressed() {
                   if (webView != null && webView.canGoBack()) webView.goBack();
