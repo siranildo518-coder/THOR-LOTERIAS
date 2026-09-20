@@ -88,7 +88,8 @@ async function verificarTravaAparelho(hash){
   // Fabioromeu liberado da trava de aparelho.
   const FABIOROMEU_SEM_TRAVA = '10n4xkg';
   const GIL_SEM_TRAVA = 'gpi1n5';
-  if(hash === FABIOROMEU_SEM_TRAVA || hash === GIL_SEM_TRAVA) return {ok:true};
+  const ELZIANE_SEM_TRAVA = '1165s8q';
+  if(hash === FABIOROMEU_SEM_TRAVA || hash === GIL_SEM_TRAVA || hash === ELZIANE_SEM_TRAVA) return {ok:true};
 
   const deviceId = obterDeviceId();
   const contexto = obterContextoAcesso();
