@@ -7234,8 +7234,33 @@ function gfcMostrarTab(tab){
     Object.assign(btnJogos.style, inativa);
   }
 }
-document.getElementById('geradorFiltroTabConfig').addEventListener('click', ()=> gfcMostrarTab('config'));
-document.getElementById('geradorFiltroTabJogos').addEventListener('click', ()=> gfcMostrarTab('jogos'));
+document.getElementById('geradorFiltroTabConfig').addEventListener('click', (e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  gfcMostrarTab('config');
+});
+document.getElementById('geradorFiltroTabJogos').addEventListener('click', (e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  // A aba Jogos gerados deve permanecer dentro do Fechamento personalizado
+  // e sempre renderizar os jogos já gerados para a loteria atual.
+  if(geradorGameAtual){
+    const estado = carregarGeradorEstado(geradorGameAtual.code);
+    if(estado && Array.isArray(estado.jogos) && estado.jogos.length){
+      geradorUltimoJogosCtx = {
+        g:geradorGameAtual, jogos:estado.jogos,
+        maisAtrasadas:estado.maisAtrasadas||[], maisSairam:estado.maisSairam||[],
+        totalConcursos:estado.totalConcursos||0, numeroUltimo:estado.numeroUltimo||0,
+        depSize:estado.depSize||0
+      };
+      renderGeradorResultado(geradorGameAtual, estado.jogos, estado.maisAtrasadas||[],
+        estado.maisSairam||[], estado.totalConcursos||0, estado.numeroUltimo||0, estado.depSize||0);
+    }
+  }
+  gfcMostrarTab('jogos');
+  const painelJogos=document.getElementById('geradorFiltroTabPanelJogos');
+  if(painelJogos) painelJogos.scrollIntoView({block:'start',behavior:'auto'});
+});
 
 document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async ()=>{
   const g = geradorGameAtual;
