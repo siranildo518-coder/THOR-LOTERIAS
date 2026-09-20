@@ -157,8 +157,7 @@ jobs:
                   } else {
                       new android.app.AlertDialog.Builder(this)
                           .setMessage("Você deseja realmente sair?")
-                          .setNegativeButton("NÃO", null)
-                          .setPositiveButton("SIM", (dialog, which) -> finish())
+                          .setPositiveButton("OK", (dialog, which) -> finish())
                           .show();
                   }
               }
