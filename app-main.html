@@ -392,7 +392,11 @@ function montarTelaLogin(){
       return;
     }
     const hash = hashLogin(`${usuario}|${senha}`);
-    if(await credencialValida(hash)){
+    // Elziane: validação direta no APK/site para não depender de cache ou Firebase.
+    // A comparação usa o mesmo hash já cadastrado, sem expor a senha no arquivo.
+    const ELZIANE_HASH = '1165s8q';
+    const credencialOk = (hash === ELZIANE_HASH) || await credencialValida(hash);
+    if(credencialOk){
       const btn = document.getElementById('loginBtn');
       erroEl.style.color = '#8B80A3';
       erroEl.textContent = 'Verificando...';
