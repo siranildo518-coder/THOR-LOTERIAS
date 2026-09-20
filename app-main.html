@@ -189,9 +189,7 @@ const CREDENCIAIS_VALIDAS = [
   '19i2sp', // Marlon
   '18ukbw4', // Tatymiguel
   '1us4pw3', // Thor
-  'w0lgun', // Henryiran
-  '1v1113a', // Tatyehenry
-  '1vi7inn', // Amor
+  '6k21yz', // Asc9
 ];
 
 const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
@@ -334,48 +332,6 @@ function sairDoLogin(){
   location.reload();
 }
 
-// Verifica periodicamente se o usuário ainda existe no gerenciador.
-// Se ele for excluído, a sessão aberta é encerrada automaticamente.
-let _thorSessaoTimer = null;
-async function verificarSessaoRemota(){
-  let hash = '';
-  try{ hash = localStorage.getItem('tl_hash_atual') || ''; }catch(e){}
-  if(!hash || !loginJaValidado()) return;
-  try{
-    await carregarFirebase();
-    const cadastro = await dbFirestore.collection('usuarios_login').doc(hash).get();
-    if(cadastro.exists){
-      const dados = cadastro.data() || {};
-      if(dados.ativo === false || dados.bloqueado === true){
-        sairDoLogin();
-        return;
-      }
-    }
-    const controle = await dbFirestore.collection('controle_sessao').doc(hash).get();
-    if(controle.exists){
-      const dadosControle = controle.data() || {};
-      let inicioSessao = Number(sessionStorage.getItem('tl_inicio_sessao') || '0');
-      if(!inicioSessao){
-        inicioSessao = Date.now();
-        sessionStorage.setItem('tl_inicio_sessao', String(inicioSessao));
-      }
-      const revogarEm = dadosControle.revogarEm && typeof dadosControle.revogarEm.toMillis === 'function' ? dadosControle.revogarEm.toMillis() : 0;
-      if(revogarEm && revogarEm >= inicioSessao) sairDoLogin();
-    }
-  }catch(e){
-    // Sem internet: mantém a sessão atual e tenta novamente depois.
-  }
-}
-function iniciarVerificacaoSessao(){
-  clearInterval(_thorSessaoTimer);
-  setTimeout(verificarSessaoRemota, 1200);
-  _thorSessaoTimer = setInterval(verificarSessaoRemota, 15000);
-}
-window.addEventListener('load', iniciarVerificacaoSessao);
-document.addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState === 'visible') verificarSessaoRemota();
-});
-
 if(!loginJaValidado()){
   document.documentElement.style.visibility = 'hidden';
 }
@@ -517,40 +473,10 @@ async function atualizarPresencaOnline(){
     const hash = localStorage.getItem('tl_hash_atual');
     if(!hash) return;
     await carregarFirebase();
-    const deviceId = obterDeviceId();
-    const clientId = obterClientId();
-    const contexto = obterContextoAcesso();
     await dbFirestore.collection('presenca_online').doc(hash).set({
       online: true,
       ultimaAtividade: firebase.firestore.FieldValue.serverTimestamp()
     }, {merge:true});
-    const did = obterDeviceId();
-    await dbFirestore.collection('sessoes_clientes').doc(hash).collection('dispositivos').doc(did).set({
-      contexto: obterContextoAcesso(),
-      ultimaAtividade: firebase.firestore.FieldValue.serverTimestamp()
-    }, {merge:true});
-    await dbFirestore.collection('sessoes_clientes').doc(hash).collection('dispositivos').doc(deviceId).set({
-      deviceId,
-      clientId,
-      contexto,
-      userAgent: navigator.userAgent || '',
-      ultimaAtividade: firebase.firestore.FieldValue.serverTimestamp()
-    }, {merge:true});
-    const controleRef = dbFirestore.collection('controle_sessao').doc(hash);
-    const controleSnap = await controleRef.get();
-    if(controleSnap.exists){
-      const controle = controleSnap.data() || {};
-      let inicioSessao = Number(sessionStorage.getItem('tl_inicio_sessao') || '0');
-      if(!inicioSessao){
-        inicioSessao = Date.now();
-        sessionStorage.setItem('tl_inicio_sessao', String(inicioSessao));
-      }
-      const revogarEm = controle.revogarEm && typeof controle.revogarEm.toMillis === 'function' ? controle.revogarEm.toMillis() : 0;
-      if(revogarEm && revogarEm >= inicioSessao){
-        sairDoLogin();
-        return;
-      }
-    }
   }catch(e){ console.error('Falha ao atualizar presença:', e); }
 }
 function iniciarPresencaOnline(){
