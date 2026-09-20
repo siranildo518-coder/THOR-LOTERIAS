@@ -5709,8 +5709,9 @@ async function fetchConcursoLoteria(game, concurso){
   const timeoutMs = 4200;
   const path = concurso ? `/${concurso}` : '/latest';
 
-  // Dispara as fontes ao mesmo tempo e usa a primeira resposta válida.
-  // Assim uma API lenta não segura as demais, principalmente na Lotofácil.
+  // Para o concurso mais recente, NÃO usa a primeira fonte que responder:
+  // uma CDN atrasada pode devolver um concurso antigo. Coletamos as respostas
+  // disponíveis e escolhemos sempre o MAIOR número de concurso.
   const fontes = [];
   if(game.code === 'LF'){
     fontes.push({
@@ -5765,27 +5766,32 @@ async function fetchConcursoLoteria(game, concurso){
     }
   };
 
-  return await new Promise((resolve, reject)=>{
-    let falhas = 0;
-    let terminou = false;
-    fontes.forEach((fonte, idx)=>{
-      tentarFonte(fonte, idx).then(data=>{
-        if(terminou) return;
-        terminou = true;
-        controllers.forEach((c, i)=>{ if(i !== idx) try{ c.abort(); }catch(e){} });
-        if(data && data.concurso){
-          CONCURSO_CACHE_LOTERIA.set(chaveCacheConcurso(game, Number(data.concurso)), data);
-        }
-        resolve(data);
-      }).catch(err=>{
-        falhas++;
-        if(falhas >= fontes.length && !terminou){
+  if(concurso){
+    return await new Promise((resolve, reject)=>{
+      let falhas = 0, terminou = false;
+      fontes.forEach((fonte, idx)=>{
+        tentarFonte(fonte, idx).then(data=>{
+          if(terminou) return;
           terminou = true;
-          reject(new Error('Falha ao buscar resultado em todas as fontes disponíveis'));
-        }
+          controllers.forEach((c, i)=>{ if(i !== idx) try{ c.abort(); }catch(e){} });
+          if(data && data.concurso) CONCURSO_CACHE_LOTERIA.set(chaveCacheConcurso(game, Number(data.concurso)), data);
+          resolve(data);
+        }).catch(()=>{
+          falhas++;
+          if(falhas >= fontes.length && !terminou){ terminou=true; reject(new Error('Falha ao buscar resultado em todas as fontes disponíveis')); }
+        });
       });
     });
-  });
+  }
+
+  // Busca "latest": espera as fontes por uma janela curta e fica com o maior concurso.
+  const resultados = await Promise.allSettled(fontes.map((fonte,idx)=>tentarFonte(fonte,idx)));
+  const validos = resultados.filter(r=>r.status==='fulfilled' && r.value && r.value.concurso).map(r=>r.value);
+  if(!validos.length) throw new Error('Falha ao buscar resultado em todas as fontes disponíveis');
+  validos.sort((a,b)=>Number(b.concurso)-Number(a.concurso));
+  const data = validos[0];
+  CONCURSO_CACHE_LOTERIA.set(chaveCacheConcurso(game, Number(data.concurso)), data);
+  return data;
 }
 
 // ---------- tendência: dezenas com maior probabilidade de falha ----------
