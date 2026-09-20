@@ -521,6 +521,11 @@ async function atualizarPresencaOnline(){
       online: true,
       ultimaAtividade: firebase.firestore.FieldValue.serverTimestamp()
     }, {merge:true});
+    const did = obterDeviceId();
+    await dbFirestore.collection('sessoes_clientes').doc(hash).collection('dispositivos').doc(did).set({
+      contexto: obterContextoAcesso(),
+      ultimaAtividade: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
     await dbFirestore.collection('sessoes_clientes').doc(hash).collection('dispositivos').doc(deviceId).set({
       deviceId,
       clientId,
