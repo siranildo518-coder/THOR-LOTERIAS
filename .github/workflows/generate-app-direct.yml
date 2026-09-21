@@ -1,0 +1,40 @@
+name: Atualizar app direto
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'app-main.html'
+      - 'index-core-thor7.html'
+      - 'index.html'
+      - '.github/scripts/generate-app-direct.cjs'
+      - '.github/workflows/generate-app-direct.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gerar arquivo final unico
+        run: node .github/scripts/generate-app-direct.cjs
+
+      - name: Publicar se mudou
+        shell: bash
+        run: |
+          if git diff --quiet -- app-direct.html; then
+            echo "app-direct.html ja esta atualizado."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app-direct.html
+          git commit -m "Atualizar app-direct automaticamente"
+          git push
