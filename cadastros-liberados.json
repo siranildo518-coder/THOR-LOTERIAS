@@ -75,7 +75,8 @@
       "hash": "371cd22102e08a687865cc06a4dfaa50aa0daa1cca8d93d6f0ff17b0fb3ed3f1",
       "criadoEm": "2026-09-21T22:07:59.648Z",
       "expiraEm": "2026-09-22T22:07:59.651Z",
-      "ativo": true
+      "ativo": true,
+      "compatHash": "1krq4il"
     }
   ]
 }
