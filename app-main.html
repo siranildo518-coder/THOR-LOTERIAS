@@ -207,7 +207,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v142-cadastro-fix2'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v143-cadastro-login-fix'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -288,25 +288,39 @@ function contaExtraHash(item){
 }
 
 async function credencialValida(hash){
+  // 1) Contas embutidas no app e contas criadas neste aparelho.
   if(CREDENCIAIS_VALIDAS.includes(hash) || carregarContasExtras().some(item=> contaExtraHash(item) === hash)){
     return true;
   }
+
+  // 2) Carrega Firebase uma única vez. Se não houver conexão, não inventa credencial.
   try{
     await carregarFirebase();
-    // Fonte oficial do gerenciador: todo usuário criado passa a existir aqui
-    // imediatamente, sem depender do cache/versão do HTML no celular do cliente.
+  }catch(e){
+    console.error('Falha ao carregar Firebase para validar credencial:', e);
+    return false;
+  }
+
+  // 3) Base principal do gerenciador. Falha aqui NÃO impede consultar a ativação.
+  try{
     const cadastro = await dbFirestore.collection('usuarios_login').doc(hash).get();
     if(cadastro.exists){
       const dadosCadastro = cadastro.data() || {};
-      return dadosCadastro.ativo !== false && dadosCadastro.bloqueado !== true;
+      if(dadosCadastro.ativo !== false && dadosCadastro.bloqueado !== true) return true;
+      return false;
     }
-    // Compatibilidade com clientes antigos já registrados pela trava.
+  }catch(e){
+    console.warn('usuarios_login indisponível; tentando contas_ativadas:', e);
+  }
+
+  // 4) Compatibilidade e recuperação de contas já criadas pelo próprio cliente.
+  try{
     const snap = await dbFirestore.collection('contas_ativadas').doc(hash).get();
     if(!snap.exists) return false;
     const dados = snap.data() || {};
     return dados.ativo !== false && dados.bloqueado !== true;
   }catch(e){
-    console.error('Falha ao validar a credencial:', e);
+    console.error('Falha ao validar credencial em contas_ativadas:', e);
     return false;
   }
 }
@@ -437,7 +451,7 @@ async function buscarLiberacaoCadastroTeste(codigo){
 
   const urls = [
     'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?_='+Date.now(),
-    './cadastros-liberados.json?v=thor7-v142&_='+Date.now()
+    './cadastros-liberados.json?v=thor7-v143&_='+Date.now()
   ];
 
   for(const url of urls){
@@ -512,6 +526,25 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
       criadoVia: 'cadastro_teste',
       ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
     });
+
+    // Persiste a credencial também no aparelho. Assim, sair e entrar novamente
+    // com o mesmo usuário/senha não depende de uma nova consulta à rede.
+    salvarContaExtra(hash, null);
+
+    // Mantém também uma entrada na base principal de login quando as regras do
+    // Firebase permitirem. Se esta escrita estiver bloqueada, contas_ativadas
+    // e a cópia local continuam garantindo o login neste aparelho.
+    try{
+      await dbFirestore.collection('usuarios_login').doc(hash).set({
+        usuario,
+        ativo: true,
+        bloqueado: false,
+        criadoVia: 'cadastro_cliente',
+        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      }, {merge:true});
+    }catch(e){
+      console.warn('Não foi possível gravar usuarios_login; mantendo credencial local e ativação.', e);
+    }
 
     try{
       await usoRef.set({
