@@ -45,6 +45,13 @@ jobs:
           mkdir -p android-apk/app/src/main/res/drawable
           cp thor_icon.jpg android-apk/app/src/main/res/drawable/thor_icon.jpg
 
+          cat > android-apk/app/src/main/res/drawable/splash_transparent.xml <<'EOF'
+          <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+              <solid android:color="@android:color/transparent"/>
+              <size android:width="1dp" android:height="1dp"/>
+          </shape>
+          EOF
+
           cat > android-apk/settings.gradle <<'EOF'
           pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
           dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
@@ -67,7 +74,7 @@ jobs:
                   applicationId 'com.thorloterias.app'
                   minSdk 23
                   targetSdk 35
-                  versionCode 145
+                  versionCode 146
                   versionName 'THOR 7 V142'
               }
           }
@@ -91,11 +98,12 @@ jobs:
           <resources>
               <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
                   <item name="android:fontFamily">sans</item>
-                  <item name="android:colorAccent">#6D28D9</item>
+                  <item name="android:colorAccent">#07101f</item>
                   <item name="android:windowLightStatusBar">false</item>
-                  <item name="android:statusBarColor">#4C1D95</item>
-                  <item name="android:navigationBarColor">#4C1D95</item>
-                  <item name="android:windowBackground">#4C1D95</item>
+                  <item name="android:statusBarColor">#07101f</item>
+                  <item name="android:navigationBarColor">#07101f</item>
+                  <item name="android:windowBackground">#07101f</item>
+                  <item name="android:windowDisablePreview">true</item>
               </style>
           </resources>
           EOF
@@ -104,13 +112,13 @@ jobs:
           <resources>
               <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
                   <item name="android:fontFamily">sans</item>
-                  <item name="android:colorAccent">#6D28D9</item>
+                  <item name="android:colorAccent">#07101f</item>
                   <item name="android:windowLightStatusBar">false</item>
-                  <item name="android:statusBarColor">#4C1D95</item>
-                  <item name="android:navigationBarColor">#4C1D95</item>
-                  <item name="android:windowBackground">#4C1D95</item>
-                  <item name="android:windowSplashScreenBackground">#4C1D95</item>
-                  <item name="android:windowSplashScreenAnimatedIcon">@drawable/thor_icon</item>
+                  <item name="android:statusBarColor">#07101f</item>
+                  <item name="android:navigationBarColor">#07101f</item>
+                  <item name="android:windowBackground">#07101f</item>
+                  <item name="android:windowSplashScreenBackground">#07101f</item>
+                  <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_transparent</item>
                   <item name="android:windowSplashScreenAnimationDuration">0</item>
               </style>
           </resources>
