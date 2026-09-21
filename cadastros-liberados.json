@@ -6,6 +6,12 @@
       "criadoEm": "2026-09-21T14:54:24Z",
       "expiraEm": "2026-09-22T14:54:24Z",
       "ativo": true
+    },
+    {
+      "hash": "8b2f4d91771fe33d37899805349e804423e1c8d200ae63b411c7a260ee3aa95d",
+      "criadoEm": "2026-09-21T14:59:58.366Z",
+      "expiraEm": "2026-09-22T14:59:58.372Z",
+      "ativo": true
     }
   ]
 }
