@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Gerenciador de usuários — THOR LOTERIAS V130</title><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <title>Gerenciador de usuários — THOR LOTERIAS V132</title><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
   <style>
     :root{--roxo:#5b21b6;--roxo2:#7c2be8;--verde:#119447;--vermelho:#c93636;--cinza:#716b7d}
     *{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(155deg,#3e148c,#7c25eb);font:15px Arial,sans-serif;color:#261943;padding:18px}
@@ -25,7 +25,7 @@
 </head>
 <body>
   <main class="card">
-    <h1>THOR LOTERIAS V130</h1>
+    <h1>THOR LOTERIAS V132</h1>
     <p class="sub">Criador de usuário e senha</p>
 
     <label for="usuario">Novo usuário</label>
@@ -98,6 +98,35 @@
     $('olhoToken').onclick=()=>alternar($('token'),$('olhoToken'));
     $('limpar').onclick=()=>{$('usuario').value='';$('senha').value='';mostrar('Campos limpos.');$('usuario').focus()};
 
+    function limparTokenSalvo(){
+      try{localStorage.removeItem(TOKEN_KEY)}catch(e){}
+      $('token').value='';
+    }
+
+    async function testarPermissaoGithub(){
+      const token=$('token').value.trim();
+      const repo=$('repo').value.trim();
+      if(!token) throw new Error('Informe um token do GitHub em “Configuração do GitHub”.');
+      if(!repo.includes('/')) throw new Error('Repositório inválido. Use proprietário/nome.');
+      const r=await fetch(`https://api.github.com/repos/${repo}`,{
+        cache:'no-store',
+        headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${token}`,'X-GitHub-Api-Version':'2022-11-28'}
+      });
+      const d=await r.json().catch(()=>({}));
+      if(r.status===401){
+        limparTokenSalvo();
+        throw new Error('Token do GitHub inválido ou expirado. Gere um novo token e tente novamente.');
+      }
+      if(!r.ok) throw new Error(d.message||`Falha do GitHub (${r.status}).`);
+      const p=d.permissions||{};
+      if(!(p.push===true||p.admin===true||p.maintain===true)){
+        throw new Error('SEM PERMISSÃO DE ESCRITA. No GitHub, dê ao token acesso a este repositório com “Contents: Read and write”.');
+      }
+      localStorage.setItem(TOKEN_KEY,token);
+      localStorage.setItem(REPO_KEY,repo);
+      return true;
+    }
+
     async function github(path,opcoes={}){
       const token=$('token').value.trim();
       if(!token) throw new Error('Abra “Configuração do GitHub” e informe o token de acesso.');
@@ -106,10 +135,22 @@
       localStorage.setItem(TOKEN_KEY,token);localStorage.setItem(REPO_KEY,repo);
       const resposta=await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
         ...opcoes,
+        cache:'no-store',
         headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${token}`,'X-GitHub-Api-Version':'2022-11-28',...(opcoes.headers||{})}
       });
       const dados=await resposta.json().catch(()=>({}));
-      if(!resposta.ok){const erro=new Error(dados.message||`Falha do GitHub (${resposta.status}).`);erro.status=resposta.status;throw erro}
+      if(!resposta.ok){
+        if(resposta.status===401){
+          limparTokenSalvo();
+          const erro=new Error('Token do GitHub inválido ou expirado. Informe um token novo.');
+          erro.status=401;throw erro;
+        }
+        if(resposta.status===403){
+          const erro=new Error('SEM PERMISSÃO. O token precisa ter acesso ao repositório THOR-LOTERIAS com “Contents: Read and write”.');
+          erro.status=403;throw erro;
+        }
+        const erro=new Error(dados.message||`Falha do GitHub (${resposta.status}).`);erro.status=resposta.status;throw erro
+      }
       return dados;
     }
 
@@ -175,7 +216,7 @@
           atualizarBotaoNavegador(cliente,navegador);
           acoes.append(ver,redefinir,liberar,navegador,remover);dados.append(nome,senha,codigo);linha.append(dados,acoes);item.append(linha);area.append(item);
         });
-      }catch(e){area.innerHTML='<div class="vazio">'+String(e.message||e)+'</div>'}
+      }catch(e){area.innerHTML='<div class="vazio">'+String(e.message||e)+'</div>';mostrar(String(e.message||e),'erro')}
     }
 
     async function atualizarBotaoNavegador(cliente,botao){
@@ -198,6 +239,7 @@
       const novoHash=hashLogin(`${cliente.nome}|${nova.trim()}`);
       mostrar('Redefinindo a senha de '+cliente.nome+'…');
       try{
+        await testarPermissaoGithub();
         await atualizarArquivo('app-main.html',texto=>{
           const re=new RegExp("'"+cliente.hash+"'\\s*,\\s*//[^\\n\\r]*");
           if(!re.test(texto)) throw new Error('O cliente não foi encontrado para atualização.');
@@ -213,6 +255,7 @@
       if(!confirm('Remover o usuário '+cliente.nome+'? Ele não conseguirá mais entrar no aplicativo.')) return;
       mostrar('Removendo '+cliente.nome+'…');
       try{
+        await testarPermissaoGithub();
         await atualizarArquivo('app-main.html',texto=>{
           const re=new RegExp("\\s*'"+cliente.hash+"'\\s*,\\s*//[^\\n\\r]*(?:\\r?\\n)?");
           if(!re.test(texto)) throw new Error('O cliente não foi encontrado para remoção.');
@@ -234,6 +277,7 @@
       if(senha.length<4){mostrar('A senha precisa ter pelo menos 4 caracteres.','erro');return}
       const btn=$('criar');btn.disabled=true;mostrar('Enviando o cadastro para o aplicativo…');
       try{
+        await testarPermissaoGithub();
         const hash=hashLogin(`${usuario}|${senha}`);
         await atualizarArquivo('app-main.html',texto=>{
           if(texto.includes(`'${hash}'`)) throw new Error('Esse usuário e senha já estão cadastrados.');
