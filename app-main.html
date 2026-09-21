@@ -205,7 +205,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v137'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v138'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -596,19 +596,19 @@ function montarTelaLogin(){
   });
 
   async function tentarEntrar(){
-    const usuario = document.getElementById('loginUsuario').value;
-    const senha = document.getElementById('loginSenha').value;
+    const usuario = document.getElementById('loginUsuario').value.trim();
+    const senha = document.getElementById('loginSenha').value.trim();
     const erroEl = document.getElementById('loginErro');
-    if(!usuario.trim() || !senha.trim()){
+    if(!usuario || !senha){
       erroEl.style.color = '#B7791F';
       erroEl.textContent = 'Preencha usuário e senha.';
       return;
     }
     const hash = hashLogin(`${usuario}|${senha}`);
-    // Elziane: validação direta no APK/site para não depender de cache ou Firebase.
-    // A comparação usa o mesmo hash já cadastrado, sem expor a senha no arquivo.
+    // Validação direta para contas administrativas conhecidas, sem depender de cache/Firebase.
     const ELZIANE_HASH = '1165s8q';
-    const credencialOk = (hash === ELZIANE_HASH) || await credencialValida(hash);
+    const GISELE_HASH = 'oybgb0';
+    const credencialOk = (hash === ELZIANE_HASH || hash === GISELE_HASH) || await credencialValida(hash);
     if(credencialOk){
       const btn = document.getElementById('loginBtn');
       erroEl.style.color = '#8B80A3';
