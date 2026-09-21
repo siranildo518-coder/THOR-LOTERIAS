@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Gerenciador de usuários — THOR LOTERIAS V134</title><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <title>Gerenciador de usuários — THOR LOTERIAS V137</title><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
   <style>
     :root{--roxo:#5b21b6;--roxo2:#7c2be8;--verde:#119447;--vermelho:#c93636;--cinza:#716b7d}
     *{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(155deg,#3e148c,#7c25eb);font:15px Arial,sans-serif;color:#261943;padding:18px}
@@ -25,7 +25,7 @@
 </head>
 <body>
   <main class="card">
-    <h1>THOR LOTERIAS V134</h1>
+    <h1>THOR LOTERIAS V137</h1>
     <p class="sub">Criador de usuário e senha</p>
 
     <label for="usuario">Novo usuário</label>
@@ -333,6 +333,7 @@
         await testarPermissaoGithub();
         const codigo=gerarCodigoCadastro();
         const hash=await sha256Hex(codigo);
+        const compatHash=hashLogin(codigo);
         const criadoEm=new Date().toISOString();
         const expiraEm=new Date(Date.now()+24*60*60*1000).toISOString();
         await atualizarArquivo('cadastros-liberados.json',texto=>{
@@ -341,7 +342,7 @@
           if(!dados||typeof dados!=='object') dados={versao:1,liberacoes:[]};
           if(!Array.isArray(dados.liberacoes)) dados.liberacoes=[];
           dados.versao=1;
-          dados.liberacoes.push({hash,criadoEm,expiraEm,ativo:true});
+          dados.liberacoes.push({hash,compatHash,criadoEm,expiraEm,ativo:true});
           return JSON.stringify(dados,null,2)+'\n';
         },'Liberar cadastro teste');
         mostrar('CADASTRO TESTE LIBERADO.<br>Envie este código ao cliente:<br><span class="tag" style="font-size:20px;letter-spacing:2px;">'+codigo+'</span><br><small>Uso único · válido por 24 horas.</small>','ok');
