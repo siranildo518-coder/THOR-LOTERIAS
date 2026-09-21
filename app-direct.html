@@ -403,43 +403,53 @@ async function buscarLiberacaoCadastroTeste(codigo){
   let codigoHash = '';
   try{ codigoHash = await sha256HexCadastro(codigoNormalizado); }catch(e){}
 
-  const urls = [
-    'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?_='+Date.now(),
-    './cadastros-liberados.json?v=thor7-v137&_='+Date.now()
-  ];
-
-  let ultimoErro = null;
-  for(const url of urls){
-    try{
-      const resposta = await fetch(url,{
-        cache:'no-store',
-        headers:{'Cache-Control':'no-cache'}
-      });
-      if(!resposta.ok) throw new Error('HTTP '+resposta.status);
-      const dados = await resposta.json();
-      const lista = Array.isArray(dados && dados.liberacoes) ? dados.liberacoes : [];
-      const item = lista.find(x=>x && x.ativo !== false && (
-        (x.compatHash && x.compatHash === codigoCompat) ||
-        (codigoHash && x.hash === codigoHash)
-      ));
-      if(!item){
-        ultimoErro = {ok:false,motivo:'codigo_invalido'};
-        continue;
+  function validarLista(lista){
+    const item = (Array.isArray(lista)?lista:[]).find(x=>x && x.ativo !== false && (
+      (x.compatHash && x.compatHash === codigoCompat) ||
+      (codigoHash && x.hash === codigoHash)
+    ));
+    if(!item) return {ok:false,motivo:'codigo_invalido'};
+    if(item.expiraEm){
+      const limite = Date.parse(item.expiraEm);
+      if(Number.isFinite(limite) && Date.now() > limite){
+        return {ok:false,motivo:'codigo_expirado'};
       }
-      if(item.expiraEm){
-        const limite = Date.parse(item.expiraEm);
-        if(Number.isFinite(limite) && Date.now() > limite){
-          return {ok:false,motivo:'codigo_expirado'};
-        }
-      }
-      return {ok:true,codigoHash:(item.hash||codigoCompat),codigoCompat,item};
-    }catch(e){
-      ultimoErro = e;
     }
+    return {ok:true,codigoHash:(item.hash||codigoCompat),codigoCompat,item};
   }
 
-  if(ultimoErro && ultimoErro.ok === false) return ultimoErro;
-  throw ultimoErro || new Error('Não foi possível consultar a liberação do cadastro.');
+  // Consulta o commit atual primeiro; não espera o GitHub Pages/Raw propagar.
+  try{
+    const api = await fetch(
+      'https://api.github.com/repos/siranildo518-coder/THOR-LOTERIAS/contents/cadastros-liberados.json?ref=main&_='+Date.now(),
+      {cache:'no-store',headers:{'Accept':'application/vnd.github+json','Cache-Control':'no-cache'}}
+    );
+    if(api.ok){
+      const meta = await api.json();
+      if(meta && meta.content){
+        const texto = decodeURIComponent(escape(atob(String(meta.content).replace(/\s/g,''))));
+        const json = JSON.parse(texto);
+        const r = validarLista(json && json.liberacoes);
+        if(r.ok || r.motivo==='codigo_expirado') return r;
+      }
+    }
+  }catch(e){}
+
+  const urls = [
+    'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?_='+Date.now(),
+    './cadastros-liberados.json?v=thor7-v142&_='+Date.now()
+  ];
+
+  for(const url of urls){
+    try{
+      const resposta = await fetch(url,{cache:'no-store',headers:{'Cache-Control':'no-cache'}});
+      if(!resposta.ok) continue;
+      const json = await resposta.json();
+      const r = validarLista(json && json.liberacoes);
+      if(r.ok || r.motivo==='codigo_expirado') return r;
+    }catch(e){}
+  }
+  return {ok:false,motivo:'codigo_invalido'};
 }
 
 async function criarCadastroTesteLiberado(codigo, usuario, senha){
