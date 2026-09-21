@@ -67,8 +67,8 @@ jobs:
                   applicationId 'com.thorloterias.app'
                   minSdk 23
                   targetSdk 35
-                  versionCode 143
-                  versionName 'THOR 7 V143'
+                  versionCode 144
+                  versionName 'THOR 7 V144'
               }
           }
           EOF
@@ -172,7 +172,7 @@ jobs:
                   // Não limpa o cache na abertura. O service worker do THOR abre o conteúdo
                   // local imediatamente e atualiza em segundo plano, deixando o APK muito mais rápido.
                   webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
-                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?apk=143");
+                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/app-direct.html?apk=144");
               }
               @Override protected void onPause() {
                   android.webkit.CookieManager.getInstance().flush();
