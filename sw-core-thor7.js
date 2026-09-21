@@ -1,7 +1,7 @@
 // THOR LOTERIAS - Service Worker
 // THOR 7 V3.75 - calculadora de probabilidade e cache sincronizados
-const CACHE_NAME='thor-loterias-thor7-v139-gisele-sem-trava';
-const CORE=['./','./index.html','./app-main.html','./falhas-concursos.html','./calculadora-topo-v331.jpg','./calculadora-probabilidade-v331.css','./calculadora-probabilidade-v333.css','./calculadora-probabilidade-v334.css','./calculadora-probabilidade-v335.css','./calculadora-topo-v335.jpg','./calculadora-topo-v336.jpg','./calculadora-probabilidade-v336.css','./calculadora-probabilidade-v331.js','./calculadora-probabilidade-v336.js','./fechamento-topo-v327.jpg','./fechamento-visual-v327.css','./fechamento-visual-v327.js','./fechamento-detalhe-v328.css','./fechamento-detalhe-v328.js','./mega-topo-v329.jpg','./lotofacil-topo-v330.jpg','./quina-topo-v330.jpg','./dia-sorte-topo-v330.jpg','./lotomania-topo-v330.jpg','./timemania-topo-v330.jpg','./dupla-sena-topo-v330.jpg','./super-sete-topo-v330.jpg','./fechamento-resultados-v330.css','./fechamento-ajustes-v337.css','./analise-topo-v338.jpg','./analise-visual-v338.css','./analise-visual-v340.css','./analise-visual-v341.css','./analise-visual-v342.css','./analise-repeticao-v342.js','./analise-visual-v343.css','./analise-visual-v344.css','./analise-frequencia-v345.css','./analise-frequencia-v346.css','./analise-frequencia-v347.css','./combinacoes-resultados-v348.css','./combinacoes-globo-v349.css','./combinacoes-botoes-v350.css','./combinacoes-selecao-v375.css','./combinacoes-selecao-v379.css','./combinacoes-selecao-v381.css','./combinacoes-selecao-v382.css','./combinacoes-topo-v366.png','./analise-repeticao-v343.js','./fechamento-resultados-v330.js','./thor-home-topo-v316.jpg','./thor-comeco-final-topo.jpg','./thor-jogos-oficiais-topo.jpg','./thor-header-no-arrow.jpg','./resultados-auto-thor4.js','./gerador.html','./gerador-topo-v319.jpg','./gerador-visual-v318.css','./gerador-ajustes-v321.css','./gerador-visual-v318.js','./gerador-palpites.js','./gerador-minimo-87.js','./gerador-quantidade.js','./gerador-padroes-avancados.js','./analysis-neon.css','./fechamento-personalizado-luxo.css','./home-topo-thor.css','./home-update-fix.js','./menu-lateral-claro-laranja.css','./filtros-auto.js','./manifest.json','./icon-192.png','./icon-512.png','./icon-512-maskable.png'];
+const CACHE_NAME='thor-loterias-thor7-v140-fast-open';
+const CORE=['./','./index.html','./index-core-thor7.html','./app-main.html','./manifest.json','./icon-192.png','./thor-home-topo-v316.jpg'];
 const PALPITES_CARD='<button class="home-feature-card" style="--fc:#d41948" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">◎</span><span><strong>Palpites</strong><small>Sugestões inteligentes</small></span></button>';
 const CALC_CARD='<button class="home-feature-card" style="--fc:#e98a00" data-home-target="btnSimularAtalho"><span class="hfc-icon">▤</span><span><strong>Calculadora</strong><small>Probabilidades e estimativas</small></span></button>';
 const ESCOLHA_CARD='<button class="home-feature-card" id="btnEscolhaPraMim" style="--fc:#18a96b" type="button"><span class="hfc-icon">★</span><span><strong>Escolha pra mim</strong><small>Sugestão automática</small></span></button>';
@@ -15,5 +15,89 @@ const HOME_TOPO_IMG_CSS=`<style id="thorHomeTopoImagemCss">#overlayListaResultad
 function prepararHome(html){if(!html.includes("calculadora-probabilidade-v336.css"))html=html.replace("</head>","<link rel=\"stylesheet\" href=\"./calculadora-probabilidade-v336.css?v=thor7-v3-84\"></head>");if(!html.includes("calculadora-probabilidade-v331.js"))html=html.replace("</body>","<script src=\"./calculadora-probabilidade-v331.js?v=thor7-v3-84\"><\/script><script src=\"./calculadora-probabilidade-v336.js?v=thor7-v3-84\"><\/script></body>");if(!html.includes('fechamento-visual-v327.css'))html=html.replace('</head>','<link rel="stylesheet" href="./fechamento-visual-v327.css?v=thor7-v3-84"><link rel="stylesheet" href="./fechamento-detalhe-v328.css?v=thor7-v3-84"><link rel="stylesheet" href="./fechamento-resultados-v330.css?v=thor7-v3-84"><link rel="stylesheet" href="./fechamento-ajustes-v337.css?v=thor7-v3-84"></head>');if(!html.includes('fechamento-visual-v327.js'))html=html.replace('</body>','<script src="./fechamento-visual-v327.js?v=thor7-v3-84"><\/script><script src="./fechamento-detalhe-v328.js?v=thor7-v3-84"><\/script><script src="./fechamento-resultados-v330.js?v=thor7-v3-84"><\/script></body>');html=html.replace(PALPITES_CARD,'');if(!html.includes('id="btnEscolhaPraMim"'))html=html.replace(CALC_CARD,CALC_CARD+'\n'+ESCOLHA_CARD);if(!html.includes('src="./gerador-palpites.js'))html=html.replace('</body>','<script src="./gerador-palpites.js?v=thor7-v3-84"><\/script></body>');if(!html.includes('resultados-auto-thor4.js'))html=html.replace('</body>','<script src="./resultados-auto-thor4.js?v=thor7-v3-84"><\/script></body>');html=html.replace('</head>',MENU_CSS+FECHAMENTO_CSS+FEATURE_CSS+TOP_CSS+JOGOS_CSS+JOGOS_TOPO_IMG_CSS+'<style id="thorSemPiscar">#overlayListaResultados{visibility:hidden!important}html.thor-home-pronta #overlayListaResultados{visibility:visible!important}</style></head>');const pronto=`<script>(function(){function montarTopoHome(){var h=document.querySelector('#overlayListaResultados .home-header');if(!h||document.getElementById('thorHomeTopoImg'))return;h.innerHTML='<img id="thorHomeTopoImg" src="./thor-home-topo-v316.jpg" alt="THOR LOTERIAS">'}function ligarEscolha(){var b=document.getElementById('btnEscolhaPraMim');if(!b)return;b.removeAttribute('data-home-target');b.onclick=function(e){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();location.href='./gerador.html?v=thor7-v3-84'}}function montarJogos(){if(document.getElementById('thorJogosBranco'))return;var tela=document.createElement('div');tela.id='thorJogosBranco';tela.innerHTML='<div id="thorJogosTopo"><img id="thorJogosTopoImg" src="./thor-jogos-oficiais-topo.jpg" alt="THOR LOTERIAS"></div><div id="thorJogosConteudo"><div id="thorJogosLoterias"><button class="thorJogoLoteria ativa" type="button">Mega-Sena</button><button class="thorJogoLoteria" type="button">Lotofácil</button><button class="thorJogoLoteria" type="button">Quina</button><button class="thorJogoLoteria" type="button">Dia de Sorte</button><button class="thorJogoLoteria" type="button">Lotomania</button><button class="thorJogoLoteria" type="button">Super Sete</button><button class="thorJogoLoteria" type="button">Timemania</button><button class="thorJogoLoteria" type="button">Dupla Sena</button></div></div>';document.body.appendChild(tela);window.addEventListener('popstate',function(){tela.classList.remove('ativo')});tela.querySelectorAll('.thorJogoLoteria').forEach(function(b){b.onclick=function(){tela.querySelectorAll('.thorJogoLoteria').forEach(function(x){x.classList.remove('ativa')});b.classList.add('ativa')}});document.addEventListener('click',function(e){var a=e.target&&e.target.closest?e.target.closest('button,a,[role="button"],.hs-item,.home-feature-card'):null;if(!a||tela.contains(a))return;var txt=(a.textContent||'').replace(/\\s+/g,' ').trim();var side=a.matches&&a.matches('#homeSideNav .hs-item:last-child');if(txt==='Jogos'||/^Jogos\\s/i.test(txt)||txt==='JOGOS OFICIAIS'||side){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();tela.classList.add('ativo');try{history.pushState({thorJogos:true},'',location.href)}catch(_){}}},true)}function revelar(){var h=document.getElementById('homeHero');if(!h)return false;var t=(h.textContent||'').trim();if((/Concurso/i.test(t)&&!/Buscando concurso/i.test(t))||h.querySelector('.hh-ball')){document.documentElement.classList.add('thor-home-pronta');return true}return false}function iniciar(){ligarEscolha();montarJogos()}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar,{once:true});else iniciar();if(!revelar()){var o=new MutationObserver(function(){ligarEscolha();montarJogos();if(revelar())o.disconnect()});o.observe(document.documentElement,{childList:true,subtree:true,characterData:true});setTimeout(function(){document.documentElement.classList.add('thor-home-pronta');o.disconnect()},8000)}})();<\/script>`;return html.replace('</body>',pronto+'</body>')}
 function prepararGerador(html){if(!html.includes('gerador-visual-v318.css'))html=html.replace('</head>','<link rel="stylesheet" href="./gerador-visual-v318.css?v=thor7-v3-84"><link rel="stylesheet" href="./gerador-ajustes-v321.css?v=thor7-v3-84"></head>');html=html.replace(/<script src="\.\/gerador-(?:padroes-avancados|minimo-87|quantidade)\.js[^>]*><\/script>/g,'');return html.replace('</body>','<script src="./gerador-visual-v318.js?v=thor7-v3-84"></script><script src="./gerador-padroes-avancados.js?v=thor7-v3-84"><\/script><script src="./gerador-minimo-87.js?v=thor7-v3-84"><\/script></body>')}
 async function respostaAtualizada(req){const fresh=await fetch(req,{cache:'no-store'});if(!fresh||!fresh.ok)return fresh;const url=new URL(req.url);if(url.pathname.endsWith('/app-main.html')){const html=prepararHome(await fresh.text()),headers=new Headers(fresh.headers);headers.set('content-type','text/html; charset=utf-8');headers.set('cache-control','no-store, no-cache, must-revalidate');return new Response(html,{status:fresh.status,statusText:fresh.statusText,headers})}if(url.pathname.endsWith('/gerador.html')){const html=prepararGerador(await fresh.text()),headers=new Headers(fresh.headers);headers.set('content-type','text/html; charset=utf-8');headers.set('cache-control','no-store, no-cache, must-revalidate');return new Response(html,{status:fresh.status,statusText:fresh.statusText,headers})}return fresh}
-async function offlineFallback(req){let cached=await caches.match(req);if(cached)return cached;const u=new URL(req.url);let path=u.pathname.split('/').pop();if(!path||req.mode==='navigate'&&path==='')path='index.html';if(path){cached=await caches.match('./'+path);if(cached)return cached}if(req.mode==='navigate')return await caches.match('./index.html');return null}
-self.addEventListener('install',event=>{event.waitUntil((async()=>{const cache=await caches.open(CACHE_NAME);for(const url of CORE){try{const req=new Request(url+(url.includes('?')?'&':'?')+'_refresh=thor7-v139-gisele-sem-trava',{cache:'no-store'}),res=await respostaAtualizada(req);if(res&&res.ok)await cache.put(url,res.clone())}catch(_){}}})());self.skipWaiting()});self.addEventListener('message',e=>{if(e.data&&e.data.type==='SKIP_WAITING')self.skipWaiting()});self.addEventListener('activate',event=>{event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)));await self.clients.claim();const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});clients.forEach(c=>c.postMessage({type:'THOR_UPDATED',version:'THOR 7 V125',refresh:'thor7-v125-estavel-2-sequencial'}))})())});self.addEventListener('fetch',event=>{const req=event.request;if(req.method!=='GET')return;event.respondWith((async()=>{try{const fresh=await respostaAtualizada(req);if(fresh&&fresh.ok){const cache=await caches.open(CACHE_NAME);await cache.put(req,fresh.clone());return fresh}return await offlineFallback(req)||fresh}catch(_){return await offlineFallback(req)||Response.error()}})())});
+async function offlineFallback(req){
+  const u=new URL(req.url);
+  let path=u.pathname.split('/').pop();
+  if(!path||path==='') path='index.html';
+  return (await caches.match('./'+path)) || (req.mode==='navigate' ? await caches.match('./index.html') : null);
+}
+
+function chaveCache(req){
+  const u=new URL(req.url);
+  let path=u.pathname.split('/').pop();
+  if(!path||path==='') return './index.html';
+  return './'+path;
+}
+
+async function atualizarEmSegundoPlano(req,chave){
+  try{
+    const fresh=await respostaAtualizada(new Request(req.url,{cache:'no-store',credentials:req.credentials,headers:req.headers}));
+    if(fresh&&fresh.ok){
+      const cache=await caches.open(CACHE_NAME);
+      await cache.put(chave,fresh.clone());
+    }
+  }catch(_){}
+}
+
+self.addEventListener('install',event=>{
+  event.waitUntil((async()=>{
+    const cache=await caches.open(CACHE_NAME);
+    await Promise.allSettled(CORE.map(async url=>{
+      try{
+        const req=new Request(url+(url.includes('?')?'&':'?')+'_refresh=thor7-v140-fast-open',{cache:'no-store'});
+        const res=await respostaAtualizada(req);
+        if(res&&res.ok) await cache.put(url,res.clone());
+      }catch(_){}
+    }));
+  })());
+  self.skipWaiting();
+});
+
+self.addEventListener('message',e=>{
+  if(e.data&&e.data.type==='SKIP_WAITING') self.skipWaiting();
+});
+
+self.addEventListener('activate',event=>{
+  event.waitUntil((async()=>{
+    const keys=await caches.keys();
+    await Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)));
+    await self.clients.claim();
+    const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    clients.forEach(c=>c.postMessage({type:'THOR_UPDATED',version:'THOR 7 V140',refresh:'thor7-v140-fast-open'}));
+  })());
+});
+
+self.addEventListener('fetch',event=>{
+  const req=event.request;
+  if(req.method!=='GET') return;
+
+  const u=new URL(req.url);
+
+  // Não interfere em APIs/arquivos externos.
+  if(u.origin!==self.location.origin) return;
+
+  // Liberações de cadastro precisam ser sempre atuais.
+  if(u.pathname.endsWith('/cadastros-liberados.json')){
+    event.respondWith(fetch(req,{cache:'no-store'}).catch(()=>offlineFallback(req)));
+    return;
+  }
+
+  const chave=chaveCache(req);
+
+  // Abertura e arquivos estáticos: cache imediato, atualização silenciosa em segundo plano.
+  event.respondWith((async()=>{
+    const cache=await caches.open(CACHE_NAME);
+    const cached=await cache.match(chave);
+    if(cached){
+      event.waitUntil(atualizarEmSegundoPlano(req,chave));
+      return cached;
+    }
+    try{
+      const fresh=await respostaAtualizada(req);
+      if(fresh&&fresh.ok) await cache.put(chave,fresh.clone());
+      return fresh;
+    }catch(_){
+      return await offlineFallback(req) || Response.error();
+    }
+  })());
+});
