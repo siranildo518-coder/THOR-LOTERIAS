@@ -35,19 +35,22 @@
       "hash": "754ded79cbdb862424659744ffb8547be3f3fbbcf3be3ed1f46efca945a3fd2e",
       "criadoEm": "2026-09-21T15:10:00Z",
       "expiraEm": "2026-09-22T15:10:00Z",
-      "ativo": true
+      "ativo": true,
+      "compatHash": "199iyna"
     },
     {
       "hash": "8949e4bda26a9ccf21b6aabb1b9e4c593a02af93c5a10f2878d12b2de0144d0e",
       "criadoEm": "2026-09-21T19:26:12.368Z",
       "expiraEm": "2026-09-22T19:26:12.375Z",
-      "ativo": true
+      "ativo": true,
+      "compatHash": "1p9aigf"
     },
     {
       "hash": "7e45641c8f3018fcc202c497fc7b1bda66e6c57c3857d878240f721f553f570f",
       "criadoEm": "2026-09-21T19:59:41.030Z",
       "expiraEm": "2026-09-22T19:59:41.030Z",
-      "ativo": true
+      "ativo": true,
+      "compatHash": "lr9urj"
     }
   ]
 }
