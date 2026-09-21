@@ -206,7 +206,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v132'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v133'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -333,6 +333,77 @@ function loginJaValidado(){
   try{ return localStorage.getItem(LOGIN_STORAGE_KEY) === '1' && !!localStorage.getItem('tl_hash_atual'); }catch(e){ return false; }
 }
 
+async function sha256HexCadastro(texto){
+  const bytes = new TextEncoder().encode(String(texto||'').trim().toUpperCase());
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function buscarLiberacaoCadastroTeste(codigo){
+  const codigoHash = await sha256HexCadastro(codigo);
+  const resposta = await fetch('./cadastros-liberados.json?_='+Date.now(), {cache:'no-store'});
+  if(!resposta.ok) throw new Error('Não foi possível consultar a liberação do cadastro.');
+  const dados = await resposta.json();
+  const lista = Array.isArray(dados && dados.liberacoes) ? dados.liberacoes : [];
+  const item = lista.find(x=>x && x.hash === codigoHash && x.ativo !== false);
+  if(!item) return {ok:false,motivo:'codigo_invalido'};
+  if(item.expiraEm){
+    const limite = Date.parse(item.expiraEm);
+    if(Number.isFinite(limite) && Date.now() > limite) return {ok:false,motivo:'codigo_expirado'};
+  }
+  return {ok:true,codigoHash,item};
+}
+
+async function criarCadastroTesteLiberado(codigo, usuario, senha){
+  if(obterContextoAcesso() !== 'app') return {ok:false,motivo:'somente_app'};
+  usuario = String(usuario||'').trim();
+  senha = String(senha||'').trim();
+  if(usuario.length < 2) return {ok:false,motivo:'usuario_curto'};
+  if(senha.length < 4) return {ok:false,motivo:'senha_curta'};
+
+  const liberacao = await buscarLiberacaoCadastroTeste(codigo);
+  if(!liberacao.ok) return liberacao;
+
+  await carregarFirebase();
+  const hash = hashLogin(`${usuario}|${senha}`);
+  const usoRef = dbFirestore.collection('contas_ativadas').doc('cadastro_teste_'+liberacao.codigoHash);
+  const contaRef = dbFirestore.collection('contas_ativadas').doc(hash);
+
+  try{
+    await dbFirestore.runTransaction(async tx=>{
+      const usoSnap = await tx.get(usoRef);
+      const contaSnap = await tx.get(contaRef);
+      if(usoSnap.exists && (usoSnap.data()||{}).consumido === true){
+        throw new Error('codigo_usado');
+      }
+      if(contaSnap.exists){
+        throw new Error('usuario_existente');
+      }
+      tx.set(contaRef,{
+        usuario,
+        deviceId: obterDeviceId(),
+        clientId: obterClientId(),
+        ativo: true,
+        bloqueado: false,
+        redefinirAparelho: false,
+        criadoVia: 'cadastro_teste',
+        ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      tx.set(usoRef,{
+        consumido: true,
+        contaHash: hash,
+        consumidoEm: firebase.firestore.FieldValue.serverTimestamp()
+      }, {merge:true});
+    });
+    return {ok:true,hash,usuario};
+  }catch(e){
+    if((e && e.message)==='codigo_usado') return {ok:false,motivo:'codigo_usado'};
+    if((e && e.message)==='usuario_existente') return {ok:false,motivo:'usuario_existente'};
+    console.error('Falha ao criar cadastro teste:', e);
+    return {ok:false,motivo:'falha_servidor'};
+  }
+}
+
 // Derruba o login deste aparelho/navegador e volta pra tela de usuário/senha.
 function sairDoLogin(){
   try{ localStorage.removeItem(LOGIN_STORAGE_KEY); localStorage.removeItem('tl_hash_atual'); }catch(e){}
@@ -368,6 +439,19 @@ function montarTelaLogin(){
         </div>
         <div id="loginErro" style="color:#B7791F;font-size:12.5px;min-height:16px;margin-bottom:8px;"></div>
         <button id="loginBtn" style="width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#4C1D95,#6D28D9);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">ENTRAR</button>
+        <button id="abrirCadastroBtn" type="button" style="width:100%;padding:12px;margin-top:10px;border:1px solid #6D28D9;border-radius:10px;background:#fff;color:#5B21B6;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">CRIAR MEU CADASTRO</button>
+      </div>
+      <div id="formCadastroTeste" style="display:none;">
+        <div style="text-align:center;font-size:30px;margin-bottom:6px;">🔐</div>
+        <h2 style="font-family:'Baloo 2',sans-serif;text-align:center;color:#4C1D95;margin:0 0 4px;font-size:20px;">Criar meu cadastro</h2>
+        <p style="text-align:center;color:#8B80A3;font-size:12.5px;margin:0 0 14px;">Use o código liberado após a confirmação do pagamento.</p>
+        <input id="cadastroCodigo" placeholder="Código de liberação" autocomplete="off" autocapitalize="characters" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:10px;font-size:14.5px;text-transform:uppercase;">
+        <input id="cadastroUsuario" placeholder="Crie seu usuário" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:10px;font-size:14.5px;">
+        <input id="cadastroSenha" type="password" placeholder="Crie sua senha" autocomplete="new-password" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:10px;font-size:14.5px;">
+        <input id="cadastroSenha2" type="password" placeholder="Confirme sua senha" autocomplete="new-password" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:6px;font-size:14.5px;">
+        <div id="cadastroErro" style="color:#B7791F;font-size:12.5px;min-height:18px;margin-bottom:8px;"></div>
+        <button id="cadastroCriarBtn" type="button" style="width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#159447,#087735);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">CRIAR CADASTRO</button>
+        <button id="cadastroVoltarBtn" type="button" style="width:100%;padding:11px;margin-top:9px;border:none;border-radius:10px;background:#EEE9F8;color:#5B21B6;font-weight:700;cursor:pointer;">VOLTAR</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
@@ -440,6 +524,60 @@ function montarTelaLogin(){
   }
 
   document.getElementById('loginBtn').addEventListener('click', tentarEntrar);
+
+  const formLoginEl = document.getElementById('formLogin');
+  const formCadastroEl = document.getElementById('formCadastroTeste');
+  document.getElementById('abrirCadastroBtn').addEventListener('click', ()=>{
+    formLoginEl.style.display='none';
+    formCadastroEl.style.display='block';
+    document.getElementById('cadastroErro').textContent='';
+    setTimeout(()=>document.getElementById('cadastroCodigo').focus(),50);
+  });
+  document.getElementById('cadastroVoltarBtn').addEventListener('click', ()=>{
+    formCadastroEl.style.display='none';
+    formLoginEl.style.display='block';
+    document.getElementById('cadastroErro').textContent='';
+  });
+  document.getElementById('cadastroCriarBtn').addEventListener('click', async()=>{
+    const codigo = document.getElementById('cadastroCodigo').value.trim();
+    const usuario = document.getElementById('cadastroUsuario').value.trim();
+    const senha = document.getElementById('cadastroSenha').value;
+    const senha2 = document.getElementById('cadastroSenha2').value;
+    const erro = document.getElementById('cadastroErro');
+    const btn = document.getElementById('cadastroCriarBtn');
+    if(!codigo || !usuario || !senha || !senha2){ erro.textContent='Preencha todos os campos.'; return; }
+    if(senha !== senha2){ erro.textContent='As senhas não são iguais.'; return; }
+    erro.textContent='Criando cadastro...';
+    btn.disabled=true;
+    const resultado = await criarCadastroTesteLiberado(codigo,usuario,senha);
+    btn.disabled=false;
+    if(resultado.ok){
+      try{
+        localStorage.setItem(LOGIN_STORAGE_KEY,'1');
+        localStorage.setItem('tl_hash_atual',resultado.hash);
+        localStorage.setItem('tl_nome_conta_'+resultado.hash,usuario);
+      }catch(e){}
+      overlay.remove();
+      document.documentElement.style.visibility='visible';
+      if(typeof atualizarPerfilMenuLateral==='function') atualizarPerfilMenuLateral();
+      return;
+    }
+    const mensagens={
+      codigo_invalido:'Código de liberação inválido.',
+      codigo_expirado:'Este código de liberação expirou.',
+      codigo_usado:'Este código já foi usado.',
+      usuario_existente:'Este usuário e senha já estão cadastrados.',
+      somente_app:'Faça o cadastro pelo aplicativo instalado.',
+      usuario_curto:'O usuário precisa ter pelo menos 2 caracteres.',
+      senha_curta:'A senha precisa ter pelo menos 4 caracteres.',
+      falha_servidor:'Não foi possível criar o cadastro. Verifique a internet e tente novamente.'
+    };
+    erro.textContent=mensagens[resultado.motivo]||'Não foi possível criar o cadastro.';
+  });
+
+  formCadastroEl.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('cadastroCriarBtn').click(); });
+  });
 
   overlay.querySelectorAll('#formLogin input').forEach(inp=>{
     inp.addEventListener('keydown', e=>{ if(e.key==='Enter') tentarEntrar(); });
