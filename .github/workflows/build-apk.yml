@@ -41,6 +41,7 @@ jobs:
           mkdir -p android-apk/app/src/main/java/com/thorloterias/app
           mkdir -p android-apk/app/src/main/res/layout
           mkdir -p android-apk/app/src/main/res/values
+          mkdir -p android-apk/app/src/main/res/values-v31
           mkdir -p android-apk/app/src/main/res/drawable
           cp thor_icon.jpg android-apk/app/src/main/res/drawable/thor_icon.jpg
 
@@ -66,8 +67,8 @@ jobs:
                   applicationId 'com.thorloterias.app'
                   minSdk 23
                   targetSdk 35
-                  versionCode 132
-                  versionName 'THOR 7 V132'
+                  versionCode 145
+                  versionName 'THOR 7 V142'
               }
           }
           EOF
@@ -90,10 +91,27 @@ jobs:
           <resources>
               <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
                   <item name="android:fontFamily">sans</item>
-                  <item name="android:colorAccent">#0B3975</item>
+                  <item name="android:colorAccent">#6D28D9</item>
                   <item name="android:windowLightStatusBar">false</item>
-                  <item name="android:statusBarColor">#081D43</item>
-                  <item name="android:navigationBarColor">#081D43</item>
+                  <item name="android:statusBarColor">#4C1D95</item>
+                  <item name="android:navigationBarColor">#4C1D95</item>
+                  <item name="android:windowBackground">#4C1D95</item>
+              </style>
+          </resources>
+          EOF
+
+          cat > android-apk/app/src/main/res/values-v31/styles.xml <<'EOF'
+          <resources>
+              <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+                  <item name="android:fontFamily">sans</item>
+                  <item name="android:colorAccent">#6D28D9</item>
+                  <item name="android:windowLightStatusBar">false</item>
+                  <item name="android:statusBarColor">#4C1D95</item>
+                  <item name="android:navigationBarColor">#4C1D95</item>
+                  <item name="android:windowBackground">#4C1D95</item>
+                  <item name="android:windowSplashScreenBackground">#4C1D95</item>
+                  <item name="android:windowSplashScreenAnimatedIcon">@drawable/thor_icon</item>
+                  <item name="android:windowSplashScreenAnimationDuration">0</item>
               </style>
           </resources>
           EOF
@@ -120,13 +138,17 @@ jobs:
               private WebView webView;
               @Override public void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
+                  getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0xFF4C1D95));
+                  getWindow().setStatusBarColor(0xFF4C1D95);
+                  getWindow().setNavigationBarColor(0xFF4C1D95);
                   setContentView(com.thorloterias.app.R.layout.activity_main);
                   webView = findViewById(com.thorloterias.app.R.id.webview);
+                  webView.setBackgroundColor(0xFF4C1D95);
                   WebSettings s = webView.getSettings();
                   s.setJavaScriptEnabled(true);
                   s.setDomStorageEnabled(true);
                   s.setJavaScriptCanOpenWindowsAutomatically(true);
-                  s.setCacheMode(WebSettings.LOAD_NO_CACHE);
+                  s.setCacheMode(WebSettings.LOAD_DEFAULT);
                   android.webkit.CookieManager.getInstance().setAcceptCookie(true);
                   android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
                   s.setDatabaseEnabled(true);
@@ -145,13 +167,8 @@ jobs:
                   });
                   // APK cliente: preserva localStorage/cookies (inclusive a trava), mas limpa SOMENTE cache web.
                   // Isso evita precisar usar "Limpar dados" quando o gerenciador publica um novo cliente.
-                  webView.clearCache(true);
-                  webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-                  String fresh = String.valueOf(System.currentTimeMillis());
-                  java.util.HashMap<String,String> headers = new java.util.HashMap<>();
-                  headers.put("Cache-Control", "no-cache, no-store, must-revalidate");
-                  headers.put("Pragma", "no-cache");
-                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?apk=126&t=" + fresh, headers);
+                  webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?apk=142");
               }
               @Override protected void onPause() {
                   android.webkit.CookieManager.getInstance().flush();
