@@ -66,8 +66,8 @@ jobs:
                   applicationId 'com.thorloterias.app'
                   minSdk 23
                   targetSdk 35
-                  versionCode 131
-                  versionName 'THOR 7 V131'
+                  versionCode 132
+                  versionName 'THOR 7 V132'
               }
           }
           EOF
