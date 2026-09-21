@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Gerenciador de usuários — THOR LOTERIAS V132</title><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <title>Gerenciador de usuários — THOR LOTERIAS V133</title><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
   <style>
     :root{--roxo:#5b21b6;--roxo2:#7c2be8;--verde:#119447;--vermelho:#c93636;--cinza:#716b7d}
     *{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(155deg,#3e148c,#7c25eb);font:15px Arial,sans-serif;color:#261943;padding:18px}
@@ -41,6 +41,7 @@
       <button class="salvar" id="criar" type="button">CRIAR USUÁRIO</button>
       <button class="limpar" id="limpar" type="button">LIMPAR</button>
     </div>
+    <button class="salvar" id="liberarCadastroTeste" type="button" style="width:100%;margin-top:12px;">LIBERAR CADASTRO TESTE</button>
 
     <div id="status" class="info">Preencha o usuário e a senha para cadastrar.</div>
 
@@ -78,6 +79,18 @@
       let h=5381;
       for(let i=0;i<str.length;i++) h=((h*33)^str.charCodeAt(i))>>>0;
       return h.toString(36);
+    }
+
+    async function sha256Hex(texto){
+      const bytes=new TextEncoder().encode(String(texto||'').trim().toUpperCase());
+      const digest=await crypto.subtle.digest('SHA-256',bytes);
+      return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+    function gerarCodigoCadastro(){
+      const alfabeto='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      const bytes=new Uint32Array(8);
+      crypto.getRandomValues(bytes);
+      return Array.from(bytes,n=>alfabeto[n%alfabeto.length]).join('');
     }
     function carregarSenhas(){try{return JSON.parse(localStorage.getItem(SENHAS_KEY)||'{}')}catch(e){return {}}}
     function salvarSenha(hash,usuario,senha){const dados=carregarSenhas();dados[hash]={usuario,senha};localStorage.setItem(SENHAS_KEY,JSON.stringify(dados))}
@@ -269,6 +282,33 @@
 
     $('carregarClientes').onclick=carregarClientes;
     if($('token').value.trim()) carregarClientes();
+
+    $('liberarCadastroTeste').onclick=async()=>{
+      const btn=$('liberarCadastroTeste');
+      btn.disabled=true;
+      mostrar('Gerando liberação de cadastro…');
+      try{
+        await testarPermissaoGithub();
+        const codigo=gerarCodigoCadastro();
+        const hash=await sha256Hex(codigo);
+        const criadoEm=new Date().toISOString();
+        const expiraEm=new Date(Date.now()+24*60*60*1000).toISOString();
+        await atualizarArquivo('cadastros-liberados.json',texto=>{
+          let dados;
+          try{dados=JSON.parse(texto)}catch(e){dados={versao:1,liberacoes:[]}}
+          if(!dados||typeof dados!=='object') dados={versao:1,liberacoes:[]};
+          if(!Array.isArray(dados.liberacoes)) dados.liberacoes=[];
+          dados.versao=1;
+          dados.liberacoes.push({hash,criadoEm,expiraEm,ativo:true});
+          return JSON.stringify(dados,null,2)+'\n';
+        },'Liberar cadastro teste');
+        mostrar('CADASTRO TESTE LIBERADO.<br>Envie este código ao cliente:<br><span class="tag" style="font-size:20px;letter-spacing:2px;">'+codigo+'</span><br><small>Uso único · válido por 24 horas.</small>','ok');
+      }catch(e){
+        mostrar(e.message||'Não foi possível liberar o cadastro teste.','erro');
+      }finally{
+        btn.disabled=false;
+      }
+    };
 
     $('criar').onclick=async()=>{
       const usuario=$('usuario').value.trim();const senha=$('senha').value.trim();
