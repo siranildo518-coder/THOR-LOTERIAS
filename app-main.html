@@ -206,7 +206,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v135'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v136'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -451,46 +451,67 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
   if(!liberacao.ok) return liberacao;
 
   try{
+    if(localStorage.getItem('tl_codigo_cadastro_usado_'+liberacao.codigoHash)==='1'){
+      return {ok:false,motivo:'codigo_usado'};
+    }
+  }catch(e){}
+
+  try{
     await carregarFirebase();
   }catch(e){
     console.error('Falha ao carregar Firebase no cadastro:', e);
     return {ok:false,motivo:'falha_servidor'};
   }
+
   const hash = hashLogin(`${usuario}|${senha}`);
-  const usoRef = dbFirestore.collection('contas_ativadas').doc('cadastro_teste_'+liberacao.codigoHash);
   const contaRef = dbFirestore.collection('contas_ativadas').doc(hash);
+  const usoRef = dbFirestore.collection('contas_ativadas').doc('cadastro_teste_'+liberacao.codigoHash);
 
   try{
-    await dbFirestore.runTransaction(async tx=>{
-      const usoSnap = await tx.get(usoRef);
-      const contaSnap = await tx.get(contaRef);
+    // Se o marcador global puder ser lido, respeita o uso único.
+    try{
+      const usoSnap = await usoRef.get();
       if(usoSnap.exists && (usoSnap.data()||{}).consumido === true){
-        throw new Error('codigo_usado');
+        return {ok:false,motivo:'codigo_usado'};
       }
-      if(contaSnap.exists){
-        throw new Error('usuario_existente');
-      }
-      tx.set(contaRef,{
-        usuario,
-        deviceId: obterDeviceId(),
-        clientId: obterClientId(),
-        ativo: true,
-        bloqueado: false,
-        redefinirAparelho: false,
-        criadoVia: 'cadastro_teste',
-        ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      tx.set(usoRef,{
+    }catch(e){
+      console.warn('Marcador global indisponível; seguindo com cadastro direto.', e);
+    }
+
+    const contaSnap = await contaRef.get();
+    if(contaSnap.exists){
+      return {ok:false,motivo:'usuario_existente'};
+    }
+
+    // Mesmo formato de gravação já usado pelo primeiro login normal do THOR.
+    await contaRef.set({
+      usuario,
+      deviceId: obterDeviceId(),
+      clientId: obterClientId(),
+      ativo: true,
+      bloqueado: false,
+      redefinirAparelho: false,
+      criadoVia: 'cadastro_teste',
+      ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    try{
+      await usoRef.set({
         consumido: true,
         contaHash: hash,
         consumidoEm: firebase.firestore.FieldValue.serverTimestamp()
       }, {merge:true});
-    });
+    }catch(e){
+      console.warn('Não foi possível gravar marcador global do código.', e);
+    }
+
+    try{
+      localStorage.setItem('tl_codigo_cadastro_usado_'+liberacao.codigoHash,'1');
+    }catch(e){}
+
     return {ok:true,hash,usuario};
   }catch(e){
-    if((e && e.message)==='codigo_usado') return {ok:false,motivo:'codigo_usado'};
-    if((e && e.message)==='usuario_existente') return {ok:false,motivo:'usuario_existente'};
-    console.error('Falha ao criar cadastro teste:', e);
+    console.error('Falha ao criar cadastro direto:', e);
     return {ok:false,motivo:'falha_servidor'};
   }
 }
