@@ -100,27 +100,35 @@ async function atualizarConcursosCaixa(){
   if(navigator.onLine===false) return;
   atualizacaoAutomaticaEmCurso=true;
   cache={};
-  // Trava persistente: mesmo fechando/reabrindo o app, nunca aceita concurso menor que o mais novo já recebido.
+  // Atualiza somente o limite do concurso mais recente.
+  // Se o usuário estiver analisando um concurso antigo, NÃO pula a tela para o último:
+  // ele continua avançando concurso por concurso pelos botões ANTERIOR/PRÓXIMO.
   const salvo=ultimoGuardado(key);
-  const concursoAntes = Math.max(latest || 0, (draw && draw.c) || 0, +(salvo&&salvo.c||0));
+  const concursoVisualAtual=(draw&&draw.c)?+draw.c:0;
+  const concursoAntes=Math.max(latest||0,concursoVisualAtual,+(salvo&&salvo.c||0));
   try{
-    const novo = await fetchC();
-    if(!novo || !novo.c) return;
-    if(concursoAntes && novo.c < concursoAntes){
-      // A CAIXA/CDN pode responder temporariamente com uma cópia antiga.
-      // Mantém o concurso mais novo que o app já recebeu.
+    const novo=await fetchC();
+    if(!novo||!novo.c) return;
+    if(concursoAntes&&novo.c<concursoAntes){
       return;
     }
-    latest = Math.max(latest || 0, novo.c, +(salvo&&salvo.c||0));
-    // Se uma fonte atrasada responder depois, preserva o maior concurso persistido.
     const melhor=(salvo&&+salvo.c>+novo.c)?salvo:novo;
-    draw = melhor;
-    latest=Math.max(latest,+melhor.c);
+    latest=Math.max(latest||0,+novo.c,+(melhor&&melhor.c||0));
     guardarUltimo(key,melhor);
+
+    // Só coloca o último concurso na tela quando ainda não existe concurso carregado.
+    // Durante uma análise já iniciada, preserva exatamente o concurso atual.
+    if(!draw){
+      draw=melhor;
+    }
     render();
-    $('status').textContent=LOT[key][0]+' • concurso '+novo.c+' atualizado pela CAIXA';
+
+    if(draw&&+draw.c<latest){
+      $('status').textContent=LOT[key][0]+' • último disponível: '+latest+' • analisando concurso '+draw.c;
+    }else{
+      $('status').textContent=LOT[key][0]+' • concurso '+latest+' atualizado pela CAIXA';
+    }
   }catch(e){
-    // Em falha de rede, preserva o resultado atual em vez de regredir.
     if(!draw) await load();
   }finally{
     atualizacaoAutomaticaEmCurso=false;
