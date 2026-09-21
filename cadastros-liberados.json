@@ -51,6 +51,12 @@
       "expiraEm": "2026-09-22T19:59:41.030Z",
       "ativo": true,
       "compatHash": "lr9urj"
+    },
+    {
+      "hash": "9badfa22f6cdefe1cd90ea3611a16233482d837bd1a7692a20c0cae161e61209",
+      "criadoEm": "2026-09-21T20:11:41.301Z",
+      "expiraEm": "2026-09-22T20:11:41.301Z",
+      "ativo": true
     }
   ]
 }
