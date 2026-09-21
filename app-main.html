@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#4C1D95">
+<style id="thorFirstPaint">html,body{margin:0;min-height:100%;background:linear-gradient(160deg,#4C1D95,#6D28D9)!important}</style>
 <title>THOR LOTERIAS</title>
 <link rel="stylesheet" href="./analise-frequencia-v347.css?v=thor7-v3-84">
 <script defer src="./analise-repeticao-v343.js?v=thor7-v3-84"></script>
@@ -205,7 +207,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v141'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v142'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -529,7 +531,10 @@ function sairDoLogin(){
 }
 
 if(!loginJaValidado()){
-  document.documentElement.style.visibility = 'hidden';
+  const startupGuard = document.createElement('style');
+  startupGuard.id = 'thorLoginStartupGuard';
+  startupGuard.textContent = 'html,body{background:linear-gradient(160deg,#4C1D95,#6D28D9)!important} body>*:not(#loginOverlay){visibility:hidden!important}';
+  document.head.appendChild(startupGuard);
 }
 
 function montarTelaLogin(){
@@ -626,7 +631,8 @@ function montarTelaLogin(){
           }
         }catch(e){}
         overlay.remove();
-        document.documentElement.style.visibility = 'visible';
+        const guard = document.getElementById('thorLoginStartupGuard');
+        if(guard) guard.remove();
         if(typeof atualizarPerfilMenuLateral==='function') atualizarPerfilMenuLateral();
       } else if(resultado.motivo === 'outro_aparelho'){
         erroEl.style.color = '#B7791F';
@@ -676,7 +682,8 @@ function montarTelaLogin(){
         localStorage.setItem('tl_nome_conta_'+resultado.hash,usuario);
       }catch(e){}
       overlay.remove();
-      document.documentElement.style.visibility='visible';
+      const guard = document.getElementById('thorLoginStartupGuard');
+      if(guard) guard.remove();
       if(typeof atualizarPerfilMenuLateral==='function') atualizarPerfilMenuLateral();
       return;
     }
@@ -758,7 +765,6 @@ document.addEventListener('visibilitychange', ()=>{
 });
 
 document.addEventListener('DOMContentLoaded', ()=>{
-  document.documentElement.style.visibility = 'visible';
   if(!loginJaValidado()){
     montarTelaLogin();
   }else{
