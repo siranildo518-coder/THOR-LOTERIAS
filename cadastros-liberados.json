@@ -68,7 +68,8 @@
       "hash": "48b6c38a0511e69b38f687f8bfdb631a3071b5706fa76d6b581146b30433e3bb",
       "criadoEm": "2026-09-21T20:58:03.005Z",
       "expiraEm": "2026-09-22T20:58:03.006Z",
-      "ativo": true
+      "ativo": true,
+      "compatHash": "1pn5m5u"
     }
   ]
 }
