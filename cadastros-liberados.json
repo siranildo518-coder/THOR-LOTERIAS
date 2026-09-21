@@ -1,4 +1,11 @@
 {
   "versao": 1,
-  "liberacoes": []
+  "liberacoes": [
+    {
+      "hash": "153bb2b82fd10c03b3f8bff2b272fbf2740d130fec25ea57b932b472c4bb85cd",
+      "criadoEm": "2026-09-21T14:54:24Z",
+      "expiraEm": "2026-09-22T14:54:24Z",
+      "ativo": true
+    }
+  ]
 }
