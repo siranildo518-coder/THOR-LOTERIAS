@@ -438,6 +438,13 @@ async function buscarLiberacaoCadastroTeste(codigo){
   const local = validarLista(liberacoesEmbutidas);
   if(local.ok || local.motivo==='codigo_expirado') return local;
 
+  // Também usa a última lista atualizada que este aparelho conseguiu carregar.
+  try{
+    const salvo = JSON.parse(localStorage.getItem('tl_liberacoes_cadastro_cache_v1')||'[]');
+    const cacheLocal = validarLista(salvo);
+    if(cacheLocal.ok || cacheLocal.motivo==='codigo_expirado') return cacheLocal;
+  }catch(e){}
+
   let fonteAutoritativaCarregou = false;
 
   async function lerApiGithub(){
@@ -486,6 +493,9 @@ async function buscarLiberacaoCadastroTeste(codigo){
 
     for(const f of fontes){
       if(f.status!=='fulfilled') continue;
+      if(Array.isArray(f.value) && f.value.length){
+        try{ localStorage.setItem('tl_liberacoes_cadastro_cache_v1',JSON.stringify(f.value)); }catch(e){}
+      }
       const r=validarLista(f.value);
       if(r.ok || r.motivo==='codigo_expirado') return r;
     }
