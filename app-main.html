@@ -207,7 +207,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v148-abertura-instantanea'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v149-botoes-home-corrigidos'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -15881,7 +15881,86 @@ document.addEventListener('click', (e)=>{
 document.addEventListener('click',function(e){const b=e.target.closest('[data-home-target]');if(!b)return;const t=document.getElementById(b.dataset.homeTarget);if(t)t.click();});
 document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.getElementById('btnMenu')?.click());
 </script>
-</body>
+<script id="thorHomeButtonsSafetyV149">
+(function(){
+  function byId(id){return document.getElementById(id)}
+  function show(id){var el=byId(id);if(el){el.classList.add('show');el.scrollTop=0;return el}return null}
+  function hide(id){var el=byId(id);if(el)el.classList.remove('show')}
+  function openDrawer(){
+    var d=byId('drawer'),o=byId('drawerOverlay');
+    if(d)d.classList.add('show');
+    if(o)o.classList.add('show');
+  }
+  function openAlta(){
+    if(typeof window.abrirAltaQueda==='function'){window.abrirAltaQueda();return}
+    show('overlayAltaQueda');
+  }
+  function openPadroes(){
+    if(typeof window.fecharModaisGlobais==='function')window.fecharModaisGlobais('overlayPadroes');
+    show('overlayPadroes');
+  }
+  function openJogos(){
+    var tj=byId('thorJogosBranco');
+    if(tj){tj.classList.add('ativo');try{history.pushState({thorJogos:true},'',location.href)}catch(_){};return}
+    if(typeof window.renderHistorico==='function')try{window.renderHistorico()}catch(_){}
+    show('overlayHistorico');
+  }
+  function openFechamento(){
+    if(typeof window.abrirGeradorLoteria==='function'){
+      try{window.abrirGeradorLoteria();return}catch(_){}
+    }
+    var ov=show('overlayGeradorLoteria');
+    var lista=byId('geradorLoteriaLista');
+    if(!ov||!lista)return;
+    if(!lista.children.length){
+      var jogos=[
+        ['LF','🍀','Lotofácil'],['MS','🍀','Mega-Sena'],['QN','🍀','Quina'],
+        ['DIA','🍀','Dia de Sorte'],['LM','🍀','Lotomania'],['TM','🍀','Timemania'],['DS','🍀','Dupla Sena']
+      ];
+      lista.innerHTML=jogos.map(function(x){return '<button class="gerador-loteria-btn" type="button" data-code="'+x[0]+'" style="width:100%;display:flex;align-items:center;gap:12px;padding:14px;margin-bottom:10px;border-radius:14px;border:1.5px solid #E7DFF5;background:#fff;font-size:14px;font-weight:700;color:#241B2F;text-align:left;"><span style="font-size:20px;">'+x[1]+'</span>'+x[2]+'</button>'}).join('');
+      lista.querySelectorAll('.gerador-loteria-btn').forEach(function(b){
+        b.addEventListener('click',function(){
+          if(typeof window.abrirGeradorFiltro==='function')window.abrirGeradorFiltro(b.dataset.code);
+        });
+      });
+    }
+  }
+  function triggerTarget(id){
+    if(id==='menuPadroes'){openPadroes();return}
+    if(id==='btnJogosSalvosAtalho2'){openJogos();return}
+    var t=byId(id);
+    if(t){t.click();return}
+    if(id==='btnTendenciaAtalho')openAlta();
+  }
+
+  document.addEventListener('click',function(e){
+    var b=e.target&&e.target.closest?e.target.closest('#homeSideNav button,#btnAbrirFechamentoAtalho,.home-feature-card[data-home-target]'):null;
+    if(!b)return;
+
+    if(b.id==='homeSideMenu'){
+      e.preventDefault();e.stopPropagation();openDrawer();return;
+    }
+    if(b.id==='btnAbrirFechamentoAtalho'){
+      e.preventDefault();e.stopPropagation();openFechamento();return;
+    }
+    if(b.matches('#homeSideNav .hs-item.active')){
+      e.preventDefault();e.stopPropagation();openAlta();return;
+    }
+    if(b.classList.contains('thor-comeco-final')) return;
+
+    var target=b.getAttribute('data-home-target');
+    if(target){
+      e.preventDefault();e.stopPropagation();triggerTarget(target);
+    }
+  },true);
+
+  var fechar=byId('geradorLoteriaVoltar');
+  if(fechar&&!fechar.dataset.thorSafety){
+    fechar.dataset.thorSafety='1';
+    fechar.addEventListener('click',function(){hide('overlayGeradorLoteria')});
+  }
+})();
+</script></body>
 </html>
 
 <style id="frequencia-dezena-barra-fina-quadrada-final">
