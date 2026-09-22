@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
 // THOR 7 V3.75 - calculadora de probabilidade e cache sincronizados
-const CACHE_NAME='thor-loterias-thor7-v145-cadastro-codigo-fix-v146b';
+const CACHE_NAME='thor-loterias-thor7-v145-cadastro-rede-v3';
 const CORE=['./','./index.html','./app-main.html','./manifest.json','./icon-192.png','./thor-home-topo-v316.jpg','./cadastros-liberados.json'];
 const PALPITES_CARD='<button class="home-feature-card" style="--fc:#d41948" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">◎</span><span><strong>Palpites</strong><small>Sugestões inteligentes</small></span></button>';
 const CALC_CARD='<button class="home-feature-card" style="--fc:#e98a00" data-home-target="btnSimularAtalho"><span class="hfc-icon">▤</span><span><strong>Calculadora</strong><small>Probabilidades e estimativas</small></span></button>';
@@ -96,6 +96,24 @@ self.addEventListener('fetch',event=>{
   }
 
   const chave=chaveCache(req);
+
+  // app-main contém login/cadastro: rede primeiro para nunca ficar preso numa cópia antiga.
+  if(u.pathname.endsWith('/app-main.html')){
+    event.respondWith((async()=>{
+      try{
+        const fresh=await respostaAtualizada(new Request(req.url,{cache:'no-store',credentials:req.credentials,headers:req.headers}));
+        if(fresh&&fresh.ok){
+          const cache=await caches.open(CACHE_NAME);
+          await cache.put('./app-main.html',fresh.clone());
+        }
+        return fresh;
+      }catch(_){
+        const cache=await caches.open(CACHE_NAME);
+        return (await cache.match('./app-main.html')) || Response.error();
+      }
+    })());
+    return;
+  }
 
   // Abertura e arquivos estáticos: cache imediato, atualização silenciosa em segundo plano.
   event.respondWith((async()=>{
