@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
 // THOR 7 V3.75 - calculadora de probabilidade e cache sincronizados
-const CACHE_NAME='thor-loterias-thor7-v148-palpite-atual';
+const CACHE_NAME='thor-loterias-thor7-v144-abertura-unica';
 const CORE=['./','./index.html','./app-main.html','./manifest.json','./icon-192.png','./thor-home-topo-v316.jpg'];
 const PALPITES_CARD='<button class="home-feature-card" style="--fc:#d41948" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">◎</span><span><strong>Palpites</strong><small>Sugestões inteligentes</small></span></button>';
 const CALC_CARD='<button class="home-feature-card" style="--fc:#e98a00" data-home-target="btnSimularAtalho"><span class="hfc-icon">▤</span><span><strong>Calculadora</strong><small>Probabilidades e estimativas</small></span></button>';
@@ -44,7 +44,7 @@ self.addEventListener('install',event=>{
     const cache=await caches.open(CACHE_NAME);
     await Promise.allSettled(CORE.map(async url=>{
       try{
-        const req=new Request(url+(url.includes('?')?'&':'?')+'_refresh=thor7-v148-palpite-atual',{cache:'no-store'});
+        const req=new Request(url+(url.includes('?')?'&':'?')+'_refresh=thor7-v144-abertura-unica',{cache:'no-store'});
         const res=await respostaAtualizada(req);
         if(res&&res.ok) await cache.put(url,res.clone());
       }catch(_){}
@@ -63,7 +63,7 @@ self.addEventListener('activate',event=>{
     await Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)));
     await self.clients.claim();
     const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
-    clients.forEach(c=>c.postMessage({type:'THOR_UPDATED',version:'THOR 7 V147',refresh:'thor7-v148-palpite-atual'}));
+    clients.forEach(c=>c.postMessage({type:'THOR_UPDATED',version:'THOR 7 V144',refresh:'thor7-v144-abertura-unica'}));
   })());
 });
 
@@ -75,24 +75,6 @@ self.addEventListener('fetch',event=>{
 
   // Não interfere em APIs/arquivos externos.
   if(u.origin!==self.location.origin) return;
-
-  // Falhas e Concursos precisa abrir sempre a versão atual, porque a conferência
-  // depende da lógica mais recente ao avançar concurso por concurso.
-  if(u.pathname.endsWith('/falhas-concursos.html')){
-    event.respondWith((async()=>{
-      try{
-        const fresh=await fetch(req,{cache:'no-store',headers:{'Cache-Control':'no-cache'}});
-        if(fresh&&fresh.ok){
-          const cache=await caches.open(CACHE_NAME);
-          await cache.put('./falhas-concursos.html',fresh.clone());
-        }
-        return fresh;
-      }catch(_){
-        return (await caches.match('./falhas-concursos.html')) || Response.error();
-      }
-    })());
-    return;
-  }
 
   // Liberações de cadastro precisam ser sempre atuais.
   if(u.pathname.endsWith('/cadastros-liberados.json')){
