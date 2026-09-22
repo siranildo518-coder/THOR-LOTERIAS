@@ -207,7 +207,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v144-caixa-salvar-jogos'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v144-jogos-salvos-estilo'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3612,6 +3612,27 @@ document.addEventListener('selectstart', e=>{
   </div>
 </div>
 
+<div class="overlay-full" id="overlayGeradorSalvos" style="z-index:96;background:#06131f;color:#fff;overflow-y:auto;">
+  <header style="position:sticky;top:0;z-index:3;background:linear-gradient(90deg,#4c1d95,#7e22ce);padding:10px 12px;border-bottom:2px solid #f5a623;display:flex;align-items:center;gap:10px;">
+    <button id="gjsVoltar" type="button" style="width:34px;height:34px;border:0;border-radius:9px;background:#fff;color:#4c1d95;font-size:20px;font-weight:900;">←</button>
+    <div style="font-family:'Baloo 2',sans-serif;font-size:17px;font-weight:900;flex:1;">Jogos salvos</div>
+  </header>
+  <div style="padding:9px 10px 110px;max-width:720px;margin:0 auto;">
+    <div id="gjsLoterias" style="display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none;"></div>
+
+    <div id="gjsResultado" style="background:#fff;border:2px solid #f0a41e;border-radius:10px;color:#172033;margin-bottom:8px;overflow:hidden;"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+      <button id="gjsMeusJogos" type="button" style="height:38px;border:2px solid #d9a126;border-radius:8px;background:linear-gradient(#19b75f,#07873f);color:#fff;font-weight:900;">★ Meus Jogos</button>
+      <button id="gjsLimparJogos" type="button" style="height:38px;border:2px solid #d9a126;border-radius:8px;background:linear-gradient(#f04444,#c81725);color:#fff;font-weight:900;">🗑 Limpar Jogos</button>
+    </div>
+
+    <div id="gjsFiltros" style="display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none;"></div>
+    <div id="gjsLista"></div>
+    <div id="gjsVazio" style="display:none;background:#fff;border:2px solid #e1a52b;border-radius:10px;padding:18px;color:#5e6570;text-align:center;font-weight:800;">Nenhum jogo salvo nesta loteria.</div>
+  </div>
+</div>
+
 <div class="overlay" id="overlayNomeJogo" style="align-items:center;">
   <div class="modal" style="border-radius:20px;max-width:340px;max-height:none;padding:28px 24px;overflow:visible;margin:0 24px;">
     <div id="nomeJogoTitulo" style="font-family:'Baloo 2',sans-serif;font-weight:700;font-size:21px;color:var(--ink);margin-bottom:22px;">Escolha um nome</div>
@@ -4783,6 +4804,7 @@ document.addEventListener('selectstart', e=>{
           <button type="button" id="gfcSalvarJogosBtn" style="height:38px;padding:0 15px;border:1px solid #08763f;border-radius:9px;background:linear-gradient(#43d77f,#159653);color:#fff;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:900;box-shadow:0 4px 0 #08703b;cursor:pointer;">SALVAR</button>
         </div>
         <div id="gfcSalvarJogosStatus" style="min-height:15px;margin-top:6px;font-size:10px;font-weight:700;color:#159653;"></div>
+        <button type="button" id="gfcAbrirJogosSalvosBtn" style="width:100%;height:32px;margin-top:4px;border:1px solid #d79a1e;border-radius:8px;background:linear-gradient(#294c6d,#162d48);color:#fff;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:900;">★ MEUS JOGOS SALVOS</button>
       </div>
       <div class="spinner" id="geradorFiltroSpinner" style="display:none;">Calculando…</div>
       <div id="geradorFiltroResultado"></div>
@@ -7624,6 +7646,164 @@ document.getElementById('geradorFiltroTabConfig').addEventListener('click', (e)=
   e.stopPropagation();
   gfcMostrarTab('config');
 });
+let gjsGameCode='MS';
+let gjsFiltroNome='Todos';
+let gjsResultadoAtual=null;
+
+function gjsEsc(s){
+  return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function jogosSalvosDoGerador(code){
+  return carregarJogosGeradorNome().filter(x=>x && x.gameCode===code);
+}
+
+function renderGjsLoterias(){
+  const box=document.getElementById('gjsLoterias');
+  if(!box)return;
+  box.innerHTML=GERADOR_GAMES.map(g=>{
+    const on=g.code===gjsGameCode;
+    return '<button type="button" class="gjs-lot" data-code="'+g.code+'" style="flex:none;padding:6px 11px;border:1.5px solid #e3a425;border-radius:16px;background:'+(on?'#f59e0b':'#15304c')+';color:#fff;font-size:10px;font-weight:900;">'+g.nome+'</button>';
+  }).join('');
+  box.querySelectorAll('.gjs-lot').forEach(b=>b.onclick=()=>{
+    gjsGameCode=b.dataset.code;
+    gjsFiltroNome='Todos';
+    gjsResultadoAtual=null;
+    renderGjsTela();
+    carregarGjsResultado();
+  });
+}
+
+function renderGjsFiltros(){
+  const box=document.getElementById('gjsFiltros');
+  if(!box)return;
+  const lista=jogosSalvosDoGerador(gjsGameCode);
+  const nomes=[...new Set(lista.map(x=>x.nome).filter(Boolean))];
+  const filtros=['Todos',...nomes];
+  if(!filtros.includes(gjsFiltroNome)) gjsFiltroNome='Todos';
+  box.innerHTML=filtros.map(nome=>{
+    const on=nome===gjsFiltroNome;
+    return '<button type="button" class="gjs-filtro" data-nome="'+encodeURIComponent(nome)+'" style="flex:none;padding:5px 12px;border:1.5px solid #e6a827;border-radius:16px;background:'+(on?'#f59e0b':'#15304c')+';color:#fff;font-size:10px;font-weight:900;">'+gjsEsc(nome)+'</button>';
+  }).join('');
+  box.querySelectorAll('.gjs-filtro').forEach(b=>b.onclick=()=>{
+    gjsFiltroNome=decodeURIComponent(b.dataset.nome||'Todos');
+    renderGjsFiltros();
+    renderGjsLista();
+  });
+}
+
+function gjsFaixaHits(gameCode,hits){
+  try{return faixaPremioGerador(gameCode,hits)}catch(_){return null}
+}
+
+function renderGjsLista(){
+  const box=document.getElementById('gjsLista');
+  const vazio=document.getElementById('gjsVazio');
+  if(!box||!vazio)return;
+  let lista=jogosSalvosDoGerador(gjsGameCode);
+  if(gjsFiltroNome!=='Todos') lista=lista.filter(x=>x.nome===gjsFiltroNome);
+
+  if(!lista.length){
+    box.innerHTML='';
+    vazio.style.display='block';
+    return;
+  }
+  vazio.style.display='none';
+
+  const resSet=gjsResultadoAtual && gjsResultadoAtual.gameCode===gjsGameCode
+    ? new Set(gjsResultadoAtual.dezenas||[]) : null;
+
+  box.innerHTML=lista.map(entry=>{
+    const jogos=Array.isArray(entry.jogos)?entry.jogos:[];
+    const linhas=jogos.map((jogo,i)=>{
+      let hits=null, faixa=null;
+      if(resSet){
+        hits=jogo.filter(n=>resSet.has(Number(n))).length;
+        faixa=gjsFaixaHits(gjsGameCode,hits);
+      }
+      return '<div style="display:flex;align-items:center;gap:5px;padding:7px 6px;border-top:1px solid #eee;">'+
+        '<span style="width:38px;flex:none;font-size:10px;font-weight:800;color:#5d6470;">Jogo '+(i+1)+'</span>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:4px;flex:1;">'+jogo.map(n=>{
+          const ac=resSet&&resSet.has(Number(n));
+          return '<span style="width:23px;height:23px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:'+(ac?'linear-gradient(#38d46f,#0b9b48)':'linear-gradient(#eceff3,#cdd3d9)')+';border:1px solid '+(ac?'#078a3e':'#b8bec6')+';color:'+(ac?'#fff':'#27304a')+';font-size:9px;font-weight:900;">'+String(n).padStart(2,'0')+'</span>';
+        }).join('')+'</div>'+
+        '<span style="flex:none;font-size:9px;font-weight:900;color:'+(faixa?'#148a4b':'#7d8490')+';">'+(hits===null?'—':hits+' ponto'+(hits===1?'':'s'))+'</span>'+
+      '</div>';
+    }).join('');
+
+    return '<div style="background:#fff;border:2px solid #e5a629;border-radius:9px;color:#172033;margin-bottom:8px;overflow:hidden;">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px 8px;background:#fffdf8;">'+
+        '<strong style="font-size:11px;color:#253145;">'+gjsEsc(entry.nome||'Sem nome')+' · '+jogos.length+' jogo'+(jogos.length===1?'':'s')+'</strong>'+
+        '<button type="button" class="gjs-apagar" data-id="'+entry.id+'" style="border:1px solid #b91c1c;border-radius:7px;background:#fff;color:#b91c1c;font-size:9px;font-weight:900;padding:4px 7px;">APAGAR</button>'+
+      '</div>'+linhas+
+    '</div>';
+  }).join('');
+
+  box.querySelectorAll('.gjs-apagar').forEach(btn=>btn.onclick=()=>{
+    const id=Number(btn.dataset.id);
+    const listaToda=carregarJogosGeradorNome().filter(x=>Number(x.id)!==id);
+    try{localStorage.setItem(GERADOR_SALVOS_NOME_KEY,JSON.stringify(listaToda))}catch(_){}
+    renderGjsTela();
+  });
+}
+
+async function carregarGjsResultado(concurso){
+  const game=GERADOR_GAMES.find(g=>g.code===gjsGameCode);
+  const box=document.getElementById('gjsResultado');
+  if(!game||!box)return;
+  box.innerHTML='<div style="padding:10px;text-align:center;font-size:10px;font-weight:800;">Atualizando resultado...</div>';
+  try{
+    const d=await fetchConcursoLoteria(game,concurso);
+    if(!d||!d.concurso)throw new Error('sem resultado');
+    const nums=(d.dezenas||[]).map(Number).filter(Number.isFinite).sort((a,b)=>a-b);
+    gjsResultadoAtual={gameCode:gjsGameCode,concurso:Number(d.concurso),dezenas:nums,data:d.data||'',local:d.local||''};
+    box.innerHTML=
+      '<div style="background:linear-gradient(#19a84f,#067536);color:#fff;text-align:center;padding:5px;font-size:10px;font-weight:900;">Resultado Oficial - '+game.nome+'</div>'+
+      '<div style="display:grid;grid-template-columns:48px 1fr 48px;gap:6px;align-items:center;padding:8px;">'+
+        '<button id="gjsAnterior" style="height:42px;border-radius:50%;border:2px solid #e0a124;background:linear-gradient(#299fea,#0873be);color:#fff;font-weight:900;">◀◀</button>'+
+        '<div style="text-align:center;"><div style="font-size:9px;color:#667085;">Concurso '+d.concurso+(d.data?' · '+gjsEsc(d.data):'')+'</div>'+
+          '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:6px;">'+nums.map(n=>'<span style="width:23px;height:23px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(#38d46f,#0b9b48);color:#fff;font-size:9px;font-weight:900;">'+String(n).padStart(2,'0')+'</span>').join('')+'</div></div>'+
+        '<button id="gjsProximo" style="height:42px;border-radius:50%;border:2px solid #e0a124;background:linear-gradient(#299fea,#0873be);color:#fff;font-weight:900;">▶▶</button>'+
+      '</div>';
+    document.getElementById('gjsAnterior')?.addEventListener('click',()=>carregarGjsResultado(Math.max(1,Number(d.concurso)-1)));
+    document.getElementById('gjsProximo')?.addEventListener('click',()=>carregarGjsResultado(Number(d.concurso)+1));
+    renderGjsLista();
+  }catch(e){
+    box.innerHTML='<div style="padding:10px;text-align:center;font-size:10px;color:#b91c1c;font-weight:800;">Não foi possível carregar o resultado agora.</div>';
+  }
+}
+
+function renderGjsTela(){
+  renderGjsLoterias();
+  renderGjsFiltros();
+  renderGjsLista();
+}
+
+function abrirGeradorSalvos(code,nome){
+  if(code) gjsGameCode=code;
+  gjsFiltroNome=nome||'Todos';
+  const ov=document.getElementById('overlayGeradorSalvos');
+  if(ov) ov.classList.add('show');
+  renderGjsTela();
+  carregarGjsResultado();
+}
+
+document.getElementById('gjsVoltar')?.addEventListener('click',()=>document.getElementById('overlayGeradorSalvos')?.classList.remove('show'));
+document.getElementById('gjsMeusJogos')?.addEventListener('click',()=>{
+  gjsFiltroNome='Todos';
+  renderGjsFiltros();
+  renderGjsLista();
+});
+document.getElementById('gjsLimparJogos')?.addEventListener('click',()=>{
+  const todos=carregarJogosGeradorNome().filter(x=>x.gameCode!==gjsGameCode);
+  try{localStorage.setItem(GERADOR_SALVOS_NOME_KEY,JSON.stringify(todos))}catch(_){}
+  gjsFiltroNome='Todos';
+  renderGjsTela();
+});
+document.getElementById('gfcAbrirJogosSalvosBtn')?.addEventListener('click',()=>{
+  abrirGeradorSalvos(geradorGameAtual?.code||'MS','Todos');
+});
+
 document.getElementById('geradorFiltroTabJogos').addEventListener('click', (e)=>{
   e.preventDefault();
   e.stopPropagation();
@@ -7682,6 +7862,7 @@ function salvarJogosGeradorPelaCaixa(){
     btn.textContent='SALVO ✓';
     setTimeout(()=>{btn.textContent=antigo;},1200);
   }
+  setTimeout(()=>abrirGeradorSalvos(geradorUltimoJogosCtx?.g?.code||gjsGameCode,nome),250);
 }
 
 document.getElementById('gfcSalvarJogosBtn')?.addEventListener('click', salvarJogosGeradorPelaCaixa);
