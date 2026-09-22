@@ -108,7 +108,100 @@ const API='https://servicebus2.caixa.gov.br/portaldeloterias/api/';const LATEST_
   }
 
   $('result').classList.remove('show');
-}async function load(n=null){$('status').textContent='Carregando resultado oficial...';try{if(n){const recebido=await fetchC(n);draw=recebido;latest=Math.max(latest||0,+recebido.c)}else{const recebido=await fetchC();const salvo=ultimoGuardado(key);const melhor=(salvo&&+salvo.c>+recebido.c)?salvo:recebido;latest=Math.max(latest||0,+melhor.c,+recebido.c);guardarUltimo(key,melhor);const atual=atualGuardado(key);if(atual&&atual>=1&&atual<=latest&&atual!==+melhor.c){try{draw=await fetchC(atual)}catch(_){draw=melhor}}else{draw=melhor}}render();$('status').textContent=draw&&+draw.c<latest?LOT[key][0]+' • último disponível: '+latest+' • analisando concurso '+draw.c:LOT[key][0]+' • concurso carregado pela CAIXA'}catch(e){$('status').textContent='Não foi possível carregar. Toque em ATUALIZAR CONCURSOS.'}}async function calculate(){if(!draw)return;const calcBtn=$('calc');if(calcBtn.dataset.busy==='1')return;calcBtn.dataset.busy='1';calcBtn.classList.add('calculando');calcBtn.innerHTML='<span class="calcSpinner"></span>CALCULANDO...';$('result').classList.remove('show');const inicioCalc=Date.now();let q=Math.max(1,Math.min(+$('qty').value||6,draw.nums.length));$('status').textContent='Carregando os últimos 10 concursos...';try{let ns=[];for(let n=Math.max(1,draw.c-10);n<=draw.c;n++)ns.push(n);let ds=await Promise.all(ns.map(fetchC));let ranking=draw.nums.map(v=>{let a=0,s=0;for(let i=0;i<ds.length-1;i++){if(ds[i].nums.includes(v)){a++;let rep=ds[i+1].nums.includes(v);if(mode==='repeat'?rep:!rep)s++}}return{v,score:wilson(s,a)}}).sort((a,b)=>b.score-a.score).slice(0,q);if(mode==='fail'){palpites[key+'|'+draw.c]={base:draw.c,q,mode:'fail',ranking:ranking.map(r=>({v:r.v,score:r.score}))};salvarPalpites()}else{palpites[key+'|repeat|'+draw.c]={base:draw.c,q,mode:'repeat',ranking:ranking.map(r=>({v:r.v,score:r.score}))};salvarPalpites()}$('resultTitle').textContent=q+' dezenas para '+(mode==='repeat'?'REPETIR':'FALHAR')+' • concurso '+(draw.c+1);$('rank').innerHTML=ranking.map((r,i)=>'<div class="rankItem"><div class="rankHead"><span class="rankBall">'+two(r.v)+'</span><small>'+(i+1)+'º</small></div><div class="pct">'+(r.score*100).toFixed(2).replace('.',',')+'%</div></div>').join('');const esperaResultado=Math.max(0,3000-(Date.now()-inicioCalc));if(esperaResultado)await new Promise(resolve=>setTimeout(resolve,esperaResultado));$('result').classList.add('show');$('status').textContent=mode==='repeat'?'Repetições calculadas':'Falhas calculadas — avance para o próximo concurso para conferir'}catch(e){$('status').textContent='Não foi possível calcular'}finally{const espera=Math.max(0,3000-(Date.now()-inicioCalc));await new Promise(resolve=>setTimeout(resolve,espera));calcBtn.classList.remove('calculando');calcBtn.dataset.busy='0';calcBtn.textContent='CALCULAR'}}function modal(){let o=$('opts');o.innerHTML='';Object.entries(LOT).forEach(([k,v])=>{let b=document.createElement('button');b.className='opt'+(pending===k?' sel':'');b.textContent=v[0];b.onclick=()=>{pending=k;modal()};o.appendChild(b)});$('modal').classList.add('show')}$('trigger').onclick=()=>{pending=key;modal()};$('confirm').onclick=()=>{key=pending;$('trigger').textContent=LOT[key][0]+'⌄';$('modal').classList.remove('show');cache={};draw=null;latest=0;load()};$('fail').onclick=()=>{mode='fail';$('fail').classList.add('active');$('repeat').classList.remove('active');render()};$('repeat').onclick=()=>{mode='repeat';$('repeat').classList.add('active');$('fail').classList.remove('active');render()};$('prev').onclick=()=>draw&&draw.c>1&&load(draw.c-1);$('next').onclick=()=>draw&&draw.c<latest&&load(draw.c+1);$('contest').addEventListener('change',()=>{let n=parseInt($('contest').value,10);if(!Number.isFinite(n)||n<1){$('contest').value=draw?draw.c:'';return}if(latest&&n>latest)n=latest;load(n)});$('contest').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('contest').blur()}});$('calc').onclick=calculate;$('qty').addEventListener('input',()=>{if(draw)render()});
+}async function load(n=null){$('status').textContent='Carregando resultado oficial...';try{if(n){const recebido=await fetchC(n);draw=recebido;latest=Math.max(latest||0,+recebido.c)}else{const recebido=await fetchC();const salvo=ultimoGuardado(key);const melhor=(salvo&&+salvo.c>+recebido.c)?salvo:recebido;latest=Math.max(latest||0,+melhor.c,+recebido.c);guardarUltimo(key,melhor);const atual=atualGuardado(key);if(atual&&atual>=1&&atual<=latest&&atual!==+melhor.c){try{draw=await fetchC(atual)}catch(_){draw=melhor}}else{draw=melhor}}render();$('status').textContent=draw&&+draw.c<latest?LOT[key][0]+' • último disponível: '+latest+' • analisando concurso '+draw.c:LOT[key][0]+' • concurso carregado pela CAIXA'}catch(e){$('status').textContent='Não foi possível carregar. Toque em ATUALIZAR CONCURSOS.'}}async function calculate(){
+  if(!draw)return;
+  const calcBtn=$('calc');
+  if(calcBtn.dataset.busy==='1')return;
+
+  // Congela o concurso, a loteria, o modo e as dezenas no instante do cálculo.
+  // Assim, mesmo que a tela mude depois, o palpite continua vinculado
+  // exatamente ao concurso em que foi calculado.
+  const baseConcurso=+draw.c;
+  const baseNums=draw.nums.slice();
+  const baseKey=key;
+  const baseMode=mode;
+
+  calcBtn.dataset.busy='1';
+  calcBtn.classList.add('calculando');
+  calcBtn.innerHTML='<span class="calcSpinner"></span>CALCULANDO...';
+  $('result').classList.remove('show');
+  $('prev').disabled=true;
+  $('next').disabled=true;
+  $('contest').disabled=true;
+
+  const inicioCalc=Date.now();
+  const q=Math.max(1,Math.min(+$('qty').value||6,baseNums.length));
+  $('status').textContent='Carregando os últimos 10 concursos...';
+
+  try{
+    let ns=[];
+    for(let n=Math.max(1,baseConcurso-10);n<=baseConcurso;n++)ns.push(n);
+
+    // Usa a loteria congelada no início do cálculo.
+    const keyAntes=key;
+    key=baseKey;
+    let ds;
+    try{
+      ds=await Promise.all(ns.map(fetchC));
+    }finally{
+      key=keyAntes;
+    }
+
+    let ranking=baseNums.map(v=>{
+      let a=0,s=0;
+      for(let i=0;i<ds.length-1;i++){
+        if(ds[i].nums.includes(v)){
+          a++;
+          const rep=ds[i+1].nums.includes(v);
+          if(baseMode==='repeat'?rep:!rep)s++;
+        }
+      }
+      return {v,score:wilson(s,a)};
+    }).sort((a,b)=>b.score-a.score).slice(0,q);
+
+    const chave=baseMode==='repeat'
+      ? baseKey+'|repeat|'+baseConcurso
+      : baseKey+'|'+baseConcurso;
+
+    palpites[chave]={
+      base:baseConcurso,
+      q,
+      mode:baseMode,
+      ranking:ranking.map(r=>({v:r.v,score:r.score}))
+    };
+    salvarPalpites();
+
+    const esperaResultado=Math.max(0,3000-(Date.now()-inicioCalc));
+    if(esperaResultado)await new Promise(resolve=>setTimeout(resolve,esperaResultado));
+
+    // Só desenha este palpite se o usuário ainda estiver no mesmo concurso.
+    // Se já avançou, render() faz a conferência do concurso anterior.
+    if(draw && +draw.c===baseConcurso && key===baseKey && mode===baseMode){
+      $('resultTitle').textContent=q+' dezenas para '+(baseMode==='repeat'?'REPETIR':'FALHAR')+' • concurso '+(baseConcurso+1);
+      $('rank').innerHTML=ranking.map((r,i)=>'<div class="rankItem"><div class="rankHead"><span class="rankBall">'+two(r.v)+'</span><small>'+(i+1)+'º</small></div><div class="pct">'+(r.score*100).toFixed(2).replace('.',',')+'%</div></div>').join('');
+      $('result').classList.add('show');
+      $('status').textContent=baseMode==='repeat'?'Repetições calculadas':'Falhas calculadas — avance para o próximo concurso para conferir';
+    }else{
+      render();
+    }
+  }catch(e){
+    $('status').textContent='Não foi possível calcular';
+  }finally{
+    const espera=Math.max(0,3000-(Date.now()-inicioCalc));
+    if(espera)await new Promise(resolve=>setTimeout(resolve,espera));
+    calcBtn.classList.remove('calculando');
+    calcBtn.dataset.busy='0';
+    calcBtn.textContent='CALCULAR';
+    $('contest').disabled=false;
+    if(draw){
+      $('prev').disabled=draw.c<=1;
+      $('next').disabled=draw.c>=latest;
+    }else{
+      $('prev').disabled=false;
+      $('next').disabled=false;
+    }
+  }
+}function modal(){let o=$('opts');o.innerHTML='';Object.entries(LOT).forEach(([k,v])=>{let b=document.createElement('button');b.className='opt'+(pending===k?' sel':'');b.textContent=v[0];b.onclick=()=>{pending=k;modal()};o.appendChild(b)});$('modal').classList.add('show')}$('trigger').onclick=()=>{pending=key;modal()};$('confirm').onclick=()=>{key=pending;$('trigger').textContent=LOT[key][0]+'⌄';$('modal').classList.remove('show');cache={};draw=null;latest=0;load()};$('fail').onclick=()=>{mode='fail';$('fail').classList.add('active');$('repeat').classList.remove('active');render()};$('repeat').onclick=()=>{mode='repeat';$('repeat').classList.add('active');$('fail').classList.remove('active');render()};$('prev').onclick=()=>draw&&draw.c>1&&load(draw.c-1);$('next').onclick=()=>draw&&draw.c<latest&&load(draw.c+1);$('contest').addEventListener('change',()=>{let n=parseInt($('contest').value,10);if(!Number.isFinite(n)||n<1){$('contest').value=draw?draw.c:'';return}if(latest&&n>latest)n=latest;load(n)});$('contest').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('contest').blur()}});$('calc').onclick=calculate;$('qty').addEventListener('input',()=>{if(draw)render()});
 let atualizacaoAutomaticaEmCurso=false;
 async function atualizarConcursosCaixa(){
   if(atualizacaoAutomaticaEmCurso) return;
