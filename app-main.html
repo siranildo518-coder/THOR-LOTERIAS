@@ -207,7 +207,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v144-jogos-salvos-estilo'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v144-voltar-uma-tela'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -7780,6 +7780,9 @@ function renderGjsTela(){
 }
 
 function abrirGeradorSalvos(code,nome){
+  if(typeof window.__thorRegistrarTelaAtual==='function'){
+    try{ window.__thorRegistrarTelaAtual(); }catch(_){}
+  }
   if(code) gjsGameCode=code;
   gjsFiltroNome=nome||'Todos';
   const ov=document.getElementById('overlayGeradorSalvos');
@@ -7788,7 +7791,15 @@ function abrirGeradorSalvos(code,nome){
   carregarGjsResultado();
 }
 
-document.getElementById('gjsVoltar')?.addEventListener('click',()=>document.getElementById('overlayGeradorSalvos')?.classList.remove('show'));
+document.getElementById('gjsVoltar')?.addEventListener('click',()=>{
+  const ov=document.getElementById('overlayGeradorSalvos');
+  if(!ov || !ov.classList.contains('show')) return;
+  if(history.state && history.state.thorNav){
+    history.back();
+  }else{
+    ov.classList.remove('show');
+  }
+});
 document.getElementById('gjsMeusJogos')?.addEventListener('click',()=>{
   gjsFiltroNome='Todos';
   renderGjsFiltros();
@@ -13006,7 +13017,7 @@ refreshUI();
   const MODAL_IDS = [
     'overlayNomeJogo','overlayFotoFull','drawer','overlay','overlayTrioProb','overlayCentroDezena','overlayProb',
     'overlayHistorico','overlayErreX','overlayGaleria',
-    'overlayGeradorFiltro','overlayGeradorLoteria',
+    'overlayGeradorSalvos','overlayGeradorFiltro','overlayGeradorLoteria',
     'overlayAltaQueda','overlayResultado','overlayTendencia','overlayMinhasSequencias','overlayAnalisadorJogos'
   ];
 
