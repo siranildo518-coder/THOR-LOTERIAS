@@ -207,7 +207,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v144-cadastro-codigo-robusto'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v144-meus-jogos-ao-lado'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -4746,7 +4746,8 @@ document.addEventListener('selectstart', e=>{
     <div class="card" id="geradorFiltroAnalise" style="margin-bottom:16px;padding:13px;"></div>
 
     <div class="gfc-tabs" id="geradorFiltroTabs" style="display:flex;gap:6px;margin-bottom:14px;">
-      <button type="button" class="gfc-tab-btn active" id="geradorFiltroTabConfig" style="width:100%;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:#4C1D95;color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Palpites</button>
+      <button type="button" class="gfc-tab-btn active" id="geradorFiltroTabConfig" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:#4C1D95;color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Palpites</button>
+      <button type="button" id="gfcAbrirJogosSalvosTopo" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:linear-gradient(#294c6d,#162d48);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Meus jogos salvos</button>
       <button type="button" class="gfc-tab-btn" id="geradorFiltroTabJogos" style="display:none;">Salvar jogos</button>
     </div>
 
@@ -4823,7 +4824,6 @@ document.addEventListener('selectstart', e=>{
           <button type="button" id="gfcSalvarJogosBtn" style="height:38px;padding:0 15px;border:1px solid #08763f;border-radius:9px;background:linear-gradient(#43d77f,#159653);color:#fff;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:900;box-shadow:0 4px 0 #08703b;cursor:pointer;">SALVAR</button>
         </div>
         <div id="gfcSalvarJogosStatus" style="min-height:15px;margin-top:6px;font-size:10px;font-weight:700;color:#159653;"></div>
-        <button type="button" id="gfcAbrirJogosSalvosBtn" style="width:100%;height:32px;margin-top:4px;border:1px solid #d79a1e;border-radius:8px;background:linear-gradient(#294c6d,#162d48);color:#fff;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:900;">★ MEUS JOGOS SALVOS</button>
       </div>
       <div class="spinner" id="geradorFiltroSpinner" style="display:none;">Calculando…</div>
       <div id="geradorFiltroResultado"></div>
@@ -7830,7 +7830,9 @@ document.getElementById('gjsLimparJogos')?.addEventListener('click',()=>{
   gjsFiltroNome='Todos';
   renderGjsTela();
 });
-document.getElementById('gfcAbrirJogosSalvosBtn')?.addEventListener('click',()=>{
+document.getElementById('gfcAbrirJogosSalvosTopo')?.addEventListener('click',(e)=>{
+  e.preventDefault();
+  e.stopPropagation();
   abrirGeradorSalvos(geradorGameAtual?.code||'MS','Todos');
 });
 
