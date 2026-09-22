@@ -207,7 +207,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v142'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v144-salvar-jogos-nome'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -288,25 +288,39 @@ function contaExtraHash(item){
 }
 
 async function credencialValida(hash){
+  // 1) Contas embutidas no app e contas criadas neste aparelho.
   if(CREDENCIAIS_VALIDAS.includes(hash) || carregarContasExtras().some(item=> contaExtraHash(item) === hash)){
     return true;
   }
+
+  // 2) Carrega Firebase uma única vez. Se não houver conexão, não inventa credencial.
   try{
     await carregarFirebase();
-    // Fonte oficial do gerenciador: todo usuário criado passa a existir aqui
-    // imediatamente, sem depender do cache/versão do HTML no celular do cliente.
+  }catch(e){
+    console.error('Falha ao carregar Firebase para validar credencial:', e);
+    return false;
+  }
+
+  // 3) Base principal do gerenciador. Falha aqui NÃO impede consultar a ativação.
+  try{
     const cadastro = await dbFirestore.collection('usuarios_login').doc(hash).get();
     if(cadastro.exists){
       const dadosCadastro = cadastro.data() || {};
-      return dadosCadastro.ativo !== false && dadosCadastro.bloqueado !== true;
+      if(dadosCadastro.ativo !== false && dadosCadastro.bloqueado !== true) return true;
+      return false;
     }
-    // Compatibilidade com clientes antigos já registrados pela trava.
+  }catch(e){
+    console.warn('usuarios_login indisponível; tentando contas_ativadas:', e);
+  }
+
+  // 4) Compatibilidade e recuperação de contas já criadas pelo próprio cliente.
+  try{
     const snap = await dbFirestore.collection('contas_ativadas').doc(hash).get();
     if(!snap.exists) return false;
     const dados = snap.data() || {};
     return dados.ativo !== false && dados.bloqueado !== true;
   }catch(e){
-    console.error('Falha ao validar a credencial:', e);
+    console.error('Falha ao validar credencial em contas_ativadas:', e);
     return false;
   }
 }
@@ -437,7 +451,7 @@ async function buscarLiberacaoCadastroTeste(codigo){
 
   const urls = [
     'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?_='+Date.now(),
-    './cadastros-liberados.json?v=thor7-v142&_='+Date.now()
+    './cadastros-liberados.json?v=thor7-v143&_='+Date.now()
   ];
 
   for(const url of urls){
@@ -512,6 +526,25 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
       criadoVia: 'cadastro_teste',
       ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
     });
+
+    // Persiste a credencial também no aparelho. Assim, sair e entrar novamente
+    // com o mesmo usuário/senha não depende de uma nova consulta à rede.
+    salvarContaExtra(hash, null);
+
+    // Mantém também uma entrada na base principal de login quando as regras do
+    // Firebase permitirem. Se esta escrita estiver bloqueada, contas_ativadas
+    // e a cópia local continuam garantindo o login neste aparelho.
+    try{
+      await dbFirestore.collection('usuarios_login').doc(hash).set({
+        usuario,
+        ativo: true,
+        bloqueado: false,
+        criadoVia: 'cadastro_cliente',
+        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      }, {merge:true});
+    }catch(e){
+      console.warn('Não foi possível gravar usuarios_login; mantendo credencial local e ativação.', e);
+    }
 
     try{
       await usoRef.set({
@@ -3569,7 +3602,7 @@ document.addEventListener('selectstart', e=>{
 
 <div class="overlay" id="overlayNomeJogo" style="align-items:center;">
   <div class="modal" style="border-radius:20px;max-width:340px;max-height:none;padding:28px 24px;overflow:visible;margin:0 24px;">
-    <div style="font-family:'Baloo 2',sans-serif;font-weight:700;font-size:21px;color:var(--ink);margin-bottom:22px;">Escolha um nome</div>
+    <div id="nomeJogoTitulo" style="font-family:'Baloo 2',sans-serif;font-weight:700;font-size:21px;color:var(--ink);margin-bottom:22px;">Escolha um nome</div>
     <input type="text" id="inputNomeJogo" placeholder="Ex: Jogos" maxlength="60" style="width:100%;box-sizing:border-box;border:none;border-bottom:2px solid var(--line);padding:6px 2px 8px;font-size:16px;color:var(--ink);font-family:'Inter',sans-serif;font-weight:500;outline:none;background:transparent;">
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:26px;">
       <button id="btnNomeJogoCancelar" style="background:none;border:none;color:var(--violet);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;letter-spacing:.02em;cursor:pointer;padding:10px 12px;border-radius:8px;">CANCELAR</button>
@@ -4657,7 +4690,7 @@ document.addEventListener('selectstart', e=>{
 
     <div class="gfc-tabs" id="geradorFiltroTabs" style="display:flex;gap:6px;margin-bottom:14px;">
       <button type="button" class="gfc-tab-btn active" id="geradorFiltroTabConfig" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:#4C1D95;color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Palpites</button>
-      <button type="button" class="gfc-tab-btn" id="geradorFiltroTabJogos" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:#fff;color:#4C1D95;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Jogos gerados</button>
+      <button type="button" class="gfc-tab-btn" id="geradorFiltroTabJogos" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:#fff;color:#4C1D95;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Salvar jogos</button>
     </div>
 
     <div id="geradorFiltroTabPanelConfig">
@@ -7348,6 +7381,43 @@ function limparGeradorEstado(code){
   }catch(e){}
 }
 
+
+// Jogos do Fechamento personalizado salvos com nome pelo usuário.
+const GERADOR_SALVOS_NOME_KEY = 'tl_gerador_salvos_nome_v1';
+function carregarJogosGeradorNome(){
+  try{
+    const bruto=localStorage.getItem(GERADOR_SALVOS_NOME_KEY);
+    const lista=bruto?JSON.parse(bruto):[];
+    return Array.isArray(lista)?lista:[];
+  }catch(e){ return []; }
+}
+function salvarJogosGeradorComNome(nome){
+  const ctx=geradorUltimoJogosCtx;
+  const limpo=String(nome||'').trim();
+  if(!ctx || !ctx.g || !Array.isArray(ctx.jogos) || !ctx.jogos.length || !limpo) return false;
+  const lista=carregarJogosGeradorNome();
+  lista.unshift({
+    id:Date.now(),
+    nome:limpo,
+    data:new Date().toISOString(),
+    gameCode:ctx.g.code,
+    loteria:ctx.g.nome,
+    jogos:ctx.jogos.map(j=>j.slice()),
+    maisAtrasadas:(ctx.maisAtrasadas||[]).map(x=>({...x})),
+    maisSairam:(ctx.maisSairam||[]).map(x=>({...x})),
+    totalConcursos:ctx.totalConcursos||0,
+    numeroUltimo:ctx.numeroUltimo||0,
+    depSize:ctx.depSize||0
+  });
+  while(lista.length>50) lista.pop();
+  try{
+    localStorage.setItem(GERADOR_SALVOS_NOME_KEY,JSON.stringify(lista));
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
 function abrirGeradorLoteria(){
   fecharModaisGlobais('overlayGeradorLoteria');
   const lista = document.getElementById('geradorLoteriaLista');
@@ -7390,7 +7460,7 @@ function abrirGeradorFiltro(code){
       estadoSalvo.maisSairam||[], estadoSalvo.totalConcursos||0, estadoSalvo.numeroUltimo||0, estadoSalvo.depSize||0);
   } else {
     document.getElementById('geradorFiltroResultado').innerHTML = '';
-    document.getElementById('geradorFiltroTabJogos').textContent = 'Jogos gerados';
+    document.getElementById('geradorFiltroTabJogos').textContent = 'Salvar jogos';
     gfcMostrarTab('config');
     geradorUltimoJogosCtx = null;
   }
@@ -7532,8 +7602,8 @@ document.getElementById('geradorFiltroTabConfig').addEventListener('click', (e)=
 document.getElementById('geradorFiltroTabJogos').addEventListener('click', (e)=>{
   e.preventDefault();
   e.stopPropagation();
-  // A aba Jogos gerados deve permanecer dentro do Fechamento personalizado
-  // e sempre renderizar os jogos já gerados para a loteria atual.
+
+  // Mantém os jogos gerados visíveis e usa esta aba como ação de SALVAR.
   if(geradorGameAtual){
     const estado = carregarGeradorEstado(geradorGameAtual.code);
     if(estado && Array.isArray(estado.jogos) && estado.jogos.length){
@@ -7547,9 +7617,26 @@ document.getElementById('geradorFiltroTabJogos').addEventListener('click', (e)=>
         estado.maisSairam||[], estado.totalConcursos||0, estado.numeroUltimo||0, estado.depSize||0);
     }
   }
+
   gfcMostrarTab('jogos');
   const painelJogos=document.getElementById('geradorFiltroTabPanelJogos');
   if(painelJogos) painelJogos.scrollIntoView({block:'start',behavior:'auto'});
+
+  if(!geradorUltimoJogosCtx || !Array.isArray(geradorUltimoJogosCtx.jogos) || !geradorUltimoJogosCtx.jogos.length){
+    alert('Gere os jogos primeiro para poder salvar.');
+    return;
+  }
+
+  nomeJogoContexto='gerador';
+  const titulo=document.getElementById('nomeJogoTitulo');
+  const input=document.getElementById('inputNomeJogo');
+  if(titulo) titulo.textContent='Nome do jogo';
+  if(input){
+    input.value='';
+    input.placeholder='Ex: Mega da semana';
+  }
+  document.getElementById('overlayNomeJogo').classList.add('show');
+  setTimeout(()=>{ if(input) input.focus(); },50);
 });
 
 document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async ()=>{
@@ -7856,7 +7943,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
 
   // atualiza o nome da aba com a quantidade de jogos e já leva o usuário pra ela
   const tabJogosBtn = document.getElementById('geradorFiltroTabJogos');
-  if(tabJogosBtn) tabJogosBtn.textContent = `Jogos gerados (${jogos.length})`;
+  if(tabJogosBtn) tabJogosBtn.textContent = 'Salvar jogos';
   gfcMostrarTab('jogos');
 
   document.getElementById('geradorLimparBtn').addEventListener('click', function(){
@@ -7868,7 +7955,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
       out.innerHTML = '';
       geradorUltimoJogosCtx = null;
       limparGeradorEstado(g.code);
-      if(tabJogosBtn) tabJogosBtn.textContent = 'Jogos gerados';
+      if(tabJogosBtn) tabJogosBtn.textContent = 'Salvar jogos';
       gfcMostrarTab('config');
     }, 350);
   });
@@ -12120,13 +12207,21 @@ document.getElementById('floatingShare').addEventListener('click', async functio
   }
 });
 
+let nomeJogoContexto='desdobramento';
+
 document.getElementById('floatingSalvarNome').addEventListener('click', function(){
   if(!lastGames || lastGames.length === 0){
     alert('Nenhum jogo gerado ainda pra salvar.');
     return;
   }
+  nomeJogoContexto='desdobramento';
+  const titulo=document.getElementById('nomeJogoTitulo');
   const input = document.getElementById('inputNomeJogo');
-  if(input) input.value = '';
+  if(titulo) titulo.textContent='Escolha um nome';
+  if(input){
+    input.value = '';
+    input.placeholder='Ex: Jogos';
+  }
   fecharModaisGlobais('overlayNomeJogo');
   document.getElementById('overlayNomeJogo').classList.add('show');
   setTimeout(()=>{ if(input) input.focus(); }, 50);
@@ -12134,6 +12229,7 @@ document.getElementById('floatingSalvarNome').addEventListener('click', function
 
 document.getElementById('btnNomeJogoCancelar').addEventListener('click', ()=>{
   document.getElementById('overlayNomeJogo').classList.remove('show');
+  nomeJogoContexto='desdobramento';
 });
 
 document.getElementById('inputNomeJogo').addEventListener('keydown', e=>{
@@ -12141,7 +12237,33 @@ document.getElementById('inputNomeJogo').addEventListener('keydown', e=>{
 });
 
 document.getElementById('btnNomeJogoSalvar').addEventListener('click', ()=>{
-  const nome = document.getElementById('inputNomeJogo').value;
+  const input=document.getElementById('inputNomeJogo');
+  const nome = input ? input.value.trim() : '';
+  if(!nome){
+    if(input){
+      input.focus();
+      input.style.borderBottomColor='#D6336C';
+      setTimeout(()=>{ input.style.borderBottomColor='var(--line)'; },900);
+    }
+    return;
+  }
+
+  if(nomeJogoContexto==='gerador'){
+    const salvou=salvarJogosGeradorComNome(nome);
+    if(!salvou){
+      alert('Não foi possível salvar os jogos.');
+      return;
+    }
+    document.getElementById('overlayNomeJogo').classList.remove('show');
+    const btn=document.getElementById('geradorFiltroTabJogos');
+    if(btn){
+      btn.textContent='✅ Salvo';
+      setTimeout(()=>{ btn.textContent='Salvar jogos'; },1200);
+    }
+    nomeJogoContexto='desdobramento';
+    return;
+  }
+
   const summaryEl = document.getElementById('summaryBox2');
   const summaryHtml = (summaryEl && summaryEl.innerHTML) ? summaryEl.innerHTML : '';
   saveToHistorico(summaryHtml, lastGames, nome);
