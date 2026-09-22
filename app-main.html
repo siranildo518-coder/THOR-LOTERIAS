@@ -207,7 +207,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v145'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v145-jogos-salvos-filtros'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -7685,6 +7685,7 @@ document.getElementById('geradorFiltroTabConfig').addEventListener('click', (e)=
 let gjsGameCode='MS';
 let gjsFiltroNome='Todos';
 let gjsResultadoAtual=null;
+let gjsResultadoAnterior=null;
 
 function gjsEsc(s){
   return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -7705,6 +7706,7 @@ function renderGjsLoterias(){
     gjsGameCode=b.dataset.code;
     gjsFiltroNome='Todos';
     gjsResultadoAtual=null;
+    gjsResultadoAnterior=null;
     renderGjsTela();
     carregarGjsResultado();
   });
@@ -7732,6 +7734,73 @@ function gjsFaixaHits(gameCode,hits){
   try{return faixaPremioGerador(gameCode,hits)}catch(_){return null}
 }
 
+function gjsStatsJogo(jogo){
+  const nums=(Array.isArray(jogo)?jogo:[]).map(Number).filter(Number.isFinite);
+  const par=nums.filter(n=>n%2===0).length;
+  const impar=nums.length-par;
+  const primo=nums.filter(n=>PRIMES.has(n)).length;
+  const fib=nums.filter(n=>FIB.has(n)).length;
+  const mult3=nums.filter(n=>n%3===0).length;
+  const soma=nums.reduce((a,b)=>a+b,0);
+  const ehLotofacil=gjsGameCode==='LF';
+  const moldura=ehLotofacil?nums.filter(n=>MOLDURA.has(n)).length:'—';
+  const retrato=ehLotofacil?nums.filter(n=>RETRATO.has(n)).length:'—';
+
+  let repetidas=[];
+  if(gjsResultadoAnterior && gjsResultadoAnterior.gameCode===gjsGameCode){
+    const ant=new Set((gjsResultadoAnterior.dezenas||[]).map(Number));
+    repetidas=nums.filter(n=>ant.has(n));
+  }
+  return {par,impar,primo,fib,moldura,retrato,mult3,soma,repetidas};
+}
+
+function gjsSalvarListaCompleta(lista){
+  try{
+    localStorage.setItem(GERADOR_SALVOS_NOME_KEY,JSON.stringify(lista));
+    return true;
+  }catch(e){ return false; }
+}
+
+function gjsApagarJogo(entryId,jogoIndex){
+  const lista=carregarJogosGeradorNome();
+  const idx=lista.findIndex(x=>Number(x.id)===Number(entryId));
+  if(idx<0)return;
+  const jogos=Array.isArray(lista[idx].jogos)?lista[idx].jogos:[];
+  jogos.splice(Number(jogoIndex),1);
+  if(jogos.length===0) lista.splice(idx,1);
+  else lista[idx].jogos=jogos;
+  gjsSalvarListaCompleta(lista);
+  renderGjsTela();
+}
+
+async function gjsCopiarJogo(jogo,btn){
+  const texto=(Array.isArray(jogo)?jogo:[]).map(n=>String(n).padStart(2,'0')).join(' ');
+  let ok=false;
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(texto);
+      ok=true;
+    }
+  }catch(e){}
+  if(!ok){
+    try{
+      const ta=document.createElement('textarea');
+      ta.value=texto;
+      ta.style.position='fixed';
+      ta.style.opacity='0';
+      document.body.appendChild(ta);
+      ta.select();
+      ok=document.execCommand('copy');
+      ta.remove();
+    }catch(e){}
+  }
+  if(btn){
+    const antigo=btn.textContent;
+    btn.textContent=ok?'COPIADO ✓':'COPIAR';
+    setTimeout(()=>{btn.textContent=antigo;},1100);
+  }
+}
+
 function renderGjsLista(){
   const box=document.getElementById('gjsLista');
   const vazio=document.getElementById('gjsVazio');
@@ -7747,39 +7816,71 @@ function renderGjsLista(){
   vazio.style.display='none';
 
   const resSet=gjsResultadoAtual && gjsResultadoAtual.gameCode===gjsGameCode
-    ? new Set(gjsResultadoAtual.dezenas||[]) : null;
+    ? new Set((gjsResultadoAtual.dezenas||[]).map(Number)) : null;
 
-  box.innerHTML=lista.map(entry=>{
+  let html='';
+  lista.forEach(entry=>{
     const jogos=Array.isArray(entry.jogos)?entry.jogos:[];
-    const linhas=jogos.map((jogo,i)=>{
-      let hits=null, faixa=null;
-      if(resSet){
-        hits=jogo.filter(n=>resSet.has(Number(n))).length;
-        faixa=gjsFaixaHits(gjsGameCode,hits);
-      }
-      return '<div style="display:flex;align-items:center;gap:5px;padding:7px 6px;border-top:1px solid #eee;">'+
-        '<span style="width:38px;flex:none;font-size:10px;font-weight:800;color:#5d6470;">Jogo '+(i+1)+'</span>'+
-        '<div style="display:flex;flex-wrap:wrap;gap:4px;flex:1;">'+jogo.map(n=>{
-          const ac=resSet&&resSet.has(Number(n));
-          return '<span style="width:23px;height:23px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:'+(ac?'linear-gradient(#38d46f,#0b9b48)':'linear-gradient(#eceff3,#cdd3d9)')+';border:1px solid '+(ac?'#078a3e':'#b8bec6')+';color:'+(ac?'#fff':'#27304a')+';font-size:9px;font-weight:900;">'+String(n).padStart(2,'0')+'</span>';
-        }).join('')+'</div>'+
-        '<span style="flex:none;font-size:9px;font-weight:900;color:'+(faixa?'#148a4b':'#7d8490')+';">'+(hits===null?'—':hits+' ponto'+(hits===1?'':'s'))+'</span>'+
-      '</div>';
-    }).join('');
-
-    return '<div style="background:#fff;border:2px solid #e5a629;border-radius:9px;color:#172033;margin-bottom:8px;overflow:hidden;">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px 8px;background:#fffdf8;">'+
-        '<strong style="font-size:11px;color:#253145;">'+gjsEsc(entry.nome||'Sem nome')+' · '+jogos.length+' jogo'+(jogos.length===1?'':'s')+'</strong>'+
-        '<button type="button" class="gjs-apagar" data-id="'+entry.id+'" style="border:1px solid #b91c1c;border-radius:7px;background:#fff;color:#b91c1c;font-size:9px;font-weight:900;padding:4px 7px;">APAGAR</button>'+
-      '</div>'+linhas+
+    html += '<div style="font-family:\'Baloo 2\',sans-serif;font-size:12px;font-weight:900;color:#f5a623;margin:8px 3px 7px;">'+
+      gjsEsc(entry.nome||'Sem nome')+' · '+jogos.length+' jogo'+(jogos.length===1?'':'s')+
     '</div>';
-  }).join('');
 
-  box.querySelectorAll('.gjs-apagar').forEach(btn=>btn.onclick=()=>{
-    const id=Number(btn.dataset.id);
-    const listaToda=carregarJogosGeradorNome().filter(x=>Number(x.id)!==id);
-    try{localStorage.setItem(GERADOR_SALVOS_NOME_KEY,JSON.stringify(listaToda))}catch(_){}
-    renderGjsTela();
+    jogos.forEach((jogo,i)=>{
+      const nums=(Array.isArray(jogo)?jogo:[]).map(Number).filter(Number.isFinite);
+      const st=gjsStatsJogo(nums);
+      const filtros=[
+        ['PAR',st.par],['ÍMPAR',st.impar],['PRIMO',st.primo],['FIBONACCI',st.fib],
+        ['MOLDURA',st.moldura],['RETRATO',st.retrato],['MÚLT. 3',st.mult3],['SOMA',st.soma]
+      ];
+      const bolas=nums.map(n=>{
+        const ac=resSet&&resSet.has(n);
+        return '<span style="width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;'+
+          'background:'+(ac?'radial-gradient(circle at 30% 25%,#5eea91,#11ad58 52%,#08783b)':'radial-gradient(circle at 30% 25%,#fff,#edf0f3 42%,#b9bec5 78%)')+';'+
+          'border:1px solid '+(ac?'#0b964b':'#d4d7dc')+';color:'+(ac?'#fff':'#242424')+';'+
+          'box-shadow:inset 2px 2px 3px rgba(255,255,255,.88),inset -3px -4px 6px rgba(0,0,0,.18),0 4px 7px rgba(0,0,0,.18);'+
+          'font-size:12px;font-weight:900;">'+String(n).padStart(2,'0')+'</span>';
+      }).join('');
+
+      const filtrosHtml=filtros.map(([rotulo,valor])=>
+        '<div style="background:#f4f1f8;border-radius:11px;padding:6px 3px;text-align:center;min-height:43px;box-sizing:border-box;">'+
+          '<div style="font-size:9px;color:#8d8798;line-height:1.05;">'+rotulo+'</div>'+
+          '<div style="font-size:13px;color:#27212f;font-weight:900;margin-top:2px;">'+valor+'</div>'+
+        '</div>'
+      ).join('');
+
+      const repBolas=st.repetidas.length
+        ? '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:5px;">'+
+            st.repetidas.map(n=>'<span style="width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 25%,#efc7ff,#b83ce0 50%,#74169b);color:#fff;font-size:9px;font-weight:900;border:1px solid #d77cff;">'+String(n).padStart(2,'0')+'</span>').join('')+
+          '</div>'
+        : '<div style="font-size:9px;color:#9a94a4;margin-top:3px;">Nenhuma</div>';
+
+      html += '<div class="gjs-jogo-card" data-entry="'+entry.id+'" data-index="'+i+'" style="background:#fff;border:1.5px solid #e8e2ef;border-radius:17px;padding:10px;margin-bottom:10px;color:#241B2F;box-shadow:0 3px 9px rgba(0,0,0,.08);">'+
+        '<div style="font-family:\'Baloo 2\',sans-serif;font-size:13px;font-weight:900;color:#4C1D95;margin-bottom:8px;">Jogo '+(i+1)+'</div>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px;">'+bolas+'</div>'+
+        '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:7px;">'+filtrosHtml+'</div>'+
+        '<div style="background:#f4f1f8;border-radius:11px;padding:7px;text-align:center;margin-bottom:8px;">'+
+          '<div style="font-size:9px;color:#8d8798;">REPETIDAS DO CONCURSO ANTERIOR</div>'+
+          '<div style="font-size:13px;font-weight:900;color:#27212f;margin-top:2px;">'+st.repetidas.length+'</div>'+repBolas+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">'+
+          '<button type="button" class="gjs-apagar-jogo" data-entry="'+entry.id+'" data-index="'+i+'" style="height:34px;border:1.5px solid #e3dbea;border-radius:10px;background:#fff;color:#5a287c;font-weight:900;font-size:10px;">APAGAR</button>'+
+          '<button type="button" class="gjs-copiar-jogo" data-entry="'+entry.id+'" data-index="'+i+'" style="height:34px;border:1.5px solid #e3dbea;border-radius:10px;background:#fff;color:#5a287c;font-weight:900;font-size:10px;">COPIAR</button>'+
+        '</div>'+
+      '</div>';
+    });
+  });
+
+  box.innerHTML=html;
+
+  box.querySelectorAll('.gjs-apagar-jogo').forEach(btn=>btn.onclick=()=>{
+    gjsApagarJogo(btn.dataset.entry,btn.dataset.index);
+  });
+  box.querySelectorAll('.gjs-copiar-jogo').forEach(btn=>btn.onclick=()=>{
+    const entryId=Number(btn.dataset.entry);
+    const idx=Number(btn.dataset.index);
+    const entry=carregarJogosGeradorNome().find(x=>Number(x.id)===entryId);
+    const jogo=entry&&Array.isArray(entry.jogos)?entry.jogos[idx]:null;
+    if(jogo) gjsCopiarJogo(jogo,btn);
   });
 }
 
@@ -7793,6 +7894,7 @@ async function carregarGjsResultado(concurso){
     if(!d||!d.concurso)throw new Error('sem resultado');
     const nums=(d.dezenas||[]).map(Number).filter(Number.isFinite).sort((a,b)=>a-b);
     gjsResultadoAtual={gameCode:gjsGameCode,concurso:Number(d.concurso),dezenas:nums,data:d.data||'',local:d.local||''};
+    gjsResultadoAnterior=null;
     box.innerHTML=
       '<div style="background:linear-gradient(#19a84f,#067536);color:#fff;text-align:center;padding:5px;font-size:10px;font-weight:900;">Resultado Oficial - '+game.nome+'</div>'+
       '<div style="display:grid;grid-template-columns:48px 1fr 48px;gap:6px;align-items:center;padding:8px;">'+
@@ -7804,6 +7906,22 @@ async function carregarGjsResultado(concurso){
     document.getElementById('gjsAnterior')?.addEventListener('click',()=>carregarGjsResultado(Math.max(1,Number(d.concurso)-1)));
     document.getElementById('gjsProximo')?.addEventListener('click',()=>carregarGjsResultado(Number(d.concurso)+1));
     renderGjsLista();
+
+    // Busca o concurso anterior em segundo plano para preencher o filtro
+    // "Repetidas do concurso anterior" em cada jogo salvo.
+    try{
+      const ant=await fetchConcursoLoteria(game,Math.max(1,Number(d.concurso)-1));
+      if(gjsResultadoAtual && gjsResultadoAtual.gameCode===gjsGameCode && Number(gjsResultadoAtual.concurso)===Number(d.concurso)){
+        gjsResultadoAnterior={
+          gameCode:gjsGameCode,
+          concurso:Number(ant.concurso||Number(d.concurso)-1),
+          dezenas:(ant.dezenas||[]).map(Number).filter(Number.isFinite)
+        };
+        renderGjsLista();
+      }
+    }catch(e){
+      gjsResultadoAnterior=null;
+    }
   }catch(e){
     box.innerHTML='<div style="padding:10px;text-align:center;font-size:10px;color:#b91c1c;font-weight:800;">Não foi possível carregar o resultado agora.</div>';
   }
