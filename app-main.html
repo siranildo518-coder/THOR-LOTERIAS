@@ -271,6 +271,12 @@ const CREDENCIAIS_VALIDAS = [
 ];
 
 const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
+const USUARIOS_BLOQUEADOS_POR_NOME = new Set(['adelino']);
+function usuarioBloqueadoPorNome(nome){
+  return USUARIOS_BLOQUEADOS_POR_NOME.has(
+    String(nome||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  );
+}
 const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio cliente, direto no aparelho dele
 
 // ---------- Atualização automática pelo GitHub ----------
@@ -415,7 +421,18 @@ function comprimirFoto(dataUrl, maxLado){
 
 function loginJaValidado(){
   if(obterContextoAcesso() !== 'app') return false;
-  try{ return localStorage.getItem(LOGIN_STORAGE_KEY) === '1' && !!localStorage.getItem('tl_hash_atual'); }catch(e){ return false; }
+  try{
+    const ok = localStorage.getItem(LOGIN_STORAGE_KEY) === '1';
+    const hash = localStorage.getItem('tl_hash_atual') || '';
+    if(!ok || !hash) return false;
+    const nome = localStorage.getItem('tl_nome_conta_'+hash) || '';
+    if(usuarioBloqueadoPorNome(nome)){
+      localStorage.removeItem(LOGIN_STORAGE_KEY);
+      localStorage.removeItem('tl_hash_atual');
+      return false;
+    }
+    return true;
+  }catch(e){ return false; }
 }
 
 async function sha256HexCadastro(texto){
@@ -591,6 +608,7 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
   if(obterContextoAcesso() !== 'app') return {ok:false,motivo:'somente_app'};
   usuario = String(usuario||'').trim();
   senha = String(senha||'').trim();
+  if(usuarioBloqueadoPorNome(usuario)) return {ok:false,motivo:'usuario_bloqueado'};
   if(usuario.length < 2) return {ok:false,motivo:'usuario_curto'};
   if(senha.length < 4) return {ok:false,motivo:'senha_curta'};
 
@@ -773,6 +791,11 @@ function montarTelaLogin(){
       erroEl.textContent = 'Preencha usuário e senha.';
       return;
     }
+    if(usuarioBloqueadoPorNome(usuario)){
+      erroEl.style.color = '#B7791F';
+      erroEl.textContent = 'Acesso bloqueado para este usuário.';
+      return;
+    }
     const hash = hashLogin(`${usuario}|${senha}`);
     // Validação direta para contas administrativas conhecidas, sem depender de cache/Firebase.
     const ELZIANE_HASH = '1165s8q';
@@ -857,6 +880,7 @@ function montarTelaLogin(){
       codigo_usado:'Este código já foi usado.',
       codigo_bloqueado:'Este código foi bloqueado pelo administrador.',
       usuario_existente:'Este usuário e senha já estão cadastrados.',
+      usuario_bloqueado:'Este usuário está bloqueado.',
       somente_app:'Faça o cadastro pelo aplicativo instalado.',
       usuario_curto:'O usuário precisa ter pelo menos 2 caracteres.',
       senha_curta:'A senha precisa ter pelo menos 4 caracteres.',
