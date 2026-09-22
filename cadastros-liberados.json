@@ -209,7 +209,8 @@
       "compatHash": "1i05moh",
       "criadoEm": "2026-09-22T19:56:10.386Z",
       "expiraEm": "2026-09-23T19:56:10.387Z",
-      "ativo": true
+      "ativo": false,
+      "bloqueado": true
     },
     {
       "hash": "d6d694e1b80cf8e53fc479c2a762c3b7b4ad625010c170639440e9cdd62c1b19",
