@@ -3801,7 +3801,7 @@ document.addEventListener('selectstart', e=>{
     <button id="falhasConcursosVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
     <h1 style="font-size:19px;">Falhas e concursos</h1>
   </header>
-  <iframe id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v145-falhas-confirmacao" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
+  <iframe id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v146-falhas-sequencial" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
 </div>
 
 <nav class="home-bottom-nav" id="bottomNav">
@@ -10138,37 +10138,7 @@ if(btnFalhasConcursosHome && overlayFalhasConcursos){
         if(frame.contentWindow && typeof frame.contentWindow.atualizarConcursosCaixa === 'function'){
           frame.contentWindow.atualizarConcursosCaixa();
         }else{
-          frame.src = 'falhas-concursos.html?v=thor7-v145-falhas-confirmacao&t=' + Date.now();
-        }
-      }catch(_){
-        frame.src = 'falhas-concursos.html?v=thor7-v145-falhas-confirmacao&t=' + Date.now();
-      }
-    }
-    try{ history.pushState({thorFalhasConcursos:true},'',location.href); }catch(_){}
-  });
-}
-if(falhasConcursosVoltar && overlayFalhasConcursos){
-  falhasConcursosVoltar.addEventListener('click', ()=>{
-    if(history.state && history.state.thorFalhasConcursos){ history.back(); }
-    else { overlayFalhasConcursos.classList.remove('show'); }
-  });
-}
-window.addEventListener('popstate', function(e){
-  if(overlayFalhasConcursos && overlayFalhasConcursos.classList.contains('show')){
-    overlayFalhasConcursos.classList.remove('show');
-  }
-});
-
-// ---------- atualização automática quando sai um novo resultado da CAIXA ----------
-async function silentFetchLatest(game){
-  try{ return await fetchConcursoLoteria(game); }catch(e){ return null; }
-}
-
-async function checarNovoResultado(){
-  if(document.visibilityState !== 'visible') return; // só confere com a aba em primeiro plano
-  if(navigator.onLine === false) return;
-
-  // card "Último Sorteio" da tela Início: sempre mostra o mais recente, então pode atualizar direto
+          frame.src = 'falhas-concursos.html?v=thor7-v146-falhas-sequencial"Último Sorteio" da tela Início: sempre mostra o mais recente, então pode atualizar direto
   const dataHome = await silentFetchLatest(homeGameAtual);
   if(dataHome && dataHome.concurso && dataHome.concurso !== homeCache[homeGameAtual.slug]?.concurso){
     homeCache[homeGameAtual.slug] = dataHome;
