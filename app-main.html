@@ -481,11 +481,16 @@ async function sha256HexCadastro(texto){
   return sha256Pure(unescape(encodeURIComponent(entrada)));
 }
 
+const CODIGOS_CADASTRO_BLOQUEADOS = new Set(['8de40bb88784e578be4567c8a4cc0f156c086b4dbee9f0bb2892830592678b8c']);
+
 async function buscarLiberacaoCadastroTeste(codigo){
   const codigoNormalizado = String(codigo||'').trim().toUpperCase();
   const codigoCompat = hashLogin(codigoNormalizado);
   let codigoHash = '';
   try{ codigoHash = await sha256HexCadastro(codigoNormalizado); }catch(e){}
+  if(codigoHash && CODIGOS_CADASTRO_BLOQUEADOS.has(codigoHash)){
+    return {ok:false,motivo:'codigo_bloqueado'};
+  }
 
   function validarLista(lista){
     const item = (Array.isArray(lista)?lista:[]).find(x=>x && x.ativo !== false && (
@@ -850,6 +855,7 @@ function montarTelaLogin(){
       codigo_invalido:'Código de liberação inválido.',
       codigo_expirado:'Este código de liberação expirou.',
       codigo_usado:'Este código já foi usado.',
+      codigo_bloqueado:'Este código foi bloqueado pelo administrador.',
       usuario_existente:'Este usuário e senha já estão cadastrados.',
       somente_app:'Faça o cadastro pelo aplicativo instalado.',
       usuario_curto:'O usuário precisa ter pelo menos 2 caracteres.',
