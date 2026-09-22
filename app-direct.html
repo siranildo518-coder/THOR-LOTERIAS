@@ -207,7 +207,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v144-salvar-sem-abrir'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v144-cadastro-codigo-robusto'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -432,38 +432,75 @@ async function buscarLiberacaoCadastroTeste(codigo){
     return {ok:true,codigoHash:(item.hash||codigoCompat),codigoCompat,item};
   }
 
-  // Consulta o commit atual primeiro; não espera o GitHub Pages/Raw propagar.
-  try{
-    const api = await fetch(
+  // Cópia de segurança das liberações válidas existentes no momento desta versão.
+  // Evita falso "inválido" se GitHub Raw/API demorar alguns segundos para responder.
+  const liberacoesEmbutidas = [{"hash":"153bb2b82fd10c03b3f8bff2b272fbf2740d130fec25ea57b932b472c4bb85cd","criadoEm":"2026-09-21T14:54:24Z","expiraEm":"2026-09-22T14:54:24Z","ativo":true},{"hash":"8b2f4d91771fe33d37899805349e804423e1c8d200ae63b411c7a260ee3aa95d","criadoEm":"2026-09-21T14:59:58.366Z","expiraEm":"2026-09-22T14:59:58.372Z","ativo":true},{"hash":"92401074b9a96b9b93062d46b94dfcea39dab5eb7c840a2ff24890ae5c8d21fe","criadoEm":"2026-09-21T15:03:35.845Z","expiraEm":"2026-09-22T15:03:35.845Z","ativo":true},{"hash":"a5a23d053baea85bb2f634ca22563b89121af6ef439d18f8240c9127b1303e39","criadoEm":"2026-09-21T15:04:24.565Z","expiraEm":"2026-09-22T15:04:24.565Z","ativo":true},{"hash":"8cead83a5ea0495c6950df001d1ae150656c6ec96494d3b9dfaa7cb0c76e193f","criadoEm":"2026-09-21T15:04:26.820Z","expiraEm":"2026-09-22T15:04:26.820Z","ativo":true},{"hash":"754ded79cbdb862424659744ffb8547be3f3fbbcf3be3ed1f46efca945a3fd2e","criadoEm":"2026-09-21T15:10:00Z","expiraEm":"2026-09-22T15:10:00Z","ativo":true,"compatHash":"199iyna"},{"hash":"8949e4bda26a9ccf21b6aabb1b9e4c593a02af93c5a10f2878d12b2de0144d0e","criadoEm":"2026-09-21T19:26:12.368Z","expiraEm":"2026-09-22T19:26:12.375Z","ativo":true,"compatHash":"1p9aigf"},{"hash":"7e45641c8f3018fcc202c497fc7b1bda66e6c57c3857d878240f721f553f570f","criadoEm":"2026-09-21T19:59:41.030Z","expiraEm":"2026-09-22T19:59:41.030Z","ativo":true,"compatHash":"lr9urj"},{"hash":"9badfa22f6cdefe1cd90ea3611a16233482d837bd1a7692a20c0cae161e61209","criadoEm":"2026-09-21T20:11:41.301Z","expiraEm":"2026-09-22T20:11:41.301Z","ativo":true},{"hash":"9be620d8e9e903c23a213c873d528fda7d64c797dd18084135c23160ab30aaba","criadoEm":"2026-09-21T20:44:06.966Z","expiraEm":"2026-09-22T20:44:06.966Z","ativo":true},{"hash":"48b6c38a0511e69b38f687f8bfdb631a3071b5706fa76d6b581146b30433e3bb","criadoEm":"2026-09-21T20:58:03.005Z","expiraEm":"2026-09-22T20:58:03.006Z","ativo":true,"compatHash":"1pn5m5u"},{"hash":"371cd22102e08a687865cc06a4dfaa50aa0daa1cca8d93d6f0ff17b0fb3ed3f1","criadoEm":"2026-09-21T22:07:59.648Z","expiraEm":"2026-09-22T22:07:59.651Z","ativo":true,"compatHash":"1krq4il"},{"hash":"585f91ee834ad493b29721d1ab5d772de091c712f47963d74322a3b25c25bb5b","compatHash":"1hll874","criadoEm":"2026-09-21T22:36:35.646Z","expiraEm":"2026-09-22T22:36:35.648Z","ativo":true},{"hash":"c4a10af4acd840293bd761f116f0d7c1becad9e490823132e66d27cbd9cae838","compatHash":"u408k9","criadoEm":"2026-09-21T22:46:38.327Z","expiraEm":"2026-09-22T22:46:38.327Z","ativo":true},{"hash":"921c81f9c5f35e597bc4c85fa26615cf5bf97c616cc1574c0c34c70ebf237611","compatHash":"18kwu6w","criadoEm":"2026-09-21T22:52:11.663Z","expiraEm":"2026-09-22T22:52:11.664Z","ativo":true},{"hash":"532d53851d634dc9c672c614ed9aa8a2bc44726621fdc75cc102d4899912be8c","compatHash":"jt34a7","criadoEm":"2026-09-21T22:54:25.751Z","expiraEm":"2026-09-22T22:54:25.756Z","ativo":true},{"hash":"71fafec0cdf019eb2907912959333e3e44b19469ec423e4bd2fa867d941d535c","compatHash":"zw6yol","criadoEm":"2026-09-21T22:59:40.816Z","expiraEm":"2026-09-22T22:59:40.816Z","ativo":true},{"hash":"b3078e2d32cae2adad67b15d4cb778b2d401f28e6dbab1b11fcd28f805d629f0","compatHash":"10t75zj","criadoEm":"2026-09-21T23:06:00.782Z","expiraEm":"2026-09-22T23:06:00.782Z","ativo":true},{"hash":"eead4813224fe8abbd940335db7931c08e42dcaa14da1ca20f7416164ba771b2","compatHash":"l3xwo0","criadoEm":"2026-09-21T23:40:52.692Z","expiraEm":"2026-09-22T23:40:52.694Z","ativo":true},{"hash":"b5b585cde6729199011477a8353e0fb556ad5cc91b9b2f5d35f38749d260cfb2","compatHash":"6qqebx","criadoEm":"2026-09-21T23:50:08.736Z","expiraEm":"2026-09-22T23:50:08.738Z","ativo":true},{"hash":"36cdcb68510e5c5803625df57fc9a1806388659153c556758b738add6b78c8d8","compatHash":"14l4k69","criadoEm":"2026-09-22T02:05:20.221Z","expiraEm":"2026-09-23T02:05:20.230Z","ativo":true},{"hash":"030b268b293d362a60d9847501da91a3b3e82ead9c34dc73485000d8f9a07d62","compatHash":"1om0neg","criadoEm":"2026-09-22T02:18:17.053Z","expiraEm":"2026-09-23T02:18:17.055Z","ativo":true}];
+  const local = validarLista(liberacoesEmbutidas);
+  if(local.ok || local.motivo==='codigo_expirado') return local;
+
+  let fonteAutoritativaCarregou = false;
+
+  async function lerApiGithub(){
+    const r = await fetch(
       'https://api.github.com/repos/siranildo518-coder/THOR-LOTERIAS/contents/cadastros-liberados.json?ref=main&_='+Date.now(),
       {cache:'no-store',headers:{'Accept':'application/vnd.github+json','Cache-Control':'no-cache'}}
     );
-    if(api.ok){
-      const meta = await api.json();
-      if(meta && meta.content){
-        const texto = decodeURIComponent(escape(atob(String(meta.content).replace(/\s/g,''))));
-        const json = JSON.parse(texto);
-        const r = validarLista(json && json.liberacoes);
-        if(r.ok || r.motivo==='codigo_expirado') return r;
-      }
-    }
-  }catch(e){}
-
-  const urls = [
-    'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?_='+Date.now(),
-    './cadastros-liberados.json?v=thor7-v143&_='+Date.now()
-  ];
-
-  for(const url of urls){
+    if(!r.ok) throw new Error('api '+r.status);
+    const meta = await r.json();
+    if(!meta || !meta.content) throw new Error('api sem conteúdo');
+    let texto='';
     try{
-      const resposta = await fetch(url,{cache:'no-store',headers:{'Cache-Control':'no-cache'}});
-      if(!resposta.ok) continue;
-      const json = await resposta.json();
-      const r = validarLista(json && json.liberacoes);
-      if(r.ok || r.motivo==='codigo_expirado') return r;
-    }catch(e){}
+      const bin=atob(String(meta.content).replace(/\s/g,''));
+      const bytes=Uint8Array.from(bin,ch=>ch.charCodeAt(0));
+      texto=new TextDecoder('utf-8').decode(bytes);
+    }catch(e){
+      texto=atob(String(meta.content).replace(/\s/g,''));
+    }
+    const json=JSON.parse(texto);
+    fonteAutoritativaCarregou = true;
+    return json && json.liberacoes;
   }
-  return {ok:false,motivo:'codigo_invalido'};
+
+  async function lerJson(url, autoritativa){
+    const r=await fetch(url,{
+      cache:'no-store',
+      headers:{'Accept':'application/json','Cache-Control':'no-cache, no-store, max-age=0','Pragma':'no-cache'}
+    });
+    if(!r.ok) throw new Error('http '+r.status);
+    const json=await r.json();
+    if(autoritativa) fonteAutoritativaCarregou = true;
+    return json && json.liberacoes;
+  }
+
+  // Faz duas tentativas rápidas. Raw/API são considerados fonte atual;
+  // GitHub Pages e CDN entram como apoio, mas nunca fazem um código novo
+  // ser declarado inválido apenas por ainda estarem atrasados.
+  for(let tentativa=0;tentativa<2;tentativa++){
+    const t=Date.now()+'-'+tentativa;
+    const fontes = await Promise.allSettled([
+      lerApiGithub(),
+      lerJson('https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?_='+t,true),
+      lerJson('https://siranildo518-coder.github.io/THOR-LOTERIAS/cadastros-liberados.json?_='+t,false),
+      lerJson('./cadastros-liberados.json?cadastro='+t,false),
+      lerJson('https://cdn.jsdelivr.net/gh/siranildo518-coder/THOR-LOTERIAS@main/cadastros-liberados.json?_='+t,false)
+    ]);
+
+    for(const f of fontes){
+      if(f.status!=='fulfilled') continue;
+      const r=validarLista(f.value);
+      if(r.ok || r.motivo==='codigo_expirado') return r;
+    }
+
+    if(tentativa===0){
+      await new Promise(resolve=>setTimeout(resolve,450));
+    }
+  }
+
+  // Só chama de inválido quando pelo menos API ou Raw respondeu.
+  // Se nenhuma fonte atual respondeu, evita acusar um código válido de inválido.
+  return fonteAutoritativaCarregou
+    ? {ok:false,motivo:'codigo_invalido'}
+    : {ok:false,motivo:'falha_verificacao'};
 }
 
 async function criarCadastroTesteLiberado(codigo, usuario, senha){
