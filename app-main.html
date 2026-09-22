@@ -207,7 +207,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v147-update-silencioso'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v148-palpite-atual'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3801,7 +3801,7 @@ document.addEventListener('selectstart', e=>{
     <button id="falhasConcursosVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
     <h1 style="font-size:19px;">Falhas e concursos</h1>
   </header>
-  <iframe id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v146-falhas-sequencial" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
+  <iframe id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v148-palpite-atual" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
 </div>
 
 <nav class="home-bottom-nav" id="bottomNav">
@@ -10138,7 +10138,7 @@ if(btnFalhasConcursosHome && overlayFalhasConcursos){
         if(frame.contentWindow && typeof frame.contentWindow.atualizarConcursosCaixa === 'function'){
           frame.contentWindow.atualizarConcursosCaixa();
         }else{
-          frame.src = 'falhas-concursos.html?v=thor7-v146-falhas-sequencial"Último Sorteio" da tela Início: sempre mostra o mais recente, então pode atualizar direto
+          frame.src = 'falhas-concursos.html?v=thor7-v148-palpite-atual"Último Sorteio" da tela Início: sempre mostra o mais recente, então pode atualizar direto
   const dataHome = await silentFetchLatest(homeGameAtual);
   if(dataHome && dataHome.concurso && dataHome.concurso !== homeCache[homeGameAtual.slug]?.concurso){
     homeCache[homeGameAtual.slug] = dataHome;
