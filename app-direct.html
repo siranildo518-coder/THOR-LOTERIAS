@@ -207,7 +207,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v145-filtros-mais-baixos'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v145-filtros-conforme-palpites'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -7473,7 +7473,10 @@ function salvarJogosGeradorComNome(nome){
     maisSairam:(ctx.maisSairam||[]).map(x=>({...x})),
     totalConcursos:ctx.totalConcursos||0,
     numeroUltimo:ctx.numeroUltimo||0,
-    depSize:ctx.depSize||0
+    depSize:ctx.depSize||0,
+    filtrosEscolhidos:ctx.filtrosEscolhidos||null,
+    baseRepetidasConcurso:ctx.baseRepetidasConcurso||null,
+    baseRepetidasDezenas:Array.isArray(ctx.baseRepetidasDezenas)?ctx.baseRepetidasDezenas.slice():[]
   });
   while(lista.length>50) lista.pop();
   try{
@@ -7520,7 +7523,10 @@ function abrirGeradorFiltro(code){
       g: geradorGameAtual, jogos: estadoSalvo.jogos,
       maisAtrasadas: estadoSalvo.maisAtrasadas||[], maisSairam: estadoSalvo.maisSairam||[],
       totalConcursos: estadoSalvo.totalConcursos||0, numeroUltimo: estadoSalvo.numeroUltimo||0,
-      depSize: estadoSalvo.depSize||0
+      depSize: estadoSalvo.depSize||0,
+      filtrosEscolhidos: estadoSalvo.filtrosEscolhidos||null,
+      baseRepetidasConcurso: estadoSalvo.baseRepetidasConcurso||null,
+      baseRepetidasDezenas: Array.isArray(estadoSalvo.baseRepetidasDezenas)?estadoSalvo.baseRepetidasDezenas:[]
     };
     renderGeradorResultado(geradorGameAtual, estadoSalvo.jogos, estadoSalvo.maisAtrasadas||[],
       estadoSalvo.maisSairam||[], estadoSalvo.totalConcursos||0, estadoSalvo.numeroUltimo||0, estadoSalvo.depSize||0);
@@ -7717,24 +7723,45 @@ function gjsFaixaHits(gameCode,hits){
   try{return faixaPremioGerador(gameCode,hits)}catch(_){return null}
 }
 
-function gjsStatsJogo(jogo){
+function gjsStatsJogo(jogo,entry){
   const nums=(Array.isArray(jogo)?jogo:[]).map(Number).filter(Number.isFinite);
+  const game=GERADOR_GAMES.find(g=>g.code===gjsGameCode) || GAMES.find(g=>g.code===gjsGameCode);
+  const ehPrimo=n=>{
+    if(n<2)return false;
+    for(let d=2;d*d<=n;d++) if(n%d===0)return false;
+    return true;
+  };
+  const fibSet=new Set([0,1,2,3,5,8,13,21,34,55,89]);
+  const molduraSet=new Set(game?(molduraDoJogo(game)||[]):[]);
+  const centroSet=new Set(game?(centroDoJogo(game)||[]):[]);
+
   const par=nums.filter(n=>n%2===0).length;
   const impar=nums.length-par;
-  const primo=nums.filter(n=>PRIMES.has(n)).length;
-  const fib=nums.filter(n=>FIB.has(n)).length;
+  const primo=nums.filter(ehPrimo).length;
+  const fib=nums.filter(n=>fibSet.has(n)).length;
+  const moldura=molduraSet.size?nums.filter(n=>molduraSet.has(n)).length:'—';
+  const retrato=centroSet.size?nums.filter(n=>centroSet.has(n)).length:'—';
   const mult3=nums.filter(n=>n%3===0).length;
   const soma=nums.reduce((a,b)=>a+b,0);
-  const ehLotofacil=gjsGameCode==='LF';
-  const moldura=ehLotofacil?nums.filter(n=>MOLDURA.has(n)).length:'—';
-  const retrato=ehLotofacil?nums.filter(n=>RETRATO.has(n)).length:'—';
 
-  let repetidas=[];
-  if(gjsResultadoAnterior && gjsResultadoAnterior.gameCode===gjsGameCode){
-    const ant=new Set((gjsResultadoAnterior.dezenas||[]).map(Number));
-    repetidas=nums.filter(n=>ant.has(n));
+  // REPETIDAS: compara com o mesmo concurso-base usado quando o palpite foi gerado.
+  // Ex.: se o usuário escolheu 9 / 10 repetidas, cada jogo salvo mostra 9 ou 10
+  // de acordo com o que realmente foi gerado naquele palpite.
+  let base=[];
+  if(entry && Array.isArray(entry.baseRepetidasDezenas) && entry.baseRepetidasDezenas.length){
+    base=entry.baseRepetidasDezenas.map(Number).filter(Number.isFinite);
+  }else if(gjsResultadoAnterior && gjsResultadoAnterior.gameCode===gjsGameCode){
+    // compatibilidade com jogos salvos antes desta correção
+    base=(gjsResultadoAnterior.dezenas||[]).map(Number).filter(Number.isFinite);
   }
-  return {par,impar,primo,fib,moldura,retrato,mult3,soma,repetidas};
+  const ant=new Set(base);
+  const repetidas=base.length?nums.filter(n=>ant.has(n)):[];
+
+  return {
+    par,impar,primo,fib,moldura,retrato,mult3,soma,repetidas,
+    filtrosEscolhidos:(entry&&entry.filtrosEscolhidos)||null,
+    baseRepetidasConcurso:(entry&&entry.baseRepetidasConcurso)||null
+  };
 }
 
 function gjsSalvarListaCompleta(lista){
@@ -7810,7 +7837,7 @@ function renderGjsLista(){
 
     jogos.forEach((jogo,i)=>{
       const nums=(Array.isArray(jogo)?jogo:[]).map(Number).filter(Number.isFinite);
-      const st=gjsStatsJogo(nums);
+      const st=gjsStatsJogo(nums,entry);
       const filtros=[
         ['PAR',st.par],['ÍMPAR',st.impar],['PRIMO',st.primo],['FIBONACCI',st.fib],
         ['MOLDURA',st.moldura],['RETRATO',st.retrato],['MÚLT. 3',st.mult3],['SOMA',st.soma]
@@ -7842,7 +7869,7 @@ function renderGjsLista(){
         '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px;">'+bolas+'</div>'+
         '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;margin-bottom:4px;">'+filtrosHtml+'</div>'+
         '<div style="background:#f4f1f8;border-radius:9px;padding:5px;text-align:center;margin-bottom:6px;">'+
-          '<div style="font-size:9px;color:#8d8798;">REPETIDAS DO CONCURSO ANTERIOR</div>'+
+          '<div style="font-size:9px;color:#8d8798;">REPETIDAS DO CONCURSO ANTERIOR · PALPITE</div>'+
           '<div style="font-size:13px;font-weight:900;color:#27212f;margin-top:2px;">'+st.repetidas.length+'</div>'+repBolas+
         '</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">'+
@@ -7966,7 +7993,10 @@ document.getElementById('geradorFiltroTabJogos').addEventListener('click', (e)=>
         g:geradorGameAtual, jogos:estado.jogos,
         maisAtrasadas:estado.maisAtrasadas||[], maisSairam:estado.maisSairam||[],
         totalConcursos:estado.totalConcursos||0, numeroUltimo:estado.numeroUltimo||0,
-        depSize:estado.depSize||0
+        depSize:estado.depSize||0,
+        filtrosEscolhidos:estado.filtrosEscolhidos||null,
+        baseRepetidasConcurso:estado.baseRepetidasConcurso||null,
+        baseRepetidasDezenas:Array.isArray(estado.baseRepetidasDezenas)?estado.baseRepetidasDezenas:[]
       };
       renderGeradorResultado(geradorGameAtual, estado.jogos, estado.maisAtrasadas||[],
         estado.maisSairam||[], estado.totalConcursos||0, estado.numeroUltimo||0, estado.depSize||0);
@@ -8143,6 +8173,19 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
     if(!anterior || !Array.isArray(anterior.dezenas)) throw new Error('sem concurso anterior suficiente pra gerar');
     const numsAnteriorBase = anterior.dezenas.map(d=>parseInt(d,10)).filter(n=>!isNaN(n));
     const ultimoSet = new Set(numsAnteriorBase);
+
+    const filtrosEscolhidosGeracao = {
+      repetidas: repetidasAlvos ? repetidasAlvos.slice() : null,
+      pares: filtroPares ? filtroPares.slice() : null,
+      impares: filtroImpares ? filtroImpares.slice() : null,
+      primos: filtroPrimos ? filtroPrimos.slice() : null,
+      fib: filtroFib ? filtroFib.slice() : null,
+      moldura: filtroMoldura ? filtroMoldura.slice() : null,
+      retrato: filtroCentro ? filtroCentro.slice() : null,
+      mult3: filtroMult3 ? filtroMult3.slice() : null,
+      soma: filtroSoma,
+      fixas: [...gfcFixasSelecionadas].sort((a,b)=>a-b)
+    };
     const seen = new Set();
     const jogos = [];
     let tries = 0;
@@ -8179,8 +8222,20 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
       return;
     }
 
-    geradorUltimoJogosCtx = { g, jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo };
-    salvarGeradorEstado(g.code, { jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo });
+    geradorUltimoJogosCtx = {
+      g, jogos, maisAtrasadas, maisSairam,
+      totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo,
+      filtrosEscolhidos: filtrosEscolhidosGeracao,
+      baseRepetidasConcurso: anterior.concurso||null,
+      baseRepetidasDezenas: numsAnteriorBase.slice()
+    };
+    salvarGeradorEstado(g.code, {
+      jogos, maisAtrasadas, maisSairam,
+      totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo,
+      filtrosEscolhidos: filtrosEscolhidosGeracao,
+      baseRepetidasConcurso: anterior.concurso||null,
+      baseRepetidasDezenas: numsAnteriorBase.slice()
+    });
     renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, validos.length, numeroUltimo, dezenasPorJogo);
   }catch(e){
     console.error('gerador multi-loteria falhou:', e);
