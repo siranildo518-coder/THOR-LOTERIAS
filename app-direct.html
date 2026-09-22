@@ -207,7 +207,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v145-jogos-salvos-filtros'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v145-jogos-compactos'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -7817,37 +7817,37 @@ function renderGjsLista(){
       ];
       const bolas=nums.map(n=>{
         const ac=resSet&&resSet.has(n);
-        return '<span style="width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;'+
+        return '<span style="width:27px;height:27px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;'+
           'background:'+(ac?'radial-gradient(circle at 30% 25%,#5eea91,#11ad58 52%,#08783b)':'radial-gradient(circle at 30% 25%,#fff,#edf0f3 42%,#b9bec5 78%)')+';'+
           'border:1px solid '+(ac?'#0b964b':'#d4d7dc')+';color:'+(ac?'#fff':'#242424')+';'+
           'box-shadow:inset 2px 2px 3px rgba(255,255,255,.88),inset -3px -4px 6px rgba(0,0,0,.18),0 4px 7px rgba(0,0,0,.18);'+
-          'font-size:12px;font-weight:900;">'+String(n).padStart(2,'0')+'</span>';
+          'font-size:10px;font-weight:900;">'+String(n).padStart(2,'0')+'</span>';
       }).join('');
 
       const filtrosHtml=filtros.map(([rotulo,valor])=>
-        '<div style="background:#f4f1f8;border-radius:11px;padding:6px 3px;text-align:center;min-height:43px;box-sizing:border-box;">'+
+        '<div style="background:#f4f1f8;border-radius:11px;padding:4px 3px;text-align:center;min-height:34px;box-sizing:border-box;">'+
           '<div style="font-size:9px;color:#8d8798;line-height:1.05;">'+rotulo+'</div>'+
-          '<div style="font-size:13px;color:#27212f;font-weight:900;margin-top:2px;">'+valor+'</div>'+
+          '<div style="font-size:11px;color:#27212f;font-weight:900;margin-top:1px;">'+valor+'</div>'+
         '</div>'
       ).join('');
 
       const repBolas=st.repetidas.length
         ? '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:5px;">'+
-            st.repetidas.map(n=>'<span style="width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 25%,#efc7ff,#b83ce0 50%,#74169b);color:#fff;font-size:9px;font-weight:900;border:1px solid #d77cff;">'+String(n).padStart(2,'0')+'</span>').join('')+
+            st.repetidas.map(n=>'<span style="width:19px;height:19px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 25%,#efc7ff,#b83ce0 50%,#74169b);color:#fff;font-size:8px;font-weight:900;border:1px solid #d77cff;">'+String(n).padStart(2,'0')+'</span>').join('')+
           '</div>'
         : '<div style="font-size:9px;color:#9a94a4;margin-top:3px;">Nenhuma</div>';
 
-      html += '<div class="gjs-jogo-card" data-entry="'+entry.id+'" data-index="'+i+'" style="background:#fff;border:1.5px solid #e8e2ef;border-radius:17px;padding:10px;margin-bottom:10px;color:#241B2F;box-shadow:0 3px 9px rgba(0,0,0,.08);">'+
-        '<div style="font-family:\'Baloo 2\',sans-serif;font-size:13px;font-weight:900;color:#4C1D95;margin-bottom:8px;">Jogo '+(i+1)+'</div>'+
-        '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px;">'+bolas+'</div>'+
-        '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:7px;">'+filtrosHtml+'</div>'+
-        '<div style="background:#f4f1f8;border-radius:11px;padding:7px;text-align:center;margin-bottom:8px;">'+
+      html += '<div class="gjs-jogo-card" data-entry="'+entry.id+'" data-index="'+i+'" style="background:#fff;border:1.5px solid #e8e2ef;border-radius:14px;padding:8px;margin-bottom:8px;color:#241B2F;box-shadow:0 3px 9px rgba(0,0,0,.08);">'+
+        '<div style="font-family:\'Baloo 2\',sans-serif;font-size:11px;font-weight:900;color:#4C1D95;margin-bottom:6px;">Jogo '+(i+1)+'</div>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px;">'+bolas+'</div>'+
+        '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-bottom:5px;">'+filtrosHtml+'</div>'+
+        '<div style="background:#f4f1f8;border-radius:9px;padding:5px;text-align:center;margin-bottom:6px;">'+
           '<div style="font-size:9px;color:#8d8798;">REPETIDAS DO CONCURSO ANTERIOR</div>'+
           '<div style="font-size:13px;font-weight:900;color:#27212f;margin-top:2px;">'+st.repetidas.length+'</div>'+repBolas+
         '</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">'+
-          '<button type="button" class="gjs-apagar-jogo" data-entry="'+entry.id+'" data-index="'+i+'" style="height:34px;border:1.5px solid #e3dbea;border-radius:10px;background:#fff;color:#5a287c;font-weight:900;font-size:10px;">APAGAR</button>'+
-          '<button type="button" class="gjs-copiar-jogo" data-entry="'+entry.id+'" data-index="'+i+'" style="height:34px;border:1.5px solid #e3dbea;border-radius:10px;background:#fff;color:#5a287c;font-weight:900;font-size:10px;">COPIAR</button>'+
+          '<button type="button" class="gjs-apagar-jogo" data-entry="'+entry.id+'" data-index="'+i+'" style="height:27px;border:1.5px solid #e3dbea;border-radius:10px;background:#fff;color:#5a287c;font-weight:900;font-size:9px;">APAGAR</button>'+
+          '<button type="button" class="gjs-copiar-jogo" data-entry="'+entry.id+'" data-index="'+i+'" style="height:27px;border:1.5px solid #e3dbea;border-radius:10px;background:#fff;color:#5a287c;font-weight:900;font-size:9px;">COPIAR</button>'+
         '</div>'+
       '</div>';
     });
@@ -7880,11 +7880,11 @@ async function carregarGjsResultado(concurso){
     gjsResultadoAnterior=null;
     box.innerHTML=
       '<div style="background:linear-gradient(#19a84f,#067536);color:#fff;text-align:center;padding:5px;font-size:10px;font-weight:900;">Resultado Oficial - '+game.nome+'</div>'+
-      '<div style="display:grid;grid-template-columns:48px 1fr 48px;gap:6px;align-items:center;padding:8px;">'+
-        '<button id="gjsAnterior" style="height:42px;border-radius:50%;border:2px solid #e0a124;background:linear-gradient(#299fea,#0873be);color:#fff;font-weight:900;">◀◀</button>'+
+      '<div style="display:grid;grid-template-columns:40px 1fr 40px;gap:6px;align-items:center;padding:8px;">'+
+        '<button id="gjsAnterior" style="height:34px;border-radius:50%;border:2px solid #e0a124;background:linear-gradient(#299fea,#0873be);color:#fff;font-weight:900;">◀◀</button>'+
         '<div style="text-align:center;"><div style="font-size:9px;color:#667085;">Concurso '+d.concurso+(d.data?' · '+gjsEsc(d.data):'')+'</div>'+
-          '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:6px;">'+nums.map(n=>'<span style="width:23px;height:23px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(#38d46f,#0b9b48);color:#fff;font-size:9px;font-weight:900;">'+String(n).padStart(2,'0')+'</span>').join('')+'</div></div>'+
-        '<button id="gjsProximo" style="height:42px;border-radius:50%;border:2px solid #e0a124;background:linear-gradient(#299fea,#0873be);color:#fff;font-weight:900;">▶▶</button>'+
+          '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:6px;">'+nums.map(n=>'<span style="width:19px;height:19px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(#38d46f,#0b9b48);color:#fff;font-size:8px;font-weight:900;">'+String(n).padStart(2,'0')+'</span>').join('')+'</div></div>'+
+        '<button id="gjsProximo" style="height:34px;border-radius:50%;border:2px solid #e0a124;background:linear-gradient(#299fea,#0873be);color:#fff;font-weight:900;">▶▶</button>'+
       '</div>';
     document.getElementById('gjsAnterior')?.addEventListener('click',()=>carregarGjsResultado(Math.max(1,Number(d.concurso)-1)));
     document.getElementById('gjsProximo')?.addEventListener('click',()=>carregarGjsResultado(Number(d.concurso)+1));
