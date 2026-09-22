@@ -207,7 +207,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v145-jogos-compactos'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v145-filtros-mais-baixos'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -7842,9 +7842,9 @@ function renderGjsLista(){
       }).join('');
 
       const filtrosHtml=filtros.map(([rotulo,valor])=>
-        '<div style="background:#f4f1f8;border-radius:11px;padding:4px 3px;text-align:center;min-height:34px;box-sizing:border-box;">'+
-          '<div style="font-size:9px;color:#8d8798;line-height:1.05;">'+rotulo+'</div>'+
-          '<div style="font-size:11px;color:#27212f;font-weight:900;margin-top:1px;">'+valor+'</div>'+
+        '<div style="background:#f4f1f8;border-radius:8px;padding:2px 2px;text-align:center;min-height:27px;box-sizing:border-box;">'+
+          '<div style="font-size:7.5px;color:#8d8798;line-height:1;">'+rotulo+'</div>'+
+          '<div style="font-size:9.5px;color:#27212f;font-weight:900;margin-top:0;">'+valor+'</div>'+
         '</div>'
       ).join('');
 
@@ -7857,7 +7857,7 @@ function renderGjsLista(){
       html += '<div class="gjs-jogo-card" data-entry="'+entry.id+'" data-index="'+i+'" style="background:#fff;border:1.5px solid #e8e2ef;border-radius:14px;padding:8px;margin-bottom:8px;color:#241B2F;box-shadow:0 3px 9px rgba(0,0,0,.08);">'+
         '<div style="font-family:\'Baloo 2\',sans-serif;font-size:11px;font-weight:900;color:#4C1D95;margin-bottom:6px;">Jogo '+(i+1)+'</div>'+
         '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px;">'+bolas+'</div>'+
-        '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-bottom:5px;">'+filtrosHtml+'</div>'+
+        '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;margin-bottom:4px;">'+filtrosHtml+'</div>'+
         '<div style="background:#f4f1f8;border-radius:9px;padding:5px;text-align:center;margin-bottom:6px;">'+
           '<div style="font-size:9px;color:#8d8798;">REPETIDAS DO CONCURSO ANTERIOR</div>'+
           '<div style="font-size:13px;font-weight:900;color:#27212f;margin-top:2px;">'+st.repetidas.length+'</div>'+repBolas+
