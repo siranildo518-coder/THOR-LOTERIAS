@@ -7871,6 +7871,7 @@ let gfcSalvosResultado=null;
 let gfcSalvosErro='';
 let gfcSalvosPedido=0;
 let gfcSalvosNomeAberto=null;
+let gfcSalvosMenuAberto=false;
 function montarResultadoSalvos(){
   const painel=document.getElementById('geradorFiltroTabPanelSalvos');
   painel.replaceChildren();
@@ -7921,12 +7922,13 @@ function montarResultadoSalvos(){
     const limpar=document.createElement('button');
     limpar.type='button';limpar.textContent='Limpar jogos salvos';
     limpar.style.cssText='display:block;width:100%;padding:11px;margin-bottom:14px;background:#fff;color:#b91c1c;border:1px solid #b91c1c;font-size:13px;font-weight:700;';
+    let confirmar=false;
     limpar.onclick=()=>{
-      if(!confirm('Apagar todos os jogos salvos de '+(g?.nome||'esta loteria')+'?'))return;
-      const restantes=listarJogosSalvosFechamento().filter(item=>item.gameCode!==code);
-      try{localStorage.setItem(GFC_SALVOS_NOME_KEY,JSON.stringify(restantes))}
-      catch(_){alert('Não foi possível limpar os jogos salvos.');return}
-      gfcSalvosNomeAberto=null;montarResultadoSalvos();
+      if(!confirmar){confirmar=true;limpar.textContent='Toque novamente para confirmar a limpeza';return}
+      try{
+        localStorage.setItem(GFC_SALVOS_NOME_KEY,JSON.stringify(listarJogosSalvosFechamento().filter(item=>item.gameCode!==code)));
+        gfcSalvosNomeAberto=null;gfcSalvosMenuAberto=false;montarResultadoSalvos();
+      }catch(_){limpar.textContent='Não foi possível limpar. Tente novamente.';confirmar=false}
     };
     painel.append(limpar);
   }
@@ -7941,25 +7943,25 @@ function montarResultadoSalvos(){
   if(grupos.size){
     const total=salvos.reduce((s,item)=>s+(Array.isArray(item.jogos)?item.jogos.length:0),0);
     const detalhes=document.createElement('details');
-    detalhes.open=gfcSalvosNomeAberto==='todos';
-    detalhes.ontoggle=()=>{gfcSalvosNomeAberto=detalhes.open?'todos':null};
+    detalhes.open=gfcSalvosMenuAberto;
+    detalhes.ontoggle=()=>{gfcSalvosMenuAberto=detalhes.open};
     const cabecalho=document.createElement('summary');
-    cabecalho.style.cssText='display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;background:#fff;border:1px solid #b8c6d4;padding:14px;margin:8px 0;color:#172033;font-size:15px;font-weight:700;';
-    const tituloGrupo=document.createElement('span');
-    tituloGrupo.textContent='Jogos salvos';
-    const contagem=document.createElement('span');
-    contagem.style.cssText='color:#385773;font-size:12px;';
-    contagem.textContent=total+' jogos '+(gfcSalvosNomeAberto==='todos'?'▲':'▼');
-    cabecalho.append(tituloGrupo,contagem);
-    detalhes.append(cabecalho);
-    painel.append(detalhes);
-    for(const grupo of grupos.values()){
-    const bloco=document.createElement('div');
-    bloco.style.cssText='background:#fff;border:1px solid #b8c6d4;padding:12px;margin:-1px 0 12px;';
-    const nome=document.createElement('strong');
-    nome.textContent=grupo.nome;
-    nome.style.cssText='display:block;margin:0 0 8px;';
-    bloco.append(nome);
+    cabecalho.style.cssText='display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;background:#fff;border:1px solid #b8c6d4;padding:14px;margin:8px 0;color:#172033;font-size:15px;font-weight:700;box-shadow:0 5px 0 #aeb7bf,0 8px 12px #0002;list-style:none;cursor:pointer;';
+    const tituloGrupo=document.createElement('span');tituloGrupo.textContent='Jogos salvos';
+    const contagem=document.createElement('span');contagem.style.cssText='color:#385773;font-size:12px;';
+    contagem.textContent=total+' jogos ▼';
+    cabecalho.append(tituloGrupo,contagem);detalhes.append(cabecalho);painel.append(detalhes);
+    const blocos=new Map(),botoes=new Map();
+    for(const [chave,grupo] of grupos){
+      const botao=document.createElement('button');botao.type='button';
+      botao.style.cssText='display:flex;justify-content:space-between;width:100%;text-align:left;background:#fff;border:1px solid #b8c6d4;padding:14px;margin:12px 0;color:#172033;font-size:15px;font-weight:700;box-shadow:0 5px 0 #aeb7bf,0 8px 12px #0002;';
+      const qtd=grupo.itens.reduce((n,item)=>n+(Array.isArray(item.jogos)?item.jogos.length:0),0);
+      botao.textContent=grupo.nome+' — '+qtd+' jogos';detalhes.append(botao);botoes.set(chave,botao);
+      const bloco=document.createElement('div');
+      bloco.style.cssText='background:#fff;border:1px solid #b8c6d4;padding:12px;margin:0 0 12px;';
+      bloco.hidden=true;
+      const nome=document.createElement('strong');nome.textContent=grupo.nome;
+      nome.style.cssText='display:block;margin:0 0 8px;';bloco.append(nome);
     for(const item of grupo.itens){
       if(!Array.isArray(item.jogos))continue;
       for(const jogo of item.jogos){
@@ -7985,8 +7987,14 @@ function montarResultadoSalvos(){
         bloco.append(linha);
       }
     }
-    detalhes.append(bloco);
+      detalhes.append(bloco);blocos.set(chave,bloco);
+      botao.onclick=()=>{
+        gfcSalvosNomeAberto=chave;
+        for(const [id,area] of blocos)area.hidden=id!==chave;
+        for(const [id,el] of botoes)el.style.borderColor=id===chave?'#1765a7':'#b8c6d4';
+      };
     }
+    if(gfcSalvosNomeAberto&&botoes.has(gfcSalvosNomeAberto))botoes.get(gfcSalvosNomeAberto).click();
   }
 
 }
@@ -8010,7 +8018,7 @@ async function carregarResultadoSalvos(numero){
   }
 }
 function mostrarJogosSalvosFechamento(){
-  gfcSalvosNomeAberto=null;
+  gfcSalvosNomeAberto=null;gfcSalvosMenuAberto=false;
   const g=geradorGameAtual;
   gfcSalvosResultado=geradorUltimoResultado?.gameCode===g?.code?{
     concurso:+geradorUltimoResultado.concurso,
