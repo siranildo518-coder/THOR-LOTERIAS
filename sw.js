@@ -1,3 +1,3 @@
 // THOR LOTERIAS V146- cache sincronizado; login, senha e trava preservados.
-// usuário Adelino bloqueado
-importScripts('./sw-core-thor7.js?v=thor7-v146-abertura-direta-filtros-compactos&fix=bloqueio-adelino');
+// Lotofácil: CAIXA oficial primeiro; espelhos apenas como fallback
+importScripts('./sw-core-thor7.js?v=thor7-v146-abertura-direta-filtros-compactos&fix=caixa-primeiro-3785');
