@@ -6187,8 +6187,10 @@ function obterConcursoCache(game, concurso){
 }
 
 async function fetchConcursoLoteria(game, concurso){
+  // V146: para o último concurso da Lotofácil, consulta a CAIXA antes do cache.
+  // Assim que a CAIXA publicar um novo resultado, o app passa a recebê-lo.
   const emCache = obterConcursoCache(game, concurso);
-  if(emCache) return emCache;
+  if(!(game && game.code === 'LF' && !concurso) && emCache) return emCache;
 
   // LOTOFÁCIL: a CAIXA é a fonte principal. Para o concurso mais recente,
   // aguarda mais tempo e só cai para espelhos se a fonte oficial realmente falhar.
