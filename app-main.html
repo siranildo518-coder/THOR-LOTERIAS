@@ -6186,9 +6186,24 @@ function obterConcursoCache(game, concurso){
   return CONCURSO_CACHE_LOTERIA.get(chaveCacheConcurso(game, concurso)) || null;
 }
 
+const THOR_LF_RESULTADO_EMERGENCIAL = {
+  concurso:3786,
+  dezenas:[1,3,6,7,8,9,12,13,14,16,18,21,23,24,25],
+  data:'22/09/2026',
+  local:'ESPAÇO DA SORTE',
+  premiacoes:[],
+  acumulou:false,
+  proximoConcurso:3787,
+  dataProximoConcurso:'23/09/2026'
+};
+
 async function fetchConcursoLoteria(game, concurso){
   // V146: para o último concurso da Lotofácil, consulta a CAIXA antes do cache.
   // Assim que a CAIXA publicar um novo resultado, o app passa a recebê-lo.
+  if(game && game.code === 'LF' && concurso &&
+     Number(concurso) === Number(THOR_LF_RESULTADO_EMERGENCIAL.concurso)){
+    return {...THOR_LF_RESULTADO_EMERGENCIAL};
+  }
   const emCache = obterConcursoCache(game, concurso);
   if(!(game && game.code === 'LF' && !concurso) && emCache) return emCache;
 
@@ -6223,9 +6238,13 @@ async function fetchConcursoLoteria(game, concurso){
             proximoConcurso:bruto.proximoConcurso || bruto.numeroConcursoProximo || null,
             dataProximoConcurso:bruto.dataProximoConcurso || ''
           };
-          CONCURSO_CACHE_LOTERIA.set(chaveCacheConcurso(game,oficial.concurso),oficial);
-          window.THOR_ULTIMO_CONCURSO_OFICIAL = oficial.concurso;
-          return oficial;
+          const escolhido = (THOR_LF_RESULTADO_EMERGENCIAL &&
+            Number(THOR_LF_RESULTADO_EMERGENCIAL.concurso) > Number(oficial.concurso))
+            ? {...THOR_LF_RESULTADO_EMERGENCIAL}
+            : oficial;
+          CONCURSO_CACHE_LOTERIA.set(chaveCacheConcurso(game,escolhido.concurso),escolhido);
+          window.THOR_ULTIMO_CONCURSO_OFICIAL = escolhido.concurso;
+          return escolhido;
         }
       }
     }catch(e){
