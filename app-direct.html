@@ -7870,6 +7870,7 @@ function listarJogosSalvosFechamento(){
 let gfcSalvosResultado=null;
 let gfcSalvosErro='';
 let gfcSalvosPedido=0;
+let gfcSalvosNomeAberto=null;
 function montarResultadoSalvos(){
   const painel=document.getElementById('geradorFiltroTabPanelSalvos');
   painel.replaceChildren();
@@ -7918,36 +7919,68 @@ function montarResultadoSalvos(){
     const vazio=document.createElement('p');vazio.textContent='Nenhum jogo salvo para esta loteria.';painel.append(vazio);
   }
   const sorteadas=new Set(resultado?.dezenas||[]);
+  const grupos=new Map();
   for(const item of salvos){
-    const card=document.createElement('div');
-    card.style.cssText='background:#fff;border:1px solid #ccc;padding:12px;margin:8px 0;color:#172033;';
-    const nome=document.createElement('strong');nome.textContent=item.nome||'Jogo sem nome';card.append(nome);
-    const info=document.createElement('div');info.style.cssText='font-size:12px;margin:6px 0;';
-    info.textContent=(Array.isArray(item.jogos)?item.jogos.length:0)+' jogos • '+(item.loteria||'');card.append(info);
-    if(Array.isArray(item.jogos))for(const jogo of item.jogos){
-      if(!Array.isArray(jogo))continue;
-      const linha=document.createElement('div');
-      linha.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:7px 0;border-top:1px solid #eee;';
-      let acertos=0;
-      for(const n of jogo){
-        const acertou=resultado&&sorteadas.has(Number(n));
-        if(acertou)acertos++;
-        const bola=document.createElement('span');
-        bola.textContent=String(n).padStart(2,'0');
-        bola.style.cssText='min-width:25px;height:25px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:1px solid #b8c5ce;background:'+(acertou?'#168a55;color:#fff;':'#f5f7f9;color:#172033;');
-        linha.append(bola);
-      }
-      if(resultado){
-        const pontos=document.createElement('strong');
-        pontos.style.cssText='width:100%;font-size:12px;color:#146c4b;margin-top:3px;';
-        const faixa=typeof faixaPremioGerador==='function'?faixaPremioGerador(code,acertos):null;
-        pontos.textContent=acertos+' acertos'+(faixa?' • '+faixa.label:'');
-        linha.append(pontos);
-      }
-      card.append(linha);
-    }
-    painel.append(card);
+    const nome=String(item.nome||'Jogo sem nome').trim()||'Jogo sem nome';
+    const chave=nome.toLocaleLowerCase('pt-BR');
+    if(!grupos.has(chave))grupos.set(chave,{nome,itens:[]});
+    grupos.get(chave).itens.push(item);
   }
+  for(const [chave,grupo] of grupos){
+    const total=grupo.itens.reduce((s,item)=>s+(Array.isArray(item.jogos)?item.jogos.length:0),0);
+    const cabecalho=document.createElement('button');
+    cabecalho.type='button';
+    cabecalho.style.cssText='display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;background:#fff;border:1px solid #b8c6d4;padding:14px;margin:8px 0;color:#172033;font-size:15px;font-weight:700;';
+    const tituloGrupo=document.createElement('span');
+    tituloGrupo.textContent=grupo.nome;
+    const contagem=document.createElement('span');
+    contagem.style.cssText='color:#385773;font-size:12px;';
+    contagem.textContent=total+' jogos '+(gfcSalvosNomeAberto===chave?'▲':'▼');
+    cabecalho.append(tituloGrupo,contagem);
+    cabecalho.onclick=()=>{gfcSalvosNomeAberto=gfcSalvosNomeAberto===chave?null:chave;montarResultadoSalvos()};
+    painel.append(cabecalho);
+    if(gfcSalvosNomeAberto!==chave)continue;
+    const bloco=document.createElement('div');
+    bloco.style.cssText='background:#fff;border:1px solid #b8c6d4;padding:12px;margin:-8px 0 12px;';
+    const limpar=document.createElement('button');
+    limpar.type='button';limpar.textContent='Limpar jogos';
+    limpar.style.cssText='display:block;width:100%;padding:10px;margin-bottom:12px;background:#fff;color:#b91c1c;border:1px solid #b91c1c;font-weight:700;';
+    limpar.onclick=()=>{
+      if(!confirm('Apagar os jogos salvos em "'+grupo.nome+'"?'))return;
+      const restantes=listarJogosSalvosFechamento().filter(item=>item.gameCode!==code||(String(item.nome||'Jogo sem nome').trim()||'Jogo sem nome').toLocaleLowerCase('pt-BR')!==chave);
+      try{localStorage.setItem(GFC_SALVOS_NOME_KEY,JSON.stringify(restantes))}
+      catch(_){alert('Não foi possível limpar os jogos.');return}
+      gfcSalvosNomeAberto=null;montarResultadoSalvos();
+    };
+    bloco.append(limpar);
+    for(const item of grupo.itens){
+      if(!Array.isArray(item.jogos))continue;
+      for(const jogo of item.jogos){
+        if(!Array.isArray(jogo))continue;
+        const linha=document.createElement('div');
+        linha.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:7px 0;border-top:1px solid #eee;';
+        let acertos=0;
+        for(const n of jogo){
+          const acertou=resultado&&sorteadas.has(Number(n));
+          if(acertou)acertos++;
+          const bola=document.createElement('span');
+          bola.textContent=String(n).padStart(2,'0');
+          bola.style.cssText='min-width:25px;height:25px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:1px solid #b8c5ce;background:'+(acertou?'#168a55;color:#fff;':'#f5f7f9;color:#172033;');
+          linha.append(bola);
+        }
+        if(resultado){
+          const pontos=document.createElement('strong');
+          pontos.style.cssText='width:100%;font-size:12px;color:#146c4b;margin-top:3px;';
+          const faixa=typeof faixaPremioGerador==='function'?faixaPremioGerador(code,acertos):null;
+          pontos.textContent=acertos+' acertos'+(faixa?' • '+faixa.label:'');
+          linha.append(pontos);
+        }
+        bloco.append(linha);
+      }
+    }
+    painel.append(bloco);
+  }
+
 }
 async function carregarResultadoSalvos(numero){
   const g=geradorGameAtual,pedido=++gfcSalvosPedido;
@@ -7969,6 +8002,7 @@ async function carregarResultadoSalvos(numero){
   }
 }
 function mostrarJogosSalvosFechamento(){
+  gfcSalvosNomeAberto=null;
   const g=geradorGameAtual;
   gfcSalvosResultado=geradorUltimoResultado?.gameCode===g?.code?{
     concurso:+geradorUltimoResultado.concurso,
