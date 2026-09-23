@@ -6189,7 +6189,51 @@ function obterConcursoCache(game, concurso){
 async function fetchConcursoLoteria(game, concurso){
   const emCache = obterConcursoCache(game, concurso);
   if(emCache) return emCache;
-  const timeoutMs = 4200;
+
+  // LOTOFÁCIL: a CAIXA é a fonte principal. Para o concurso mais recente,
+  // aguarda mais tempo e só cai para espelhos se a fonte oficial realmente falhar.
+  if(game && game.code === 'LF' && !concurso){
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(), 15000);
+    try{
+      const urlOficial = 'https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil?_thor=' + Date.now();
+      const resp = await fetch(urlOficial,{
+        signal:controller.signal,
+        cache:'no-store',
+        headers:{
+          Accept:'application/json',
+          'Cache-Control':'no-cache, no-store, max-age=0',
+          Pragma:'no-cache'
+        }
+      });
+      if(resp.ok){
+        const bruto = await resp.json();
+        const dezenas = bruto.dezenas || bruto.listaDezenas || bruto.numeros || [];
+        const numero = bruto.concurso || bruto.numero || bruto.numeroConcurso;
+        if(numero && Array.isArray(dezenas) && dezenas.length){
+          const oficial = {
+            concurso:Number(numero),
+            dezenas:dezenas.map(v=>parseInt(v,10)).filter(v=>!isNaN(v)),
+            data:bruto.data || bruto.dataApuracao || '',
+            local:bruto.local || bruto.nomeMunicipioUFSorteio || bruto.localSorteio || '',
+            premiacoes:bruto.premiacoes || bruto.listaRateioPremio || [],
+            acumulou:bruto.acumulou ?? bruto.acumulado ?? false,
+            proximoConcurso:bruto.proximoConcurso || bruto.numeroConcursoProximo || null,
+            dataProximoConcurso:bruto.dataProximoConcurso || ''
+          };
+          CONCURSO_CACHE_LOTERIA.set(chaveCacheConcurso(game,oficial.concurso),oficial);
+          window.THOR_ULTIMO_CONCURSO_OFICIAL = oficial.concurso;
+          return oficial;
+        }
+      }
+    }catch(e){
+      console.warn('CAIXA Lotofácil indisponível; tentando espelhos.',e);
+    }finally{
+      clearTimeout(timer);
+    }
+  }
+
+  const timeoutMs = game && game.code === 'LF' ? 10000 : 4200;
   const path = concurso ? `/${concurso}` : '/latest';
 
   // Para o concurso mais recente, NÃO usa a primeira fonte que responder:
@@ -11603,7 +11647,7 @@ async function obterHistoricoCompletoFreq(onProgress){
   if(cache.dados.length && onProgress) onProgress(cache.dados.length,cache.dados.length);
 
   // Consulta somente o último resultado oficial primeiro.
-  const oficialBruto=await fetchJson(CAIXA_API,6500);
+  const oficialBruto=await fetchJson(CAIXA_API+'?_thor='+Date.now(),15000);
   let ultimoOficial=null;
 
   // IMPORTANTE: guarda o estado do cache ANTES de inserir o concurso oficial mais recente.
