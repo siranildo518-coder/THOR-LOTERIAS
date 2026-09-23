@@ -7867,29 +7867,122 @@ const GFC_SALVOS_NOME_KEY='tl_gerador_salvos_nome_v1';
 function listarJogosSalvosFechamento(){
   try{const dados=JSON.parse(localStorage.getItem(GFC_SALVOS_NOME_KEY)||'[]');return Array.isArray(dados)?dados:[]}catch(_){return []}
 }
-function mostrarJogosSalvosFechamento(){
+let gfcSalvosResultado=null;
+let gfcSalvosErro='';
+let gfcSalvosPedido=0;
+function montarResultadoSalvos(){
   const painel=document.getElementById('geradorFiltroTabPanelSalvos');
   painel.replaceChildren();
-  const code=geradorGameAtual?.code;
+  const g=geradorGameAtual,resultado=gfcSalvosResultado;
+  const box=document.createElement('section');
+  box.style.cssText='background:#fff;border:1px solid #c8d3df;padding:12px;margin-bottom:14px;color:#172033;';
+  const titulo=document.createElement('strong');
+  titulo.textContent='Resultado — '+(g?.nome||'Loteria');
+  box.append(titulo);
+  const nav=document.createElement('div');
+  nav.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0;';
+  const anterior=document.createElement('button'),proximo=document.createElement('button');
+  anterior.type=proximo.type='button';
+  anterior.textContent='◀ Anterior';proximo.textContent='Próximo ▶';
+  for(const botao of [anterior,proximo])botao.style.cssText='padding:10px;background:#1765a7;color:#fff;border:1px solid #9bbbd2;font-weight:700;';
+  const numero=document.createElement('strong');
+  numero.textContent=resultado?'Nº '+resultado.concurso:'Carregando resultado…';
+  anterior.disabled=!resultado||resultado.concurso<=1;
+  proximo.disabled=!resultado;
+  anterior.onclick=()=>carregarResultadoSalvos(resultado.concurso-1);
+  proximo.onclick=()=>carregarResultadoSalvos(resultado.concurso+1);
+  nav.append(anterior,numero,proximo);box.append(nav);
+  if(resultado){
+    const dezenas=document.createElement('div');
+    dezenas.style.cssText='display:flex;flex-wrap:wrap;gap:5px;justify-content:center;';
+    for(const n of resultado.dezenas){
+      const bola=document.createElement('span');
+      bola.textContent=String(n).padStart(2,'0');
+      bola.style.cssText='width:29px;height:29px;border-radius:50%;background:#1675b5;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;';
+      dezenas.append(bola);
+    }
+    box.append(dezenas);
+    const data=document.createElement('div');
+    data.style.cssText='text-align:center;color:#526477;font-size:12px;margin-top:8px;';
+    data.textContent=resultado.data||'';box.append(data);
+  }
+  if(gfcSalvosErro){
+    const aviso=document.createElement('div');
+    aviso.style.cssText='color:#b91c1c;font-size:12px;margin-top:8px;';
+    aviso.textContent=gfcSalvosErro;box.append(aviso);
+  }
+  painel.append(box);
+  const code=g?.code;
   const salvos=listarJogosSalvosFechamento().filter(item=>item&&item.gameCode===code);
-  if(!salvos.length){painel.textContent='Nenhum jogo salvo para esta loteria.'}
+  if(!salvos.length){
+    const vazio=document.createElement('p');vazio.textContent='Nenhum jogo salvo para esta loteria.';painel.append(vazio);
+  }
+  const sorteadas=new Set(resultado?.dezenas||[]);
   for(const item of salvos){
     const card=document.createElement('div');
     card.style.cssText='background:#fff;border:1px solid #ccc;padding:12px;margin:8px 0;color:#172033;';
     const nome=document.createElement('strong');nome.textContent=item.nome||'Jogo sem nome';card.append(nome);
     const info=document.createElement('div');info.style.cssText='font-size:12px;margin:6px 0;';
     info.textContent=(Array.isArray(item.jogos)?item.jogos.length:0)+' jogos • '+(item.loteria||'');card.append(info);
-    if(Array.isArray(item.jogos)) for(const jogo of item.jogos){
-      const linha=document.createElement('div');linha.style.cssText='font-size:12px;padding:4px 0;border-top:1px solid #eee;';
-      linha.textContent=Array.isArray(jogo)?jogo.map(n=>String(n).padStart(2,'0')).join('  '):'';card.append(linha);
+    if(Array.isArray(item.jogos))for(const jogo of item.jogos){
+      if(!Array.isArray(jogo))continue;
+      const linha=document.createElement('div');
+      linha.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:7px 0;border-top:1px solid #eee;';
+      let acertos=0;
+      for(const n of jogo){
+        const acertou=resultado&&sorteadas.has(Number(n));
+        if(acertou)acertos++;
+        const bola=document.createElement('span');
+        bola.textContent=String(n).padStart(2,'0');
+        bola.style.cssText='min-width:25px;height:25px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:1px solid #b8c5ce;background:'+(acertou?'#168a55;color:#fff;':'#f5f7f9;color:#172033;');
+        linha.append(bola);
+      }
+      if(resultado){
+        const pontos=document.createElement('strong');
+        pontos.style.cssText='width:100%;font-size:12px;color:#146c4b;margin-top:3px;';
+        const faixa=typeof faixaPremioGerador==='function'?faixaPremioGerador(code,acertos):null;
+        pontos.textContent=acertos+' acertos'+(faixa?' • '+faixa.label:'');
+        linha.append(pontos);
+      }
+      card.append(linha);
     }
     painel.append(card);
   }
+}
+async function carregarResultadoSalvos(numero){
+  const g=geradorGameAtual,pedido=++gfcSalvosPedido;
+  if(!g)return;
+  gfcSalvosErro='';
+  if(!gfcSalvosResultado)montarResultadoSalvos();
+  try{
+    const data=await fetchConcursoLoteria(g,numero||undefined);
+    if(pedido!==gfcSalvosPedido||g!==geradorGameAtual||!data||!data.concurso) return;
+    if(numero&&+data.concurso!==+numero)throw Error('Concurso indisponível');
+    const dezenas=(data.dezenas||[]).map(Number).filter(Number.isFinite);
+    if(!dezenas.length)throw Error('Sem dezenas');
+    gfcSalvosResultado={concurso:+data.concurso,dezenas,data:data.data||''};
+    montarResultadoSalvos();
+  }catch(_){
+    if(pedido!==gfcSalvosPedido)return;
+    gfcSalvosErro='Não foi possível carregar esse concurso.';
+    montarResultadoSalvos();
+  }
+}
+function mostrarJogosSalvosFechamento(){
+  const g=geradorGameAtual;
+  gfcSalvosResultado=geradorUltimoResultado?.gameCode===g?.code?{
+    concurso:+geradorUltimoResultado.concurso,
+    dezenas:[...geradorUltimoResultado.dezenas].map(Number),
+    data:''
+  }:null;
+  gfcSalvosErro='';
+  montarResultadoSalvos();
   const tela=document.getElementById('gfcJogosSalvosTela');
   if(tela.style.display!=='flex'){
     try{history.pushState({thorJogosSalvos:true},'',location.href)}catch(_){}
     tela.style.display='flex';
   }
+  carregarResultadoSalvos(gfcSalvosResultado?.concurso);
 }
 let gfcJogosSalvosFechando=false;
 function fecharJogosSalvosFechamento(){
