@@ -4715,7 +4715,6 @@ document.addEventListener('selectstart', e=>{
       </div>
     </div>
 
-    <div id="geradorFiltroTabPanelSalvos" style="display:none;" aria-live="polite"></div>
     <div id="geradorFiltroTabPanelJogos" style="display:none;">
       <div style="font-size:13px;font-weight:700;margin-bottom:9px;">Jogos gerados</div>
       <div class="spinner" id="geradorFiltroSpinner" style="display:none;">Calculando…</div>
@@ -4723,8 +4722,13 @@ document.addEventListener('selectstart', e=>{
     </div>
   </div>
 </div>
-<div id="gfcSalvarNomeModal" role="dialog" aria-modal="true" aria-label="Salvar jogos" style="display:none;position:fixed;inset:0;z-index:100500;background:rgba(0,0,0,.65);align-items:center;justify-content:center;padding:20px;">
-  <div style="width:min(100%,390px);background:#fff;color:#172033;border:1px solid #c7c7c7;padding:18px;">
+<div id="gfcJogosSalvosTela" role="dialog" aria-modal="true" aria-label="Meus jogos salvos" style="display:none;position:fixed;inset:0;z-index:100499;background:#eef2f6;flex-direction:column;overflow:auto;">
+  <header style="background:#123e70;color:#fff;padding:16px;display:flex;align-items:center;gap:12px;"><button type="button" id="gfcJogosSalvosVoltar" aria-label="Voltar" style="background:none;border:0;color:#fff;font-size:25px;">←</button><strong>Meus jogos salvos</strong></header>
+  <div id="geradorFiltroTabPanelSalvos" style="padding:16px;" aria-live="polite"></div>
+</div>
+<div id="gfcSalvarNomeModal" role="dialog" aria-modal="true" aria-label="Salvar jogos" style="display:none;position:fixed;inset:0;z-index:100500;background:#eef2f6;flex-direction:column;overflow:auto;">
+  <header style="background:#123e70;color:#fff;padding:16px;display:flex;align-items:center;gap:12px;"><button type="button" id="gfcSalvarNomeVoltar" aria-label="Voltar" style="background:none;border:0;color:#fff;font-size:25px;">←</button><strong>Salvar jogos</strong></header>
+  <div style="width:min(100%,430px);margin:20px auto;background:#fff;color:#172033;border:1px solid #c7c7c7;padding:18px;">
     <label for="gfcSalvarNomeCampo" style="display:block;font-weight:700;margin-bottom:9px;">Nome do jogo</label>
     <input id="gfcSalvarNomeCampo" type="text" maxlength="60" placeholder="Digite o nome do jogo" style="width:100%;height:42px;padding:8px;border:1px solid #aaa;font-size:16px;">
     <div id="gfcSalvarNomeErro" role="alert" style="min-height:20px;color:#b91c1c;font-size:12px;margin-top:5px;"></div>
@@ -7495,14 +7499,11 @@ document.getElementById('geradorFiltroVoltar').addEventListener('click', ()=>{
 function gfcMostrarTab(tab){
   const painelConfig = document.getElementById('geradorFiltroTabPanelConfig');
   const painelJogos = document.getElementById('geradorFiltroTabPanelJogos');
-  const painelSalvos = document.getElementById('geradorFiltroTabPanelSalvos');
   const btnConfig = document.getElementById('geradorFiltroTabConfig');
   const btnJogos = document.getElementById('geradorFiltroTabJogos');
   const ativa = { background:'#4C1D95', color:'#fff' };
   const inativa = { background:'#fff', color:'#4C1D95' };
-  painelSalvos.style.display = tab === 'salvos' ? 'block' : 'none';
-  if(tab === 'salvos'){painelConfig.style.display='none';painelJogos.style.display='none';Object.assign(btnJogos.style,ativa);Object.assign(btnConfig.style,inativa)}
-  else if(tab === 'jogos'){
+  if(tab === 'jogos'){
     painelConfig.style.display = 'none';
     painelJogos.style.display = 'block';
     Object.assign(btnJogos.style, ativa);
@@ -7882,8 +7883,26 @@ function mostrarJogosSalvosFechamento(){
     }
     painel.append(card);
   }
-  gfcMostrarTab('salvos');
+  const tela=document.getElementById('gfcJogosSalvosTela');
+  if(tela.style.display!=='flex'){
+    try{history.pushState({thorJogosSalvos:true},'',location.href)}catch(_){}
+    tela.style.display='flex';
+  }
 }
+let gfcJogosSalvosFechando=false;
+function fecharJogosSalvosFechamento(){
+  const tela=document.getElementById('gfcJogosSalvosTela');
+  if(tela.style.display!=='flex')return;
+  tela.style.display='none';
+  if(history.state&&history.state.thorJogosSalvos){gfcJogosSalvosFechando=true;history.back()}
+}
+document.getElementById('gfcJogosSalvosVoltar').addEventListener('click',fecharJogosSalvosFechamento);
+window.addEventListener('popstate',e=>{
+  const tela=document.getElementById('gfcJogosSalvosTela');
+  if(tela.style.display==='flex'||gfcJogosSalvosFechando){
+    tela.style.display='none';gfcJogosSalvosFechando=false;e.stopImmediatePropagation();
+  }
+});
 let gfcSalvarNomeFechando=false;
 function abrirSalvarJogosFechamento(){
   const ctx=geradorUltimoJogosCtx;
@@ -7916,6 +7935,7 @@ window.addEventListener('popstate',e=>{
 });
 document.getElementById('gfcSalvarJogosTopo').addEventListener('click',abrirSalvarJogosFechamento);
 document.getElementById('gfcSalvarNomeCancelar').addEventListener('click',fecharSalvarJogosFechamento);
+document.getElementById('gfcSalvarNomeVoltar').addEventListener('click',fecharSalvarJogosFechamento);
 document.getElementById('gfcSalvarNomeConfirmar').addEventListener('click',()=>{
   const ctx=geradorUltimoJogosCtx,nome=document.getElementById('gfcSalvarNomeCampo').value.trim();
   const erro=document.getElementById('gfcSalvarNomeErro');
