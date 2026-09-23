@@ -7957,8 +7957,10 @@ function montarResultadoSalvos(){
   }
   if(grupos.size){
     const total=salvos.reduce((s,item)=>s+(Array.isArray(item.jogos)?item.jogos.length:0),0);
-    const cabecalho=document.createElement('button');
-    cabecalho.type='button';
+    const detalhes=document.createElement('details');
+    detalhes.open=gfcSalvosNomeAberto==='todos';
+    detalhes.ontoggle=()=>{gfcSalvosNomeAberto=detalhes.open?'todos':null};
+    const cabecalho=document.createElement('summary');
     cabecalho.style.cssText='display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;background:#fff;border:1px solid #b8c6d4;padding:14px;margin:8px 0;color:#172033;font-size:15px;font-weight:700;';
     const tituloGrupo=document.createElement('span');
     tituloGrupo.textContent='Jogos salvos';
@@ -7966,10 +7968,9 @@ function montarResultadoSalvos(){
     contagem.style.cssText='color:#385773;font-size:12px;';
     contagem.textContent=total+' jogos '+(gfcSalvosNomeAberto==='todos'?'▲':'▼');
     cabecalho.append(tituloGrupo,contagem);
-    cabecalho.onclick=()=>{gfcSalvosNomeAberto=gfcSalvosNomeAberto==='todos'?null:'todos';montarResultadoSalvos()};
-    painel.append(cabecalho);
-  }
-  if(gfcSalvosNomeAberto==='todos')for(const grupo of grupos.values()){
+    detalhes.append(cabecalho);
+    painel.append(detalhes);
+    for(const grupo of grupos.values()){
     const bloco=document.createElement('div');
     bloco.style.cssText='background:#fff;border:1px solid #b8c6d4;padding:12px;margin:-1px 0 12px;';
     const nome=document.createElement('strong');
@@ -8001,7 +8002,8 @@ function montarResultadoSalvos(){
         bloco.append(linha);
       }
     }
-    painel.append(bloco);
+    detalhes.append(bloco);
+    }
   }
 
 }
