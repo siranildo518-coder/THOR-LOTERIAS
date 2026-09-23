@@ -4663,7 +4663,8 @@ document.addEventListener('selectstart', e=>{
 
     <div class="gfc-tabs" id="geradorFiltroTabs" style="display:flex;gap:6px;margin-bottom:14px;">
       <button type="button" class="gfc-tab-btn active" id="geradorFiltroTabConfig" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:#4C1D95;color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Palpites</button>
-      <button type="button" class="gfc-tab-btn" id="geradorFiltroTabJogos" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:#fff;color:#4C1D95;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Jogos gerados</button>
+      <button type="button" class="gfc-tab-btn" id="geradorFiltroTabJogos" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:#fff;color:#4C1D95;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Meus jogos salvos</button>
+      <button type="button" id="gfcSalvarJogosTopo" style="flex:1;padding:6px;border-radius:8px;border:1.5px solid #16834d;background:linear-gradient(#35c679,#087c45);color:#fff;font-family:Arial,sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Salvar jogos</button>
     </div>
 
     <div id="geradorFiltroTabPanelConfig">
@@ -4731,10 +4732,20 @@ document.addEventListener('selectstart', e=>{
       </div>
     </div>
 
+    <div id="geradorFiltroTabPanelSalvos" style="display:none;" aria-live="polite"></div>
     <div id="geradorFiltroTabPanelJogos" style="display:none;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:9px;">Jogos gerados</div>
       <div class="spinner" id="geradorFiltroSpinner" style="display:none;">Calculando…</div>
       <div id="geradorFiltroResultado"></div>
     </div>
+  </div>
+</div>
+<div id="gfcSalvarNomeModal" role="dialog" aria-modal="true" aria-label="Salvar jogos" style="display:none;position:fixed;inset:0;z-index:100500;background:rgba(0,0,0,.65);align-items:center;justify-content:center;padding:20px;">
+  <div style="width:min(100%,390px);background:#fff;color:#172033;border:1px solid #c7c7c7;padding:18px;">
+    <label for="gfcSalvarNomeCampo" style="display:block;font-weight:700;margin-bottom:9px;">Nome do jogo</label>
+    <input id="gfcSalvarNomeCampo" type="text" maxlength="60" placeholder="Digite o nome do jogo" style="width:100%;height:42px;padding:8px;border:1px solid #aaa;font-size:16px;">
+    <div id="gfcSalvarNomeErro" role="alert" style="min-height:20px;color:#b91c1c;font-size:12px;margin-top:5px;"></div>
+    <div style="display:flex;gap:8px;margin-top:8px;"><button type="button" id="gfcSalvarNomeCancelar" style="flex:1;padding:10px;">Cancelar</button><button type="button" id="gfcSalvarNomeConfirmar" style="flex:1;padding:10px;background:#16834d;color:#fff;border:0;">Salvar</button></div>
   </div>
 </div>
 
@@ -7396,7 +7407,7 @@ function abrirGeradorFiltro(code){
       estadoSalvo.maisSairam||[], estadoSalvo.totalConcursos||0, estadoSalvo.numeroUltimo||0, estadoSalvo.depSize||0);
   } else {
     document.getElementById('geradorFiltroResultado').innerHTML = '';
-    document.getElementById('geradorFiltroTabJogos').textContent = 'Jogos gerados';
+    document.getElementById('geradorFiltroTabJogos').textContent = 'Meus jogos salvos';
     gfcMostrarTab('config');
     geradorUltimoJogosCtx = null;
   }
@@ -7501,11 +7512,14 @@ document.getElementById('geradorFiltroVoltar').addEventListener('click', ()=>{
 function gfcMostrarTab(tab){
   const painelConfig = document.getElementById('geradorFiltroTabPanelConfig');
   const painelJogos = document.getElementById('geradorFiltroTabPanelJogos');
+  const painelSalvos = document.getElementById('geradorFiltroTabPanelSalvos');
   const btnConfig = document.getElementById('geradorFiltroTabConfig');
   const btnJogos = document.getElementById('geradorFiltroTabJogos');
   const ativa = { background:'#4C1D95', color:'#fff' };
   const inativa = { background:'#fff', color:'#4C1D95' };
-  if(tab === 'jogos'){
+  painelSalvos.style.display = tab === 'salvos' ? 'block' : 'none';
+  if(tab === 'salvos'){painelConfig.style.display='none';painelJogos.style.display='none';Object.assign(btnJogos.style,ativa);Object.assign(btnConfig.style,inativa)}
+  else if(tab === 'jogos'){
     painelConfig.style.display = 'none';
     painelJogos.style.display = 'block';
     Object.assign(btnJogos.style, ativa);
@@ -7519,7 +7533,7 @@ function gfcMostrarTab(tab){
 }
 // Blindagem das abas internas do Fechamento personalizado: impede que o toque
 // atravesse o overlay e acione a barra inferior (principalmente o botão Jogos).
-['geradorFiltroTabs','geradorFiltroTabConfig','geradorFiltroTabJogos'].forEach(function(id){
+['geradorFiltroTabs','geradorFiltroTabConfig','geradorFiltroTabJogos','gfcSalvarJogosTopo'].forEach(function(id){
   const el=document.getElementById(id);
   if(!el) return;
   ['pointerdown','touchstart','mousedown'].forEach(function(tipo){
@@ -7536,26 +7550,8 @@ document.getElementById('geradorFiltroTabConfig').addEventListener('click', (e)=
   gfcMostrarTab('config');
 });
 document.getElementById('geradorFiltroTabJogos').addEventListener('click', (e)=>{
-  e.preventDefault();
-  e.stopPropagation();
-  // A aba Jogos gerados deve permanecer dentro do Fechamento personalizado
-  // e sempre renderizar os jogos já gerados para a loteria atual.
-  if(geradorGameAtual){
-    const estado = carregarGeradorEstado(geradorGameAtual.code);
-    if(estado && Array.isArray(estado.jogos) && estado.jogos.length){
-      geradorUltimoJogosCtx = {
-        g:geradorGameAtual, jogos:estado.jogos,
-        maisAtrasadas:estado.maisAtrasadas||[], maisSairam:estado.maisSairam||[],
-        totalConcursos:estado.totalConcursos||0, numeroUltimo:estado.numeroUltimo||0,
-        depSize:estado.depSize||0
-      };
-      renderGeradorResultado(geradorGameAtual, estado.jogos, estado.maisAtrasadas||[],
-        estado.maisSairam||[], estado.totalConcursos||0, estado.numeroUltimo||0, estado.depSize||0);
-    }
-  }
-  gfcMostrarTab('jogos');
-  const painelJogos=document.getElementById('geradorFiltroTabPanelJogos');
-  if(painelJogos) painelJogos.scrollIntoView({block:'start',behavior:'auto'});
+  e.preventDefault();e.stopPropagation();
+  mostrarJogosSalvosFechamento();
 });
 
 document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async ()=>{
@@ -7862,7 +7858,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
 
   // atualiza o nome da aba com a quantidade de jogos e já leva o usuário pra ela
   const tabJogosBtn = document.getElementById('geradorFiltroTabJogos');
-  if(tabJogosBtn) tabJogosBtn.textContent = `Jogos gerados (${jogos.length})`;
+  // Jogos gerados aparecem no painel; a aba Meus jogos salvos lista apenas os salvos com nome.
   gfcMostrarTab('jogos');
 
   document.getElementById('geradorLimparBtn').addEventListener('click', function(){
@@ -7874,11 +7870,61 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
       out.innerHTML = '';
       geradorUltimoJogosCtx = null;
       limparGeradorEstado(g.code);
-      if(tabJogosBtn) tabJogosBtn.textContent = 'Jogos gerados';
+      // Os jogos salvos permanecem acessíveis na aba própria.
       gfcMostrarTab('config');
     }, 350);
   });
 }
+
+// Jogos salvos com nome no aparelho; mesma chave usada na outra entrada do app.
+const GFC_SALVOS_NOME_KEY='tl_gerador_salvos_nome_v1';
+function listarJogosSalvosFechamento(){
+  try{const dados=JSON.parse(localStorage.getItem(GFC_SALVOS_NOME_KEY)||'[]');return Array.isArray(dados)?dados:[]}catch(_){return []}
+}
+function mostrarJogosSalvosFechamento(){
+  const painel=document.getElementById('geradorFiltroTabPanelSalvos');
+  painel.replaceChildren();
+  const code=geradorGameAtual?.code;
+  const salvos=listarJogosSalvosFechamento().filter(item=>item&&item.gameCode===code);
+  if(!salvos.length){painel.textContent='Nenhum jogo salvo para esta loteria.'}
+  for(const item of salvos){
+    const card=document.createElement('div');
+    card.style.cssText='background:#fff;border:1px solid #ccc;padding:12px;margin:8px 0;color:#172033;';
+    const nome=document.createElement('strong');nome.textContent=item.nome||'Jogo sem nome';card.append(nome);
+    const info=document.createElement('div');info.style.cssText='font-size:12px;margin:6px 0;';
+    info.textContent=(Array.isArray(item.jogos)?item.jogos.length:0)+' jogos • '+(item.loteria||'');card.append(info);
+    if(Array.isArray(item.jogos)) for(const jogo of item.jogos){
+      const linha=document.createElement('div');linha.style.cssText='font-size:12px;padding:4px 0;border-top:1px solid #eee;';
+      linha.textContent=Array.isArray(jogo)?jogo.map(n=>String(n).padStart(2,'0')).join('  '):'';card.append(linha);
+    }
+    painel.append(card);
+  }
+  gfcMostrarTab('salvos');
+}
+function abrirSalvarJogosFechamento(){
+  const ctx=geradorUltimoJogosCtx;
+  const erro=document.getElementById('gfcSalvarNomeErro');
+  if(!ctx||!geradorGameAtual||ctx.g.code!==geradorGameAtual.code||!Array.isArray(ctx.jogos)||!ctx.jogos.length){
+    erro.textContent='Gere os jogos primeiro.';
+  }else{erro.textContent=''}
+  const modal=document.getElementById('gfcSalvarNomeModal');modal.style.display='flex';
+  const campo=document.getElementById('gfcSalvarNomeCampo');campo.value='';campo.focus();
+}
+function fecharSalvarJogosFechamento(){document.getElementById('gfcSalvarNomeModal').style.display='none'}
+document.getElementById('gfcSalvarJogosTopo').addEventListener('click',abrirSalvarJogosFechamento);
+document.getElementById('gfcSalvarNomeCancelar').addEventListener('click',fecharSalvarJogosFechamento);
+document.getElementById('gfcSalvarNomeConfirmar').addEventListener('click',()=>{
+  const ctx=geradorUltimoJogosCtx,nome=document.getElementById('gfcSalvarNomeCampo').value.trim();
+  const erro=document.getElementById('gfcSalvarNomeErro');
+  if(!ctx||!geradorGameAtual||ctx.g.code!==geradorGameAtual.code||!ctx.jogos?.length){erro.textContent='Gere os jogos primeiro.';return}
+  if(!nome){erro.textContent='Digite o nome do jogo.';return}
+  const salvos=listarJogosSalvosFechamento();
+  salvos.unshift({id:Date.now(),nome,data:new Date().toISOString(),gameCode:ctx.g.code,loteria:ctx.g.nome,jogos:ctx.jogos.map(j=>j.slice()),maisAtrasadas:ctx.maisAtrasadas||[],maisSairam:ctx.maisSairam||[],totalConcursos:ctx.totalConcursos||0,numeroUltimo:ctx.numeroUltimo||0,depSize:ctx.depSize||0});
+  try{localStorage.setItem(GFC_SALVOS_NOME_KEY,JSON.stringify(salvos.slice(0,50)))}catch(_){erro.textContent='Não foi possível salvar neste aparelho.';return}
+  fecharSalvarJogosFechamento();
+  // Permanece com os jogos gerados na tela; Meus jogos salvos mostra o registro depois.
+});
+document.getElementById('gfcSalvarNomeCampo').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('gfcSalvarNomeConfirmar').click()}});
 
 // ---------- modal: probabilidade de cada dezena da trinca "quente" sair no próximo sorteio ----------
 function abrirQuenteProb(item, total, numeroUltimo){
