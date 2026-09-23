@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#07101f">
-<style id="thorFirstPaint">html,body{margin:0;min-height:100%;background:#07101f!important}</style>
+<meta name="theme-color" content="#4C1D95">
+<style id="thorFirstPaint">html,body{margin:0;min-height:100%;background:linear-gradient(160deg,#4C1D95,#6D28D9)!important}</style>
 <title>THOR LOTERIAS</title>
 <link rel="stylesheet" href="./analise-frequencia-v347.css?v=thor7-v3-84">
 <script defer src="./analise-repeticao-v343.js?v=thor7-v3-84"></script>
@@ -92,78 +92,8 @@ async function verificarTravaAparelho(hash){
   const clientId = obterClientId();
 
   // Usuários liberados administrativamente para entrar sem trava de aparelho.
-  const USUARIOS_SEM_TRAVA = new Set(['1165s8q','9vcvyb','l6qegv','gpi1n5','10n4xkg','nigvs2','nigvs3','oybgb0']);
-  const USUARIOS_DOIS_APARELHOS = new Set(['k12ace']); // Roberto Cruz: exatamente 2 dispositivos
+  const USUARIOS_SEM_TRAVA = new Set(['1165s8q','9vcvyb','l6qegv','k12ace','gpi1n5','10n4xkg','nigvs2','nigvs3','oybgb0']);
   if(USUARIOS_SEM_TRAVA.has(hash)) return {ok:true};
-
-  // Exceção controlada: Roberto Cruz pode usar exatamente dois aparelhos,
-  // mantendo a mesma senha. O segundo aparelho é vinculado automaticamente
-  // no primeiro login válido feito nele; um terceiro continua bloqueado.
-  if(USUARIOS_DOIS_APARELHOS.has(hash)){
-    try{
-      await carregarFirebase();
-      const ref = dbFirestore.collection('contas_ativadas').doc(hash);
-      const snap = await ref.get();
-
-      if(!snap.exists){
-        await ref.set({
-          deviceId,
-          clientId,
-          secondDeviceId:null,
-          secondClientId:null,
-          ativo:true,
-          bloqueado:false,
-          redefinirAparelho:false,
-          ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        return {ok:true};
-      }
-
-      const dados = snap.data() || {};
-      if(dados.ativo === false || dados.bloqueado === true){
-        return {ok:false, motivo:'conta_bloqueada'};
-      }
-
-      // Liberação administrativa redefine apenas o vínculo secundário,
-      // preservando o primeiro aparelho já cadastrado.
-      if(dados.redefinirAparelho === true){
-        await ref.set({
-          secondDeviceId:deviceId,
-          secondClientId:clientId,
-          redefinirAparelho:false,
-          ativo:true,
-          bloqueado:false,
-          segundoAtivadoEm: firebase.firestore.FieldValue.serverTimestamp()
-        }, {merge:true});
-        return {ok:true};
-      }
-
-      const principalOk =
-        (dados.clientId && dados.clientId === clientId) ||
-        (!dados.clientId && dados.deviceId && dados.deviceId === deviceId);
-
-      const segundoOk =
-        (dados.secondClientId && dados.secondClientId === clientId) ||
-        (!dados.secondClientId && dados.secondDeviceId && dados.secondDeviceId === deviceId);
-
-      if(principalOk || segundoOk) return {ok:true};
-
-      // Se o segundo slot ainda estiver vazio, este aparelho passa a ocupá-lo.
-      if(!dados.secondClientId && !dados.secondDeviceId){
-        await ref.set({
-          secondDeviceId:deviceId,
-          secondClientId:clientId,
-          segundoAtivadoEm: firebase.firestore.FieldValue.serverTimestamp()
-        }, {merge:true});
-        return {ok:true};
-      }
-
-      return {ok:false, motivo:'outro_aparelho'};
-    }catch(e){
-      console.error('Falha ao verificar segundo aparelho permitido:', e);
-      return {ok:false, motivo:'sem_internet'};
-    }
-  }
 
   // No navegador, só entra quem foi liberado pelo gerenciador.
   const GISELE_NAVEGADOR = 'oybgb0';
@@ -264,26 +194,19 @@ const CREDENCIAIS_VALIDAS = [
   'vqscn4', // Teste11
   '1n5gir7', // Angela
   '1k55q77', // Teste12
-  '7zic02', // Teste13
   'b9vs78', // Teste15
   'x5unl', // Fábio
   'nigvs3', // Oliveira
 ];
 
 const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
-const USUARIOS_BLOQUEADOS_POR_NOME = new Set(['adelino']);
-function usuarioBloqueadoPorNome(nome){
-  return USUARIOS_BLOQUEADOS_POR_NOME.has(
-    String(nome||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-  );
-}
 const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio cliente, direto no aparelho dele
 
 // ---------- Atualização automática pelo GitHub ----------
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v145-filtros-conforme-palpites'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v144'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -364,39 +287,25 @@ function contaExtraHash(item){
 }
 
 async function credencialValida(hash){
-  // 1) Contas embutidas no app e contas criadas neste aparelho.
   if(CREDENCIAIS_VALIDAS.includes(hash) || carregarContasExtras().some(item=> contaExtraHash(item) === hash)){
     return true;
   }
-
-  // 2) Carrega Firebase uma única vez. Se não houver conexão, não inventa credencial.
   try{
     await carregarFirebase();
-  }catch(e){
-    console.error('Falha ao carregar Firebase para validar credencial:', e);
-    return false;
-  }
-
-  // 3) Base principal do gerenciador. Falha aqui NÃO impede consultar a ativação.
-  try{
+    // Fonte oficial do gerenciador: todo usuário criado passa a existir aqui
+    // imediatamente, sem depender do cache/versão do HTML no celular do cliente.
     const cadastro = await dbFirestore.collection('usuarios_login').doc(hash).get();
     if(cadastro.exists){
       const dadosCadastro = cadastro.data() || {};
-      if(dadosCadastro.ativo !== false && dadosCadastro.bloqueado !== true) return true;
-      return false;
+      return dadosCadastro.ativo !== false && dadosCadastro.bloqueado !== true;
     }
-  }catch(e){
-    console.warn('usuarios_login indisponível; tentando contas_ativadas:', e);
-  }
-
-  // 4) Compatibilidade e recuperação de contas já criadas pelo próprio cliente.
-  try{
+    // Compatibilidade com clientes antigos já registrados pela trava.
     const snap = await dbFirestore.collection('contas_ativadas').doc(hash).get();
     if(!snap.exists) return false;
     const dados = snap.data() || {};
     return dados.ativo !== false && dados.bloqueado !== true;
   }catch(e){
-    console.error('Falha ao validar credencial em contas_ativadas:', e);
+    console.error('Falha ao validar a credencial:', e);
     return false;
   }
 }
@@ -421,18 +330,7 @@ function comprimirFoto(dataUrl, maxLado){
 
 function loginJaValidado(){
   if(obterContextoAcesso() !== 'app') return false;
-  try{
-    const ok = localStorage.getItem(LOGIN_STORAGE_KEY) === '1';
-    const hash = localStorage.getItem('tl_hash_atual') || '';
-    if(!ok || !hash) return false;
-    const nome = localStorage.getItem('tl_nome_conta_'+hash) || '';
-    if(usuarioBloqueadoPorNome(nome)){
-      localStorage.removeItem(LOGIN_STORAGE_KEY);
-      localStorage.removeItem('tl_hash_atual');
-      return false;
-    }
-    return true;
-  }catch(e){ return false; }
+  try{ return localStorage.getItem(LOGIN_STORAGE_KEY) === '1' && !!localStorage.getItem('tl_hash_atual'); }catch(e){ return false; }
 }
 
 async function sha256HexCadastro(texto){
@@ -498,117 +396,55 @@ async function sha256HexCadastro(texto){
   return sha256Pure(unescape(encodeURIComponent(entrada)));
 }
 
-const CODIGOS_CADASTRO_BLOQUEADOS = new Set(['8de40bb88784e578be4567c8a4cc0f156c086b4dbee9f0bb2892830592678b8c']);
-
 async function buscarLiberacaoCadastroTeste(codigo){
   const codigoNormalizado = String(codigo||'').trim().toUpperCase();
   const codigoCompat = hashLogin(codigoNormalizado);
   let codigoHash = '';
   try{ codigoHash = await sha256HexCadastro(codigoNormalizado); }catch(e){}
-  if(codigoHash && CODIGOS_CADASTRO_BLOQUEADOS.has(codigoHash)){
-    return {ok:false,motivo:'codigo_bloqueado'};
-  }
 
-  function validarLista(lista){
-    const item = (Array.isArray(lista)?lista:[]).find(x=>x && x.ativo !== false && (
-      (x.compatHash && x.compatHash === codigoCompat) ||
-      (codigoHash && x.hash === codigoHash)
-    ));
-    if(!item) return {ok:false,motivo:'codigo_invalido'};
-    if(item.expiraEm){
-      const limite = Date.parse(item.expiraEm);
-      if(Number.isFinite(limite) && Date.now() > limite){
-        return {ok:false,motivo:'codigo_expirado'};
-      }
-    }
-    return {ok:true,codigoHash:(item.hash||codigoCompat),codigoCompat,item};
-  }
+  const urls = [
+    'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?_='+Date.now(),
+    './cadastros-liberados.json?v=thor7-v137&_='+Date.now()
+  ];
 
-  // Cópia de segurança das liberações válidas existentes no momento desta versão.
-  // Evita falso "inválido" se GitHub Raw/API demorar alguns segundos para responder.
-  const liberacoesEmbutidas = [{"hash":"153bb2b82fd10c03b3f8bff2b272fbf2740d130fec25ea57b932b472c4bb85cd","criadoEm":"2026-09-21T14:54:24Z","expiraEm":"2026-09-22T14:54:24Z","ativo":true},{"hash":"8b2f4d91771fe33d37899805349e804423e1c8d200ae63b411c7a260ee3aa95d","criadoEm":"2026-09-21T14:59:58.366Z","expiraEm":"2026-09-22T14:59:58.372Z","ativo":true},{"hash":"92401074b9a96b9b93062d46b94dfcea39dab5eb7c840a2ff24890ae5c8d21fe","criadoEm":"2026-09-21T15:03:35.845Z","expiraEm":"2026-09-22T15:03:35.845Z","ativo":true},{"hash":"a5a23d053baea85bb2f634ca22563b89121af6ef439d18f8240c9127b1303e39","criadoEm":"2026-09-21T15:04:24.565Z","expiraEm":"2026-09-22T15:04:24.565Z","ativo":true},{"hash":"8cead83a5ea0495c6950df001d1ae150656c6ec96494d3b9dfaa7cb0c76e193f","criadoEm":"2026-09-21T15:04:26.820Z","expiraEm":"2026-09-22T15:04:26.820Z","ativo":true},{"hash":"754ded79cbdb862424659744ffb8547be3f3fbbcf3be3ed1f46efca945a3fd2e","criadoEm":"2026-09-21T15:10:00Z","expiraEm":"2026-09-22T15:10:00Z","ativo":true,"compatHash":"199iyna"},{"hash":"8949e4bda26a9ccf21b6aabb1b9e4c593a02af93c5a10f2878d12b2de0144d0e","criadoEm":"2026-09-21T19:26:12.368Z","expiraEm":"2026-09-22T19:26:12.375Z","ativo":true,"compatHash":"1p9aigf"},{"hash":"7e45641c8f3018fcc202c497fc7b1bda66e6c57c3857d878240f721f553f570f","criadoEm":"2026-09-21T19:59:41.030Z","expiraEm":"2026-09-22T19:59:41.030Z","ativo":true,"compatHash":"lr9urj"},{"hash":"9badfa22f6cdefe1cd90ea3611a16233482d837bd1a7692a20c0cae161e61209","criadoEm":"2026-09-21T20:11:41.301Z","expiraEm":"2026-09-22T20:11:41.301Z","ativo":true},{"hash":"9be620d8e9e903c23a213c873d528fda7d64c797dd18084135c23160ab30aaba","criadoEm":"2026-09-21T20:44:06.966Z","expiraEm":"2026-09-22T20:44:06.966Z","ativo":true},{"hash":"48b6c38a0511e69b38f687f8bfdb631a3071b5706fa76d6b581146b30433e3bb","criadoEm":"2026-09-21T20:58:03.005Z","expiraEm":"2026-09-22T20:58:03.006Z","ativo":true,"compatHash":"1pn5m5u"},{"hash":"371cd22102e08a687865cc06a4dfaa50aa0daa1cca8d93d6f0ff17b0fb3ed3f1","criadoEm":"2026-09-21T22:07:59.648Z","expiraEm":"2026-09-22T22:07:59.651Z","ativo":true,"compatHash":"1krq4il"},{"hash":"585f91ee834ad493b29721d1ab5d772de091c712f47963d74322a3b25c25bb5b","compatHash":"1hll874","criadoEm":"2026-09-21T22:36:35.646Z","expiraEm":"2026-09-22T22:36:35.648Z","ativo":true},{"hash":"c4a10af4acd840293bd761f116f0d7c1becad9e490823132e66d27cbd9cae838","compatHash":"u408k9","criadoEm":"2026-09-21T22:46:38.327Z","expiraEm":"2026-09-22T22:46:38.327Z","ativo":true},{"hash":"921c81f9c5f35e597bc4c85fa26615cf5bf97c616cc1574c0c34c70ebf237611","compatHash":"18kwu6w","criadoEm":"2026-09-21T22:52:11.663Z","expiraEm":"2026-09-22T22:52:11.664Z","ativo":true},{"hash":"532d53851d634dc9c672c614ed9aa8a2bc44726621fdc75cc102d4899912be8c","compatHash":"jt34a7","criadoEm":"2026-09-21T22:54:25.751Z","expiraEm":"2026-09-22T22:54:25.756Z","ativo":true},{"hash":"71fafec0cdf019eb2907912959333e3e44b19469ec423e4bd2fa867d941d535c","compatHash":"zw6yol","criadoEm":"2026-09-21T22:59:40.816Z","expiraEm":"2026-09-22T22:59:40.816Z","ativo":true},{"hash":"b3078e2d32cae2adad67b15d4cb778b2d401f28e6dbab1b11fcd28f805d629f0","compatHash":"10t75zj","criadoEm":"2026-09-21T23:06:00.782Z","expiraEm":"2026-09-22T23:06:00.782Z","ativo":true},{"hash":"eead4813224fe8abbd940335db7931c08e42dcaa14da1ca20f7416164ba771b2","compatHash":"l3xwo0","criadoEm":"2026-09-21T23:40:52.692Z","expiraEm":"2026-09-22T23:40:52.694Z","ativo":true},{"hash":"b5b585cde6729199011477a8353e0fb556ad5cc91b9b2f5d35f38749d260cfb2","compatHash":"6qqebx","criadoEm":"2026-09-21T23:50:08.736Z","expiraEm":"2026-09-22T23:50:08.738Z","ativo":true},{"hash":"36cdcb68510e5c5803625df57fc9a1806388659153c556758b738add6b78c8d8","compatHash":"14l4k69","criadoEm":"2026-09-22T02:05:20.221Z","expiraEm":"2026-09-23T02:05:20.230Z","ativo":true},{"hash":"030b268b293d362a60d9847501da91a3b3e82ead9c34dc73485000d8f9a07d62","compatHash":"1om0neg","criadoEm":"2026-09-22T02:18:17.053Z","expiraEm":"2026-09-23T02:18:17.055Z","ativo":true},{"hash":"69d76dcf56159b240ebdceb355f6bb6541bc16641d803b16d2f61fc01b807c75","compatHash":"7l2dlu","criadoEm":"2026-09-22T02:30:41.334Z","expiraEm":"2026-09-23T02:30:41.335Z","ativo":true},{"hash":"482ad7c1e1f8e43816f0f525b9b7eb5586d2e696b56d2d3825e24a92d1448ce8","compatHash":"edqeph","criadoEm":"2026-09-22T02:54:39.567Z","expiraEm":"2026-09-23T02:54:39.568Z","ativo":true},{"hash":"658f9a8b4f0801e19b9ddb64a00a8fc45a12588fde19397854ae29bd6db23f10","compatHash":"1bptqgz","criadoEm":"2026-09-22T02:55:01.074Z","expiraEm":"2026-09-23T02:55:01.074Z","ativo":true},{"hash":"e656d293afeab98d35d747cbc976c7395c8ff83adbe40c342f1a61fa5a4fc673","compatHash":"1pbr8a5","criadoEm":"2026-09-22T14:23:52.905Z","expiraEm":"2026-09-23T14:23:52.908Z","ativo":true},{"hash":"6fc0765a72369e121427c6f2c75aaaeadde8baabdc122c6419b342c95a0dddfb","compatHash":"1j7inda","criadoEm":"2026-09-22T14:24:44.947Z","expiraEm":"2026-09-23T14:24:44.947Z","ativo":true}];
-  const local = validarLista(liberacoesEmbutidas);
-  if(local.ok || local.motivo==='codigo_expirado') return local;
-
-  // Também usa a última lista atualizada que este aparelho conseguiu carregar.
-  try{
-    const salvo = JSON.parse(localStorage.getItem('tl_liberacoes_cadastro_cache_v1')||'[]');
-    const cacheLocal = validarLista(salvo);
-    if(cacheLocal.ok || cacheLocal.motivo==='codigo_expirado') return cacheLocal;
-  }catch(e){}
-
-  let fonteAutoritativaCarregou = false;
-
-  async function lerApiGithub(){
-    const r = await fetch(
-      'https://api.github.com/repos/siranildo518-coder/THOR-LOTERIAS/contents/cadastros-liberados.json?ref=main&_='+Date.now(),
-      {cache:'no-store'}
-    );
-    if(!r.ok) throw new Error('api '+r.status);
-    const meta = await r.json();
-    if(!meta || !meta.content) throw new Error('api sem conteúdo');
-    let texto='';
+  let ultimoErro = null;
+  for(const url of urls){
     try{
-      const bin=atob(String(meta.content).replace(/\s/g,''));
-      const bytes=Uint8Array.from(bin,ch=>ch.charCodeAt(0));
-      texto=new TextDecoder('utf-8').decode(bytes);
-    }catch(e){
-      texto=atob(String(meta.content).replace(/\s/g,''));
-    }
-    const json=JSON.parse(texto);
-    fonteAutoritativaCarregou = true;
-    return json && json.liberacoes;
-  }
-
-  async function lerJson(url, autoritativa){
-    const r=await fetch(url,{
-      cache:'no-store'
-    });
-    if(!r.ok) throw new Error('http '+r.status);
-    const json=await r.json();
-    if(autoritativa) fonteAutoritativaCarregou = true;
-    return json && json.liberacoes;
-  }
-
-  // Faz duas tentativas rápidas. Raw/API são considerados fonte atual;
-  // GitHub Pages e CDN entram como apoio, mas nunca fazem um código novo
-  // ser declarado inválido apenas por ainda estarem atrasados.
-  for(let tentativa=0;tentativa<2;tentativa++){
-    const t=Date.now()+'-'+tentativa;
-    const fontes = await Promise.allSettled([
-      lerJson('./cadastros-liberados.json?cadastro='+t,false),
-      lerJson('https://siranildo518-coder.github.io/THOR-LOTERIAS/cadastros-liberados.json?_='+t,false),
-      lerApiGithub(),
-      lerJson('https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?_='+t,true),
-      lerJson('https://cdn.jsdelivr.net/gh/siranildo518-coder/THOR-LOTERIAS@main/cadastros-liberados.json?_='+t,false)
-    ]);
-
-    for(const f of fontes){
-      if(f.status!=='fulfilled') continue;
-      if(Array.isArray(f.value) && f.value.length){
-        try{ localStorage.setItem('tl_liberacoes_cadastro_cache_v1',JSON.stringify(f.value)); }catch(e){}
+      const resposta = await fetch(url,{
+        cache:'no-store',
+        headers:{'Cache-Control':'no-cache'}
+      });
+      if(!resposta.ok) throw new Error('HTTP '+resposta.status);
+      const dados = await resposta.json();
+      const lista = Array.isArray(dados && dados.liberacoes) ? dados.liberacoes : [];
+      const item = lista.find(x=>x && x.ativo !== false && (
+        (x.compatHash && x.compatHash === codigoCompat) ||
+        (codigoHash && x.hash === codigoHash)
+      ));
+      if(!item){
+        ultimoErro = {ok:false,motivo:'codigo_invalido'};
+        continue;
       }
-      const r=validarLista(f.value);
-      if(r.ok || r.motivo==='codigo_expirado') return r;
-    }
-
-    if(tentativa===0){
-      await new Promise(resolve=>setTimeout(resolve,450));
+      if(item.expiraEm){
+        const limite = Date.parse(item.expiraEm);
+        if(Number.isFinite(limite) && Date.now() > limite){
+          return {ok:false,motivo:'codigo_expirado'};
+        }
+      }
+      return {ok:true,codigoHash:(item.hash||codigoCompat),codigoCompat,item};
+    }catch(e){
+      ultimoErro = e;
     }
   }
 
-  // Só chama de inválido quando pelo menos API ou Raw respondeu.
-  // Se nenhuma fonte atual respondeu, evita acusar um código válido de inválido.
-  return fonteAutoritativaCarregou
-    ? {ok:false,motivo:'codigo_invalido'}
-    : {ok:false,motivo:'falha_verificacao'};
+  if(ultimoErro && ultimoErro.ok === false) return ultimoErro;
+  throw ultimoErro || new Error('Não foi possível consultar a liberação do cadastro.');
 }
 
 async function criarCadastroTesteLiberado(codigo, usuario, senha){
   if(obterContextoAcesso() !== 'app') return {ok:false,motivo:'somente_app'};
   usuario = String(usuario||'').trim();
   senha = String(senha||'').trim();
-  if(usuarioBloqueadoPorNome(usuario)) return {ok:false,motivo:'usuario_bloqueado'};
   if(usuario.length < 2) return {ok:false,motivo:'usuario_curto'};
   if(senha.length < 4) return {ok:false,motivo:'senha_curta'};
 
@@ -665,25 +501,6 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
       criadoVia: 'cadastro_teste',
       ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
     });
-
-    // Persiste a credencial também no aparelho. Assim, sair e entrar novamente
-    // com o mesmo usuário/senha não depende de uma nova consulta à rede.
-    salvarContaExtra(hash, null);
-
-    // Mantém também uma entrada na base principal de login quando as regras do
-    // Firebase permitirem. Se esta escrita estiver bloqueada, contas_ativadas
-    // e a cópia local continuam garantindo o login neste aparelho.
-    try{
-      await dbFirestore.collection('usuarios_login').doc(hash).set({
-        usuario,
-        ativo: true,
-        bloqueado: false,
-        criadoVia: 'cadastro_cliente',
-        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-      }, {merge:true});
-    }catch(e){
-      console.warn('Não foi possível gravar usuarios_login; mantendo credencial local e ativação.', e);
-    }
 
     try{
       await usoRef.set({
@@ -791,11 +608,6 @@ function montarTelaLogin(){
       erroEl.textContent = 'Preencha usuário e senha.';
       return;
     }
-    if(usuarioBloqueadoPorNome(usuario)){
-      erroEl.style.color = '#B7791F';
-      erroEl.textContent = 'Acesso bloqueado para este usuário.';
-      return;
-    }
     const hash = hashLogin(`${usuario}|${senha}`);
     // Validação direta para contas administrativas conhecidas, sem depender de cache/Firebase.
     const ELZIANE_HASH = '1165s8q';
@@ -878,9 +690,7 @@ function montarTelaLogin(){
       codigo_invalido:'Código de liberação inválido.',
       codigo_expirado:'Este código de liberação expirou.',
       codigo_usado:'Este código já foi usado.',
-      codigo_bloqueado:'Este código foi bloqueado pelo administrador.',
       usuario_existente:'Este usuário e senha já estão cadastrados.',
-      usuario_bloqueado:'Este usuário está bloqueado.',
       somente_app:'Faça o cadastro pelo aplicativo instalado.',
       usuario_curto:'O usuário precisa ter pelo menos 2 caracteres.',
       senha_curta:'A senha precisa ter pelo menos 4 caracteres.',
@@ -975,7 +785,7 @@ document.addEventListener('selectstart', e=>{
 });
 </script>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#07101f">
+<meta name="theme-color" content="#4C1D95">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3390,7 +3200,7 @@ document.addEventListener('selectstart', e=>{
 
 <style id="gerador-cards-resultado-finos">
 /* Gerador de jogos: quadros Resultado e Repetidas bem mais baixos/finos */
-#geradorFiltroUltimoResultado{padding:3px 8px !important;margin-bottom:5px !important;border-radius:13px !important;background:#fff !important;color:#172033 !important;}
+#geradorFiltroUltimoResultado{padding:3px 8px !important;margin-bottom:5px !important;border-radius:13px !important;}
 #geradorFiltroUltimoResultado .res-card-title{margin:0 0 1px !important;line-height:12px !important;font-size:10.5px !important;}
 #geradorFiltroUltimoResultado .res-nav-row{margin:0 0 1px !important;min-height:19px !important;gap:5px !important;}
 #geradorFiltroUltimoResultado .res-nav-btn{padding:1px 6px !important;min-height:19px !important;line-height:13px !important;font-size:9.5px !important;border-radius:7px !important;}
@@ -3399,7 +3209,7 @@ document.addEventListener('selectstart', e=>{
 #geradorFiltroUltimoResultado .result-ball-sm{width:23px !important;height:23px !important;min-width:23px !important;font-size:9px !important;margin:1px !important;}
 #geradorFiltroUltimoResultado .res-local{font-size:8px !important;line-height:9px !important;margin:0 !important;padding:0 !important;}
 
-#geradorFiltroAnalise{padding:3px 8px !important;margin-bottom:5px !important;border-radius:13px !important;background:#fff !important;color:#172033 !important;}
+#geradorFiltroAnalise{padding:3px 8px !important;margin-bottom:5px !important;border-radius:13px !important;}
 #geradorFiltroAnalise .stat-sub-title{margin:0 0 1px !important;font-size:10.5px !important;line-height:12px !important;}
 #geradorFiltroAnalise .gfc-ball{width:23px !important;height:23px !important;min-width:23px !important;font-size:9px !important;margin:1px !important;}
 #geradorFiltroAnalise > div{margin-top:0 !important;margin-bottom:0 !important;}
@@ -3758,29 +3568,9 @@ document.addEventListener('selectstart', e=>{
   </div>
 </div>
 
-<div class="overlay-full" id="overlayGeradorSalvos" style="z-index:96;background:#06131f;color:#fff;overflow-y:auto;">
-  <header style="position:sticky;top:0;z-index:3;background:linear-gradient(90deg,#4c1d95,#7e22ce);padding:10px 12px;border-bottom:2px solid #f5a623;display:flex;align-items:center;gap:10px;">
-    <div style="font-family:'Baloo 2',sans-serif;font-size:17px;font-weight:900;flex:1;">Jogos salvos</div>
-  </header>
-  <div style="padding:9px 10px 110px;max-width:720px;margin:0 auto;">
-    <div id="gjsLoterias" style="display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none;"></div>
-
-    <div id="gjsResultado" style="background:#fff;border:2px solid #f0a41e;border-radius:10px;color:#172033;margin-bottom:8px;overflow:hidden;"></div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
-      <button id="gjsMeusJogos" type="button" style="height:38px;border:2px solid #d9a126;border-radius:8px;background:linear-gradient(#19b75f,#07873f);color:#fff;font-weight:900;">★ Meus Jogos</button>
-      <button id="gjsLimparJogos" type="button" style="height:38px;border:2px solid #d9a126;border-radius:8px;background:linear-gradient(#f04444,#c81725);color:#fff;font-weight:900;">🗑 Limpar Jogos</button>
-    </div>
-
-    <div id="gjsFiltros" style="display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none;"></div>
-    <div id="gjsLista"></div>
-    <div id="gjsVazio" style="display:none;background:#fff;border:2px solid #e1a52b;border-radius:10px;padding:18px;color:#5e6570;text-align:center;font-weight:800;">Nenhum jogo salvo nesta loteria.</div>
-  </div>
-</div>
-
 <div class="overlay" id="overlayNomeJogo" style="align-items:center;">
   <div class="modal" style="border-radius:20px;max-width:340px;max-height:none;padding:28px 24px;overflow:visible;margin:0 24px;">
-    <div id="nomeJogoTitulo" style="font-family:'Baloo 2',sans-serif;font-weight:700;font-size:21px;color:var(--ink);margin-bottom:22px;">Escolha um nome</div>
+    <div style="font-family:'Baloo 2',sans-serif;font-weight:700;font-size:21px;color:var(--ink);margin-bottom:22px;">Escolha um nome</div>
     <input type="text" id="inputNomeJogo" placeholder="Ex: Jogos" maxlength="60" style="width:100%;box-sizing:border-box;border:none;border-bottom:2px solid var(--line);padding:6px 2px 8px;font-size:16px;color:var(--ink);font-family:'Inter',sans-serif;font-weight:500;outline:none;background:transparent;">
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:26px;">
       <button id="btnNomeJogoCancelar" style="background:none;border:none;color:var(--violet);font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;letter-spacing:.02em;cursor:pointer;padding:10px 12px;border-radius:8px;">CANCELAR</button>
@@ -4873,8 +4663,7 @@ document.addEventListener('selectstart', e=>{
 
     <div class="gfc-tabs" id="geradorFiltroTabs" style="display:flex;gap:6px;margin-bottom:14px;">
       <button type="button" class="gfc-tab-btn active" id="geradorFiltroTabConfig" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:#4C1D95;color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Palpites</button>
-      <button type="button" id="gfcAbrirJogosSalvosTopo" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:linear-gradient(#294c6d,#162d48);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Meus jogos salvos</button>
-      <button type="button" class="gfc-tab-btn" id="geradorFiltroTabJogos" style="display:none;">Salvar jogos</button>
+      <button type="button" class="gfc-tab-btn" id="geradorFiltroTabJogos" style="flex:1;padding:6px 6px;border-radius:8px;border:1.5px solid #4C1D95;background:#fff;color:#4C1D95;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;cursor:pointer;">Jogos gerados</button>
     </div>
 
     <div id="geradorFiltroTabPanelConfig">
@@ -4943,14 +4732,6 @@ document.addEventListener('selectstart', e=>{
     </div>
 
     <div id="geradorFiltroTabPanelJogos" style="display:none;">
-      <div id="gfcSalvarJogosBox" style="background:#fff;border:1.5px solid #d7cdea;border-radius:14px;padding:11px 12px;margin-bottom:12px;box-shadow:0 3px 8px rgba(0,0,0,.08);">
-        <div style="font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:800;color:#4C1D95;margin-bottom:7px;">💾 Salvar jogos gerados</div>
-        <div style="display:flex;gap:7px;align-items:center;">
-          <input id="gfcNomeJogosInput" type="text" maxlength="60" placeholder="Digite o nome do jogo" autocomplete="off" style="flex:1;min-width:0;height:38px;border:1.5px solid #cfc3df;border-radius:9px;padding:0 10px;font-family:'Inter',sans-serif;font-size:13px;outline:none;background:#fff;color:#241B2F;">
-          <button type="button" id="gfcSalvarJogosBtn" style="height:38px;padding:0 15px;border:1px solid #08763f;border-radius:9px;background:linear-gradient(#43d77f,#159653);color:#fff;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:900;box-shadow:0 4px 0 #08703b;cursor:pointer;">SALVAR</button>
-        </div>
-        <div id="gfcSalvarJogosStatus" style="min-height:15px;margin-top:6px;font-size:10px;font-weight:700;color:#159653;"></div>
-      </div>
       <div class="spinner" id="geradorFiltroSpinner" style="display:none;">Calculando…</div>
       <div id="geradorFiltroResultado"></div>
     </div>
@@ -6186,75 +5967,10 @@ function obterConcursoCache(game, concurso){
   return CONCURSO_CACHE_LOTERIA.get(chaveCacheConcurso(game, concurso)) || null;
 }
 
-const THOR_LF_RESULTADO_EMERGENCIAL = {
-  concurso:3786,
-  dezenas:[1,3,6,7,8,9,12,13,14,16,18,21,23,24,25],
-  data:'22/09/2026',
-  local:'ESPAÇO DA SORTE',
-  premiacoes:[],
-  acumulou:false,
-  proximoConcurso:3787,
-  dataProximoConcurso:'23/09/2026'
-};
-
 async function fetchConcursoLoteria(game, concurso){
-  // V146: para o último concurso da Lotofácil, consulta a CAIXA antes do cache.
-  // Assim que a CAIXA publicar um novo resultado, o app passa a recebê-lo.
-  if(game && game.code === 'LF' && concurso &&
-     Number(concurso) === Number(THOR_LF_RESULTADO_EMERGENCIAL.concurso)){
-    return {...THOR_LF_RESULTADO_EMERGENCIAL};
-  }
   const emCache = obterConcursoCache(game, concurso);
-  if(!(game && game.code === 'LF' && !concurso) && emCache) return emCache;
-
-  // LOTOFÁCIL: a CAIXA é a fonte principal. Para o concurso mais recente,
-  // aguarda mais tempo e só cai para espelhos se a fonte oficial realmente falhar.
-  if(game && game.code === 'LF' && !concurso){
-    const controller = new AbortController();
-    const timer = setTimeout(()=>controller.abort(), 15000);
-    try{
-      const urlOficial = 'https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil?_thor=' + Date.now();
-      const resp = await fetch(urlOficial,{
-        signal:controller.signal,
-        cache:'no-store',
-        headers:{
-          Accept:'application/json',
-          'Cache-Control':'no-cache, no-store, max-age=0',
-          Pragma:'no-cache'
-        }
-      });
-      if(resp.ok){
-        const bruto = await resp.json();
-        const dezenas = bruto.dezenas || bruto.listaDezenas || bruto.numeros || [];
-        const numero = bruto.concurso || bruto.numero || bruto.numeroConcurso;
-        if(numero && Array.isArray(dezenas) && dezenas.length){
-          const oficial = {
-            concurso:Number(numero),
-            dezenas:dezenas.map(v=>parseInt(v,10)).filter(v=>!isNaN(v)),
-            data:bruto.data || bruto.dataApuracao || '',
-            local:bruto.local || bruto.nomeMunicipioUFSorteio || bruto.localSorteio || '',
-            premiacoes:bruto.premiacoes || bruto.listaRateioPremio || [],
-            acumulou:bruto.acumulou ?? bruto.acumulado ?? false,
-            proximoConcurso:bruto.proximoConcurso || bruto.numeroConcursoProximo || null,
-            dataProximoConcurso:bruto.dataProximoConcurso || ''
-          };
-          const escolhido = (THOR_LF_RESULTADO_EMERGENCIAL &&
-            Number(THOR_LF_RESULTADO_EMERGENCIAL.concurso) > Number(oficial.concurso))
-            ? {...THOR_LF_RESULTADO_EMERGENCIAL}
-            : oficial;
-          CONCURSO_CACHE_LOTERIA.set(chaveCacheConcurso(game,escolhido.concurso),escolhido);
-          window.THOR_ULTIMO_CONCURSO_OFICIAL = escolhido.concurso;
-          return escolhido;
-        }
-      }
-    }catch(e){
-      console.warn('CAIXA Lotofácil indisponível; tentando espelhos.',e);
-    }finally{
-      clearTimeout(timer);
-    }
-  }
-
-  const timeoutMs = game && game.code === 'LF' ? 10000 : 4200;
+  if(emCache) return emCache;
+  const timeoutMs = 4200;
   const path = concurso ? `/${concurso}` : '/latest';
 
   // Para o concurso mais recente, NÃO usa a primeira fonte que responder:
@@ -7638,46 +7354,6 @@ function limparGeradorEstado(code){
   }catch(e){}
 }
 
-
-// Jogos do Fechamento personalizado salvos com nome pelo usuário.
-const GERADOR_SALVOS_NOME_KEY = 'tl_gerador_salvos_nome_v1';
-function carregarJogosGeradorNome(){
-  try{
-    const bruto=localStorage.getItem(GERADOR_SALVOS_NOME_KEY);
-    const lista=bruto?JSON.parse(bruto):[];
-    return Array.isArray(lista)?lista:[];
-  }catch(e){ return []; }
-}
-function salvarJogosGeradorComNome(nome){
-  const ctx=geradorUltimoJogosCtx;
-  const limpo=String(nome||'').trim();
-  if(!ctx || !ctx.g || !Array.isArray(ctx.jogos) || !ctx.jogos.length || !limpo) return false;
-  const lista=carregarJogosGeradorNome();
-  lista.unshift({
-    id:Date.now(),
-    nome:limpo,
-    data:new Date().toISOString(),
-    gameCode:ctx.g.code,
-    loteria:ctx.g.nome,
-    jogos:ctx.jogos.map(j=>j.slice()),
-    maisAtrasadas:(ctx.maisAtrasadas||[]).map(x=>({...x})),
-    maisSairam:(ctx.maisSairam||[]).map(x=>({...x})),
-    totalConcursos:ctx.totalConcursos||0,
-    numeroUltimo:ctx.numeroUltimo||0,
-    depSize:ctx.depSize||0,
-    filtrosEscolhidos:ctx.filtrosEscolhidos||null,
-    baseRepetidasConcurso:ctx.baseRepetidasConcurso||null,
-    baseRepetidasDezenas:Array.isArray(ctx.baseRepetidasDezenas)?ctx.baseRepetidasDezenas.slice():[]
-  });
-  while(lista.length>50) lista.pop();
-  try{
-    localStorage.setItem(GERADOR_SALVOS_NOME_KEY,JSON.stringify(lista));
-    return true;
-  }catch(e){
-    return false;
-  }
-}
-
 function abrirGeradorLoteria(){
   fecharModaisGlobais('overlayGeradorLoteria');
   const lista = document.getElementById('geradorLoteriaLista');
@@ -7714,16 +7390,13 @@ function abrirGeradorFiltro(code){
       g: geradorGameAtual, jogos: estadoSalvo.jogos,
       maisAtrasadas: estadoSalvo.maisAtrasadas||[], maisSairam: estadoSalvo.maisSairam||[],
       totalConcursos: estadoSalvo.totalConcursos||0, numeroUltimo: estadoSalvo.numeroUltimo||0,
-      depSize: estadoSalvo.depSize||0,
-      filtrosEscolhidos: estadoSalvo.filtrosEscolhidos||null,
-      baseRepetidasConcurso: estadoSalvo.baseRepetidasConcurso||null,
-      baseRepetidasDezenas: Array.isArray(estadoSalvo.baseRepetidasDezenas)?estadoSalvo.baseRepetidasDezenas:[]
+      depSize: estadoSalvo.depSize||0
     };
     renderGeradorResultado(geradorGameAtual, estadoSalvo.jogos, estadoSalvo.maisAtrasadas||[],
       estadoSalvo.maisSairam||[], estadoSalvo.totalConcursos||0, estadoSalvo.numeroUltimo||0, estadoSalvo.depSize||0);
   } else {
     document.getElementById('geradorFiltroResultado').innerHTML = '';
-    document.getElementById('geradorFiltroTabJogos').textContent = 'Salvar jogos';
+    document.getElementById('geradorFiltroTabJogos').textContent = 'Jogos gerados';
     gfcMostrarTab('config');
     geradorUltimoJogosCtx = null;
   }
@@ -7862,321 +7535,11 @@ document.getElementById('geradorFiltroTabConfig').addEventListener('click', (e)=
   e.stopPropagation();
   gfcMostrarTab('config');
 });
-let gjsGameCode='MS';
-let gjsFiltroNome='Todos';
-let gjsResultadoAtual=null;
-let gjsResultadoAnterior=null;
-
-function gjsEsc(s){
-  return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function jogosSalvosDoGerador(code){
-  return carregarJogosGeradorNome().filter(x=>x && x.gameCode===code);
-}
-
-function renderGjsLoterias(){
-  const box=document.getElementById('gjsLoterias');
-  if(!box)return;
-  box.innerHTML=GERADOR_GAMES.map(g=>{
-    const on=g.code===gjsGameCode;
-    return '<button type="button" class="gjs-lot" data-code="'+g.code+'" style="flex:none;padding:6px 11px;border:1.5px solid #e3a425;border-radius:16px;background:'+(on?'#f59e0b':'#15304c')+';color:#fff;font-size:10px;font-weight:900;">'+g.nome+'</button>';
-  }).join('');
-  box.querySelectorAll('.gjs-lot').forEach(b=>b.onclick=()=>{
-    gjsGameCode=b.dataset.code;
-    gjsFiltroNome='Todos';
-    gjsResultadoAtual=null;
-    gjsResultadoAnterior=null;
-    renderGjsTela();
-    carregarGjsResultado();
-  });
-}
-
-function renderGjsFiltros(){
-  const box=document.getElementById('gjsFiltros');
-  if(!box)return;
-  const lista=jogosSalvosDoGerador(gjsGameCode);
-  const nomes=[...new Set(lista.map(x=>x.nome).filter(Boolean))];
-  const filtros=['Todos',...nomes];
-  if(!filtros.includes(gjsFiltroNome)) gjsFiltroNome='Todos';
-  box.innerHTML=filtros.map(nome=>{
-    const on=nome===gjsFiltroNome;
-    return '<button type="button" class="gjs-filtro" data-nome="'+encodeURIComponent(nome)+'" style="flex:none;padding:5px 12px;border:1.5px solid #e6a827;border-radius:16px;background:'+(on?'#f59e0b':'#15304c')+';color:#fff;font-size:10px;font-weight:900;">'+gjsEsc(nome)+'</button>';
-  }).join('');
-  box.querySelectorAll('.gjs-filtro').forEach(b=>b.onclick=()=>{
-    gjsFiltroNome=decodeURIComponent(b.dataset.nome||'Todos');
-    renderGjsFiltros();
-    renderGjsLista();
-  });
-}
-
-function gjsFaixaHits(gameCode,hits){
-  try{return faixaPremioGerador(gameCode,hits)}catch(_){return null}
-}
-
-function gjsStatsJogo(jogo,entry){
-  const nums=(Array.isArray(jogo)?jogo:[]).map(Number).filter(Number.isFinite);
-  const game=GERADOR_GAMES.find(g=>g.code===gjsGameCode) || GAMES.find(g=>g.code===gjsGameCode);
-  const ehPrimo=n=>{
-    if(n<2)return false;
-    for(let d=2;d*d<=n;d++) if(n%d===0)return false;
-    return true;
-  };
-  const fibSet=new Set([0,1,2,3,5,8,13,21,34,55,89]);
-  const molduraSet=new Set(game?(molduraDoJogo(game)||[]):[]);
-  const centroSet=new Set(game?(centroDoJogo(game)||[]):[]);
-
-  const par=nums.filter(n=>n%2===0).length;
-  const impar=nums.length-par;
-  const primo=nums.filter(ehPrimo).length;
-  const fib=nums.filter(n=>fibSet.has(n)).length;
-  const moldura=molduraSet.size?nums.filter(n=>molduraSet.has(n)).length:'—';
-  const retrato=centroSet.size?nums.filter(n=>centroSet.has(n)).length:'—';
-  const mult3=nums.filter(n=>n%3===0).length;
-  const soma=nums.reduce((a,b)=>a+b,0);
-
-  // REPETIDAS: compara com o mesmo concurso-base usado quando o palpite foi gerado.
-  // Ex.: se o usuário escolheu 9 / 10 repetidas, cada jogo salvo mostra 9 ou 10
-  // de acordo com o que realmente foi gerado naquele palpite.
-  let base=[];
-  if(entry && Array.isArray(entry.baseRepetidasDezenas) && entry.baseRepetidasDezenas.length){
-    base=entry.baseRepetidasDezenas.map(Number).filter(Number.isFinite);
-  }else if(gjsResultadoAnterior && gjsResultadoAnterior.gameCode===gjsGameCode){
-    // compatibilidade com jogos salvos antes desta correção
-    base=(gjsResultadoAnterior.dezenas||[]).map(Number).filter(Number.isFinite);
-  }
-  const ant=new Set(base);
-  const repetidas=base.length?nums.filter(n=>ant.has(n)):[];
-
-  return {
-    par,impar,primo,fib,moldura,retrato,mult3,soma,repetidas,
-    filtrosEscolhidos:(entry&&entry.filtrosEscolhidos)||null,
-    baseRepetidasConcurso:(entry&&entry.baseRepetidasConcurso)||null
-  };
-}
-
-function gjsSalvarListaCompleta(lista){
-  try{
-    localStorage.setItem(GERADOR_SALVOS_NOME_KEY,JSON.stringify(lista));
-    return true;
-  }catch(e){ return false; }
-}
-
-function gjsApagarJogo(entryId,jogoIndex){
-  const lista=carregarJogosGeradorNome();
-  const idx=lista.findIndex(x=>Number(x.id)===Number(entryId));
-  if(idx<0)return;
-  const jogos=Array.isArray(lista[idx].jogos)?lista[idx].jogos:[];
-  jogos.splice(Number(jogoIndex),1);
-  if(jogos.length===0) lista.splice(idx,1);
-  else lista[idx].jogos=jogos;
-  gjsSalvarListaCompleta(lista);
-  renderGjsTela();
-}
-
-async function gjsCopiarJogo(jogo,btn){
-  const texto=(Array.isArray(jogo)?jogo:[]).map(n=>String(n).padStart(2,'0')).join(' ');
-  let ok=false;
-  try{
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      await navigator.clipboard.writeText(texto);
-      ok=true;
-    }
-  }catch(e){}
-  if(!ok){
-    try{
-      const ta=document.createElement('textarea');
-      ta.value=texto;
-      ta.style.position='fixed';
-      ta.style.opacity='0';
-      document.body.appendChild(ta);
-      ta.select();
-      ok=document.execCommand('copy');
-      ta.remove();
-    }catch(e){}
-  }
-  if(btn){
-    const antigo=btn.textContent;
-    btn.textContent=ok?'COPIADO ✓':'COPIAR';
-    setTimeout(()=>{btn.textContent=antigo;},1100);
-  }
-}
-
-function renderGjsLista(){
-  const box=document.getElementById('gjsLista');
-  const vazio=document.getElementById('gjsVazio');
-  if(!box||!vazio)return;
-  let lista=jogosSalvosDoGerador(gjsGameCode);
-  if(gjsFiltroNome!=='Todos') lista=lista.filter(x=>x.nome===gjsFiltroNome);
-
-  if(!lista.length){
-    box.innerHTML='';
-    vazio.style.display='block';
-    return;
-  }
-  vazio.style.display='none';
-
-  const resSet=gjsResultadoAtual && gjsResultadoAtual.gameCode===gjsGameCode
-    ? new Set((gjsResultadoAtual.dezenas||[]).map(Number)) : null;
-
-  let html='';
-  lista.forEach(entry=>{
-    const jogos=Array.isArray(entry.jogos)?entry.jogos:[];
-    html += '<div style="font-family:\'Baloo 2\',sans-serif;font-size:12px;font-weight:900;color:#f5a623;margin:8px 3px 7px;">'+
-      gjsEsc(entry.nome||'Sem nome')+' · '+jogos.length+' jogo'+(jogos.length===1?'':'s')+
-    '</div>';
-
-    jogos.forEach((jogo,i)=>{
-      const nums=(Array.isArray(jogo)?jogo:[]).map(Number).filter(Number.isFinite);
-      const st=gjsStatsJogo(nums,entry);
-      const filtros=[
-        ['PAR',st.par],['ÍMPAR',st.impar],['PRIMO',st.primo],['FIBONACCI',st.fib],
-        ['MOLDURA',st.moldura],['RETRATO',st.retrato],['MÚLT. 3',st.mult3],['SOMA',st.soma]
-      ];
-      const bolas=nums.map(n=>{
-        const ac=resSet&&resSet.has(n);
-        return '<span style="width:27px;height:27px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;'+
-          'background:'+(ac?'radial-gradient(circle at 30% 25%,#5eea91,#11ad58 52%,#08783b)':'radial-gradient(circle at 30% 25%,#fff,#edf0f3 42%,#b9bec5 78%)')+';'+
-          'border:1px solid '+(ac?'#0b964b':'#d4d7dc')+';color:'+(ac?'#fff':'#242424')+';'+
-          'box-shadow:inset 2px 2px 3px rgba(255,255,255,.88),inset -3px -4px 6px rgba(0,0,0,.18),0 4px 7px rgba(0,0,0,.18);'+
-          'font-size:10px;font-weight:900;">'+String(n).padStart(2,'0')+'</span>';
-      }).join('');
-
-      const filtrosHtml=filtros.map(([rotulo,valor])=>
-        '<div style="background:#f4f1f8;border-radius:8px;padding:2px 2px;text-align:center;min-height:27px;box-sizing:border-box;">'+
-          '<div style="font-size:7.5px;color:#8d8798;line-height:1;">'+rotulo+'</div>'+
-          '<div style="font-size:9.5px;color:#27212f;font-weight:900;margin-top:0;">'+valor+'</div>'+
-        '</div>'
-      ).join('');
-
-      const repBolas=st.repetidas.length
-        ? '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:5px;">'+
-            st.repetidas.map(n=>'<span style="width:19px;height:19px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 25%,#efc7ff,#b83ce0 50%,#74169b);color:#fff;font-size:8px;font-weight:900;border:1px solid #d77cff;">'+String(n).padStart(2,'0')+'</span>').join('')+
-          '</div>'
-        : '<div style="font-size:9px;color:#9a94a4;margin-top:3px;">Nenhuma</div>';
-
-      html += '<div class="gjs-jogo-card" data-entry="'+entry.id+'" data-index="'+i+'" style="background:#fff;border:1.5px solid #e8e2ef;border-radius:14px;padding:8px;margin-bottom:8px;color:#241B2F;box-shadow:0 3px 9px rgba(0,0,0,.08);">'+
-        '<div style="font-family:\'Baloo 2\',sans-serif;font-size:11px;font-weight:900;color:#4C1D95;margin-bottom:6px;">Jogo '+(i+1)+'</div>'+
-        '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px;">'+bolas+'</div>'+
-        '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;margin-bottom:4px;">'+filtrosHtml+'</div>'+
-        '<div style="background:#f4f1f8;border-radius:9px;padding:5px;text-align:center;margin-bottom:6px;">'+
-          '<div style="font-size:9px;color:#8d8798;">REPETIDAS DO CONCURSO ANTERIOR · PALPITE</div>'+
-          '<div style="font-size:13px;font-weight:900;color:#27212f;margin-top:2px;">'+st.repetidas.length+'</div>'+repBolas+
-        '</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">'+
-          '<button type="button" class="gjs-apagar-jogo" data-entry="'+entry.id+'" data-index="'+i+'" style="height:27px;border:1.5px solid #e3dbea;border-radius:10px;background:#fff;color:#5a287c;font-weight:900;font-size:9px;">APAGAR</button>'+
-          '<button type="button" class="gjs-copiar-jogo" data-entry="'+entry.id+'" data-index="'+i+'" style="height:27px;border:1.5px solid #e3dbea;border-radius:10px;background:#fff;color:#5a287c;font-weight:900;font-size:9px;">COPIAR</button>'+
-        '</div>'+
-      '</div>';
-    });
-  });
-
-  box.innerHTML=html;
-
-  box.querySelectorAll('.gjs-apagar-jogo').forEach(btn=>btn.onclick=()=>{
-    gjsApagarJogo(btn.dataset.entry,btn.dataset.index);
-  });
-  box.querySelectorAll('.gjs-copiar-jogo').forEach(btn=>btn.onclick=()=>{
-    const entryId=Number(btn.dataset.entry);
-    const idx=Number(btn.dataset.index);
-    const entry=carregarJogosGeradorNome().find(x=>Number(x.id)===entryId);
-    const jogo=entry&&Array.isArray(entry.jogos)?entry.jogos[idx]:null;
-    if(jogo) gjsCopiarJogo(jogo,btn);
-  });
-}
-
-async function carregarGjsResultado(concurso){
-  const game=GERADOR_GAMES.find(g=>g.code===gjsGameCode);
-  const box=document.getElementById('gjsResultado');
-  if(!game||!box)return;
-  box.innerHTML='<div style="padding:10px;text-align:center;font-size:10px;font-weight:800;">Atualizando resultado...</div>';
-  try{
-    const d=await fetchConcursoLoteria(game,concurso);
-    if(!d||!d.concurso)throw new Error('sem resultado');
-    const nums=(d.dezenas||[]).map(Number).filter(Number.isFinite).sort((a,b)=>a-b);
-    gjsResultadoAtual={gameCode:gjsGameCode,concurso:Number(d.concurso),dezenas:nums,data:d.data||'',local:d.local||''};
-    gjsResultadoAnterior=null;
-    box.innerHTML=
-      '<div style="background:linear-gradient(#19a84f,#067536);color:#fff;text-align:center;padding:5px;font-size:10px;font-weight:900;">Resultado Oficial - '+game.nome+'</div>'+
-      '<div style="display:grid;grid-template-columns:40px 1fr 40px;gap:6px;align-items:center;padding:8px;">'+
-        '<button id="gjsAnterior" style="height:34px;border-radius:50%;border:2px solid #e0a124;background:linear-gradient(#299fea,#0873be);color:#fff;font-weight:900;">◀◀</button>'+
-        '<div style="text-align:center;"><div style="font-size:9px;color:#667085;">Concurso '+d.concurso+(d.data?' · '+gjsEsc(d.data):'')+'</div>'+
-          '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:6px;">'+nums.map(n=>'<span style="width:19px;height:19px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(#38d46f,#0b9b48);color:#fff;font-size:8px;font-weight:900;">'+String(n).padStart(2,'0')+'</span>').join('')+'</div></div>'+
-        '<button id="gjsProximo" style="height:34px;border-radius:50%;border:2px solid #e0a124;background:linear-gradient(#299fea,#0873be);color:#fff;font-weight:900;">▶▶</button>'+
-      '</div>';
-    document.getElementById('gjsAnterior')?.addEventListener('click',()=>carregarGjsResultado(Math.max(1,Number(d.concurso)-1)));
-    document.getElementById('gjsProximo')?.addEventListener('click',()=>carregarGjsResultado(Number(d.concurso)+1));
-    renderGjsLista();
-
-    // Busca o concurso anterior em segundo plano para preencher o filtro
-    // "Repetidas do concurso anterior" em cada jogo salvo.
-    try{
-      const ant=await fetchConcursoLoteria(game,Math.max(1,Number(d.concurso)-1));
-      if(gjsResultadoAtual && gjsResultadoAtual.gameCode===gjsGameCode && Number(gjsResultadoAtual.concurso)===Number(d.concurso)){
-        gjsResultadoAnterior={
-          gameCode:gjsGameCode,
-          concurso:Number(ant.concurso||Number(d.concurso)-1),
-          dezenas:(ant.dezenas||[]).map(Number).filter(Number.isFinite)
-        };
-        renderGjsLista();
-      }
-    }catch(e){
-      gjsResultadoAnterior=null;
-    }
-  }catch(e){
-    box.innerHTML='<div style="padding:10px;text-align:center;font-size:10px;color:#b91c1c;font-weight:800;">Não foi possível carregar o resultado agora.</div>';
-  }
-}
-
-function renderGjsTela(){
-  renderGjsLoterias();
-  renderGjsFiltros();
-  renderGjsLista();
-}
-
-function abrirGeradorSalvos(code,nome){
-  if(typeof window.__thorRegistrarTelaAtual==='function'){
-    try{ window.__thorRegistrarTelaAtual(); }catch(_){}
-  }
-  if(code) gjsGameCode=code;
-  gjsFiltroNome=nome||'Todos';
-  const ov=document.getElementById('overlayGeradorSalvos');
-  if(ov) ov.classList.add('show');
-  renderGjsTela();
-  carregarGjsResultado();
-}
-
-document.getElementById('gjsVoltar')?.addEventListener('click',()=>{
-  const ov=document.getElementById('overlayGeradorSalvos');
-  if(!ov || !ov.classList.contains('show')) return;
-  if(history.state && history.state.thorNav){
-    history.back();
-  }else{
-    ov.classList.remove('show');
-  }
-});
-document.getElementById('gjsMeusJogos')?.addEventListener('click',()=>{
-  gjsFiltroNome='Todos';
-  renderGjsFiltros();
-  renderGjsLista();
-});
-document.getElementById('gjsLimparJogos')?.addEventListener('click',()=>{
-  const todos=carregarJogosGeradorNome().filter(x=>x.gameCode!==gjsGameCode);
-  try{localStorage.setItem(GERADOR_SALVOS_NOME_KEY,JSON.stringify(todos))}catch(_){}
-  gjsFiltroNome='Todos';
-  renderGjsTela();
-});
-document.getElementById('gfcAbrirJogosSalvosTopo')?.addEventListener('click',(e)=>{
-  e.preventDefault();
-  e.stopPropagation();
-  abrirGeradorSalvos(geradorGameAtual?.code||'MS','Todos');
-});
-
 document.getElementById('geradorFiltroTabJogos').addEventListener('click', (e)=>{
   e.preventDefault();
   e.stopPropagation();
-
-  // Mantém os jogos gerados dentro do Fechamento personalizado.
+  // A aba Jogos gerados deve permanecer dentro do Fechamento personalizado
+  // e sempre renderizar os jogos já gerados para a loteria atual.
   if(geradorGameAtual){
     const estado = carregarGeradorEstado(geradorGameAtual.code);
     if(estado && Array.isArray(estado.jogos) && estado.jogos.length){
@@ -8184,65 +7547,15 @@ document.getElementById('geradorFiltroTabJogos').addEventListener('click', (e)=>
         g:geradorGameAtual, jogos:estado.jogos,
         maisAtrasadas:estado.maisAtrasadas||[], maisSairam:estado.maisSairam||[],
         totalConcursos:estado.totalConcursos||0, numeroUltimo:estado.numeroUltimo||0,
-        depSize:estado.depSize||0,
-        filtrosEscolhidos:estado.filtrosEscolhidos||null,
-        baseRepetidasConcurso:estado.baseRepetidasConcurso||null,
-        baseRepetidasDezenas:Array.isArray(estado.baseRepetidasDezenas)?estado.baseRepetidasDezenas:[]
+        depSize:estado.depSize||0
       };
       renderGeradorResultado(geradorGameAtual, estado.jogos, estado.maisAtrasadas||[],
         estado.maisSairam||[], estado.totalConcursos||0, estado.numeroUltimo||0, estado.depSize||0);
     }
   }
-
   gfcMostrarTab('jogos');
   const painelJogos=document.getElementById('geradorFiltroTabPanelJogos');
   if(painelJogos) painelJogos.scrollIntoView({block:'start',behavior:'auto'});
-
-  const input=document.getElementById('gfcNomeJogosInput');
-  const status=document.getElementById('gfcSalvarJogosStatus');
-  if(status) status.textContent='';
-  if(input) setTimeout(()=>input.focus(),60);
-});
-
-function salvarJogosGeradorPelaCaixa(){
-  const input=document.getElementById('gfcNomeJogosInput');
-  const status=document.getElementById('gfcSalvarJogosStatus');
-  const btn=document.getElementById('gfcSalvarJogosBtn');
-  const nome=input ? input.value.trim() : '';
-
-  if(!geradorUltimoJogosCtx || !Array.isArray(geradorUltimoJogosCtx.jogos) || !geradorUltimoJogosCtx.jogos.length){
-    if(status){ status.style.color='#B91C1C'; status.textContent='Gere os palpites primeiro.'; }
-    return;
-  }
-  if(!nome){
-    if(status){ status.style.color='#B91C1C'; status.textContent='Digite um nome para salvar.'; }
-    if(input) input.focus();
-    return;
-  }
-
-  const ok=salvarJogosGeradorComNome(nome);
-  if(!ok){
-    if(status){ status.style.color='#B91C1C'; status.textContent='Não foi possível salvar.'; }
-    return;
-  }
-
-  if(status){ status.style.color='#159653'; status.textContent='✅ Jogos salvos como “'+nome+'” em Meus Jogos Salvos.'; }
-  if(input) input.value='';
-  if(btn){
-    const antigo=btn.textContent;
-    btn.textContent='SALVO ✓';
-    setTimeout(()=>{btn.textContent=antigo;},1200);
-  }
-  // Permanece nesta mesma tela após salvar.
-  // Os jogos ficam disponíveis no botão "MEUS JOGOS SALVOS".
-}
-
-document.getElementById('gfcSalvarJogosBtn')?.addEventListener('click', salvarJogosGeradorPelaCaixa);
-document.getElementById('gfcNomeJogosInput')?.addEventListener('keydown', e=>{
-  if(e.key==='Enter'){
-    e.preventDefault();
-    salvarJogosGeradorPelaCaixa();
-  }
 });
 
 document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async ()=>{
@@ -8364,19 +7677,6 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
     if(!anterior || !Array.isArray(anterior.dezenas)) throw new Error('sem concurso anterior suficiente pra gerar');
     const numsAnteriorBase = anterior.dezenas.map(d=>parseInt(d,10)).filter(n=>!isNaN(n));
     const ultimoSet = new Set(numsAnteriorBase);
-
-    const filtrosEscolhidosGeracao = {
-      repetidas: repetidasAlvos ? repetidasAlvos.slice() : null,
-      pares: filtroPares ? filtroPares.slice() : null,
-      impares: filtroImpares ? filtroImpares.slice() : null,
-      primos: filtroPrimos ? filtroPrimos.slice() : null,
-      fib: filtroFib ? filtroFib.slice() : null,
-      moldura: filtroMoldura ? filtroMoldura.slice() : null,
-      retrato: filtroCentro ? filtroCentro.slice() : null,
-      mult3: filtroMult3 ? filtroMult3.slice() : null,
-      soma: filtroSoma,
-      fixas: [...gfcFixasSelecionadas].sort((a,b)=>a-b)
-    };
     const seen = new Set();
     const jogos = [];
     let tries = 0;
@@ -8413,20 +7713,8 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
       return;
     }
 
-    geradorUltimoJogosCtx = {
-      g, jogos, maisAtrasadas, maisSairam,
-      totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo,
-      filtrosEscolhidos: filtrosEscolhidosGeracao,
-      baseRepetidasConcurso: anterior.concurso||null,
-      baseRepetidasDezenas: numsAnteriorBase.slice()
-    };
-    salvarGeradorEstado(g.code, {
-      jogos, maisAtrasadas, maisSairam,
-      totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo,
-      filtrosEscolhidos: filtrosEscolhidosGeracao,
-      baseRepetidasConcurso: anterior.concurso||null,
-      baseRepetidasDezenas: numsAnteriorBase.slice()
-    });
+    geradorUltimoJogosCtx = { g, jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo };
+    salvarGeradorEstado(g.code, { jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo });
     renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, validos.length, numeroUltimo, dezenasPorJogo);
   }catch(e){
     console.error('gerador multi-loteria falhou:', e);
@@ -8574,7 +7862,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
 
   // atualiza o nome da aba com a quantidade de jogos e já leva o usuário pra ela
   const tabJogosBtn = document.getElementById('geradorFiltroTabJogos');
-  if(tabJogosBtn) tabJogosBtn.textContent = 'Salvar jogos';
+  if(tabJogosBtn) tabJogosBtn.textContent = `Jogos gerados (${jogos.length})`;
   gfcMostrarTab('jogos');
 
   document.getElementById('geradorLimparBtn').addEventListener('click', function(){
@@ -8586,7 +7874,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
       out.innerHTML = '';
       geradorUltimoJogosCtx = null;
       limparGeradorEstado(g.code);
-      if(tabJogosBtn) tabJogosBtn.textContent = 'Salvar jogos';
+      if(tabJogosBtn) tabJogosBtn.textContent = 'Jogos gerados';
       gfcMostrarTab('config');
     }, 350);
   });
@@ -10547,18 +9835,7 @@ function cloverSVG(baseColor, active){
 const homeTabs = document.getElementById('homeTabs');
 const homeHero = document.getElementById('homeHero');
 let homeGameAtual = LOTOFACIL_GAME;
-const HOME_RESULT_CACHE_KEY = 'tl_home_resultados_cache_v1';
-function carregarHomeCachePersistente(){
-  try{
-    const bruto=localStorage.getItem(HOME_RESULT_CACHE_KEY);
-    const obj=bruto?JSON.parse(bruto):{};
-    return (obj&&typeof obj==='object')?obj:{};
-  }catch(e){ return {}; }
-}
-function salvarHomeCachePersistente(){
-  try{ localStorage.setItem(HOME_RESULT_CACHE_KEY,JSON.stringify(homeCache)); }catch(e){}
-}
-const homeCache = carregarHomeCachePersistente(); // mostra o último concurso salvo sem esperar a internet
+const homeCache = {}; // slug -> dados já buscados nesta sessão
 
 const homeTabRefs = [];
 GAMES.forEach(g=>{
@@ -10766,16 +10043,28 @@ function renderUltimoResultadoTend(g, data){
   if(btnProx) btnProx.addEventListener('click', ()=> atualizarUltimoResultadoTend(g, data.concurso+1));
 }
 
-function renderHomeHeroDados(g,data){
-  if(!data || !data.concurso) return false;
-  if(homeGameAtual.code !== g.code) return false;
+async function carregarHomeHero(g){
+  homeHero.innerHTML = `<div class="home-loading">Buscando ${g.nome}…</div>`;
+  let data = homeCache[g.slug];
+  if(!data){
+    try{
+      data = await fetchConcursoLoteria(g);
+      homeCache[g.slug] = data;
+    }catch(e){
+      homeHero.innerHTML = `<div class="home-loading">Não foi possível buscar agora.<br><button class="res-nav-btn" id="homeTentar" style="margin-top:10px;">Tentar novamente</button></div>`;
+      const btn = document.getElementById('homeTentar');
+      if(btn) btn.addEventListener('click', ()=>carregarHomeHero(g));
+      return;
+    }
+  }
+  if(homeGameAtual.code !== g.code) return; // usuário já trocou de aba
   concursoMaisRecentePorJogo[g.slug] = data.concurso;
   const balls = (data.dezenas||[]).map(d=>`<div class="hh-ball">${d.toString().padStart(2,'0')}</div>`).join('');
   homeHero.innerHTML = `
     <div class="home-hero" style="--hero-accent:${g.color};--hero-accent-deep:${g.color};">
       <h2>${g.nome}</h2>
       <div class="hh-row">📅 Próximo sorteio: ${data.dataProxConcurso || '—'}</div>
-      <div class="hh-row">🎟️ Concurso ${Number(data.concurso) + 1}</div>
+      <div class="hh-row">🎟️ Concurso ${data.concurso + 1}</div>
       <div class="hh-premio-lbl">${data.acumulou ? 'ESTIMATIVA ACUMULADA' : 'PRÊMIO ESTIMADO'}</div>
       <div class="hh-premio-val">${formatBRL(data.acumuladaProxConcurso)}</div>
       <div class="hh-last-draw">
@@ -10786,55 +10075,7 @@ function renderHomeHeroDados(g,data){
       </div>
       <button class="hh-stats-btn" id="homeVerStats">📊 Ver Estatísticas</button>
     </div>`;
-  const stats=document.getElementById('homeVerStats');
-  if(stats) stats.addEventListener('click', ()=>openResultadoOverlay(g));
-  return true;
-}
-
-function renderHomeHeroEstrutura(g){
-  if(homeGameAtual.code !== g.code) return;
-  // A tela inteira aparece imediatamente. Só os dados do concurso entram depois.
-  homeHero.innerHTML = `
-    <div class="home-hero" style="--hero-accent:${g.color};--hero-accent-deep:${g.color};">
-      <h2>${g.nome}</h2>
-      <div class="hh-row">📅 Próximo sorteio: —</div>
-      <div class="hh-row">🎟️ Concurso —</div>
-      <div class="hh-premio-lbl">PRÊMIO ESTIMADO</div>
-      <div class="hh-premio-val">—</div>
-      <div class="hh-last-draw">
-        <div class="hh-ultimo-lbl">🕒 Último Sorteio</div>
-        <div class="hh-row" style="margin-bottom:0;">📅 —</div>
-        <div class="hh-row" style="margin-bottom:0;">🎟️ Concurso —</div>
-        <div class="hh-balls"></div>
-      </div>
-      <button class="hh-stats-btn" type="button" disabled style="opacity:.55;">📊 Ver Estatísticas</button>
-    </div>`;
-}
-
-function carregarHomeHero(g){
-  // 1) abre a tela primeiro, usando o último concurso salvo se existir.
-  const salvo=homeCache[g.slug];
-  if(!renderHomeHeroDados(g,salvo)) renderHomeHeroEstrutura(g);
-
-  // 2) só depois do primeiro desenho da tela consulta a internet.
-  const atualizar=async()=>{
-    try{
-      const data=await fetchConcursoLoteria(g);
-      if(!data || !data.concurso) return;
-      homeCache[g.slug]=data;
-      salvarHomeCachePersistente();
-      if(homeGameAtual.code===g.code) renderHomeHeroDados(g,data);
-    }catch(e){
-      // Se já havia cache, mantém a tela pronta. Sem cache, mantém a estrutura
-      // em vez de esconder tudo atrás de "Buscando concurso".
-    }
-  };
-
-  if(typeof requestAnimationFrame==='function'){
-    requestAnimationFrame(()=>requestAnimationFrame(atualizar));
-  }else{
-    setTimeout(atualizar,0);
-  }
+  document.getElementById('homeVerStats').addEventListener('click', ()=>openResultadoOverlay(g));
 }
 carregarHomeHero(homeGameAtual);
 
@@ -10887,9 +10128,8 @@ async function checarNovoResultado(){
   const dataHome = await silentFetchLatest(homeGameAtual);
   if(dataHome && dataHome.concurso && dataHome.concurso !== homeCache[homeGameAtual.slug]?.concurso){
     homeCache[homeGameAtual.slug] = dataHome;
-    salvarHomeCachePersistente();
     concursoMaisRecentePorJogo[homeGameAtual.slug] = dataHome.concurso;
-    renderHomeHeroDados(homeGameAtual,dataHome);
+    carregarHomeHero(homeGameAtual);
   }
 
   // caixa "Último resultado" da tela Tendência: só atualiza sozinha se o usuário
@@ -11668,7 +10908,7 @@ async function obterHistoricoCompletoFreq(onProgress){
   if(cache.dados.length && onProgress) onProgress(cache.dados.length,cache.dados.length);
 
   // Consulta somente o último resultado oficial primeiro.
-  const oficialBruto=await fetchJson(CAIXA_API+'?_thor='+Date.now(),15000);
+  const oficialBruto=await fetchJson(CAIXA_API,6500);
   let ultimoOficial=null;
 
   // IMPORTANTE: guarda o estado do cache ANTES de inserir o concurso oficial mais recente.
@@ -12891,21 +12131,13 @@ document.getElementById('floatingShare').addEventListener('click', async functio
   }
 });
 
-let nomeJogoContexto='desdobramento';
-
 document.getElementById('floatingSalvarNome').addEventListener('click', function(){
   if(!lastGames || lastGames.length === 0){
     alert('Nenhum jogo gerado ainda pra salvar.');
     return;
   }
-  nomeJogoContexto='desdobramento';
-  const titulo=document.getElementById('nomeJogoTitulo');
   const input = document.getElementById('inputNomeJogo');
-  if(titulo) titulo.textContent='Escolha um nome';
-  if(input){
-    input.value = '';
-    input.placeholder='Ex: Jogos';
-  }
+  if(input) input.value = '';
   fecharModaisGlobais('overlayNomeJogo');
   document.getElementById('overlayNomeJogo').classList.add('show');
   setTimeout(()=>{ if(input) input.focus(); }, 50);
@@ -12913,7 +12145,6 @@ document.getElementById('floatingSalvarNome').addEventListener('click', function
 
 document.getElementById('btnNomeJogoCancelar').addEventListener('click', ()=>{
   document.getElementById('overlayNomeJogo').classList.remove('show');
-  nomeJogoContexto='desdobramento';
 });
 
 document.getElementById('inputNomeJogo').addEventListener('keydown', e=>{
@@ -12921,33 +12152,7 @@ document.getElementById('inputNomeJogo').addEventListener('keydown', e=>{
 });
 
 document.getElementById('btnNomeJogoSalvar').addEventListener('click', ()=>{
-  const input=document.getElementById('inputNomeJogo');
-  const nome = input ? input.value.trim() : '';
-  if(!nome){
-    if(input){
-      input.focus();
-      input.style.borderBottomColor='#D6336C';
-      setTimeout(()=>{ input.style.borderBottomColor='var(--line)'; },900);
-    }
-    return;
-  }
-
-  if(nomeJogoContexto==='gerador'){
-    const salvou=salvarJogosGeradorComNome(nome);
-    if(!salvou){
-      alert('Não foi possível salvar os jogos.');
-      return;
-    }
-    document.getElementById('overlayNomeJogo').classList.remove('show');
-    const btn=document.getElementById('geradorFiltroTabJogos');
-    if(btn){
-      btn.textContent='✅ Salvo';
-      setTimeout(()=>{ btn.textContent='Salvar jogos'; },1200);
-    }
-    nomeJogoContexto='desdobramento';
-    return;
-  }
-
+  const nome = document.getElementById('inputNomeJogo').value;
   const summaryEl = document.getElementById('summaryBox2');
   const summaryHtml = (summaryEl && summaryEl.innerHTML) ? summaryEl.innerHTML : '';
   saveToHistorico(summaryHtml, lastGames, nome);
@@ -13451,7 +12656,7 @@ refreshUI();
   const MODAL_IDS = [
     'overlayNomeJogo','overlayFotoFull','drawer','overlay','overlayTrioProb','overlayCentroDezena','overlayProb',
     'overlayHistorico','overlayErreX','overlayGaleria',
-    'overlayGeradorSalvos','overlayGeradorFiltro','overlayGeradorLoteria',
+    'overlayGeradorFiltro','overlayGeradorLoteria',
     'overlayAltaQueda','overlayResultado','overlayTendencia','overlayMinhasSequencias','overlayAnalisadorJogos'
   ];
 
@@ -13635,8 +12840,7 @@ if('serviceWorker' in navigator){
     function recarregarUmaVez(){
       if(jaRecarregou) return;
       jaRecarregou = true;
-      // Atualização silenciosa: não recarrega a tela que o usuário está vendo.
-      // A nova versão entra na próxima abertura do aplicativo.
+      location.reload();
     }
 
     navigator.serviceWorker.addEventListener('controllerchange', recarregarUmaVez);
@@ -16055,68 +15259,7 @@ document.addEventListener('click', (e)=>{
 document.addEventListener('click',function(e){const b=e.target.closest('[data-home-target]');if(!b)return;const t=document.getElementById(b.dataset.homeTarget);if(t)t.click();});
 document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.getElementById('btnMenu')?.click());
 </script>
-<style id="thorMenuDefinitivoV146">
-/* V146 — menu lateral definitivo, igual em todos os aparelhos */
-#homeSideNav{
-  align-items:center!important;
-  background:linear-gradient(100deg,#06101d 0%,#263c52 18%,#71899e 34%,#20384f 50%,#0b1c2d 66%,#21394f 82%,#050d18 100%)!important;
-  border-right:2px solid #7d9bb3!important;
-  box-shadow:inset 4px 0 7px rgba(255,255,255,.18),inset -5px 0 8px rgba(0,0,0,.52),4px 0 10px rgba(0,0,0,.42)!important;
-  gap:0!important;
-}
-#homeSideNav .hs-menu,
-#homeSideNav .hs-item{
-  width:84%!important;
-  min-height:34px!important;
-  height:34px!important;
-  padding:0 3px!important;
-  margin:0 auto 7px!important;
-  box-sizing:border-box!important;
-  display:flex!important;
-  flex-direction:row!important;
-  align-items:center!important;
-  justify-content:center!important;
-  text-align:center!important;
-  background:linear-gradient(180deg,#c8edff 0%,#76c5ec 30%,#3f9dce 58%,#175d8d 100%)!important;
-  border:2px solid #ff8a00!important;
-  border-radius:6px!important;
-  color:#fff!important;
-  font-size:7px!important;
-  line-height:1.06!important;
-  font-weight:800!important;
-  text-transform:uppercase!important;
-  white-space:normal!important;
-  overflow:hidden!important;
-  box-shadow:inset 0 3px 3px rgba(255,255,255,.92),inset 0 -4px 6px rgba(0,54,94,.52),0 3px 0 #a84b00,0 0 11px rgba(255,119,0,.95)!important;
-}
-#homeSideNav .hs-item.active{
-  background:linear-gradient(180deg,#bc6cff,#8c24df 55%,#5512a2)!important;
-  border-color:#ff8a00!important;
-  box-shadow:inset 0 3px 3px rgba(255,255,255,.55),inset 0 -4px 6px rgba(57,0,106,.55),0 3px 0 #a84b00,0 0 11px rgba(255,119,0,.95)!important;
-}
-#homeSideNav .hs-item span{
-  display:none!important;
-}
-#homeSideNav .hs-menu{
-  font-size:0!important;
-}
-#homeSideNav .hs-menu::after{
-  content:'MENU';
-  font-size:7px!important;
-  font-weight:800!important;
-}
-#homeSideNav .hs-item:last-child{
-  font-size:0!important;
-}
-#homeSideNav .hs-item:last-child::after{
-  content:'JOGOS OFICIAIS';
-  white-space:normal;
-  font-size:7px!important;
-  line-height:1.02!important;
-  font-weight:800!important;
-  text-align:center!important;
-}
-</style></body>
+</body>
 </html>
 
 <style id="frequencia-dezena-barra-fina-quadrada-final">
