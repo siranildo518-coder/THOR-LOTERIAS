@@ -7901,16 +7901,36 @@ function mostrarJogosSalvosFechamento(){
   }
   gfcMostrarTab('salvos');
 }
+let gfcSalvarNomeFechando=false;
 function abrirSalvarJogosFechamento(){
   const ctx=geradorUltimoJogosCtx;
   const erro=document.getElementById('gfcSalvarNomeErro');
   if(!ctx||!geradorGameAtual||ctx.g.code!==geradorGameAtual.code||!Array.isArray(ctx.jogos)||!ctx.jogos.length){
     erro.textContent='Gere os jogos primeiro.';
   }else{erro.textContent=''}
-  const modal=document.getElementById('gfcSalvarNomeModal');modal.style.display='flex';
+  const modal=document.getElementById('gfcSalvarNomeModal');
+  if(modal.style.display==='flex')return;
+  try{history.pushState({thorSalvarNome:true},'',location.href)}catch(_){}
+  modal.style.display='flex';
   const campo=document.getElementById('gfcSalvarNomeCampo');campo.value='';campo.focus();
 }
-function fecharSalvarJogosFechamento(){document.getElementById('gfcSalvarNomeModal').style.display='none'}
+function fecharSalvarJogosFechamento(){
+  const modal=document.getElementById('gfcSalvarNomeModal');
+  if(modal.style.display!=='flex')return;
+  modal.style.display='none';
+  if(history.state&&history.state.thorSalvarNome){
+    gfcSalvarNomeFechando=true;
+    history.back();
+  }
+}
+window.addEventListener('popstate',e=>{
+  const modal=document.getElementById('gfcSalvarNomeModal');
+  if(modal.style.display==='flex'||gfcSalvarNomeFechando){
+    modal.style.display='none';
+    gfcSalvarNomeFechando=false;
+    e.stopImmediatePropagation();
+  }
+});
 document.getElementById('gfcSalvarJogosTopo').addEventListener('click',abrirSalvarJogosFechamento);
 document.getElementById('gfcSalvarNomeCancelar').addEventListener('click',fecharSalvarJogosFechamento);
 document.getElementById('gfcSalvarNomeConfirmar').addEventListener('click',()=>{
