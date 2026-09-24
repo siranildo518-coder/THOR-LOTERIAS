@@ -5978,10 +5978,11 @@ async function fetchConcursoLoteria(game, concurso){
   // uma CDN atrasada pode devolver um concurso antigo. Coletamos as respostas
   // disponíveis e escolhemos sempre o MAIOR número de concurso.
   const fontes = [];
-  if(game.code === 'LF'){
+  const caixaSlug={MS:'megasena',LF:'lotofacil',QN:'quina',DIA:'diadesorte',LM:'lotomania',S7:'supersete',TM:'timemania',DS:'duplasena'}[game.code];
+  if(caixaSlug){
     fontes.push({
-      url: 'https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil' + (concurso ? `/${concurso}` : ''),
-      tipo: 'caixa-lf'
+      url: 'https://servicebus2.caixa.gov.br/portaldeloterias/api/'+caixaSlug+(concurso ? `/${concurso}` : ''),
+      tipo: 'caixa'
     });
   }
 
@@ -6006,19 +6007,23 @@ async function fetchConcursoLoteria(game, concurso){
       if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const bruto = await resp.json();
 
-      if(fonte.tipo === 'caixa-lf'){
-        const dezenas = bruto.dezenas || bruto.listaDezenas || bruto.numeros || [];
-        const numero = bruto.concurso || bruto.numero || bruto.numeroConcurso;
+      if(fonte.tipo === 'caixa'){
+        const dezenas = bruto.listaDezenas || bruto.dezenas || bruto.numeros || [];
+        const numero = bruto.numero || bruto.concurso || bruto.numeroConcurso;
         if(!numero || !Array.isArray(dezenas) || !dezenas.length) throw new Error('resposta inválida');
         return {
           concurso: Number(numero),
-          dezenas: dezenas.map(v=>parseInt(v,10)).filter(v=>!isNaN(v)),
-          data: bruto.data || bruto.dataApuracao || '',
-          local: bruto.local || bruto.nomeMunicipioUFSorteio || bruto.localSorteio || '',
-          premiacoes: bruto.premiacoes || bruto.listaRateioPremio || [],
-          acumulou: bruto.acumulou ?? bruto.acumulado ?? false,
-          proximoConcurso: bruto.proximoConcurso || bruto.numeroConcursoProximo || null,
-          dataProximoConcurso: bruto.dataProximoConcurso || ''
+          dezenas: dezenas.map(v=>parseInt(v,10)).filter(Number.isFinite),
+          dezenasSegundoSorteio: (bruto.listaDezenasSegundoSorteio||[]).map(v=>parseInt(v,10)).filter(Number.isFinite),
+          data: bruto.dataApuracao || bruto.data || '',
+          local: bruto.nomeMunicipioUFSorteio || bruto.localSorteio || bruto.local || '',
+          premiacoes: (bruto.listaRateioPremio||bruto.premiacoes||[]).map(p=>({...p,ganhadores:p.numeroDeGanhadores??p.ganhadores??p.vencedores??0,descricao:p.descricaoFaixa||p.descricao||'',valorPremio:p.valorPremio??p.premio??0})),
+          acumulou: bruto.acumulado ?? bruto.acumulou ?? false,
+          proximoConcurso: bruto.numeroConcursoProximo || bruto.proximoConcurso || null,
+          dataProximoConcurso: bruto.dataProximoConcurso || '',
+          mesSorte: game.code==='DIA'?bruto.nomeTimeCoracaoMesSorte:null,
+          timeCoracao: game.code==='TM'?bruto.nomeTimeCoracaoMesSorte:null,
+          valorEstimadoProximoConcurso: bruto.valorEstimadoProximoConcurso
         };
       }
 
