@@ -239,6 +239,30 @@
       "criadoEm": "2026-09-24T02:06:18.252Z",
       "expiraEm": "2026-09-25T02:06:18.253Z",
       "ativo": true
+    },
+    {
+      "hash": "b2e691a30c8309425dfc1ca7af507ef06f847356c6bfead9349f9f6d4d06da7c",
+      "compatHash": "5rrqaq",
+      "criadoEm": "2026-09-24T02:12:38.387Z",
+      "expiraEm": "2026-10-01T02:12:38.387Z",
+      "ativo": true,
+      "canal": "navegador"
+    },
+    {
+      "hash": "f909e800917d1dfe2a65d29b45e6756b09c43e08b31162b8fc2f0867ee9cb89b",
+      "compatHash": "h6r05r",
+      "criadoEm": "2026-09-24T02:12:38.387Z",
+      "expiraEm": "2026-10-01T02:12:38.387Z",
+      "ativo": true,
+      "canal": "navegador"
+    },
+    {
+      "hash": "c36e80188547b6504eaf8321d8186deefbed0cae71c77de57352bf40419d52d5",
+      "compatHash": "zqzga0",
+      "criadoEm": "2026-09-24T02:12:38.387Z",
+      "expiraEm": "2026-10-01T02:12:38.387Z",
+      "ativo": true,
+      "canal": "navegador"
     }
   ]
 }

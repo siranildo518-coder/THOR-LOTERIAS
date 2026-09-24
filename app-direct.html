@@ -442,7 +442,7 @@ async function buscarLiberacaoCadastroTeste(codigo){
 }
 
 async function criarCadastroTesteLiberado(codigo, usuario, senha){
-  if(obterContextoAcesso() !== 'app') return {ok:false,motivo:'somente_app'};
+  const contextoCadastro=obterContextoAcesso();
   usuario = String(usuario||'').trim();
   senha = String(senha||'').trim();
   if(usuario.length < 2) return {ok:false,motivo:'usuario_curto'};
@@ -456,6 +456,8 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
     return {ok:false,motivo:'falha_verificacao'};
   }
   if(!liberacao.ok) return liberacao;
+  if(contextoCadastro==='navegador' && liberacao.item.canal!=='navegador') return {ok:false,motivo:'somente_app'};
+  if(contextoCadastro==='app' && liberacao.item.canal==='navegador') return {ok:false,motivo:'somente_navegador'};
 
   try{
     if(localStorage.getItem('tl_codigo_cadastro_usado_'+liberacao.codigoHash)==='1'){
@@ -473,6 +475,25 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
   const hash = hashLogin(`${usuario}|${senha}`);
   const contaRef = dbFirestore.collection('contas_ativadas').doc(hash);
   const usoRef = dbFirestore.collection('contas_ativadas').doc('cadastro_teste_'+liberacao.codigoHash);
+
+  if(contextoCadastro==='navegador'){
+    try{
+      await dbFirestore.runTransaction(async tx=>{
+        const usoSnap=await tx.get(usoRef);
+        const contaSnap=await tx.get(contaRef);
+        if(usoSnap.exists&&(usoSnap.data()||{}).consumido===true)throw new Error('codigo_usado');
+        if(contaSnap.exists)throw new Error('usuario_existente');
+        tx.set(contaRef,{usuario,deviceId:obterDeviceId(),clientId:obterClientId(),ativo:true,bloqueado:false,redefinirAparelho:false,criadoVia:'cadastro_navegador',ativadoEm:firebase.firestore.FieldValue.serverTimestamp()});
+        tx.set(usoRef,{consumido:true,contaHash:hash,consumidoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+        tx.set(dbFirestore.collection('acesso_navegador').doc(hash),{liberado:true,criadoVia:'cadastro_navegador'},{merge:true});
+      });
+      try{localStorage.setItem('tl_codigo_cadastro_usado_'+liberacao.codigoHash,'1')}catch(_){}
+      return {ok:true,hash,usuario};
+    }catch(e){
+      console.error('Falha ao criar cadastro pelo navegador:',e);
+      return {ok:false,motivo:e.message==='codigo_usado'||e.message==='usuario_existente'?e.message:'falha_servidor'};
+    }
+  }
 
   try{
     // Se o marcador global puder ser lido, respeita o uso único.
@@ -692,6 +713,7 @@ function montarTelaLogin(){
       codigo_usado:'Este código já foi usado.',
       usuario_existente:'Este usuário e senha já estão cadastrados.',
       somente_app:'Faça o cadastro pelo aplicativo instalado.',
+      somente_navegador:'Este código é para cadastro pelo navegador.',
       usuario_curto:'O usuário precisa ter pelo menos 2 caracteres.',
       senha_curta:'A senha precisa ter pelo menos 4 caracteres.',
       falha_verificacao:'Não foi possível verificar o código. Atualize o app e tente novamente.',
