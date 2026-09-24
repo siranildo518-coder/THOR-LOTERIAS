@@ -630,7 +630,8 @@ function montarTelaLogin(){
       erroEl.textContent = 'Preencha usuário e senha.';
       return;
     }
-    const hash = hashLogin(`${usuario}|${senha}`);
+    const usuarioHash = usuario.toLowerCase() === 'marcus' ? 'Teste11' : usuario;
+    const hash = hashLogin(`${usuarioHash}|${senha}`);
     // Validação direta para contas administrativas conhecidas, sem depender de cache/Firebase.
     const ELZIANE_HASH = '1165s8q';
     const GISELE_HASH = 'oybgb0';
