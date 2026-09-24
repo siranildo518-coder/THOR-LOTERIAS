@@ -405,8 +405,9 @@ async function buscarLiberacaoCadastroTeste(codigo){
   try{ codigoHash = await sha256HexCadastro(codigoNormalizado); }catch(e){}
 
   const urls = [
+    'https://api.github.com/repos/siranildo518-coder/THOR-LOTERIAS/contents/cadastros-liberados.json?ref=main&_='+Date.now(),
     'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?_='+Date.now(),
-    './cadastros-liberados.json?v=thor7-v137&_='+Date.now()
+    './cadastros-liberados.json?v=thor7-v150-cadastro-codigo-fix&_='+Date.now()
   ];
 
   let ultimoErro = null;
@@ -417,7 +418,12 @@ async function buscarLiberacaoCadastroTeste(codigo){
         headers:{'Cache-Control':'no-cache'}
       });
       if(!resposta.ok) throw new Error('HTTP '+resposta.status);
-      const dados = await resposta.json();
+      let dados = await resposta.json();
+      // A API /contents do GitHub devolve o arquivo em Base64; o raw devolve o JSON direto.
+      if(dados && dados.content && dados.encoding === 'base64'){
+        const limpo = String(dados.content).replace(/\s/g,'');
+        dados = JSON.parse(decodeURIComponent(escape(atob(limpo))));
+      }
       const lista = Array.isArray(dados && dados.liberacoes) ? dados.liberacoes : [];
       const item = lista.find(x=>x && x.ativo !== false && (
         (x.compatHash && x.compatHash === codigoCompat) ||
@@ -458,7 +464,9 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
     return {ok:false,motivo:'falha_verificacao'};
   }
   if(!liberacao.ok) return liberacao;
-  if(contextoCadastro==='navegador' && liberacao.item.canal!=='navegador') return {ok:false,motivo:'somente_app'};
+  // Código liberado sem "canal" funciona no APK; código marcado como navegador funciona no navegador.
+  // Mantém compatibilidade com códigos antigos do gerador.
+  if(contextoCadastro==='navegador' && liberacao.item.canal && liberacao.item.canal!=='navegador') return {ok:false,motivo:'somente_app'};
   if(contextoCadastro==='app' && liberacao.item.canal==='navegador') return {ok:false,motivo:'somente_navegador'};
 
   try{
@@ -486,6 +494,7 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
         if(usoSnap.exists&&(usoSnap.data()||{}).consumido===true)throw new Error('codigo_usado');
         if(contaSnap.exists)throw new Error('usuario_existente');
         tx.set(contaRef,{usuario,deviceId:obterDeviceId(),clientId:obterClientId(),ativo:true,bloqueado:false,redefinirAparelho:false,criadoVia:'cadastro_navegador',ativadoEm:firebase.firestore.FieldValue.serverTimestamp()});
+        tx.set(dbFirestore.collection('usuarios_login').doc(hash),{usuario,ativo:true,bloqueado:false,criadoVia:'cadastro_navegador',criadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
         tx.set(usoRef,{consumido:true,contaHash:hash,consumidoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
         tx.set(dbFirestore.collection('acesso_navegador').doc(hash),{liberado:true,criadoVia:'cadastro_navegador'},{merge:true});
       });
@@ -524,6 +533,15 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
       criadoVia: 'cadastro_teste',
       ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
     });
+
+    // Mantém a mesma fonte consultada pela validação de login.
+    await dbFirestore.collection('usuarios_login').doc(hash).set({
+      usuario,
+      ativo: true,
+      bloqueado: false,
+      criadoVia: 'cadastro_teste',
+      criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
 
     try{
       await usoRef.set({
