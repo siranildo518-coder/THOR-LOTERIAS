@@ -486,6 +486,7 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
         if(usoSnap.exists&&(usoSnap.data()||{}).consumido===true)throw new Error('codigo_usado');
         if(contaSnap.exists)throw new Error('usuario_existente');
         tx.set(contaRef,{usuario,deviceId:obterDeviceId(),clientId:obterClientId(),ativo:true,bloqueado:false,redefinirAparelho:false,criadoVia:'cadastro_navegador',ativadoEm:firebase.firestore.FieldValue.serverTimestamp()});
+        tx.set(dbFirestore.collection('usuarios_login').doc(hash),{usuario,ativo:true,bloqueado:false,criadoVia:'cadastro_navegador',criadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
         tx.set(usoRef,{consumido:true,contaHash:hash,consumidoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
         tx.set(dbFirestore.collection('acesso_navegador').doc(hash),{liberado:true,criadoVia:'cadastro_navegador'},{merge:true});
       });
@@ -524,6 +525,15 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
       criadoVia: 'cadastro_teste',
       ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
     });
+
+    // Mantém a mesma fonte consultada pela validação de login.
+    await dbFirestore.collection('usuarios_login').doc(hash).set({
+      usuario,
+      ativo: true,
+      bloqueado: false,
+      criadoVia: 'cadastro_teste',
+      criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
 
     try{
       await usoRef.set({
