@@ -10089,6 +10089,14 @@ const homeTabs = document.getElementById('homeTabs');
 const homeHero = document.getElementById('homeHero');
 let homeGameAtual = LOTOFACIL_GAME;
 const homeCache = {}; // slug -> dados já buscados nesta sessão
+// Primeira pintura: reaproveita o último resultado salvo para a tela inicial aparecer pronta.
+try{
+  const bruto=localStorage.getItem('thor_home_resultado_'+LOTOFACIL_GAME.slug);
+  if(bruto){
+    const salvo=JSON.parse(bruto);
+    if(salvo && salvo.concurso && Array.isArray(salvo.dezenas)) homeCache[LOTOFACIL_GAME.slug]=salvo;
+  }
+}catch(_){}
 
 const homeTabRefs = [];
 GAMES.forEach(g=>{
@@ -10297,12 +10305,17 @@ function renderUltimoResultadoTend(g, data){
 }
 
 async function carregarHomeHero(g){
-  homeHero.innerHTML = `<div class="home-loading">Buscando ${g.nome}…</div>`;
   let data = homeCache[g.slug];
+  // Não troca a tela inicial por "Buscando..." durante a abertura.
+  // Se já existe cache, mostra imediatamente e atualiza pela rede em segundo plano.
+  if(!data && !homeHero.firstElementChild){
+    homeHero.innerHTML = '<div class="home-hero" style="--hero-accent:'+g.color+';--hero-accent-deep:'+g.color+';"><div class="hh-last-draw"><div class="hh-ultimo-lbl">🕒 Último Sorteio</div></div></div>';
+  }
   if(!data){
     try{
       data = await fetchConcursoLoteria(g);
       homeCache[g.slug] = data;
+      try{localStorage.setItem('thor_home_resultado_'+g.slug,JSON.stringify(data))}catch(_){}
     }catch(e){
       homeHero.innerHTML = `<div class="home-loading">Não foi possível buscar agora.<br><button class="res-nav-btn" id="homeTentar" style="margin-top:10px;">Tentar novamente</button></div>`;
       const btn = document.getElementById('homeTentar');
@@ -10325,6 +10338,7 @@ async function carregarHomeHero(g){
     </div>`;
   document.getElementById('homeVerStats').addEventListener('click', ()=>openResultadoOverlay(g));
 }
+// Mostra a tela imediatamente; a consulta de resultado não bloqueia a abertura.
 carregarHomeHero(homeGameAtual);
 
 // ---------- Falhas e concursos ----------
