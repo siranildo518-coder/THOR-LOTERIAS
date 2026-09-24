@@ -263,6 +263,13 @@
       "expiraEm": "2026-10-01T02:12:38.387Z",
       "ativo": true,
       "canal": "navegador"
+    },
+    {
+      "hash": "71579a0d244469bb1d87e98df7a7df995d943cfa0c550c359bbc7c1891ec30db",
+      "compatHash": "1fstb1s",
+      "criadoEm": "2026-09-24T02:33:11.655Z",
+      "expiraEm": "2026-09-25T02:33:11.656Z",
+      "ativo": true
     }
   ]
 }
