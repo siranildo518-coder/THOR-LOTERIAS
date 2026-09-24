@@ -12304,8 +12304,8 @@ function renderGameCards(){
         <div class="s"><div class="k">SOMA</div><div class="v">${st.soma}</div></div>
       </div>
       <div class="gc-actions">
-        <button class="gc-apagar" data-i="${i}">APAGAR</button>
-        <button class="gc-pesquisar" data-i="${i}">COPIAR</button>
+        <button class="gc-apagar" data-i="${i}" aria-label="Apagar jogo" title="Apagar jogo">🗑</button>
+        <button class="gc-pesquisar" data-i="${i}" aria-label="Copiar jogo" title="Copiar jogo">⧉</button>
       </div>`;
     list.appendChild(card);
   });
