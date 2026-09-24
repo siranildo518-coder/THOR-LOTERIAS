@@ -8004,25 +8004,9 @@ function montarResultadoSalvos(){
       b.onpointerup=b.onpointercancel=b.onpointerleave=()=>{b.style.transform='';b.style.boxShadow='0 4px 0 #064a7d,0 6px 8px #0002'};
       b.onclick=fn;menu.append(b);
     };
-    opcao('🖨 Imprimir',()=>{
-      const texto=textoSalvos().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      const w=window.open('','_blank');
-      if(!w){window.print();return}
-      w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>THOR LOTERIAS - Jogos salvos</title><style>body{font-family:Arial;padding:24px;color:#111}pre{white-space:pre-wrap;font:16px Arial;line-height:1.6}@media print{button{display:none}}</style></head><body><button onclick="window.print()">Imprimir</button><pre>'+texto+'</pre><script>setTimeout(()=>window.print(),250)<\\/script></body></html>');
-      w.document.close();
-    });
-    opcao('↗ Compartilhar',async()=>{
-      const texto=textoSalvos();
-      try{
-        if(navigator.share){await navigator.share({title:'THOR LOTERIAS - Jogos salvos',text:texto});return}
-        if(navigator.clipboard){await navigator.clipboard.writeText(texto);alert('Jogos copiados. Abra o aplicativo onde deseja compartilhar e cole.');return}
-        const ta=document.createElement('textarea');ta.value=texto;document.body.append(ta);ta.select();document.execCommand('copy');ta.remove();alert('Jogos copiados para compartilhar.');
-      }catch(_){}
-    });
-    opcao('⬇ TXT',()=>{
-      const blob=new Blob([textoSalvos()],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
-      a.href=url;a.download='Meus Jogos.txt';a.style.display='none';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
-    });
+    opcao('🖨 Imprimir',()=>window.print());
+    opcao('↗ Compartilhar',async()=>{const texto=textoSalvos();try{if(navigator.share)await navigator.share({title:'THOR LOTERIAS - Jogos salvos',text:texto});else if(navigator.clipboard){await navigator.clipboard.writeText(texto);alert('Jogos copiados para compartilhar.')}}catch(_){}});
+    opcao('⬇ TXT',()=>{const blob=new Blob([textoSalvos()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Meus Jogos.txt';document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)});
     salvar.onclick=()=>{menu.style.display=menu.style.display==='flex'?'none':'flex'};
     acoes.append(limpar,salvar);painel.append(acoes,menu);
   }
