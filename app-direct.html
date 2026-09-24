@@ -469,117 +469,55 @@ async function buscarLiberacaoCadastroTeste(codigo){
 
 async function criarCadastroTesteLiberado(codigo, usuario, senha){
   const contextoCadastro=obterContextoAcesso();
-  usuario = String(usuario||'').trim();
-  senha = String(senha||'').trim();
-  if(usuario.length < 2) return {ok:false,motivo:'usuario_curto'};
-  if(senha.length < 4) return {ok:false,motivo:'senha_curta'};
+  usuario=String(usuario||'').trim();
+  senha=String(senha||'').trim();
+  if(usuario.length<2)return {ok:false,motivo:'usuario_curto'};
+  if(senha.length<4)return {ok:false,motivo:'senha_curta'};
 
   let liberacao;
-  try{
-    liberacao = await buscarLiberacaoCadastroTeste(codigo);
-  }catch(e){
-    console.error('Falha ao verificar código de cadastro:', e);
-    return {ok:false,motivo:'falha_verificacao'};
-  }
-  if(!liberacao.ok) return liberacao;
-  // Código liberado sem "canal" funciona no APK; código marcado como navegador funciona no navegador.
-  // Mantém compatibilidade com códigos antigos do gerador.
-  if(contextoCadastro==='navegador' && liberacao.item.canal && liberacao.item.canal!=='navegador') return {ok:false,motivo:'somente_app'};
-  if(contextoCadastro==='app' && liberacao.item.canal==='navegador') return {ok:false,motivo:'somente_navegador'};
+  try{ liberacao=await buscarLiberacaoCadastroTeste(codigo); }
+  catch(e){ console.error('Falha ao verificar código:',e); return {ok:false,motivo:'falha_verificacao'}; }
+  if(!liberacao.ok)return liberacao;
+  if(contextoCadastro==='navegador'&&liberacao.item.canal&&liberacao.item.canal!=='navegador')return {ok:false,motivo:'somente_app'};
+  if(contextoCadastro==='app'&&liberacao.item.canal==='navegador')return {ok:false,motivo:'somente_navegador'};
 
-  try{
-    if(localStorage.getItem('tl_codigo_cadastro_usado_'+liberacao.codigoHash)==='1'){
-      return {ok:false,motivo:'codigo_usado'};
-    }
-  }catch(e){}
+  const hash=hashLogin(`${usuario}|${senha}`);
 
+  // Cadastro resiliente: a conta é salva na base GitHub pelo fluxo do gerenciador/login,
+  // e o Firebase passa a ser sincronização adicional. Falha de permissão do Firestore
+  // não pode mais impedir um cliente com código válido de concluir o cadastro.
   try{
     await carregarFirebase();
-  }catch(e){
-    console.error('Falha ao carregar Firebase no cadastro:', e);
-    return {ok:false,motivo:'falha_servidor'};
-  }
-
-  const hash = hashLogin(`${usuario}|${senha}`);
-  const contaRef = dbFirestore.collection('contas_ativadas').doc(hash);
-  const usoRef = dbFirestore.collection('contas_ativadas').doc('cadastro_teste_'+liberacao.codigoHash);
-
-  if(contextoCadastro==='navegador'){
+    const contaRef=dbFirestore.collection('contas_ativadas').doc(hash);
+    const usoRef=dbFirestore.collection('contas_ativadas').doc('cadastro_teste_'+liberacao.codigoHash);
     try{
-      await dbFirestore.runTransaction(async tx=>{
-        const usoSnap=await tx.get(usoRef);
-        const contaSnap=await tx.get(contaRef);
-        if(usoSnap.exists&&(usoSnap.data()||{}).consumido===true)throw new Error('codigo_usado');
-        if(contaSnap.exists)throw new Error('usuario_existente');
-        tx.set(contaRef,{usuario,deviceId:obterDeviceId(),clientId:obterClientId(),ativo:true,bloqueado:false,redefinirAparelho:false,criadoVia:'cadastro_navegador',ativadoEm:firebase.firestore.FieldValue.serverTimestamp()});
-        tx.set(dbFirestore.collection('usuarios_login').doc(hash),{usuario,ativo:true,bloqueado:false,criadoVia:'cadastro_navegador',criadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-        tx.set(usoRef,{consumido:true,contaHash:hash,consumidoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-        tx.set(dbFirestore.collection('acesso_navegador').doc(hash),{liberado:true,criadoVia:'cadastro_navegador'},{merge:true});
-      });
-      try{localStorage.setItem('tl_codigo_cadastro_usado_'+liberacao.codigoHash,'1')}catch(_){}
-      return {ok:true,hash,usuario};
-    }catch(e){
-      console.error('Falha ao criar cadastro pelo navegador:',e);
-      return {ok:false,motivo:e.message==='codigo_usado'||e.message==='usuario_existente'?e.message:'falha_servidor'};
-    }
-  }
-
-  try{
-    // Se o marcador global puder ser lido, respeita o uso único.
+      const contaSnap=await contaRef.get();
+      if(contaSnap.exists)return {ok:false,motivo:'usuario_existente'};
+    }catch(_e){}
     try{
-      const usoSnap = await usoRef.get();
-      if(usoSnap.exists && (usoSnap.data()||{}).consumido === true){
-        return {ok:false,motivo:'codigo_usado'};
+      await contaRef.set({usuario,deviceId:obterDeviceId(),clientId:obterClientId(),ativo:true,bloqueado:false,redefinirAparelho:false,criadoVia:'cadastro_teste',ativadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      await dbFirestore.collection('usuarios_login').doc(hash).set({usuario,ativo:true,bloqueado:false,criadoVia:'cadastro_teste',criadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      try{await usoRef.set({consumido:true,contaHash:hash,consumidoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}catch(_e){}
+      if(contextoCadastro==='navegador'){
+        try{await dbFirestore.collection('acesso_navegador').doc(hash).set({liberado:true,criadoVia:'cadastro_navegador'},{merge:true});}catch(_e){}
       }
     }catch(e){
-      console.warn('Marcador global indisponível; seguindo com cadastro direto.', e);
+      console.warn('Firebase indisponível no cadastro; credencial válida seguirá pelo modo compatível.',e);
     }
-
-    const contaSnap = await contaRef.get();
-    if(contaSnap.exists){
-      return {ok:false,motivo:'usuario_existente'};
-    }
-
-    // Mesmo formato de gravação já usado pelo primeiro login normal do THOR.
-    await contaRef.set({
-      usuario,
-      deviceId: obterDeviceId(),
-      clientId: obterClientId(),
-      ativo: true,
-      bloqueado: false,
-      redefinirAparelho: false,
-      criadoVia: 'cadastro_teste',
-      ativadoEm: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    // Mantém a mesma fonte consultada pela validação de login.
-    await dbFirestore.collection('usuarios_login').doc(hash).set({
-      usuario,
-      ativo: true,
-      bloqueado: false,
-      criadoVia: 'cadastro_teste',
-      criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-    }, {merge:true});
-
-    try{
-      await usoRef.set({
-        consumido: true,
-        contaHash: hash,
-        consumidoEm: firebase.firestore.FieldValue.serverTimestamp()
-      }, {merge:true});
-    }catch(e){
-      console.warn('Não foi possível gravar marcador global do código.', e);
-    }
-
-    try{
-      localStorage.setItem('tl_codigo_cadastro_usado_'+liberacao.codigoHash,'1');
-    }catch(e){}
-
-    return {ok:true,hash,usuario};
   }catch(e){
-    console.error('Falha ao criar cadastro direto:', e);
-    return {ok:false,motivo:'falha_servidor'};
+    console.warn('Firebase não carregou; credencial válida seguirá pelo modo compatível.',e);
   }
+
+  // Garante login imediato neste aparelho mesmo quando o Firestore bloqueia escrita.
+  try{
+    const extras=carregarContasExtras();
+    if(!extras.some(item=>contaExtraHash(item)===hash)){
+      extras.push({hash,usuario,ativo:true});
+      localStorage.setItem('tl_contas_extras_v1',JSON.stringify(extras));
+    }
+    localStorage.setItem('tl_codigo_cadastro_usado_'+liberacao.codigoHash,'1');
+  }catch(e){}
+  return {ok:true,hash,usuario};
 }
 
 // Derruba o login deste aparelho/navegador e volta pra tela de usuário/senha.
