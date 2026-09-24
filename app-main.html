@@ -458,7 +458,9 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
     return {ok:false,motivo:'falha_verificacao'};
   }
   if(!liberacao.ok) return liberacao;
-  if(contextoCadastro==='navegador' && liberacao.item.canal!=='navegador') return {ok:false,motivo:'somente_app'};
+  // Código liberado sem "canal" funciona no APK; código marcado como navegador funciona no navegador.
+  // Mantém compatibilidade com códigos antigos do gerador.
+  if(contextoCadastro==='navegador' && liberacao.item.canal && liberacao.item.canal!=='navegador') return {ok:false,motivo:'somente_app'};
   if(contextoCadastro==='app' && liberacao.item.canal==='navegador') return {ok:false,motivo:'somente_navegador'};
 
   try{
