@@ -423,9 +423,9 @@ async function buscarLiberacaoCadastroTeste(codigo){
   try{ codigoHash = await sha256HexCadastro(codigoNormalizado); }catch(e){}
 
   const urls = [
-    'https://api.github.com/repos/siranildo518-coder/THOR-LOTERIAS/contents/cadastros-liberados.json?ref=main&_='+Date.now(),
-    'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?_='+Date.now(),
-    './cadastros-liberados.json?v=thor7-v150-cadastro-codigo-fix&_='+Date.now()
+    './cadastros-liberados.json?_='+Date.now(),
+    'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?nocache='+Date.now(),
+    'https://api.github.com/repos/siranildo518-coder/THOR-LOTERIAS/contents/cadastros-liberados.json?ref=main&nocache='+Date.now()
   ];
 
   let ultimoErro = null;
