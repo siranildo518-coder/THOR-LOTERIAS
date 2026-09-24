@@ -8004,9 +8004,18 @@ function montarResultadoSalvos(){
       b.onpointerup=b.onpointercancel=b.onpointerleave=()=>{b.style.transform='';b.style.boxShadow='0 4px 0 #064a7d,0 6px 8px #0002'};
       b.onclick=fn;menu.append(b);
     };
-    opcao('🖨 Imprimir',()=>window.print());
-    opcao('↗ Compartilhar',async()=>{const texto=textoSalvos();try{if(navigator.share)await navigator.share({title:'THOR LOTERIAS - Jogos salvos',text:texto});else if(navigator.clipboard){await navigator.clipboard.writeText(texto);alert('Jogos copiados para compartilhar.')}}catch(_){}});
-    opcao('⬇ TXT',()=>{const blob=new Blob([textoSalvos()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Meus Jogos.txt';document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)});
+    opcao('🖨 Imprimir',()=>{
+      const texto=textoSalvos().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const w=window.open('','_blank');
+      if(w){w.document.open();w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Meus Jogos</title><style>body{font-family:Arial;padding:20px}pre{white-space:pre-wrap;font:15px Arial;line-height:1.55}</style></head><body><pre>'+texto+'</pre><script>window.onload=function(){setTimeout(function(){window.print()},150)}<\\/script></body></html>');w.document.close()}else{window.print()}
+    });
+    opcao('↗ Compartilhar',async()=>{
+      const texto=textoSalvos();
+      try{if(navigator.share){await navigator.share({title:'THOR LOTERIAS - Jogos salvos',text:texto})}else{const ta=document.createElement('textarea');ta.value=texto;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();alert('Jogos copiados para compartilhar.')}}catch(_){}
+    });
+    opcao('⬇ TXT',()=>{
+      try{const blob=new Blob(['\\ufeff'+textoSalvos()],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Meus Jogos.txt';a.target='_blank';a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000)}catch(_){alert('Não foi possível salvar o TXT neste aparelho.')}
+    });
     salvar.onclick=()=>{menu.style.display=menu.style.display==='flex'?'none':'flex'};
     acoes.append(limpar,salvar);painel.append(acoes,menu);
   }
