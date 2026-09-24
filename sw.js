@@ -1,2 +1,2 @@
 // THOR LOTERIAS V144 - cache sincronizado; login, senha e trava preservados.
-importScripts('./sw-core-thor7.js?v=thor7-v145-abertura-paralela');
+importScripts('./sw-core-thor7.js?v=thor7-v145-restaurada-0924b');
