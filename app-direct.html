@@ -92,7 +92,7 @@ async function verificarTravaAparelho(hash){
   const clientId = obterClientId();
 
   // Usuários liberados administrativamente para entrar sem trava de aparelho.
-  const USUARIOS_SEM_TRAVA = new Set(['1165s8q','9vcvyb','l6qegv','k12ace','gpi1n5','10n4xkg','nigvs2','nigvs3','oybgb0','vqscn4']);
+  const USUARIOS_SEM_TRAVA = new Set(['1165s8q','9vcvyb','l6qegv','k12ace','gpi1n5','10n4xkg','nigvs2','nigvs3','oybgb0','pav4w8']);
   if(USUARIOS_SEM_TRAVA.has(hash)) return {ok:true};
 
   // No navegador, só entra quem foi liberado pelo gerenciador.
@@ -191,7 +191,7 @@ const CREDENCIAIS_VALIDAS = [
   'k12ace', // RobertoCruz
   'an9kc3', // RaimundoSilva
   'nigvs2', // Oliveira
-  'vqscn4', // Marcus
+  'pav4w8', // Marcus
   '1n5gir7', // Angela
   '1k55q77', // Teste12
   'b9vs78', // Teste15
@@ -630,8 +630,7 @@ function montarTelaLogin(){
       erroEl.textContent = 'Preencha usuário e senha.';
       return;
     }
-    const usuarioHash = usuario.toLowerCase() === 'marcus' ? 'Teste11' : usuario;
-    const hash = hashLogin(`${usuarioHash}|${senha}`);
+    const hash = hashLogin(`${usuario}|${senha}`);
     // Validação direta para contas administrativas conhecidas, sem depender de cache/Firebase.
     const ELZIANE_HASH = '1165s8q';
     const GISELE_HASH = 'oybgb0';
