@@ -405,8 +405,9 @@ async function buscarLiberacaoCadastroTeste(codigo){
   try{ codigoHash = await sha256HexCadastro(codigoNormalizado); }catch(e){}
 
   const urls = [
+    'https://api.github.com/repos/siranildo518-coder/THOR-LOTERIAS/contents/cadastros-liberados.json?ref=main&_='+Date.now(),
     'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?_='+Date.now(),
-    './cadastros-liberados.json?v=thor7-v137&_='+Date.now()
+    './cadastros-liberados.json?v=thor7-v150-cadastro-codigo-fix&_='+Date.now()
   ];
 
   let ultimoErro = null;
@@ -417,7 +418,12 @@ async function buscarLiberacaoCadastroTeste(codigo){
         headers:{'Cache-Control':'no-cache'}
       });
       if(!resposta.ok) throw new Error('HTTP '+resposta.status);
-      const dados = await resposta.json();
+      let dados = await resposta.json();
+      // A API /contents do GitHub devolve o arquivo em Base64; o raw devolve o JSON direto.
+      if(dados && dados.content && dados.encoding === 'base64'){
+        const limpo = String(dados.content).replace(/\s/g,'');
+        dados = JSON.parse(decodeURIComponent(escape(atob(limpo))));
+      }
       const lista = Array.isArray(dados && dados.liberacoes) ? dados.liberacoes : [];
       const item = lista.find(x=>x && x.ativo !== false && (
         (x.compatHash && x.compatHash === codigoCompat) ||
