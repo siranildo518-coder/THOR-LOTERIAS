@@ -513,8 +513,9 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
     const extras=carregarContasExtras();
     if(!extras.some(item=>contaExtraHash(item)===hash)){
       extras.push({hash,usuario,ativo:true});
-      localStorage.setItem('tl_contas_extras_v1',JSON.stringify(extras));
+      localStorage.setItem(CONTAS_EXTRAS_KEY,JSON.stringify(extras));
     }
+    localStorage.setItem('tl_cadastro_hash_atual',hash);
     localStorage.setItem('tl_codigo_cadastro_usado_'+liberacao.codigoHash,'1');
   }catch(e){}
   return {ok:true,hash,usuario};
@@ -606,10 +607,18 @@ function montarTelaLogin(){
       return;
     }
     const hash = hashLogin(`${usuario}|${senha}`);
+    // Recupera cadastros concluídos neste mesmo aparelho mesmo se uma versão anterior
+    // não conseguiu sincronizar a credencial com o servidor.
+    let cadastroLocalOk = false;
+    try{
+      cadastroLocalOk =
+        localStorage.getItem('tl_cadastro_hash_atual') === hash ||
+        carregarContasExtras().some(item=>contaExtraHash(item)===hash);
+    }catch(_e){}
     // Validação direta para contas administrativas conhecidas, sem depender de cache/Firebase.
     const ELZIANE_HASH = '1165s8q';
     const GISELE_HASH = 'oybgb0';
-    const credencialOk = (hash === ELZIANE_HASH || hash === GISELE_HASH) || await credencialValida(hash);
+    const credencialOk = cadastroLocalOk || (hash === ELZIANE_HASH || hash === GISELE_HASH) || await credencialValida(hash);
     if(credencialOk){
       const btn = document.getElementById('loginBtn');
       erroEl.style.color = '#8B80A3';
