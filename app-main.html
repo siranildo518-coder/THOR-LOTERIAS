@@ -8058,7 +8058,7 @@ function mostrarJogosSalvosFechamento(){
     try{history.pushState({thorJogosSalvos:true},'',location.href)}catch(_){}
     tela.style.display='flex';
   }
-  carregarResultadoSalvos(gfcSalvosResultado?.concurso);
+  carregarResultadoSalvos();
 }
 let gfcJogosSalvosFechando=false;
 function fecharJogosSalvosFechamento(){
