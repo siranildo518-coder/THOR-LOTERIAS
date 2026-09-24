@@ -7949,18 +7949,49 @@ function montarResultadoSalvos(){
   if(!salvos.length){
     const vazio=document.createElement('p');vazio.textContent='Nenhum jogo salvo para esta loteria.';painel.append(vazio);
   }else{
+    const acoes=document.createElement('div');
+    acoes.style.cssText='display:flex;gap:9px;margin-bottom:14px;';
+    const estilo3d='flex:1;padding:11px;border-radius:5px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;transition:transform .08s,box-shadow .08s;';
     const limpar=document.createElement('button');
-    limpar.type='button';limpar.textContent='Limpar jogos salvos';
-    limpar.style.cssText='display:block;width:100%;padding:11px;margin-bottom:14px;background:#fff;color:#b91c1c;border:1px solid #b91c1c;font-size:13px;font-weight:700;';
+    limpar.type='button';limpar.textContent='Limpar jogos';
+    limpar.style.cssText=estilo3d+'background:linear-gradient(#f04a4a,#b8111b);border:1px solid #8f0d15;box-shadow:0 5px 0 #790b12,0 8px 11px #0003;';
+    const salvar=document.createElement('button');
+    salvar.type='button';salvar.textContent='Salvar';
+    salvar.style.cssText=estilo3d+'background:linear-gradient(#279ce0,#0969ae);border:1px solid #075b98;box-shadow:0 5px 0 #064a7d,0 8px 11px #0003;';
+    const afundar=b=>{b.onpointerdown=()=>{b.style.transform='translateY(4px)';b.style.boxShadow='0 1px 0 #3338,0 2px 4px #0002'};b.onpointerup=b.onpointercancel=b.onpointerleave=()=>{b.style.transform='';b.style.boxShadow=b===limpar?'0 5px 0 #790b12,0 8px 11px #0003':'0 5px 0 #064a7d,0 8px 11px #0003'}};
+    afundar(limpar);afundar(salvar);
     let confirmar=false;
     limpar.onclick=()=>{
-      if(!confirmar){confirmar=true;limpar.textContent='Toque novamente para confirmar a limpeza';return}
+      if(!confirmar){confirmar=true;limpar.textContent='Confirmar limpeza';return}
       try{
         localStorage.setItem(GFC_SALVOS_NOME_KEY,JSON.stringify(listarJogosSalvosFechamento().filter(item=>item.gameCode!==code)));
         gfcSalvosNomeAberto=null;gfcSalvosMenuAberto=false;montarResultadoSalvos();
-      }catch(_){limpar.textContent='Não foi possível limpar. Tente novamente.';confirmar=false}
+      }catch(_){limpar.textContent='Tente novamente';confirmar=false}
     };
-    painel.append(limpar);
+    const menu=document.createElement('div');
+    menu.style.cssText='display:none;gap:8px;margin:-4px 0 14px;';
+    const textoSalvos=()=>{
+      const linhas=['THOR LOTERIAS - JOGOS SALVOS',''];
+      for(const item of salvos){
+        linhas.push(String(item.nome||'Jogos salvos'));
+        const jogos=Array.isArray(item.jogos)?item.jogos:[];
+        jogos.forEach((j,i)=>linhas.push('Jogo '+(i+1)+': '+j.map(n=>String(n).padStart(2,'0')).join(' ')));
+        linhas.push('');
+      }
+      return linhas.join('\\n');
+    };
+    const opcao=(rotulo,fn)=>{
+      const b=document.createElement('button');b.type='button';b.textContent=rotulo;
+      b.style.cssText='flex:1;padding:9px 4px;border-radius:5px;background:linear-gradient(#279ce0,#0969ae);color:#fff;border:1px solid #075b98;font-size:11px;font-weight:800;box-shadow:0 4px 0 #064a7d,0 6px 8px #0002;transition:transform .08s,box-shadow .08s;';
+      b.onpointerdown=()=>{b.style.transform='translateY(3px)';b.style.boxShadow='0 1px 0 #064a7d'};
+      b.onpointerup=b.onpointercancel=b.onpointerleave=()=>{b.style.transform='';b.style.boxShadow='0 4px 0 #064a7d,0 6px 8px #0002'};
+      b.onclick=fn;menu.append(b);
+    };
+    opcao('🖨 Imprimir',()=>window.print());
+    opcao('↗ Compartilhar',async()=>{const texto=textoSalvos();try{if(navigator.share)await navigator.share({title:'THOR LOTERIAS - Jogos salvos',text:texto});else if(navigator.clipboard){await navigator.clipboard.writeText(texto);alert('Jogos copiados para compartilhar.')}}catch(_){}});
+    opcao('⬇ TXT',()=>{const blob=new Blob([textoSalvos()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Meus Jogos.txt';document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)});
+    salvar.onclick=()=>{menu.style.display=menu.style.display==='flex'?'none':'flex'};
+    acoes.append(limpar,salvar);painel.append(acoes,menu);
   }
   const sorteadas=new Set(resultado?.dezenas||[]);
   const grupos=new Map();
