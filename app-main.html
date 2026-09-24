@@ -292,6 +292,24 @@ async function credencialValida(hash){
   if(CREDENCIAIS_VALIDAS.includes(hash) || carregarContasExtras().some(item=> contaExtraHash(item) === hash)){
     return true;
   }
+  // Usuários criados pelo gerenciador ficam numa base pequena e sem cache.
+  // Isso evita depender de republicar/carregar novamente todo o app-main.html.
+  try{
+    const urlsUsuarios = [
+      'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/usuarios-gerenciador.json?_='+Date.now(),
+      './usuarios-gerenciador.json?_='+Date.now()
+    ];
+    for(const url of urlsUsuarios){
+      try{
+        const resp = await fetch(url,{cache:'no-store'});
+        if(!resp.ok) continue;
+        const dados = await resp.json();
+        const usuarios = Array.isArray(dados && dados.usuarios) ? dados.usuarios : [];
+        const conta = usuarios.find(u=>u && u.hash===hash);
+        if(conta) return conta.ativo !== false && conta.bloqueado !== true;
+      }catch(_e){}
+    }
+  }catch(_e){}
   try{
     await carregarFirebase();
     // Fonte oficial do gerenciador: todo usuário criado passa a existir aqui
