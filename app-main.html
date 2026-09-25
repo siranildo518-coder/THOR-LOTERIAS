@@ -10407,6 +10407,20 @@ async function carregarHomeHero(g){
   }
   if(homeGameAtual.code !== g.code) return; // usuário já trocou de aba
   concursoMaisRecentePorJogo[g.slug] = data.concurso;
+
+  // O cache local serve apenas para pintar a tela imediatamente. Sempre consulta a rede
+  // em segundo plano e substitui o card se existir concurso mais recente.
+  if(homeCache[g.slug] === data){
+    silentFetchLatest(g).then(fresco=>{
+      if(!fresco || !fresco.concurso) return;
+      if(Number(fresco.concurso) > Number(homeCache[g.slug]?.concurso || 0)){
+        homeCache[g.slug] = fresco;
+        concursoMaisRecentePorJogo[g.slug] = fresco.concurso;
+        try{localStorage.setItem('thor_home_resultado_'+g.slug,JSON.stringify(fresco))}catch(_){}
+        if(homeGameAtual.code === g.code) carregarHomeHero(g);
+      }
+    }).catch(()=>{});
+  }
   const balls = (data.dezenas||[]).map(d=>`<div class="hh-ball">${d.toString().padStart(2,'0')}</div>`).join('');
   homeHero.innerHTML = `
     <div class="home-hero" style="--hero-accent:${g.color};--hero-accent-deep:${g.color};">
