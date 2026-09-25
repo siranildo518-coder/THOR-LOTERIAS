@@ -5387,6 +5387,18 @@ const CORES_BOLA_SORTEIO = [
 let corBolaSorteioIndex = 0;
 function sortearProximaBola2(onDepoisDeAnimar){
   if(sorteio2Animando || sorteio2Drawn.length >= sorteio2Qtd) return;
+  // Recuperação defensiva: em versões antigas a tela podia ficar em 0/N com o pool vazio.
+  // Reconstrói o pool a partir das dezenas escolhidas/jogos antes de iniciar a animação.
+  if(!sorteio2Pool.length || sorteio2Pool.length < sorteio2Qtd){
+    const poolBase = selected.size > 0 ? selected : new Set(lastGames.flat());
+    if(poolBase.size === 0) return;
+    sorteio2Pool = Array.from(poolBase);
+    for(let i=sorteio2Pool.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [sorteio2Pool[i], sorteio2Pool[j]] = [sorteio2Pool[j], sorteio2Pool[i]];
+    }
+    if(!sorteio2Qtd) sorteio2Qtd = Math.min(CONF_MAX, poolBase.size);
+  }
   sorteio2Animando = true;
   const bolaEl = document.getElementById('sorteio2Bola');
   const toast = document.getElementById('sorteio2Toast');
@@ -5427,6 +5439,7 @@ function sortearRestantes2(){
 }
 
 function resetarSorteio2UI(){
+  sorteio2Animando = false;
   const animEl = document.getElementById('sorteio2Anim');
   const jaEstavaNaAnimacao = animEl && animEl.style.display === 'block';
 
