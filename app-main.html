@@ -2306,6 +2306,18 @@ document.addEventListener('selectstart', e=>{
   }
 
   /* ---- game cards (Jogos Desdobrados) ---- */
+  /* A própria tela de resultados precisa ser o contêiner rolável no APK/WebView.
+     Isso evita ficar presa quando body/html não recebem o gesto vertical. */
+  #resultsSection{
+    height:100dvh;
+    max-height:100dvh;
+    overflow-y:auto!important;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain;
+    touch-action:pan-y;
+  }
+  #resultsSection > header.top{position:sticky;top:0;}
   .game-card{
     background:var(--surface);
     border:1px solid var(--line);
