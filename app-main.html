@@ -8063,35 +8063,9 @@ function montarResultadoSalvos(){
       b.onpointerup=b.onpointercancel=b.onpointerleave=()=>{b.style.transform='';b.style.boxShadow='0 4px 0 #064a7d,0 6px 8px #0002'};
       b.onclick=fn;menu.append(b);
     };
-    const arquivoTxtSalvos=()=>{
-      const blob=new Blob([textoSalvos()],{type:'text/plain;charset=utf-8'});
-      try{return new File([blob],'Meus Jogos.txt',{type:'text/plain;charset=utf-8'})}catch(_){return null}
-    };
-    opcao('🖨 Imprimir',()=>{
-      const texto=textoSalvos();
-      const w=window.open('','_blank');
-      if(!w){window.print();return}
-      w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>THOR LOTERIAS - Jogos salvos</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h2{margin:0 0 18px}pre{font:16px/1.65 monospace;white-space:pre-wrap}</style></head><body><h2>THOR LOTERIAS - Jogos salvos</h2><pre>'+texto.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))+'</pre><script>window.onload=()=>{window.print()}<\/script></body></html>');
-      w.document.close();
-    });
-    opcao('↗ Compartilhar',async()=>{
-      const texto=textoSalvos(),arquivo=arquivoTxtSalvos();
-      try{
-        // No celular, compartilha o TXT como arquivo quando o WebView/navegador permitir.
-        if(arquivo && navigator.share && (!navigator.canShare || navigator.canShare({files:[arquivo]}))){
-          await navigator.share({title:'THOR LOTERIAS - Jogos salvos',text:'Meus jogos salvos no THOR LOTERIAS',files:[arquivo]});
-        }else if(navigator.share){
-          await navigator.share({title:'THOR LOTERIAS - Jogos salvos',text:texto});
-        }else if(navigator.clipboard){
-          await navigator.clipboard.writeText(texto);alert('Jogos copiados para compartilhar.');
-        }
-      }catch(_){}
-    });
-    opcao('⬇ TXT',()=>{
-      const blob=new Blob([textoSalvos()],{type:'text/plain;charset=utf-8'});
-      const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Meus Jogos.txt';
-      document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
-    });
+    opcao('🖨 Imprimir',()=>window.print());
+    opcao('↗ Compartilhar',async()=>{const texto=textoSalvos();try{if(navigator.share)await navigator.share({title:'THOR LOTERIAS - Jogos salvos',text:texto});else if(navigator.clipboard){await navigator.clipboard.writeText(texto);alert('Jogos copiados para compartilhar.')}}catch(_){}});
+    opcao('⬇ TXT',()=>{const blob=new Blob([textoSalvos()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Meus Jogos.txt';document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)});
     salvar.onclick=()=>{menu.style.display=menu.style.display==='flex'?'none':'flex'};
     acoes.append(limpar,salvar);painel.append(acoes,menu);
   }
