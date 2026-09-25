@@ -10896,9 +10896,11 @@ function goHome(){
 }
 
 function irParaSelecao(){
+  // Fecha também a tela de Padrões. Se ela ficar invisível por cima da seleção,
+  // a aba Combinações parece travada e deixa de receber toques.
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
-    'overlayGeradorLoteria','overlayGeradorFiltro','overlayListaResultados','overlayAnalisadorJogos'];
+    'overlayGeradorLoteria','overlayGeradorFiltro','overlayListaResultados','overlayAnalisadorJogos','overlayPadroes','overlayFalhasConcursos'];
   modalIds.forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.classList.remove('show');
