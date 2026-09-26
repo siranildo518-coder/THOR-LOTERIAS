@@ -10434,6 +10434,21 @@ async function carregarHomeHero(g){
   if(!data && !homeHero.firstElementChild){
     homeHero.innerHTML = '<div class="home-hero" style="--hero-accent:'+g.color+';--hero-accent-deep:'+g.color+';"><div class="hh-last-draw"><div class="hh-ultimo-lbl">🕒 Último Sorteio</div></div></div>';
   }
+  // A tela principal usa a mesma fonte central das outras abas.
+  // O cache local só pinta instantaneamente; a fonte única sempre é consultada.
+  try{
+    const central = await fetch('./resultados-atualizados.json?_thor_home=' + Date.now(), {cache:'no-store'}).then(r=>{if(!r.ok) throw new Error('fonte central indisponível'); return r.json();});
+    const bruto = central && central.resultados && central.resultados[g.altSlug];
+    if(bruto && bruto.concurso && Array.isArray(bruto.dezenas)){
+      const fresco = {...bruto, concurso:Number(bruto.concurso), dezenas:bruto.dezenas.map(Number)};
+      if(!data || Number(fresco.concurso) >= Number(data.concurso||0)){
+        data = fresco;
+        homeCache[g.slug] = fresco;
+        concursoMaisRecentePorJogo[g.slug] = fresco.concurso;
+        try{localStorage.setItem('thor_home_resultado_'+g.slug,JSON.stringify(fresco))}catch(_){}
+      }
+    }
+  }catch(_){}
   if(!data){
     try{
       data = await fetchConcursoLoteria(g);
