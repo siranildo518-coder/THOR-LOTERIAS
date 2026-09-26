@@ -194,5 +194,6 @@ setInterval(()=>{
 
 // Força nova consulta também quando o iframe é restaurado do cache do Android/WebView.
 window.addEventListener('pageshow',()=>atualizarConcursosCaixa());
-load();
+// Na abertura, ignora o concurso visual antigo salvo e sincroniza imediatamente com a fonte única.
+(async()=>{ try{ await atualizarConcursosCaixa(); }catch(_){ await load(); } })();
 </script></body></html>
