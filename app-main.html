@@ -8103,10 +8103,10 @@ function montarResultadoSalvos(){
   if(grupos.size){
     const total=salvos.reduce((s,item)=>s+(Array.isArray(item.jogos)?item.jogos.length:0),0);
     const detalhes=document.createElement('details');
-    detalhes.open=gfcSalvosMenuAberto;
-    detalhes.ontoggle=()=>{gfcSalvosMenuAberto=detalhes.open};
+    detalhes.open=true;
+    detalhes.style.cssText='border:0;margin:0;padding:0;';
     const cabecalho=document.createElement('summary');
-    cabecalho.style.cssText='display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;background:#fff;border:1px solid #b8c6d4;padding:14px;margin:8px 0;color:#172033;font-size:15px;font-weight:700;box-shadow:0 5px 0 #aeb7bf,0 8px 12px #0002;list-style:none;cursor:pointer;';
+    cabecalho.style.cssText='display:none;';
     const tituloGrupo=document.createElement('span');tituloGrupo.textContent='Jogos salvos';
     const contagem=document.createElement('span');contagem.style.cssText='color:#385773;font-size:12px;';
     contagem.textContent=total+' jogos ▼';
