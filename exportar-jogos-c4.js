@@ -44,6 +44,11 @@
 
   async function compartilhar(){
     var pacote=pacoteJogos();if(!pacote)return;
+    if(window.ThorAndroid&&typeof window.ThorAndroid.compartilharTexto==='function'){
+      window.ThorAndroid.compartilharTexto(titulo(),pacote.texto);
+      fecharMenu();
+      return;
+    }
     var arquivo=new File(['\ufeff'+pacote.texto],pacote.nome,{type:'text/plain;charset=utf-8'});
     try{
       if(navigator.share){
@@ -76,6 +81,11 @@
 
   async function baixarTxt(){
     var pacote=pacoteJogos();if(!pacote)return;
+    if(window.ThorAndroid&&typeof window.ThorAndroid.baixarTxt==='function'){
+      window.ThorAndroid.baixarTxt(pacote.nome,pacote.texto);
+      fecharMenu();
+      return;
+    }
     try{
       if(window.showSaveFilePicker){
         var handle=await window.showSaveFilePicker({suggestedName:pacote.nome,types:[{description:'Arquivo de texto',accept:{'text/plain':['.txt']}}]});
