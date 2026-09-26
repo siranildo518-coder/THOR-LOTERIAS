@@ -35,32 +35,65 @@
     return {jogos:jogos,texto:jogos.join('\n')};
   }
 
+  function pacoteJogos(){
+    var dados=textoJogos();if(!dados)return null;
+    var nome=(titulo()||'jogos-thor').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    var conteudo=titulo()+'\r\n\r\n'+dados.jogos.join('\r\n');
+    return {texto:conteudo,nome:(nome||'jogos-thor')+'-'+Date.now()+'.txt'};
+  }
+
   async function compartilhar(){
-    var dados=textoJogos();if(!dados)return;
-    var texto=titulo()+'\n\n'+dados.texto;
+    var pacote=pacoteJogos();if(!pacote)return;
+    var arquivo=new File(['\ufeff'+pacote.texto],pacote.nome,{type:'text/plain;charset=utf-8'});
     try{
       if(navigator.share){
-        await navigator.share({title:titulo(),text:texto});
-      }else if(navigator.clipboard&&window.isSecureContext){
-        await navigator.clipboard.writeText(texto);
-        avisar('Jogos copiados para compartilhar.');
+        var comArquivo={title:titulo(),text:pacote.texto,files:[arquivo]};
+        if(!navigator.canShare||navigator.canShare({files:[arquivo]})){
+          await navigator.share(comArquivo);
+        }else{
+          await navigator.share({title:titulo(),text:pacote.texto});
+        }
       }else{
-        var area=document.createElement('textarea');area.value=texto;area.style.position='fixed';area.style.opacity='0';
-        document.body.appendChild(area);area.select();document.execCommand('copy');area.remove();
-        avisar('Jogos copiados para compartilhar.');
+        throw new Error('share-indisponivel');
       }
-    }catch(e){if(e&&e.name!=='AbortError')avisar('Não foi possível compartilhar.')}
+    }catch(e){
+      if(e&&e.name==='AbortError'){fecharMenu();return}
+      try{
+        if(navigator.share){
+          await navigator.share({title:titulo(),text:pacote.texto});
+        }else if(navigator.clipboard&&window.isSecureContext){
+          await navigator.clipboard.writeText(pacote.texto);
+          avisar('Jogos copiados para compartilhar.');
+        }else{
+          var area=document.createElement('textarea');area.value=pacote.texto;area.style.position='fixed';area.style.opacity='0';
+          document.body.appendChild(area);area.select();document.execCommand('copy');area.remove();
+          avisar('Jogos copiados para compartilhar.');
+        }
+      }catch(erro){if(!erro||erro.name!=='AbortError')avisar('Não foi possível compartilhar.')}
+    }
     fecharMenu();
   }
 
-  function baixarTxt(){
-    var dados=textoJogos();if(!dados)return;
-    var conteudo=titulo()+'\r\n\r\n'+dados.jogos.join('\r\n');
-    var blob=new Blob(['\ufeff'+conteudo],{type:'text/plain;charset=utf-8'});
-    var url=URL.createObjectURL(blob),a=document.createElement('a');
-    a.href=url;a.download='jogos-thor-'+Date.now()+'.txt';document.body.appendChild(a);a.click();a.remove();
-    setTimeout(function(){URL.revokeObjectURL(url)},1500);
-    avisar('Arquivo TXT baixado.');
+  async function baixarTxt(){
+    var pacote=pacoteJogos();if(!pacote)return;
+    try{
+      if(window.showSaveFilePicker){
+        var handle=await window.showSaveFilePicker({suggestedName:pacote.nome,types:[{description:'Arquivo de texto',accept:{'text/plain':['.txt']}}]});
+        var gravador=await handle.createWritable();
+        await gravador.write('\ufeff'+pacote.texto);
+        await gravador.close();
+      }else{
+        var a=document.createElement('a');
+        a.href='data:text/plain;charset=utf-8,'+encodeURIComponent('\ufeff'+pacote.texto);
+        a.download=pacote.nome;
+        a.rel='noopener';
+        a.style.display='none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function(){a.remove()},1200);
+      }
+      avisar('Arquivo TXT baixado.');
+    }catch(e){if(!e||e.name!=='AbortError')avisar('Não foi possível baixar o TXT.')}
     fecharMenu();
   }
 
