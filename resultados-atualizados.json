@@ -1,6 +1,6 @@
 {
-  "atualizadoEm": "2026-09-25T21:56:00-03:00",
-  "fonte": "CAIXA + base local de contingencia",
+  "atualizadoEm": "2026-09-26T01:18:39.314061+00:00",
+  "fonte": "API oficial Loterias CAIXA",
   "resultados": {
     "megasena": {
       "concurso": 3062,
@@ -111,7 +111,7 @@
         52,
         76
       ],
-      "timeCoracao": "CRB / AL"
+      "timeCoracao": "CRB              /AL"
     },
     "duplasena": {
       "concurso": 3012,
