@@ -6049,7 +6049,7 @@ function obterConcursoCache(game, concurso){
   return CONCURSO_CACHE_LOTERIA.get(chaveCacheConcurso(game, concurso)) || null;
 }
 
-const RESULTADO_LOTOFACIL_3788={concurso:3788,data:'24/09/2026',dezenas:[1,4,5,7,8,9,12,16,17,18,20,21,22,23,24]};
+const RESULTADO_LOTOFACIL_3789={concurso:3789,data:'25/09/2026',dezenas:[6,7,8,9,11,12,13,14,15,16,17,18,19,23,25]};
 async function fetchConcursoLoteria(game, concurso){
   const emCache = obterConcursoCache(game, concurso);
   if(emCache) return emCache;
@@ -6140,14 +6140,14 @@ async function fetchConcursoLoteria(game, concurso){
       fontes.forEach((fonte, idx)=>{
         tentarFonte(fonte, idx).then(data=>{
           if(terminou) return;
-          if(Number(data?.concurso)!==Number(concurso)){falhas++;if(falhas>=fontes.length){terminou=true;if(game.code==='LF'&&Number(concurso)===3788)resolve(RESULTADO_LOTOFACIL_3788);else reject(new Error('Concurso indisponível'));}return}
+          if(Number(data?.concurso)!==Number(concurso)){falhas++;if(falhas>=fontes.length){terminou=true;if(game.code==='LF'&&Number(concurso)===3789)resolve(RESULTADO_LOTOFACIL_3789);else reject(new Error('Concurso indisponível'));}return}
           terminou = true;
           controllers.forEach((c, i)=>{ if(i !== idx) try{ c.abort(); }catch(e){} });
           if(data && data.concurso) CONCURSO_CACHE_LOTERIA.set(chaveCacheConcurso(game, Number(data.concurso)), data);
           resolve(data);
         }).catch(()=>{
           falhas++;
-          if(falhas >= fontes.length && !terminou){ terminou=true; if(game.code==='LF'&&Number(concurso)===3788)resolve(RESULTADO_LOTOFACIL_3788);else reject(new Error('Falha ao buscar resultado em todas as fontes disponíveis')); }
+          if(falhas >= fontes.length && !terminou){ terminou=true; if(game.code==='LF'&&Number(concurso)===3789)resolve(RESULTADO_LOTOFACIL_3789);else reject(new Error('Falha ao buscar resultado em todas as fontes disponíveis')); }
         });
       });
     });
@@ -6156,9 +6156,9 @@ async function fetchConcursoLoteria(game, concurso){
   // Busca "latest": espera as fontes por uma janela curta e fica com o maior concurso.
   const resultados = await Promise.allSettled(fontes.map((fonte,idx)=>tentarFonte(fonte,idx)));
   const validos = resultados.filter(r=>r.status==='fulfilled' && r.value && r.value.concurso).map(r=>r.value);
-  if(!validos.length){if(game.code==='LF')return RESULTADO_LOTOFACIL_3788;throw new Error('Falha ao buscar resultado em todas as fontes disponíveis')}
+  if(!validos.length){if(game.code==='LF')return RESULTADO_LOTOFACIL_3789;throw new Error('Falha ao buscar resultado em todas as fontes disponíveis')}
   validos.sort((a,b)=>Number(b.concurso)-Number(a.concurso));
-  const data = game.code==='LF'&&Number(validos[0].concurso)<3788?RESULTADO_LOTOFACIL_3788:validos[0];
+  const data = game.code==='LF'&&Number(validos[0].concurso)<3789?RESULTADO_LOTOFACIL_3789:validos[0];
   CONCURSO_CACHE_LOTERIA.set(chaveCacheConcurso(game, Number(data.concurso)), data);
   return data;
 }
