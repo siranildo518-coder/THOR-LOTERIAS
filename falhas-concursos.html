@@ -30,6 +30,24 @@ const API='https://servicebus2.caixa.gov.br/portaldeloterias/api/';const LATEST_
     })();
     try{const d=await Promise.any([direto,app]);cache[key+n]=d;return d}catch(_){}
   }
+  // Para o ÚLTIMO concurso, usa primeiro a fonte única central do THOR.
+  // Isso mantém esta aba sincronizada com a tela principal e as demais abas.
+  if(!n){
+    try{
+      const r=await fetch('resultados-atualizados.json?_thor_falhas='+Date.now(),{cache:'no-store',headers:{Accept:'application/json','Cache-Control':'no-cache'}});
+      if(r.ok){
+        const j=await r.json(), x=j&&j.resultados&&j.resultados[slug];
+        if(x&&x.concurso&&Array.isArray(x.dezenas)&&x.dezenas.length){
+          const d={c:+x.concurso,date:x.data||'',nums:x.dezenas.map(Number)};
+          const salvo=ultimoGuardado(key);
+          const melhor=(salvo&&+salvo.c>+d.c)?salvo:d;
+          guardarUltimo(key,melhor);
+          return melhor;
+        }
+      }
+    }catch(_){}
+  }
+
   const candidatos=[];
   let ultimoErro=null;
 
