@@ -76,19 +76,19 @@ jobs:
               namespace 'com.thorloterias.app'
               compileSdk 35
               defaultConfig {
-                  applicationId 'com.thorloterias.oficialc4'
+                  applicationId 'com.thorloterias.app'
                   minSdk 23
                   targetSdk 35
-                  versionCode 1
-                  versionName 'THOR 7 OFICIAL C4'
+                  versionCode 147
+                  versionName 'THOR 7 V145'
               }
           }
           EOF
 
           cat > android-apk/app/src/main/AndroidManifest.xml <<'EOF'
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-              <uses-permission android:name="android.permission.INTERNET"/>\n              <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
-              <application android:theme="@style/AppTheme" android:label="THOR OFICIAL C4" android:icon="@drawable/thor_icon" android:roundIcon="@drawable/thor_icon" android:usesCleartextTraffic="true">
+              <uses-permission android:name="android.permission.INTERNET"/>
+              <application android:theme="@style/AppTheme" android:label="THOR LOTERIAS" android:icon="@drawable/thor_icon" android:roundIcon="@drawable/thor_icon" android:usesCleartextTraffic="true">
                   <activity android:name=".MainActivity" android:screenOrientation="portrait" android:exported="true">
                       <intent-filter>
                           <action android:name="android.intent.action.MAIN"/>
@@ -181,56 +181,7 @@ jobs:
                   // APK cliente: preserva localStorage/cookies (inclusive a trava), mas limpa SOMENTE cache web.
                   // Isso evita precisar usar "Limpar dados" quando o gerenciador publica um novo cliente.
                   webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
-
-                  // Ponte nativa: o WebView puro não implementa navigator.share nem download de blob/data.
-                  webView.addJavascriptInterface(new Object() {
-                      @android.webkit.JavascriptInterface
-                      public void compartilharTexto(String titulo, String texto) {
-                          runOnUiThread(() -> {
-                              try {
-                                  android.content.Intent enviar = new android.content.Intent(android.content.Intent.ACTION_SEND);
-                                  enviar.setType("text/plain");
-                                  enviar.putExtra(android.content.Intent.EXTRA_SUBJECT, titulo);
-                                  enviar.putExtra(android.content.Intent.EXTRA_TEXT, texto);
-                                  startActivity(android.content.Intent.createChooser(enviar, "Compartilhar jogos"));
-                              } catch (Exception e) {
-                                  android.widget.Toast.makeText(MainActivity.this, "Não foi possível compartilhar.", android.widget.Toast.LENGTH_LONG).show();
-                              }
-                          });
-                      }
-
-                      @android.webkit.JavascriptInterface
-                      public void baixarTxt(String nomeArquivo, String conteudo) {
-                          try {
-                              String nome = (nomeArquivo == null || nomeArquivo.trim().isEmpty()) ? "jogos-thor.txt" : nomeArquivo;
-                              if (!nome.toLowerCase().endsWith(".txt")) nome += ".txt";
-                              java.io.OutputStream saida;
-                              if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                                  android.content.ContentValues valores = new android.content.ContentValues();
-                                  valores.put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, nome);
-                                  valores.put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "text/plain");
-                                  valores.put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, android.os.Environment.DIRECTORY_DOWNLOADS);
-                                  android.net.Uri uri = getContentResolver().insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, valores);
-                                  if (uri == null) throw new java.io.IOException("Não foi possível criar o arquivo");
-                                  saida = getContentResolver().openOutputStream(uri);
-                              } else {
-                                  java.io.File pasta = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS);
-                                  if (!pasta.exists()) pasta.mkdirs();
-                                  saida = new java.io.FileOutputStream(new java.io.File(pasta, nome));
-                              }
-                              if (saida == null) throw new java.io.IOException("Saída indisponível");
-                              saida.write(new byte[]{(byte)0xEF,(byte)0xBB,(byte)0xBF});
-                              saida.write((conteudo == null ? "" : conteudo).getBytes(java.nio.charset.StandardCharsets.UTF_8));
-                              saida.flush();
-                              saida.close();
-                              runOnUiThread(() -> android.widget.Toast.makeText(MainActivity.this, "TXT salvo na pasta Downloads.", android.widget.Toast.LENGTH_LONG).show());
-                          } catch (Exception e) {
-                              runOnUiThread(() -> android.widget.Toast.makeText(MainActivity.this, "Não foi possível baixar o TXT.", android.widget.Toast.LENGTH_LONG).show());
-                          }
-                      }
-                  }, "ThorAndroid");
-
-                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?apk=oficial-c4");
+                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?apk=145");
               }
               @Override protected void onPause() {
                   android.webkit.CookieManager.getInstance().flush();
@@ -313,11 +264,11 @@ jobs:
         run: gradle :app:assembleDebug --stacktrace
 
       - name: Preparar APK
-        run: cp android-apk/app/build/outputs/apk/debug/app-debug.apk THOR-7-OFICIAL-C4.apk
+        run: cp android-apk/app/build/outputs/apk/debug/app-debug.apk THOR-7-V145.apk
 
       - name: Disponibilizar APK
         uses: actions/upload-artifact@v4
         with:
-          name: THOR-7-OFICIAL-C4-APK
-          path: THOR-7-OFICIAL-C4.apk
+          name: THOR-7-V145-APK
+          path: THOR-7-V145.apk
           retention-days: 30
