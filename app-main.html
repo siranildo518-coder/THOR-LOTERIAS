@@ -6078,6 +6078,16 @@ async function fetchConcursoLoteria(game, concurso){
   // disponíveis e escolhemos sempre o MAIOR número de concurso.
   const fontes = [];
   const caixaSlug={MS:'megasena',LF:'lotofacil',QN:'quina',DIA:'diadesorte',LM:'lotomania',S7:'supersete',TM:'timemania',DS:'duplasena'}[game.code];
+
+  // Base do próprio THOR: atualizada automaticamente no GitHub e servida
+  // no mesmo domínio do app, evitando bloqueio/CORS da CAIXA no APK.
+  if(!concurso && caixaSlug){
+    fontes.push({
+      url: './resultados-atualizados.json?_thor='+Date.now(),
+      tipo: 'thor-local',
+      slug: caixaSlug
+    });
+  }
   if(caixaSlug){
     fontes.push({
       url: 'https://servicebus2.caixa.gov.br/portaldeloterias/api/'+caixaSlug+(concurso ? `/${concurso}` : ''),
@@ -6104,7 +6114,13 @@ async function fetchConcursoLoteria(game, concurso){
         headers: {Accept:'application/json'}
       });
       if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const bruto = await resp.json();
+      let bruto = await resp.json();
+
+      if(fonte.tipo === 'thor-local'){
+        bruto = bruto && bruto.resultados && bruto.resultados[fonte.slug];
+        if(!bruto || !bruto.concurso || !Array.isArray(bruto.dezenas) || !bruto.dezenas.length) throw new Error('base THOR sem resultado');
+        return bruto;
+      }
 
       if(fonte.tipo === 'caixa'){
         const dezenas = bruto.listaDezenas || bruto.dezenas || bruto.numeros || [];
