@@ -7528,6 +7528,17 @@ function abrirGeradorFiltro(code){
   carregarUltimoResultadoGerador(geradorGameAtual);
 }
 
+// Fonte padrão única: reaproveita exatamente a leitura do último resultado usada em Combinações.
+async function buscarUltimoComoCombinacoes(g){
+  const pronto = obterConcursoCache(g);
+  try{
+    const data = await fetchConcursoLoteria(g);
+    if(data && data.concurso) return data;
+  }catch(_){}
+  if(pronto && pronto.concurso) return pronto;
+  throw new Error('sem resultado atualizado');
+}
+
 // ---------- card com o resultado oficial da loteria escolhida, logo abaixo do botão GERAR ----------
 async function carregarUltimoResultadoGerador(g, concurso){
   const box = document.getElementById('geradorFiltroUltimoResultado');
@@ -7539,7 +7550,7 @@ async function carregarUltimoResultadoGerador(g, concurso){
   }
   box.innerHTML = `<div class="res-loading">Buscando ${concurso ? 'concurso Nº '+concurso : 'o último resultado'} de ${g.nome}…</div>`;
   try{
-    const data = await fetchConcursoLoteria(g, concurso);
+    const data = concurso ? await fetchConcursoLoteria(g, concurso) : await buscarUltimoComoCombinacoes(g);
     if(!geradorGameAtual || geradorGameAtual.code !== g.code) return; // usuário já trocou de loteria enquanto buscava
     if(!data || !data.concurso) throw new Error('sem dados');
     if(!concursoMaisRecentePorJogo[g.slug] || data.concurso > concursoMaisRecentePorJogo[g.slug]){
@@ -10536,7 +10547,7 @@ window.addEventListener('popstate', function(e){
 
 // ---------- atualização automática quando sai um novo resultado da CAIXA ----------
 async function silentFetchLatest(game){
-  try{ return await fetchConcursoLoteria(game); }catch(e){ return null; }
+  try{ return await buscarUltimoComoCombinacoes(game); }catch(e){ return null; }
 }
 
 async function checarNovoResultado(){
