@@ -427,10 +427,12 @@ async function buscarLiberacaoCadastroTeste(codigo){
   // evitando preflight/CORS desnecessário no raw do GitHub.
   const agora = Date.now();
   const urls = [
-    './cadastros-liberados.json?_='+agora,
+    // Prioriza a API do GitHub: é a mesma fonte que o gerenciador acabou de gravar.
+    // Depois usa as rotas alternativas para manter compatibilidade/offline.
+    'https://api.github.com/repos/siranildo518-coder/THOR-LOTERIAS/contents/cadastros-liberados.json?ref=main&nocache='+agora,
     'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?nocache='+agora,
-    'https://cdn.jsdelivr.net/gh/siranildo518-coder/THOR-LOTERIAS@main/cadastros-liberados.json?nocache='+agora,
-    'https://api.github.com/repos/siranildo518-coder/THOR-LOTERIAS/contents/cadastros-liberados.json?ref=main&nocache='+agora
+    './cadastros-liberados.json?_='+agora,
+    'https://cdn.jsdelivr.net/gh/siranildo518-coder/THOR-LOTERIAS@main/cadastros-liberados.json?nocache='+agora
   ];
 
   let ultimoErro = null;
