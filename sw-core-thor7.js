@@ -76,6 +76,23 @@ self.addEventListener('fetch',event=>{
   // Não interfere em APIs/arquivos externos.
   if(u.origin!==self.location.origin) return;
 
+  // Resultados oficiais: sempre tenta a rede primeiro para não prender concurso antigo no APK.
+  if(u.pathname.endsWith('/resultados-atualizados.json')||u.pathname.endsWith('/resultados-auto-thor4.js')){
+    event.respondWith((async()=>{
+      try{
+        const fresh=await fetch(req,{cache:'no-store'});
+        if(fresh&&fresh.ok){
+          const cache=await caches.open(CACHE_NAME);
+          await cache.put(chaveCache(req),fresh.clone());
+        }
+        return fresh;
+      }catch(_){
+        return await offlineFallback(req) || Response.error();
+      }
+    })());
+    return;
+  }
+
   // Liberações de cadastro precisam ser sempre atuais.
   if(u.pathname.endsWith('/cadastros-liberados.json')){
     event.respondWith(fetch(req,{cache:'no-store'}).catch(()=>offlineFallback(req)));
