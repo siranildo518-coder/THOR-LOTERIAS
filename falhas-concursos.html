@@ -159,10 +159,18 @@ async function atualizarConcursosCaixa(){
     latest=Math.max(latest||0,+novo.c,+(melhor&&melhor.c||0));
     guardarUltimo(key,melhor);
 
-    // Ao atualizar, se saiu concurso novo, mostra o novo concurso imediatamente.
-    // Anterior/Próximo continuam disponíveis para navegar concurso por concurso.
-    if(!draw || +melhor.c > +draw.c){
-      draw=melhor;
+    // Atualiza apenas qual é o concurso mais recente disponível.
+    // Nunca troca o concurso que a pessoa está analisando. Assim CALCULAR,
+    // foco/retorno ao app e atualização automática não avançam sozinhos.
+    // A mudança de concurso fica exclusivamente nos botões ANTERIOR/PRÓXIMO
+    // ou no campo de concurso.
+    if(!draw){
+      const atual=atualGuardado(key);
+      if(atual&&atual>=1&&atual<=latest){
+        try{ draw=await fetchC(atual); }catch(_){ draw=melhor; }
+      }else{
+        draw=melhor;
+      }
       guardarAtual(key,draw.c);
     }
     render();
