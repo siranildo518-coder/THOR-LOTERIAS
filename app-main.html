@@ -422,19 +422,21 @@ async function buscarLiberacaoCadastroTeste(codigo){
   let codigoHash = '';
   try{ codigoHash = await sha256HexCadastro(codigoNormalizado); }catch(e){}
 
+  // Fontes redundantes: se uma rota estiver bloqueada no WebView/APK,
+  // tenta automaticamente as demais. Sem cabeçalho Cache-Control customizado,
+  // evitando preflight/CORS desnecessário no raw do GitHub.
+  const agora = Date.now();
   const urls = [
-    './cadastros-liberados.json?_='+Date.now(),
-    'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?nocache='+Date.now(),
-    'https://api.github.com/repos/siranildo518-coder/THOR-LOTERIAS/contents/cadastros-liberados.json?ref=main&nocache='+Date.now()
+    './cadastros-liberados.json?_='+agora,
+    'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/cadastros-liberados.json?nocache='+agora,
+    'https://cdn.jsdelivr.net/gh/siranildo518-coder/THOR-LOTERIAS@main/cadastros-liberados.json?nocache='+agora,
+    'https://api.github.com/repos/siranildo518-coder/THOR-LOTERIAS/contents/cadastros-liberados.json?ref=main&nocache='+agora
   ];
 
   let ultimoErro = null;
   for(const url of urls){
     try{
-      const resposta = await fetch(url,{
-        cache:'no-store',
-        headers:{'Cache-Control':'no-cache'}
-      });
+      const resposta = await fetch(url,{cache:'no-store'});
       if(!resposta.ok) throw new Error('HTTP '+resposta.status);
       let dados = await resposta.json();
       // A API /contents do GitHub devolve o arquivo em Base64; o raw devolve o JSON direto.
