@@ -1,7 +1,7 @@
 // THOR LOTERIAS - Service Worker
 // THOR 7 V3.75 - calculadora de probabilidade e cache sincronizados
-const CACHE_NAME='thor-loterias-thor7-oficial-resultados-auto-2';
-const CORE=['./','./index.html','./index-core-thor7.html','./app-main.html','./app-direct.html','./manifest.json','./icon-192.png','./thor-home-topo-v316.jpg'];
+const CACHE_NAME='thor-loterias-thor7-oficial-cadastro-fix-1';
+const CORE=['./','./index.html','./index-core-thor7.html','./app-main.html','./app-direct.html','./manifest.json','./icon-192.png','./thor-home-topo-v316.jpg','./cadastros-liberados.json'];
 const PALPITES_CARD='<button class="home-feature-card" style="--fc:#d41948" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">◎</span><span><strong>Palpites</strong><small>Sugestões inteligentes</small></span></button>';
 const CALC_CARD='<button class="home-feature-card" style="--fc:#e98a00" data-home-target="btnSimularAtalho"><span class="hfc-icon">▤</span><span><strong>Calculadora</strong><small>Probabilidades e estimativas</small></span></button>';
 const ESCOLHA_CARD='<button class="home-feature-card" id="btnEscolhaPraMim" style="--fc:#18a96b" type="button"><span class="hfc-icon">★</span><span><strong>Escolha pra mim</strong><small>Sugestão automática</small></span></button>';
