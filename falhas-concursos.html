@@ -111,38 +111,20 @@ const API='https://servicebus2.caixa.gov.br/portaldeloterias/api/';const LATEST_
   }
   throw ultimoErro||new Error('Nenhuma fonte disponível');
 }function render(){if(!draw)return;guardarAtual(key,draw.c);$('contest').value=draw.c;$('target').textContent=draw.c+1;$('date').textContent=draw.date;$('balls').innerHTML=draw.nums.slice().sort((a,b)=>a-b).map(n=>'<span class="ball">'+two(n)+'</span>').join('');$('qty').max=draw.nums.length;$('next').disabled=draw.c>=latest;
-  const chaveAtual=mode==='repeat'?key+'|repeat|'+draw.c:key+'|'+draw.c;
-  const chaveAnterior=mode==='repeat'?key+'|repeat|'+(draw.c-1):key+'|'+(draw.c-1);
-
-  // Se já houve cálculo para este concurso, mostra esse cálculo.
-  let atual=palpites[chaveAtual];
-  if(atual&&atual.mode===mode){
-    const qExibir=Math.max(1,Math.min(atual.q||atual.ranking.length,atual.ranking.length,draw.nums.length));
-    $('resultTitle').textContent=qExibir+' dezenas para '+(mode==='repeat'?'REPETIR':'FALHAR')+' • concurso '+(draw.c+1);
-    $('rank').innerHTML=atual.ranking.slice(0,qExibir).map((r,i)=>'<div class="rankItem"><div class="rankHead"><span class="rankBall">'+two(r.v)+'</span><small>'+(i+1)+'º</small></div><div class="pct">'+(r.score*100).toFixed(2).replace('.',',')+'%</div></div>').join('');
-    $('result').classList.add('show');
-    return;
-  }
-
-  // ANTERIOR/PRÓXIMO não recalculam nem trocam as dezenas escolhidas.
-  // Mantém o último cálculo e usa o concurso carregado somente para conferir.
-  let pal=palpites[chaveAnterior];
-  if(!pal||pal.mode!==mode){
-    const prefixo=mode==='repeat'?key+'|repeat|':key+'|';
-    let melhor=null,base=-1;
-    Object.keys(palpites).forEach(function(k){
-      if(k.indexOf(prefixo)!==0)return;
-      const p=palpites[k]; if(!p||p.mode!==mode)return;
-      const bc=+(p.base||k.slice(prefixo.length));
-      if(Number.isFinite(bc)&&bc<draw.c&&bc>base){base=bc;melhor=p}
-    });
-    pal=melhor;
-  }
+  // Navegar em ANTERIOR/PRÓXIMO nunca recalcula nem substitui as dezenas.
+  // A tela mantém o último cálculo feito até a pessoa apertar CALCULAR novamente.
+  const prefixo=mode==='repeat'?key+'|repeat|':key+'|';
+  let pal=null,base=-1;
+  Object.keys(palpites).forEach(function(k){
+    if(k.indexOf(prefixo)!==0)return;
+    const p=palpites[k];if(!p||p.mode!==mode)return;
+    const bc=+(p.base||k.slice(prefixo.length));
+    if(Number.isFinite(bc)&&bc<=draw.c&&bc>base){base=bc;pal=p}
+  });
   if(pal&&pal.mode===mode){
     const qExibir=Math.max(1,Math.min(pal.q||pal.ranking.length,pal.ranking.length));
-    // Verde = a dezena escolhida foi sorteada no concurso atualmente exibido.
     const conf=pal.ranking.slice(0,qExibir).map(r=>({...r,sorteada:draw.nums.includes(r.v)}));
-    $('resultTitle').textContent=qExibir+' dezenas escolhidas • conferindo concurso '+draw.c;
+    $('resultTitle').textContent=qExibir+' dezenas escolhidas • concurso '+draw.c;
     $('rank').innerHTML=conf.map((r,i)=>'<div class="rankItem'+(r.sorteada?' acerto-confirmado':'')+'"><div class="rankHead"><span class="rankBall">'+two(r.v)+'</span><small>'+(i+1)+'º</small></div><div class="pct">'+(r.score*100).toFixed(2).replace('.',',')+'%</div>'+(r.sorteada?'<div class="acertou-label">SORTEADA</div>':'')+'</div>').join('');
     $('result').classList.add('show');
   }else{
