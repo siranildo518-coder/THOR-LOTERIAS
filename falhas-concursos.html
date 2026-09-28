@@ -114,8 +114,7 @@ const API='https://servicebus2.caixa.gov.br/portaldeloterias/api/';const LATEST_
   const chaveAtual=mode==='repeat'?key+'|repeat|'+draw.c:key+'|'+draw.c;
   const chaveAnterior=mode==='repeat'?key+'|repeat|'+(draw.c-1):key+'|'+(draw.c-1);
 
-  // Palpite do concurso atual é sempre para o PRÓXIMO concurso.
-  // Não marca acerto/falha antes de o resultado oficial seguinte existir.
+  // Se já houve cálculo para este concurso, mostra esse cálculo.
   let atual=palpites[chaveAtual];
   if(atual&&atual.mode===mode){
     const qExibir=Math.max(1,Math.min(atual.q||atual.ranking.length,atual.ranking.length,draw.nums.length));
@@ -125,13 +124,26 @@ const API='https://servicebus2.caixa.gov.br/portaldeloterias/api/';const LATEST_
     return;
   }
 
-  // Só confirma quando o concurso seguinte já existe e foi carregado oficialmente.
+  // ANTERIOR/PRÓXIMO não recalculam nem trocam as dezenas escolhidas.
+  // Mantém o último cálculo e usa o concurso carregado somente para conferir.
   let pal=palpites[chaveAnterior];
+  if(!pal||pal.mode!==mode){
+    const prefixo=mode==='repeat'?key+'|repeat|':key+'|';
+    let melhor=null,base=-1;
+    Object.keys(palpites).forEach(function(k){
+      if(k.indexOf(prefixo)!==0)return;
+      const p=palpites[k]; if(!p||p.mode!==mode)return;
+      const bc=+(p.base||k.slice(prefixo.length));
+      if(Number.isFinite(bc)&&bc<draw.c&&bc>base){base=bc;melhor=p}
+    });
+    pal=melhor;
+  }
   if(pal&&pal.mode===mode){
-    const qExibir=Math.max(1,Math.min(pal.q||pal.ranking.length,pal.ranking.length,draw.nums.length));
-    let conf=pal.ranking.slice(0,qExibir).map(r=>({...r,confirmada:mode==='repeat'?draw.nums.includes(r.v):!draw.nums.includes(r.v)}));
-    $('resultTitle').textContent=qExibir+' dezenas para '+(mode==='repeat'?'REPETIR':'FALHAR')+' • concurso '+draw.c;
-    $('rank').innerHTML=conf.map((r,i)=>'<div class="rankItem'+(r.confirmada?(mode==='repeat'?' acerto-confirmado':' falha-confirmada'):'')+'"><div class="rankHead"><span class="rankBall">'+two(r.v)+'</span><small>'+(i+1)+'º</small></div><div class="pct">'+(r.score*100).toFixed(2).replace('.',',')+'%</div>'+(r.confirmada?(mode==='repeat'?'<div class="acertou-label">ACERTOU</div>':'<div class="falhou-label">FALHOU</div>'):'')+'</div>').join('');
+    const qExibir=Math.max(1,Math.min(pal.q||pal.ranking.length,pal.ranking.length));
+    // Verde = a dezena escolhida foi sorteada no concurso atualmente exibido.
+    const conf=pal.ranking.slice(0,qExibir).map(r=>({...r,sorteada:draw.nums.includes(r.v)}));
+    $('resultTitle').textContent=qExibir+' dezenas escolhidas • conferindo concurso '+draw.c;
+    $('rank').innerHTML=conf.map((r,i)=>'<div class="rankItem'+(r.sorteada?' acerto-confirmado':'')+'"><div class="rankHead"><span class="rankBall">'+two(r.v)+'</span><small>'+(i+1)+'º</small></div><div class="pct">'+(r.score*100).toFixed(2).replace('.',',')+'%</div>'+(r.sorteada?'<div class="acertou-label">SORTEADA</div>':'')+'</div>').join('');
     $('result').classList.add('show');
   }else{
     $('result').classList.remove('show');
