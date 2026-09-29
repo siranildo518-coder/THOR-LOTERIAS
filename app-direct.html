@@ -10476,13 +10476,19 @@ async function carregarHomeHero(g){
     }).catch(()=>{});
   }
   const balls = (data.dezenas||[]).map(d=>`<div class="hh-ball">${d.toString().padStart(2,'0')}</div>`).join('');
+  const duplaSegundo = g.code==='DS'
+    ? (data.dezenasSegundoSorteio || data.listaDezenasSegundoSorteio || data.segundoSorteio || []).map(Number).filter(Number.isFinite)
+    : [];
+  const duplaSorteiosHtml = g.code==='DS'
+    ? `<div style="font-size:10px;font-weight:900;color:#d9f8ff;margin:6px 0 3px;">1º SORTEIO</div><div class="hh-balls">${balls}</div>${duplaSegundo.length ? `<div style="font-size:10px;font-weight:900;color:#d9f8ff;margin:8px 0 3px;">2º SORTEIO</div><div class="hh-balls">${duplaSegundo.map(d=>`<div class="hh-ball">${d.toString().padStart(2,'0')}</div>`).join('')}</div>` : ''}`
+    : `<div class="hh-balls">${balls}</div>`;
   homeHero.innerHTML = `
     <div class="home-hero" data-loteria="${g.nome}" style="--hero-accent:${g.color};--hero-accent-deep:${g.color};">
       <div class="hh-last-draw">
         <div class="hh-ultimo-lbl">🕒 Último Sorteio</div>
         <div class="hh-row" style="margin-bottom:0;">📅 ${data.data || '—'}</div>
         <div class="hh-row" style="margin-bottom:0;">🎟️ Concurso ${data.concurso}</div>
-        <div class="hh-balls">${balls}</div>
+        ${duplaSorteiosHtml}
       </div>
       <button class="hh-stats-btn" id="homeVerStats">📊 Ver Estatísticas</button>
     </div>`;
