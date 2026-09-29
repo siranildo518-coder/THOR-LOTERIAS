@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-09-29T01:10:00.000Z",
+  "atualizadoEm": "2026-09-29T01:13:49.290Z",
   "fonte": "API oficial Loterias CAIXA",
   "resultados": {
     "megasena": {
@@ -47,18 +47,18 @@
       ]
     },
     "diadesorte": {
-      "concurso": 1308,
-      "data": "27/09/2026",
+      "concurso": 1309,
+      "data": "28/09/2026",
       "dezenas": [
-        4,
-        7,
-        9,
-        11,
-        16,
+        6,
+        12,
         24,
-        28
+        25,
+        26,
+        29,
+        31
       ],
-      "mesSorte": "Agosto"
+      "mesSorte": "Maio"
     },
     "lotomania": {
       "concurso": 2981,
