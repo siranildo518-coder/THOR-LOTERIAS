@@ -10606,7 +10606,15 @@ function renderResultadoOverlay(game, data){
   const oficialUrl = `https://loterias.caixa.gov.br/Paginas/${game.officialSlug}.aspx`;
   const cont = document.getElementById('resultadoConteudo');
   if(!data){
-    cont.innerHTML = `<div class="res-error">Não foi possível buscar o resultado agora.<br>Verifique sua internet e toque em "tentar novamente", ou consulte no site oficial.<br><br>
+    const statsFinalHtml = game.code==='DS' && nums2.length ? `
+      <div style="grid-column:1/-1;font-size:11px;font-weight:800;color:var(--violet-deep);">1º SORTEIO</div>${statsHtml}
+      <div style="grid-column:1/-1;font-size:11px;font-weight:800;color:var(--violet-deep);margin-top:5px;">2º SORTEIO</div>
+      <div class="stat"><div class="k">PAR</div><div class="v">${st2.par}</div></div>
+      <div class="stat"><div class="k">ÍMPAR</div><div class="v">${st2.impar}</div></div>
+      <div class="stat"><div class="k">MÚLT. DE 3</div><div class="v">${st2.mult3}</div></div>
+      <div class="stat"><div class="k">SOMA</div><div class="v">${st2.soma}</div></div>` : statsHtml;
+
+  cont.innerHTML = `<div class="res-error">Não foi possível buscar o resultado agora.<br>Verifique sua internet e toque em "tentar novamente", ou consulte no site oficial.<br><br>
       <button class="res-nav-btn" id="resTentarDeNovo" style="margin-top:6px;">Tentar novamente</button><br><br>
       <a href="${oficialUrl}" target="_blank" rel="noopener" style="color:var(--violet-deep);font-weight:700;">Abrir site da CAIXA</a></div>`;
     const btn = document.getElementById('resTentarDeNovo');
@@ -10620,6 +10628,12 @@ function renderResultadoOverlay(game, data){
     ? `<div class="res-status-line acumulou">ACUMULOU!!</div>`
     : `<div class="res-status-line premiado">${ganhouFaixaPrincipal ? 'Houve ganhador(es) na faixa principal' : 'Concurso encerrado'}</div>`;
   const ballsHtml = nums.map(n=>`<div class="result-ball">${n.toString().padStart(2,'0')}</div>`).join('');
+  const nums2 = game.code==='DS' ? (data.dezenasSegundoSorteio||data.listaDezenasSegundoSorteio||[]).map(d=>parseInt(d,10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b) : [];
+  const balls2Html = nums2.map(n=>`<div class="result-ball">${n.toString().padStart(2,'0')}</div>`).join('');
+  const st2 = computeStatsFor(nums2);
+  const duplaResultadosHtml = game.code==='DS'
+    ? `<div style="font-size:12px;font-weight:800;color:var(--violet-deep);text-align:center;margin:8px 0 5px;">1º SORTEIO</div><div class="result-balls">${ballsHtml}</div>${nums2.length?`<div style="font-size:12px;font-weight:800;color:var(--violet-deep);text-align:center;margin:12px 0 5px;">2º SORTEIO</div><div class="result-balls">${balls2Html}</div>`:''}`
+    : `<div class="result-balls">${ballsHtml}</div>`;
   const premiacoesHtml = (data.premiacoes||[]).map(p=>`
     <div class="res-premio-row">
       <span>${p.acertos||p.descricao||''}</span>
@@ -10653,13 +10667,13 @@ function renderResultadoOverlay(game, data){
         <button class="res-nav-btn" id="resProximo" ${podeAvancar ? '' : 'disabled'}>Próximo →</button>
       </div>
       ${statusHtml}
-      <div class="result-balls">${ballsHtml}</div>
+      ${duplaResultadosHtml}
       <div class="res-local">Sorteio em ${data.local || '—'} • ${data.data}</div>
     </div>
 
     <div class="card">
       <div class="res-card-title">Estatísticas do concurso</div>
-      <div class="stats-grid">${statsHtml}</div>
+      <div class="stats-grid">${statsFinalHtml}</div>
     </div>
 
     <div class="card">
