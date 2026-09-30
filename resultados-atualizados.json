@@ -1,64 +1,64 @@
 {
-  "atualizadoEm": "2026-09-30T15:52:09.258316+00:00",
+  "atualizadoEm": "2026-09-30T20:20:53.955591+00:00",
   "fonte": "API oficial Loterias CAIXA",
   "resultados": {
     "megasena": {
-      "concurso": 3063,
-      "data": "27/09/2026",
+      "concurso": 3064,
+      "data": "29/09/2026",
       "dezenas": [
-        5,
-        35,
-        36,
-        41,
-        43,
+        4,
+        10,
+        20,
+        25,
+        27,
         48
       ]
     },
     "lotofacil": {
-      "concurso": 3791,
-      "data": "28/09/2026",
+      "concurso": 3792,
+      "data": "29/09/2026",
       "dezenas": [
-        1,
         2,
         4,
         6,
+        7,
         8,
-        9,
+        10,
         11,
         12,
-        13,
         14,
         15,
         16,
-        19,
+        20,
+        23,
         24,
         25
       ]
     },
     "quina": {
-      "concurso": 7129,
-      "data": "28/09/2026",
+      "concurso": 7130,
+      "data": "29/09/2026",
       "dezenas": [
-        14,
-        22,
-        37,
-        42,
-        60
+        4,
+        16,
+        61,
+        69,
+        72
       ]
     },
     "diadesorte": {
-      "concurso": 1309,
-      "data": "28/09/2026",
+      "concurso": 1310,
+      "data": "29/09/2026",
       "dezenas": [
+        2,
         6,
-        12,
-        24,
-        25,
+        7,
+        16,
+        22,
         26,
-        29,
-        31
+        29
       ],
-      "mesSorte": "Maio"
+      "mesSorte": "Abril"
     },
     "lotomania": {
       "concurso": 2981,
@@ -87,31 +87,31 @@
       ]
     },
     "supersete": {
-      "concurso": 903,
-      "data": "25/09/2026",
+      "concurso": 904,
+      "data": "28/09/2026",
       "dezenas": [
-        9,
-        2,
+        3,
+        8,
+        1,
+        0,
+        3,
         4,
-        7,
-        5,
-        5,
-        2
+        6
       ]
     },
     "timemania": {
-      "concurso": 2447,
-      "data": "27/09/2026",
+      "concurso": 2448,
+      "data": "29/09/2026",
       "dezenas": [
-        1,
-        10,
-        20,
-        25,
-        30,
-        33,
-        34
+        32,
+        45,
+        51,
+        60,
+        62,
+        73,
+        75
       ],
-      "timeCoracao": "SAO PAULO /SP"
+      "timeCoracao": "INTERNACIONAL    /RS"
     },
     "duplasena": {
       "concurso": 3014,
