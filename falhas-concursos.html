@@ -112,7 +112,7 @@ const API='https://servicebus2.caixa.gov.br/portaldeloterias/api/';const LATEST_
   throw ultimoErro||new Error('Nenhuma fonte disponível');
 }function render(){if(!draw)return;guardarAtual(key,draw.c);$('contest').value=draw.c;$('target').textContent=draw.c+1;$('date').textContent=draw.date;$('balls').innerHTML=draw.nums.slice().sort((a,b)=>a-b).map(n=>'<span class="ball">'+two(n)+'</span>').join('');$('qty').max=draw.nums.length;if(selecaoAtiva&&selecaoAtiva.key===key&&selecaoAtiva.mode===mode)$('qty').value=selecaoAtiva.q;$('next').disabled=draw.c>=latest;
   // As dezenas ficam travadas no último CALCULAR. Navegar só troca o concurso e confere.
-  const pal=(selecaoAtiva&&selecaoAtiva.key===key&&selecaoAtiva.mode===mode)?selecaoAtiva:null;
+  const pal=(selecaoAtiva&&selecaoAtiva.key===key&&selecaoAtiva.mode===mode&&+draw.c>+selecaoAtiva.base)?selecaoAtiva:null;
   if(pal){
     const qExibir=Math.max(1,Math.min(pal.q||pal.ranking.length,pal.ranking.length));
     const conf=pal.ranking.slice(0,qExibir).map(r=>({...r,sorteada:draw.nums.includes(r.v)}));
@@ -153,12 +153,11 @@ async function atualizarConcursosCaixa(){
     // A mudança de concurso fica exclusivamente nos botões ANTERIOR/PRÓXIMO
     // ou no campo de concurso.
     if(!draw){
-      const atual=atualGuardado(key);
-      if(atual&&atual>=1&&atual<=latest){
-        try{ draw=await fetchC(atual); }catch(_){ draw=melhor; }
-      }else{
-        draw=melhor;
-      }
+      draw=melhor;
+      guardarAtual(key,draw.c);
+    }else if(+draw.c===concursoAntes && +melhor.c>+draw.c){
+      // Se estava no último concurso conhecido, acompanha automaticamente o novo resultado.
+      draw=melhor;
       guardarAtual(key,draw.c);
     }
     render();
