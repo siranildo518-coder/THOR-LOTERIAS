@@ -431,6 +431,13 @@
       "criadoEm": "2026-09-30T09:26:00.710Z",
       "expiraEm": "2026-10-01T09:26:00.710Z",
       "ativo": true
+    },
+    {
+      "hash": "7e040a400c9e90a23b18a41a1ea590895a537c8b7e72d725d7cf84523c1d3af2",
+      "compatHash": "1egozaz",
+      "criadoEm": "2026-09-30T14:33:44.893Z",
+      "expiraEm": "2026-10-01T14:33:44.901Z",
+      "ativo": true
     }
   ]
 }
