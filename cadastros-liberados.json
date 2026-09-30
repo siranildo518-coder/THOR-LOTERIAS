@@ -480,6 +480,13 @@
       "criadoEm": "2026-09-30T19:44:50.483Z",
       "expiraEm": "2026-10-01T19:44:50.483Z",
       "ativo": true
+    },
+    {
+      "hash": "ce6b4b79799a94c3c4eccb4e8068655f38f74a11a0da4f8447e55c632baf2f00",
+      "compatHash": "jraslq",
+      "criadoEm": "2026-09-30T19:58:03.739Z",
+      "expiraEm": "2026-10-01T19:58:03.739Z",
+      "ativo": true
     }
   ]
 }
