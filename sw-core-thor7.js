@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
 // THOR 7 V3.75 - calculadora de probabilidade e cache sincronizados
-const CACHE_NAME='thor-loterias-thor7-oficial-cadastro-fix-1';
+const CACHE_NAME='thor-loterias-thor7-v148-auto';
 const CORE=['./','./index.html','./index-core-thor7.html','./app-main.html','./app-direct.html','./manifest.json','./icon-192.png','./thor-home-topo-v316.jpg','./cadastros-liberados.json'];
 const PALPITES_CARD='<button class="home-feature-card" style="--fc:#d41948" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">◎</span><span><strong>Palpites</strong><small>Sugestões inteligentes</small></span></button>';
 const CALC_CARD='<button class="home-feature-card" style="--fc:#e98a00" data-home-target="btnSimularAtalho"><span class="hfc-icon">▤</span><span><strong>Calculadora</strong><small>Probabilidades e estimativas</small></span></button>';
@@ -44,7 +44,7 @@ self.addEventListener('install',event=>{
     const cache=await caches.open(CACHE_NAME);
     await Promise.allSettled(CORE.map(async url=>{
       try{
-        const req=new Request(url+(url.includes('?')?'&':'?')+'_refresh=thor7-v145-abertura-paralela',{cache:'no-store'});
+        const req=new Request(url+(url.includes('?')?'&':'?')+'_refresh=thor7-v148-auto',{cache:'no-store'});
         const res=await respostaAtualizada(req);
         if(res&&res.ok) await cache.put(url,res.clone());
       }catch(_){}
@@ -63,7 +63,7 @@ self.addEventListener('activate',event=>{
     await Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)));
     await self.clients.claim();
     const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
-    clients.forEach(c=>c.postMessage({type:'THOR_UPDATED',version:'THOR 7 V144',refresh:'thor7-v144-direto'}));
+    clients.forEach(c=>c.postMessage({type:'THOR_UPDATED',version:'THOR 7 V148',refresh:'thor7-v148-auto'}));
   })());
 });
 
@@ -100,6 +100,24 @@ self.addEventListener('fetch',event=>{
   }
 
   const chave=chaveCache(req);
+
+  // Arquivos centrais: rede primeiro. Assim PWA e APK recebem correções
+  // automaticamente ao abrir, sem depender de reinstalação.
+  if(u.pathname.endsWith('/index.html')||u.pathname.endsWith('/index-core-thor7.html')||u.pathname.endsWith('/app-main.html')||u.pathname.endsWith('/app-direct.html')||u.pathname.endsWith('/gerador.html')||req.mode==='navigate'){
+    event.respondWith((async()=>{
+      try{
+        const fresh=await respostaAtualizada(new Request(req.url,{cache:'no-store',credentials:req.credentials,headers:req.headers}));
+        if(fresh&&fresh.ok){
+          const cache=await caches.open(CACHE_NAME);
+          await cache.put(chave,fresh.clone());
+        }
+        return fresh;
+      }catch(_){
+        return (await cache.match(chave)) || await offlineFallback(req) || Response.error();
+      }
+    })());
+    return;
+  }
 
   // O Gerador busca primeiro a versão atual para receber novas funções imediatamente.
   if(u.pathname.endsWith('/gerador.html')){
