@@ -9,8 +9,9 @@ function montar(){
  btn.onpointerdown=()=>btn.style.transform='translateY(2px)';btn.onpointerup=()=>btn.style.transform='';
  btn.onclick=async function(){
   const preview=document.getElementById('gerarTopoPreview')||[...document.querySelectorAll('div')].find(e=>/Dezenas selecionadas com esse filtro/i.test(e.textContent||''));if(!preview)return;
-  const limite=Math.max(1,Math.min(30,parseInt(sel.value,10)||30));
-  const nums=[];[...preview.querySelectorAll('span,button,div')].forEach(e=>{if(nums.length>=limite)return;const t=(e.textContent||'').trim();if(/^\d{1,2}$/.test(t)){const n=parseInt(t,10);if(n>=1&&n<=99&&!nums.includes(n))nums.push(n)}});if(!nums.length)return;
+  // Copia exatamente todas as dezenas que estão exibidas/selecionadas no preview.
+  // Não limita mais pela quantidade antiga do seletor.
+  const nums=[];[...preview.querySelectorAll('span,button,div')].forEach(e=>{const t=(e.textContent||'').trim();if(/^\d{1,2}$/.test(t)){const n=parseInt(t,10);if(n>=1&&n<=99&&!nums.includes(n))nums.push(n)}});if(!nums.length)return;
   const out=nums.map(n=>String(n).padStart(2,'0')).join(' ');try{localStorage.setItem('thor_dezenas_copiadas_v1',out)}catch(_e){}try{await navigator.clipboard.writeText(out)}catch(_e){}btn.textContent='COPIADO ✓';setTimeout(()=>btn.textContent='COPIAR',900)
  };return true;
 }
