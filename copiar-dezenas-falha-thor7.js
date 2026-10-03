@@ -11,7 +11,7 @@ function montar(){
   const preview=document.getElementById('gerarTopoPreview')||[...document.querySelectorAll('div')].find(e=>/Dezenas selecionadas com esse filtro/i.test(e.textContent||''));if(!preview)return;
   // Copia exatamente todas as dezenas que estão exibidas/selecionadas no preview.
   // Não limita mais pela quantidade antiga do seletor.
-  const nums=[...preview.querySelectorAll('.tend-ball')].map(e=>parseInt((e.textContent||'').trim(),10)).filter(Number.isFinite);const unicos=[...new Set(nums)];const qtdEsperada=Math.max(1,parseInt(sel.value,10)||unicos.length);const finais=unicos.slice(0,qtdEsperada);if(!finais.length)return;
+  const nums=[...preview.querySelectorAll('.tend-ball')].map(e=>parseInt((e.textContent||'').trim(),10)).filter(Number.isFinite);const unicos=[...new Set(nums)];const qtdEsperada=Math.max(1,parseInt(sel.value,10)||unicos.length);let finais=unicos.slice(0,qtdEsperada);if(finais.length<qtdEsperada){const txt=(preview.textContent||'');const extras=(txt.match(/\b\d{1,2}\b/g)||[]).map(Number).filter(Number.isFinite);for(const n of extras){if(!finais.includes(n))finais.push(n);if(finais.length>=qtdEsperada)break;}}if(!finais.length)return;
   const out=finais.map(n=>String(n).padStart(2,'0')).join(' ');try{localStorage.setItem('thor_dezenas_copiadas_v1',out)}catch(_e){}try{await navigator.clipboard.writeText(out)}catch(_e){}btn.textContent='COPIADO ✓';setTimeout(()=>btn.textContent='COPIAR',900)
  };return true;
 }
