@@ -10312,7 +10312,16 @@ function aplicarFaixaCombinacoes(g){
     });
   }
 
-  applySliderCount(Math.min(targetCount, max));
+  // Ao entrar/trocar a loteria em Combinações, começa sem dezenas marcadas.
+  // Evita preencher automaticamente 01..25 (ou qualquer outra faixa).
+  selected = new Set();
+  fixedNums = new Set();
+  excludedNums = new Set();
+  targetCount = 0;
+  slider.value = 0;
+  sliderHintInput.value = 0;
+  ballGrid.querySelectorAll('.ball').forEach(b=>b.classList.remove('on','fixed','excluded','excluir-anim','ball-sumida'));
+  refreshUI();
 }
 
 // ---------- Tendência: faixa de loterias no topo (troca as falhas exibidas, sem navegar) ----------
