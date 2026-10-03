@@ -69,6 +69,9 @@ function obterDeviceId(){
 // A primeira vez que uma conta loga em algum aparelho, ela fica "casada" com ele.
 // Retorna {ok:true} se pode entrar, ou {ok:false, motivo:'outro_aparelho'|'sem_internet'}.
 async function verificarTravaAparelho(hash){
+  // Arquimedes: conta autorizada para acesso em computador e outros dispositivos,
+  // sem vínculo obrigatório com um único aparelho.
+  if(hash === '1bcf2vr') return {ok:true};
   const deviceId = obterDeviceId();
   try{
     await carregarFirebase();
@@ -90,6 +93,7 @@ async function verificarTravaAparelho(hash){
 
 const CREDENCIAIS_VALIDAS = [
   'giievh', // Irenildo (senha 142580)
+  '1bcf2vr', // Arquimedes
 ];
 
 const LOGIN_STORAGE_KEY = 'tl_login_ok_v1';
