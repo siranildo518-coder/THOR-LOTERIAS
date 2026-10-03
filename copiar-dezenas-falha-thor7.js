@@ -11,7 +11,7 @@ function montar(){
   const preview=document.getElementById('gerarTopoPreview')||[...document.querySelectorAll('div')].find(e=>/Dezenas selecionadas com esse filtro/i.test(e.textContent||''));if(!preview)return;
   const limite=Math.max(1,Math.min(30,parseInt(sel.value,10)||30));
   const nums=[];[...preview.querySelectorAll('span,button,div')].forEach(e=>{if(nums.length>=limite)return;const t=(e.textContent||'').trim();if(/^\d{1,2}$/.test(t)){const n=parseInt(t,10);if(n>=1&&n<=99&&!nums.includes(n))nums.push(n)}});if(!nums.length)return;
-  const out=nums.map(n=>String(n).padStart(2,'0')).join(' ');try{await navigator.clipboard.writeText(out);btn.textContent='COPIADO ✓';setTimeout(()=>btn.textContent='COPIAR',900)}catch(e){prompt('Copie as dezenas:',out)}
+  const out=nums.map(n=>String(n).padStart(2,'0')).join(' ');try{localStorage.setItem('thor_dezenas_copiadas_v1',out)}catch(_e){}try{await navigator.clipboard.writeText(out)}catch(_e){}btn.textContent='COPIADO ✓';setTimeout(()=>btn.textContent='COPIAR',900)
  };return true;
 }
 let n=0;function iniciar(){if(!montar()&&++n<200)setTimeout(iniciar,150)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar,{once:true});else iniciar();new MutationObserver(()=>{if(!document.getElementById(ID))montar()}).observe(document.documentElement,{childList:true,subtree:true});
