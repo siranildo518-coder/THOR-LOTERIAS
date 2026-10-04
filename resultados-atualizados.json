@@ -1,64 +1,64 @@
 {
-  "atualizadoEm": "2026-10-03T22:24:07.828227+00:00",
+  "atualizadoEm": "2026-10-04T01:49:43.401355+00:00",
   "fonte": "API oficial Loterias CAIXA",
   "resultados": {
     "megasena": {
-      "concurso": 3065,
-      "data": "01/10/2026",
+      "concurso": 3066,
+      "data": "03/10/2026",
       "dezenas": [
-        8,
-        10,
-        30,
-        38,
-        50,
-        53
+        4,
+        6,
+        9,
+        13,
+        28,
+        48
       ]
     },
     "lotofacil": {
-      "concurso": 3795,
-      "data": "02/10/2026",
+      "concurso": 3796,
+      "data": "03/10/2026",
       "dezenas": [
-        1,
         3,
         4,
         5,
         6,
-        8,
+        7,
+        9,
         10,
         11,
         12,
-        13,
-        14,
-        18,
+        15,
+        16,
         19,
-        22,
+        20,
+        21,
         24
       ]
     },
     "quina": {
-      "concurso": 7133,
-      "data": "02/10/2026",
+      "concurso": 7134,
+      "data": "03/10/2026",
       "dezenas": [
-        19,
-        31,
-        46,
-        49,
-        60
+        14,
+        15,
+        43,
+        54,
+        72
       ]
     },
     "diadesorte": {
-      "concurso": 1313,
-      "data": "02/10/2026",
+      "concurso": 1314,
+      "data": "03/10/2026",
       "dezenas": [
-        7,
+        2,
+        10,
         11,
-        12,
-        15,
-        22,
+        17,
         25,
+        27,
         31
       ],
-      "mesSorte": "Fevereiro"
+      "mesSorte": "Junho"
     },
     "lotomania": {
       "concurso": 2983,
@@ -100,18 +100,18 @@
       ]
     },
     "timemania": {
-      "concurso": 2449,
-      "data": "01/10/2026",
+      "concurso": 2450,
+      "data": "03/10/2026",
       "dezenas": [
-        2,
-        15,
-        20,
-        24,
-        31,
-        56,
-        57
+        1,
+        5,
+        13,
+        16,
+        30,
+        42,
+        76
       ],
-      "timeCoracao": "PORTO VELHO      /RO"
+      "timeCoracao": "ANAPOLIS         /GO"
     },
     "duplasena": {
       "concurso": 3016,
