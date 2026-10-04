@@ -8350,9 +8350,17 @@ async function calcularFalhaDezenas(numerosAlvo, qtd, gameParam){
   );
   await Promise.all(pendentes);
 
-  const repetiu = {}, apareceu = {}, atraso = {};
-  numerosAlvo.forEach(n=>{ repetiu[n]=0; apareceu[n]=0; atraso[n]=null; });
-  let pares = 0;
+  const repetiu = {}, apareceu = {}, atraso = {}, ocorrencias = {};
+  numerosAlvo.forEach(n=>{ repetiu[n]=0; apareceu[n]=0; atraso[n]=null; ocorrencias[n]=0; });
+  let pares = 0, concursosValidos = 0;
+
+  concursos.forEach(data=>{
+    if(!data || !Array.isArray(data.dezenas)) return;
+    concursosValidos++;
+    const dezenas=(data.dezenas||[]).map(d=>parseInt(d,10));
+    numerosAlvo.forEach(n=>{ if(dezenas.includes(n)) ocorrencias[n]++; });
+  });
+
   for(let i=1;i<concursos.length;i++){
     const anterior = concursos[i];
     const seguinte = concursos[i-1];
@@ -8368,8 +8376,6 @@ async function calcularFalhaDezenas(numerosAlvo, qtd, gameParam){
     });
   }
 
-  // atraso = há quantos concursos (dentro da janela buscada) a dezena não sai,
-  // contando a partir do concurso mais recente (índice 0)
   concursos.forEach((data, i)=>{
     if(!data) return;
     const dezenas = (data.dezenas||[]).map(d=>parseInt(d,10));
@@ -8379,13 +8385,55 @@ async function calcularFalhaDezenas(numerosAlvo, qtd, gameParam){
   });
   numerosAlvo.forEach(n=>{ if(atraso[n]===null) atraso[n] = concursos.length; });
 
+  // Intervalo de Wilson (95%). Para o ranking usamos o centro de Wilson,
+  // que evita 0%/100% artificiais em amostras pequenas. Os limites ficam
+  // disponíveis para a interface e para futuras validações/backtests.
+  const wilson95 = (sucessos, total)=>{
+    if(!total) return null;
+    const z=1.959963984540054;
+    const p=sucessos/total;
+    const z2=z*z;
+    const den=1+z2/total;
+    const centro=(p+z2/(2*total))/den;
+    const margem=(z*Math.sqrt((p*(1-p)/total)+(z2/(4*total*total))))/den;
+    return {
+      centro:Math.max(0,Math.min(1,centro)),
+      inferior:Math.max(0,centro-margem),
+      superior:Math.min(1,centro+margem)
+    };
+  };
+
   const linhas = numerosAlvo.map(n=>{
     const base = apareceu[n];
-    const pct = base > 0 ? (1 - repetiu[n]/base) * 100 : null;
-    return {n, repetiu: repetiu[n], apareceu: base, pct, atraso: atraso[n]};
+    const falhou = Math.max(0, base - repetiu[n]);
+    const wFalha = wilson95(falhou, base);
+    const wFreq = wilson95(ocorrencias[n], concursosValidos);
+
+    // pct = chance estimada de falha usada pelo Gerar.
+    // Mantemos o nome para compatibilidade com todas as telas existentes.
+    const pct = wFalha ? wFalha.centro * 100 : null;
+    const pctBruta = base > 0 ? (falhou/base)*100 : null;
+    const frequenciaPct = concursosValidos ? (ocorrencias[n]/concursosValidos)*100 : null;
+
+    return {
+      n,
+      repetiu: repetiu[n],
+      apareceu: base,
+      falhou,
+      pct,
+      pctBruta,
+      atraso: atraso[n],
+      ocorrencias: ocorrencias[n],
+      frequenciaPct,
+      wilsonFalhaInferior: wFalha ? wFalha.inferior*100 : null,
+      wilsonFalhaSuperior: wFalha ? wFalha.superior*100 : null,
+      wilsonFrequencia: wFreq ? wFreq.centro*100 : null,
+      wilsonFrequenciaInferior: wFreq ? wFreq.inferior*100 : null,
+      wilsonFrequenciaSuperior: wFreq ? wFreq.superior*100 : null
+    };
   });
 
-  return {linhas, pares, numeroUltimo};
+  return {linhas, pares, numeroUltimo, concursosValidos};
 }
 
 function abrirCentroDezena(n){
