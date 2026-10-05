@@ -3772,6 +3772,7 @@ document.addEventListener('selectstart', e=>{
 <button class="home-feature-card" style="--fc:#d41948" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">◎</span><span><strong>Palpites</strong><small>Sugestões inteligentes</small></span></button>
 <button class="home-feature-card" style="--fc:#08b7cf" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">♛</span><span><strong>Resultados</strong><small>Consulte os últimos concursos</small></span></button>
 <button class="home-feature-card" id="btnFalhasConcursosHome" style="--fc:#c23b67"><span class="hfc-icon">↯</span><span><strong>Falhas e concursos</strong><small>Estudos de falhas por concurso</small></span></button>
+<button class="home-feature-card" id="btnFalhasProHome" style="--fc:#8b5cf6"><span class="hfc-icon">⚡</span><span><strong>Falhas Pro</strong><small>Análise avançada de falhas</small></span></button>
 </div>
   <div class="home-premium-card" id="homePremiumCardTendencia" style="cursor:pointer;">
     <span class="home-premium-tag">TENDÊNCIA</span>
@@ -10528,6 +10529,14 @@ async function carregarHomeHero(g){
 }
 // Mostra a tela imediatamente; a consulta de resultado não bloqueia a abertura.
 carregarHomeHero(homeGameAtual);
+
+// ---------- Falhas Pro ----------
+const btnFalhasProHome = document.getElementById('btnFalhasProHome');
+if(btnFalhasProHome){
+  btnFalhasProHome.addEventListener('click', ()=>{
+    window.location.href='./falhas-pro.html';
+  });
+}
 
 // ---------- Falhas e concursos ----------
 const btnFalhasConcursosHome = document.getElementById('btnFalhasConcursosHome');
