@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
 // THOR 7 V3.75 - calculadora de probabilidade e cache sincronizados
-const CACHE_NAME='thor-loterias-v178-otimizado';
+const CACHE_NAME='thor-loterias-v179-historico';
 const CORE=['./','./index.html','./index-core-thor7.html','./app-main.html','./app-direct.html','./manifest.json','./icon-192.png','./thor-home-topo-v316.jpg','./cadastros-liberados.json'];
 const PALPITES_CARD='<button class="home-feature-card" style="--fc:#d41948" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">◎</span><span><strong>Palpites</strong><small>Sugestões inteligentes</small></span></button>';
 const CALC_CARD='<button class="home-feature-card" style="--fc:#e98a00" data-home-target="btnSimularAtalho"><span class="hfc-icon">▤</span><span><strong>Calculadora</strong><small>Probabilidades e estimativas</small></span></button>';
@@ -68,7 +68,7 @@ self.addEventListener('activate',event=>{
     await Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)));
     await self.clients.claim();
     const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
-    clients.forEach(c=>c.postMessage({type:'THOR_UPDATED',version:'THOR V178',refresh:'thor-v178-otimizado'}));
+    clients.forEach(c=>c.postMessage({type:'THOR_UPDATED',version:'THOR V179',refresh:'thor-v179-historico'}));
   })());
 });
 
@@ -82,7 +82,7 @@ self.addEventListener('fetch',event=>{
   if(u.origin!==self.location.origin) return;
 
   // Resultados oficiais: sempre tenta a rede primeiro para não prender concurso antigo no APK.
-  if(u.pathname.endsWith('/resultados-atualizados.json')||u.pathname.endsWith('/resultados-auto-thor4.js')){
+  if(u.pathname.endsWith('/historico-loterias.json')||u.pathname.endsWith('/resultados-atualizados.json')||u.pathname.endsWith('/resultados-auto-thor4.js')){
     event.respondWith((async()=>{
       try{
         const fresh=await fetch(req,{cache:'no-store'});

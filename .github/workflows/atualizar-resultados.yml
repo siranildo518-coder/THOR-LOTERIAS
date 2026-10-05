@@ -4,10 +4,14 @@ on:
   push:
     paths:
       - '.github/workflows/atualizar-resultados.yml'
+      - '.github/scripts/atualizar-historico.py'
   schedule:
     - cron: '*/5 * * * *'
 permissions:
   contents: write
+concurrency:
+  group: thor-resultados-atualizacao
+  cancel-in-progress: false
 jobs:
   atualizar:
     runs-on: ubuntu-latest
@@ -50,9 +54,11 @@ jobs:
                   print(slug, "CAIXA indisponível após 4 tentativas; será tentado novamente na próxima execução:", erro)
           doc={"atualizadoEm":datetime.datetime.now(datetime.timezone.utc).isoformat(),"fonte":"API oficial Loterias CAIXA","resultados":out}
           p.write_text(json.dumps(doc,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+      - name: Atualizar histórico real de até 100 concursos por loteria
+        run: python .github/scripts/atualizar-historico.py
       - name: Publicar se mudou
         run: |
           git config user.name "thor-resultados-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add resultados-atualizados.json
+          git add resultados-atualizados.json historico-loterias.json
           git diff --cached --quiet || (git commit -m "Atualiza resultados das loterias" && git pull --rebase origin main && git push)

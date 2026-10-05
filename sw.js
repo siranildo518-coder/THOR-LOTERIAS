@@ -1,2 +1,2 @@
-// THOR V178 - otimização sobre a base V175
-importScripts('./sw-core-thor7.js?v=thor-v178-otimizado');
+// THOR V179 - histórico real no Gerador de Palpites
+importScripts('./sw-core-thor7.js?v=thor-v179-historico');
