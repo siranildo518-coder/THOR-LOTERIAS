@@ -10341,6 +10341,7 @@ GAMES.forEach(g=>{
 
 function mudarJogoTendencia(g){
   tendGameAtual = g;
+  try{localStorage.setItem('thor_dezenas_copiadas_loteria_v1',({MS:'megasena',LF:'lotofacil',QN:'quina',LM:'lotomania',DIA:'diadesorte',TM:'timemania',DS:'duplasena'})[g.code]||'');}catch(_e){}
   tendGameRefs.forEach(ref=>{
     const ativo = ref.g.code === g.code;
     ref.tab.classList.toggle('active', ativo);
