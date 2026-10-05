@@ -314,8 +314,56 @@
 </script>
 <script>
 const $=x=>document.getElementById(x),fmt=n=>String(n).padStart(2,'0');let rows=[],last={},key='lotofacil';function toast(t){$('toast').textContent=t;$('toast').classList.add('on');setTimeout(()=>$('toast').classList.remove('on'),2100)}document.querySelectorAll('.lot').forEach(b=>b.onclick=()=>{document.querySelectorAll('.lot').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('lot').value=b.dataset.v;key=b.dataset.k;rows=[];last={};$('contest').value='';$('resultNo').textContent=$('nextNo').textContent='—';$('status').textContent='CARREGANDO';$('current').innerHTML=$('prediction').innerHTML='';$('loadText').textContent='Buscando o concurso mais recente...';loadCalc()});document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.view));function show(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id===id));document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.view===id))}function stepW(d){$('window').value=Math.max(5,Math.min(100,(+$('window').value||20)+d))}function stepQ(d){$('qty').value=Math.max(1,Math.min(40,(+$('qty').value||10)+d))}
-function norm(j){let a=j.listaDezenas||j.dezenas||j.numeros||j.listaDezenasSorteio1||[];if(a.length&&typeof a[0]==='object')a=a.map(x=>x.dezena||x.numero||x.valor);return{numero:+(j.numero||j.concurso||j.numeroConcurso||0),data:j.dataApuracao||j.data||'',nums:a.map(x=>parseInt(String(x).replace(/\D/g,''),10)).filter(Number.isFinite)}}async function fetchOne(k,n){let u='https://servicebus2.caixa.gov.br/portaldeloterias/api/'+k+(n?'/'+n:'');let r=await fetch(u,{headers:{Accept:'application/json'}});if(!r.ok)throw Error();let x=norm(await r.json());if(!x.nums.length)throw Error();return x}
-async function loadCalc(){let b=$('calc'),q=Math.max(5,+$('window').value||20);b.disabled=true;b.classList.add('loading');$('status').textContent='CARREGANDO';try{let t=+$('contest').value||0;if(!t){let l=await fetchOne(key,'');t=l.numero;$('contest').value=t}let jobs=[];for(let n=Math.max(1,t-q+1);n<=t;n++)jobs.push(fetchOne(key,n));let m=(await Promise.all(jobs)).sort((a,b)=>a.numero-b.numero);rows=m.map(x=>x.nums);let c=m.at(-1);$('contest').value=c.numero;$('resultNo').textContent=c.numero;$('nextNo').textContent=c.numero+1;$('date').textContent='📅 '+(c.data||'data indisponível');$('status').textContent='ATUALIZADO';$('loadText').textContent=rows.length+' concursos carregados.';renderNums('current',c.nums,'g');calculate();toast('Análise atualizada')}catch{$('status').textContent=navigator.onLine?'ERRO AO ATUALIZAR':'SEM CONEXÃO';$('loadText').textContent=navigator.onLine?'Não foi possível carregar. Toque novamente em atualizar.':'Sem internet. Verifique a conexão.'}finally{b.disabled=false;b.classList.remove('loading')}}
+const drawCache=new Map(),pendingDraws=new Map();
+const drawRules={lotofacil:[25,15],megasena:[60,6],quina:[80,5],lotomania:[99,20],duplasena:[50,6],diadesorte:[31,7],timemania:[80,7]};
+function norm(j){
+ let a=j.listaDezenas||j.dezenas||j.numeros||j.listaDezenasSorteio1||[];
+ if(!Array.isArray(a))throw Error('Resposta inválida');
+ if(a.length&&typeof a[0]==='object')a=a.map(x=>x.dezena??x.numero??x.valor);
+ return{numero:Number(j.numero||j.concurso||j.numeroConcurso||0),data:j.dataApuracao||j.data||'',nums:a.map(x=>Number(String(x).trim())).filter(Number.isInteger)};
+}
+function validDraw(x,k,n){
+ const [max,count]=drawRules[k]||[];
+ return Number.isInteger(x.numero)&&x.numero>0&&(!n||x.numero===Number(n))&&x.nums.length===count&&new Set(x.nums).size===count&&x.nums.every(v=>v>=(k==='lotomania'?0:1)&&v<=max);
+}
+async function requestDraw(url,k,n){
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),9000);
+ try{const r=await fetch(url,{signal:controller.signal,headers:{Accept:'application/json'}});if(!r.ok)throw Error('Fonte indisponível');const x=norm(await r.json());if(!validDraw(x,k,n))throw Error('Resultado inválido');return x}finally{clearTimeout(timer)}
+}
+async function fetchOne(k,n){
+ const id=k+':'+(n||'latest');
+ if(n&&drawCache.has(id))return drawCache.get(id);
+ if(pendingDraws.has(id))return pendingDraws.get(id);
+ const task=(async()=>{
+  if(n){try{const x=JSON.parse(localStorage.getItem('thor-fp-draw:'+id)||'null');if(x&&validDraw(x,k,n)){drawCache.set(id,x);return x}}catch{}}
+  const sources=['https://loteriascaixa-api.herokuapp.com/api/'+k+'/'+(n||'latest'),'https://servicebus2.caixa.gov.br/portaldeloterias/api/'+k+(n?'/'+n:'')];
+  let error;
+  for(const url of sources){try{const x=await requestDraw(url,k,n);drawCache.set(k+':'+x.numero,x);try{localStorage.setItem('thor-fp-draw:'+k+':'+x.numero,JSON.stringify(x))}catch{}return x}catch(e){error=e}}
+  throw error||Error('Não foi possível carregar');
+ })();pendingDraws.set(id,task);try{return await task}finally{pendingDraws.delete(id)}
+}
+let loadRevision=0;
+async function loadCalc(){
+ const revision=++loadRevision,lottery=key,b=$('calc');
+ const q=Math.max(5,Math.min(100,Math.floor(+$('window').value||20)));$('window').value=q;
+ b.disabled=true;b.classList.add('loading');$('status').textContent='CARREGANDO';
+ try{
+  let t=Math.max(0,Math.floor(+$('contest').value||0));
+  if(!t){const latest=await fetchOne(lottery,'');t=latest.numero}
+  const first=Math.max(1,t-q+1),m=new Array(t-first+1);let cursor=0;
+  await Promise.all(Array.from({length:Math.min(3,m.length)},async()=>{
+   while(cursor<m.length){if(revision!==loadRevision||lottery!==key)return;const i=cursor++;m[i]=await fetchOne(lottery,first+i);if(revision===loadRevision&&lottery===key)$('loadText').textContent=m.filter(Boolean).length+'/'+m.length+' concursos carregados...'}
+  }));
+  if(revision!==loadRevision||lottery!==key)return;
+  rows=m.map(x=>x.nums);const c=m[m.length-1];
+  $('contest').value=c.numero;$('resultNo').textContent=c.numero;$('nextNo').textContent=c.numero+1;$('date').textContent='📅 '+(c.data||'data indisponível');$('status').textContent='ATUALIZADO';$('loadText').textContent=rows.length+' concursos carregados.';
+  renderNums('current',c.nums,'g');calculate();toast('Análise atualizada');
+ }catch{
+  if(revision!==loadRevision||lottery!==key)return;
+  $('status').textContent=navigator.onLine?'ERRO AO ATUALIZAR':'SEM CONEXÃO';
+  $('loadText').textContent=navigator.onLine?'Não foi possível obter todos os concursos. Toque em atualizar para tentar novamente.':'Sem internet. Os concursos já carregados podem ser consultados.';
+ }finally{if(revision===loadRevision){b.disabled=false;b.classList.remove('loading')}}
+}
 function highlightFailures(draw,enabled){
  document.querySelectorAll('.failure-success').forEach(card=>card.classList.remove('failure-success'));
  document.querySelectorAll('.failure-block').forEach(block=>{
@@ -329,7 +377,7 @@ function highlightFailures(draw,enabled){
   if(balls.length&&balls.every(ball=>!draw.includes(Number(ball.dataset.n))))body.closest('.card')?.classList.add('failure-success');
  });
 }
-async function move(d){let n=(+$('contest').value||0)+d;if(n<1)return;$('contest').value=n;try{let c=await fetchOne(key,n);$('resultNo').textContent=n;$('date').textContent='📅 '+(c.data||'');renderNums('current',c.nums,'g');if(last.fail){let ok=last.fail.filter(x=>!c.nums.includes(x.n)),hit=last.fail.filter(x=>c.nums.includes(x.n)),t='Concurso '+n+': '+ok.length+'/'+last.fail.length+' falharam ('+(ok.length/last.fail.length*100).toFixed(1)+'%). Saíram: '+(hit.map(x=>fmt(x.n)).join(', ')||'nenhuma')+'.';$('check').textContent=$('check2').textContent=t;document.querySelectorAll('.card .ball,#prediction .ball').forEach(e=>{e.classList.remove('hit','miss');e.classList.add(c.nums.includes(+e.dataset.n)?'hit':'miss')});highlightFailures(c.nums,d>0);toast('Conferido sem recalcular')}}catch{$('loadText').textContent='Concurso não encontrado. Previsão preservada.'}}
+async function move(d){let n=(+$('contest').value||0)+d;if(n<1)return;const lottery=key;const revision=loadRevision;try{let c=await fetchOne(lottery,n);if(lottery!==key||revision!==loadRevision)return;$('contest').value=n;$('resultNo').textContent=n;$('date').textContent='📅 '+(c.data||'');renderNums('current',c.nums,'g');if(last.fail){let ok=last.fail.filter(x=>!c.nums.includes(x.n)),hit=last.fail.filter(x=>c.nums.includes(x.n)),t='Concurso '+n+': '+ok.length+'/'+last.fail.length+' falharam ('+(ok.length/last.fail.length*100).toFixed(1)+'%). Saíram: '+(hit.map(x=>fmt(x.n)).join(', ')||'nenhuma')+'.';$('check').textContent=$('check2').textContent=t;document.querySelectorAll('.card .ball,#prediction .ball').forEach(e=>{e.classList.remove('hit','miss');e.classList.add(c.nums.includes(+e.dataset.n)?'hit':'miss')});highlightFailures(c.nums,d>0);toast('Conferido sem recalcular')}}catch{$('loadText').textContent='Concurso não encontrado. Previsão preservada.'}}
 function wilson(k,n,z=1.96){if(!n)return 0;let p=k/n,d=1+z*z/n;return(p+z*z/(2*n)-z*Math.sqrt((p*(1-p)+z*z/(4*n))/n))/d}function engine(rs,N,q){let w=Math.min(+$('window').value||20,rs.length),r=rs.slice(-w),s=r.slice(-Math.max(5,Math.round(w/2))),o=[];for(let n=1;n<=N;n++){let f=r.filter(a=>a.includes(n)).length/w,fs=s.filter(a=>a.includes(n)).length/s.length,late=0;for(let i=r.length-1;i>=0&&!r[i].includes(n);i--)late++;let tr=fs-f,rep=r.at(-1)?.includes(n)?1:0,str=.38*fs+.25*f+.22*Math.max(0,tr)+.15*wilson(r.filter(a=>a.includes(n)).length,w),fail=.35*(1-fs)+.22*(1-f)+.18*Math.max(0,-tr)+.15*Math.min(late/Math.max(3,w/3),1)+.10*rep;o.push({n:n,f:f,fs:fs,late:late,tr:tr,str:str,fail:fail})}let by=(k,rev=true)=>[...o].sort((a,b)=>rev?b[k]-a[k]:a[k]-b[k]);return{all:o,fix:by('str').slice(0,q),fail:by('fail').slice(0,q),hot:by('fs').slice(0,q),cold:by('fs',false).slice(0,q),up:by('tr').slice(0,q),down:by('tr',false).slice(0,q),late:by('late').slice(0,q)}}
 function cross80(rs,N,q,e){if(!rs.length)return{base:[],picks:[],mean:0};let r=rs.slice(-Math.min(+$('window').value||20,rs.length)),current=r.at(-1)||[],history=r.slice(0,-1),base=current.map(n=>{let appearances=history.filter(a=>a.includes(n)).length,transitions=0,misses=0;for(let i=0;i<history.length-1;i++)if(history[i].includes(n)){transitions++;if(!history[i+1].includes(n))misses++}let partners=current.filter(x=>x!==n),pair=partners.reduce((sum,p)=>sum+history.filter(a=>a.includes(n)&&a.includes(p)).length/Math.max(1,appearances),0)/Math.max(1,partners.length),freq=appearances/Math.max(1,history.length),cross=.58*freq+.42*pair,transitionFail=transitions?misses/transitions:0,eStat=e.all.find(x=>x.n===n),fail=.55*transitionFail+.30*(eStat?.fail||0)+.15*(1-pair);return{...(eStat||{n:n,fail:fail}),n:n,cross:cross,fail:fail,index:80+19*Math.min(1,cross)}}).sort((a,b)=>b.cross-a.cross).slice(0,Math.min(12,current.length));let picks=[...base].sort((a,b)=>b.fail-a.fail).slice(0,Math.min(q,base.length));return{base:base,picks:picks,mean:picks.reduce((s,x)=>s+x.fail,0)/Math.max(1,picks.length)*100}}
 function back(rs,N,q){let st=Math.max(6,Math.min(20,Math.floor(rs.length/3))),a=[];for(let i=st;i<rs.length;i++){let e=engine(rs.slice(0,i),N,q);a.push(e.fail.filter(x=>!rs[i].includes(x.n)).length/q*100)}return a.length?{avg:a.reduce((x,y)=>x+y,0)/a.length,last:a.slice(-20).reduce((x,y)=>x+y,0)/Math.min(20,a.length),n:a.length}:{avg:0,last:0,n:0}}function render(id,a,c){$(id).innerHTML=a.map(x=>'<span class="ball '+c+'" data-n="'+x.n+'">'+fmt(x.n)+'</span>').join('')}function renderNums(id,a,c){$(id).innerHTML=a.map(n=>'<span class="ball '+c+'">'+fmt(n)+'</span>').join('')}function mean(a){return a.reduce((s,x)=>s+x.fail,0)/Math.max(1,a.length)*100}
@@ -444,4 +492,4 @@ body{position:static!important}
 .lots{position:relative!important;top:auto!important;flex:0 0 auto!important;z-index:1000!important;background:#e8f6fc!important;padding-top:5px!important}
 .wrap{flex:1 1 auto!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;padding-bottom:50vh!important}
 </style>
-</body></html>
+<footer style="text-align:center;padding:8px;font-size:9px;color:#51769b">THOR FALHAS PRO · Versão 2026.10.05.1</footer></body></html>
