@@ -10510,7 +10510,11 @@ carregarHomeHero(homeGameAtual);
 
 // ---------- Falhas Pro ----------
 const btnFalhasProHome = document.getElementById('btnFalhasProHome');
-// O arquivo que Falhas Pro abrirá será ligado quando ele for enviado.
+if(btnFalhasProHome){
+  btnFalhasProHome.addEventListener('click', ()=>{
+    window.location.href = './falhas-pro.html';
+  });
+}
 
 // ---------- Falhas e concursos ----------
 const btnFalhasConcursosHome = document.getElementById('btnFalhasConcursosHome');
