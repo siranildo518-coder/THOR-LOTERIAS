@@ -1,34 +1,34 @@
 {
-  "atualizadoEm": "2026-10-06T23:00:41.413443+00:00",
+  "atualizadoEm": "2026-10-07T02:16:33.531032+00:00",
   "fonte": "API oficial Loterias CAIXA",
   "resultados": {
     "megasena": {
-      "concurso": 3066,
-      "data": "03/10/2026",
+      "concurso": 3067,
+      "data": "06/10/2026",
       "dezenas": [
+        1,
         4,
-        6,
-        9,
-        13,
-        28,
-        48
+        17,
+        33,
+        41,
+        52
       ]
     },
     "lotofacil": {
-      "concurso": 3797,
-      "data": "05/10/2026",
+      "concurso": 3798,
+      "data": "06/10/2026",
       "dezenas": [
         1,
         2,
-        3,
+        4,
+        5,
         6,
         7,
         8,
         9,
         10,
-        13,
+        11,
         14,
-        16,
         18,
         19,
         20,
@@ -36,29 +36,29 @@
       ]
     },
     "quina": {
-      "concurso": 7135,
-      "data": "05/10/2026",
+      "concurso": 7136,
+      "data": "06/10/2026",
       "dezenas": [
-        1,
-        6,
-        18,
-        43,
-        80
+        13,
+        14,
+        30,
+        53,
+        60
       ]
     },
     "diadesorte": {
-      "concurso": 1315,
-      "data": "05/10/2026",
+      "concurso": 1316,
+      "data": "06/10/2026",
       "dezenas": [
-        2,
-        9,
-        13,
-        15,
-        17,
-        19,
-        26
+        1,
+        6,
+        10,
+        16,
+        18,
+        22,
+        29
       ],
-      "mesSorte": "Outubro"
+      "mesSorte": "Setembro"
     },
     "lotomania": {
       "concurso": 2984,
@@ -100,18 +100,18 @@
       ]
     },
     "timemania": {
-      "concurso": 2450,
-      "data": "03/10/2026",
+      "concurso": 2451,
+      "data": "06/10/2026",
       "dezenas": [
-        1,
-        5,
-        13,
-        16,
-        30,
-        42,
-        76
+        4,
+        6,
+        34,
+        38,
+        53,
+        58,
+        69
       ],
-      "timeCoracao": "ANAPOLIS         /GO"
+      "timeCoracao": "AMERICA          /RN"
     },
     "duplasena": {
       "concurso": 3017,
