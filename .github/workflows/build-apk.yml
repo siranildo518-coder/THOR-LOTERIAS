@@ -79,8 +79,8 @@ jobs:
                   applicationId 'com.thorloterias.app'
                   minSdk 23
                   targetSdk 35
-                  versionCode 147
-                  versionName 'THOR 7 V145'
+                  versionCode 182
+                  versionName 'THOR 7 V182'
               }
           }
           EOF
@@ -181,7 +181,7 @@ jobs:
                   // APK cliente: preserva localStorage/cookies (inclusive a trava), mas limpa SOMENTE cache web.
                   // Isso evita precisar usar "Limpar dados" quando o gerenciador publica um novo cliente.
                   webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
-                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?apk=145");
+                  webView.loadUrl("https://siranildo518-coder.github.io/THOR-LOTERIAS/index.html?apk=182");
               }
               @Override protected void onPause() {
                   android.webkit.CookieManager.getInstance().flush();
@@ -264,11 +264,11 @@ jobs:
         run: gradle :app:assembleDebug --stacktrace
 
       - name: Preparar APK
-        run: cp android-apk/app/build/outputs/apk/debug/app-debug.apk THOR-7-V145.apk
+        run: cp android-apk/app/build/outputs/apk/debug/app-debug.apk THOR-7-V182.apk
 
       - name: Disponibilizar APK
         uses: actions/upload-artifact@v4
         with:
-          name: THOR-7-V145-APK
-          path: THOR-7-V145.apk
+          name: THOR-7-V182-APK
+          path: THOR-7-V182.apk
           retention-days: 30
