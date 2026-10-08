@@ -3601,7 +3601,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-
+  <footer id="thorDrawerCreditos" style="margin-top:auto;padding:18px 14px 14px;text-align:center;font-size:11px;line-height:1.5;color:#6b7280;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V180</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -6073,7 +6073,50 @@ function obterConcursoCache(game, concurso){
 }
 
 const RESULTADO_LOTOFACIL_3789={concurso:3789,data:'25/09/2026',dezenas:[6,7,8,9,11,12,13,14,15,16,17,18,19,23,25]};
-async function fetchConcursoLoteria(game, concurso){
+
+const THOR_CONSULTAS_PENDENTES=new Map();
+let thorBaseResultadosPromise=null,thorBaseResultadosHora=0;
+async function thorResultadosRapidos(){
+ if(thorBaseResultadosPromise&&Date.now()-thorBaseResultadosHora<60000)return thorBaseResultadosPromise;
+ thorBaseResultadosHora=Date.now();
+ thorBaseResultadosPromise=(async()=>{
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),3000);
+  try{
+   const r=await fetch('./resultados-atualizados.json?_thor='+Date.now(),{cache:'no-store',signal:controller.signal});
+   if(!r.ok)throw new Error('Base indisponível');
+   const j=await r.json(),age=Date.now()-Date.parse(j.atualizadoEm);
+   if(!Number.isFinite(age)||age< -60000||age>20*60000)throw new Error('Base precisa atualizar');
+   return j.resultados||{};
+  }finally{clearTimeout(timer)}
+ })();
+ try{return await thorBaseResultadosPromise}catch(e){thorBaseResultadosPromise=null;throw e}
+}
+async function fetchConcursoLoteria(game,concurso){
+ const cached=obterConcursoCache(game,concurso);if(cached)return cached;
+ const id=game.code+':'+(concurso||'latest');
+ if(THOR_CONSULTAS_PENDENTES.has(id))return THOR_CONSULTAS_PENDENTES.get(id);
+ const task=(async()=>{
+  if(!concurso){
+   try{
+    const base=await thorResultadosRapidos();
+    const slug={MS:'megasena',LF:'lotofacil',QN:'quina',DIA:'diadesorte',LM:'lotomania',S7:'supersete',TM:'timemania',DS:'duplasena'}[game.code];
+    const x=base[slug],counts={MS:6,LF:15,QN:5,DIA:7,LM:20,S7:7,TM:7,DS:6};
+    const nums=(x?.dezenas||[]).map(Number);
+    if(Number.isInteger(Number(x?.concurso))&&Number(x.concurso)>0&&nums.length===counts[game.code]&&nums.every(n=>Number.isInteger(n)&&n>=game.range.min&&n<=game.range.max)&&(game.code==='S7'||new Set(nums).size===nums.length)){
+     const data={...x,concurso:Number(x.concurso),dezenas:nums};
+     const prev=obterConcursoCache(game,data.concurso);
+     if(prev)return prev;
+     CONCURSO_CACHE_LOTERIA.set(chaveCacheConcurso(game,data.concurso),data);return data;
+    }
+   }catch(e){}
+  }
+  return fetchConcursoLoteriaRemoto(game,concurso);
+ })();
+ THOR_CONSULTAS_PENDENTES.set(id,task);
+ try{return await task}finally{THOR_CONSULTAS_PENDENTES.delete(id)}
+}
+
+async function fetchConcursoLoteriaRemoto(game, concurso){
   const emCache = obterConcursoCache(game, concurso);
   if(emCache) return emCache;
   const timeoutMs = 4200;

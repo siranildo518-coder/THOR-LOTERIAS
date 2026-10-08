@@ -1,2 +1,2 @@
-// THOR V179 - histórico real no Gerador de Palpites
-importScripts('./sw-core-thor7.js?v=thor-v179-historico');
+// THOR V180 - créditos no menu e consultas mais rápidas
+importScripts('./sw-core-thor7.js?v=thor-v180-pesquisa');
