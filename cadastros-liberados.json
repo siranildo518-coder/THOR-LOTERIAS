@@ -774,6 +774,13 @@
       "criadoEm": "2026-10-08T14:58:42.553Z",
       "expiraEm": "2026-10-09T14:58:42.556Z",
       "ativo": true
+    },
+    {
+      "hash": "ad8514534c727b472079201c0f40710d9b0e89d435994a4934e1ae82368d49f0",
+      "compatHash": "1mrlsea",
+      "criadoEm": "2026-10-08T18:57:58.891Z",
+      "expiraEm": "2026-10-09T18:57:58.895Z",
+      "ativo": true
     }
   ]
 }
