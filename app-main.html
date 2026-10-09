@@ -644,6 +644,7 @@ function montarTelaLogin(){
         const guard = document.getElementById('thorLoginStartupGuard');
         if(guard) guard.remove();
         if(typeof atualizarPerfilMenuLateral==='function') atualizarPerfilMenuLateral();
+      iniciarPresencaOnline();
       } else if(resultado.motivo === 'outro_aparelho'){
         erroEl.style.color = '#B7791F';
         erroEl.textContent = 'Esta conta já está em uso em outro aparelho.';
@@ -695,6 +696,7 @@ function montarTelaLogin(){
       const guard = document.getElementById('thorLoginStartupGuard');
       if(guard) guard.remove();
       if(typeof atualizarPerfilMenuLateral==='function') atualizarPerfilMenuLateral();
+      iniciarPresencaOnline();
       return;
     }
     const mensagens={
@@ -751,29 +753,28 @@ async function vincularFabioromeuLogado(){
   }
 }
 
-// Presença online: grava somente atividade/horário; não altera a trava do aparelho.
-let _thorPresencaTimer = null;
+// Presença V185: identidade anônima separada do login dos clientes.
+let _thorPresencaTimer=null,_thorPresenceAuth=null,_thorPresenceBusy=false;
+async function thorPresenceRequest(url,body,token){
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+ try{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:JSON.stringify(body),signal:controller.signal});const data=await r.json();if(!r.ok)throw Error(data.error?.message||r.status);return data}finally{clearTimeout(timer)}
+}
 async function atualizarPresencaOnline(){
-  try{
-    if(!loginJaValidado() || document.visibilityState === 'hidden') return;
-    const hash = localStorage.getItem('tl_hash_atual');
-    if(!hash) return;
-    await carregarFirebase();
-    await dbFirestore.collection('presenca_online').doc(hash).set({
-      online: true,
-      ultimaAtividade: firebase.firestore.FieldValue.serverTimestamp()
-    }, {merge:true});
-  }catch(e){ console.error('Falha ao atualizar presença:', e); }
+ if(_thorPresenceBusy||!loginJaValidado()||document.visibilityState==='hidden')return;
+ const hash=localStorage.getItem('tl_hash_atual');if(!hash)return;
+ _thorPresenceBusy=true;
+ try{
+  if(!_thorPresenceAuth||Date.now()>=_thorPresenceAuth.expires){
+   const data=await thorPresenceRequest('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+firebaseConfig.apiKey,{returnSecureToken:true});
+   _thorPresenceAuth={uid:data.localId,token:data.idToken,expires:Date.now()+Number(data.expiresIn)*1000-60000};
+  }
+  if(!loginJaValidado()||localStorage.getItem('tl_hash_atual')!==hash||document.visibilityState==='hidden')return;
+  const name='projects/'+firebaseConfig.projectId+'/databases/(default)/documents/presenca_online/'+_thorPresenceAuth.uid;
+  await thorPresenceRequest('https://firestore.googleapis.com/v1/projects/'+firebaseConfig.projectId+'/databases/(default)/documents:commit',{writes:[{update:{name,fields:{contaHash:{stringValue:hash},usuario:{stringValue:localStorage.getItem('tl_nome_conta_'+hash)||'Usuário'},online:{booleanValue:true}}},updateMask:{fieldPaths:['contaHash','usuario','online']},updateTransforms:[{fieldPath:'ultimaAtividade',setToServerValue:'REQUEST_TIME'}]}]},_thorPresenceAuth.token);
+ }catch(e){console.error('Presença online:',e.message)}finally{_thorPresenceBusy=false}
 }
-function iniciarPresencaOnline(){
-  // Deixa a interface terminar de abrir antes de iniciar tarefas de presença.
-  setTimeout(atualizarPresencaOnline, 8000);
-  clearInterval(_thorPresencaTimer);
-  _thorPresencaTimer = setInterval(atualizarPresencaOnline, 60000);
-}
-document.addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState === 'visible') atualizarPresencaOnline();
-});
+function iniciarPresencaOnline(){clearInterval(_thorPresencaTimer);atualizarPresencaOnline();_thorPresencaTimer=setInterval(atualizarPresencaOnline,60000)}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')atualizarPresencaOnline()});
 
 document.addEventListener('DOMContentLoaded', ()=>{
   if(!loginJaValidado()){
@@ -3601,7 +3602,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V184</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V185</span></footer>
 </div>
 
   <div class="contatos-conteudo">
