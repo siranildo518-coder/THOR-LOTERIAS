@@ -1,64 +1,64 @@
 {
-  "atualizadoEm": "2026-10-09T00:25:42.052856+00:00",
+  "atualizadoEm": "2026-10-09T06:32:45.749424+00:00",
   "fonte": "API oficial Loterias CAIXA",
   "resultados": {
     "megasena": {
-      "concurso": 3067,
-      "data": "06/10/2026",
+      "concurso": 3068,
+      "data": "08/10/2026",
       "dezenas": [
-        1,
-        4,
-        17,
-        33,
-        41,
-        52
+        7,
+        10,
+        39,
+        40,
+        43,
+        57
       ]
     },
     "lotofacil": {
-      "concurso": 3799,
-      "data": "07/10/2026",
+      "concurso": 3800,
+      "data": "08/10/2026",
       "dezenas": [
         1,
+        2,
         3,
         4,
         5,
         7,
         8,
+        9,
         10,
         12,
         13,
-        18,
+        14,
+        15,
         19,
-        20,
-        23,
-        24,
-        25
+        21
       ]
     },
     "quina": {
-      "concurso": 7137,
-      "data": "07/10/2026",
+      "concurso": 7138,
+      "data": "08/10/2026",
       "dezenas": [
-        2,
-        7,
-        50,
-        61,
-        79
+        14,
+        16,
+        27,
+        34,
+        52
       ]
     },
     "diadesorte": {
-      "concurso": 1317,
-      "data": "07/10/2026",
+      "concurso": 1318,
+      "data": "08/10/2026",
       "dezenas": [
-        4,
-        7,
-        16,
+        1,
+        2,
+        3,
+        11,
+        20,
         25,
-        27,
-        28,
-        31
+        27
       ],
-      "mesSorte": "Março"
+      "mesSorte": "Setembro"
     },
     "lotomania": {
       "concurso": 2985,
@@ -100,18 +100,18 @@
       ]
     },
     "timemania": {
-      "concurso": 2451,
-      "data": "06/10/2026",
+      "concurso": 2452,
+      "data": "08/10/2026",
       "dezenas": [
-        4,
-        6,
-        34,
-        38,
-        53,
-        58,
-        69
+        39,
+        40,
+        60,
+        62,
+        64,
+        68,
+        72
       ],
-      "timeCoracao": "AMERICA          /RN"
+      "timeCoracao": "CONFIANCA SAF    /SE"
     },
     "duplasena": {
       "concurso": 3018,
