@@ -527,7 +527,9 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
 }
 
 // Derruba o login deste aparelho/navegador e volta pra tela de usuário/senha.
-function sairDoLogin(){
+async function sairDoLogin(){
+  clearInterval(_thorPresencaTimer);
+  await Promise.race([registrarSaidaOnline(),new Promise(resolve=>setTimeout(resolve,1200))]);
   try{ localStorage.removeItem(LOGIN_STORAGE_KEY); localStorage.removeItem('tl_hash_atual'); }catch(e){}
   location.reload();
 }
@@ -770,11 +772,17 @@ async function atualizarPresencaOnline(){
   }
   if(!loginJaValidado()||localStorage.getItem('tl_hash_atual')!==hash||document.visibilityState==='hidden')return;
   const name='projects/'+firebaseConfig.projectId+'/databases/(default)/documents/presenca_online/'+_thorPresenceAuth.uid;
-  await thorPresenceRequest('https://firestore.googleapis.com/v1/projects/'+firebaseConfig.projectId+'/databases/(default)/documents:commit',{writes:[{update:{name,fields:{contaHash:{stringValue:hash},usuario:{stringValue:localStorage.getItem('tl_nome_conta_'+hash)||'Usuário'},online:{booleanValue:true}}},updateMask:{fieldPaths:['contaHash','usuario','online']},updateTransforms:[{fieldPath:'ultimaAtividade',setToServerValue:'REQUEST_TIME'}]}]},_thorPresenceAuth.token);
+  await thorPresenceRequest('https://firestore.googleapis.com/v1/projects/'+firebaseConfig.projectId+'/databases/(default)/documents:commit',{writes:[{update:{name,fields:{contaHash:{stringValue:hash},usuario:{stringValue:localStorage.getItem('tl_nome_conta_'+hash)||'Usuário'},online:{booleanValue:document.visibilityState!=='hidden'&&loginJaValidado()}}},updateMask:{fieldPaths:['contaHash','usuario','online']},updateTransforms:[{fieldPath:'ultimaAtividade',setToServerValue:'REQUEST_TIME'}]}]},_thorPresenceAuth.token);
  }catch(e){console.error('Presença online:',e.message)}finally{_thorPresenceBusy=false}
 }
 function iniciarPresencaOnline(){clearInterval(_thorPresencaTimer);atualizarPresencaOnline();_thorPresencaTimer=setInterval(atualizarPresencaOnline,60000)}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')atualizarPresencaOnline()});
+async function registrarSaidaOnline(){
+ const hash=localStorage.getItem('tl_hash_atual');if(!hash||!_thorPresenceAuth)return;
+ const name='projects/'+firebaseConfig.projectId+'/databases/(default)/documents/presenca_online/'+_thorPresenceAuth.uid;
+ try{await fetch('https://firestore.googleapis.com/v1/projects/'+firebaseConfig.projectId+'/databases/(default)/documents:commit',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json',Authorization:'Bearer '+_thorPresenceAuth.token},body:JSON.stringify({writes:[{update:{name,fields:{contaHash:{stringValue:hash},usuario:{stringValue:localStorage.getItem('tl_nome_conta_'+hash)||'Usuário'},online:{booleanValue:false}}},updateMask:{fieldPaths:['contaHash','usuario','online']},updateTransforms:[{fieldPath:'ultimaAtividade',setToServerValue:'REQUEST_TIME'},{fieldPath:'ultimaSaida',setToServerValue:'REQUEST_TIME'}]}]})})}catch(e){console.error('Registro de saída:',e.message)}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')atualizarPresencaOnline();else registrarSaidaOnline()});
+window.addEventListener('pagehide',registrarSaidaOnline);
 
 document.addEventListener('DOMContentLoaded', ()=>{
   if(!loginJaValidado()){
@@ -3602,7 +3610,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V185</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V186</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
