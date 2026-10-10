@@ -69,8 +69,41 @@ jobs:
       - name: Atualizar histórico real de até 100 concursos por loteria
         run: python .github/scripts/atualizar-historico.py
       - name: Publicar se mudou
+        shell: python
         run: |
-          git config user.name "thor-resultados-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add resultados-atualizados.json historico-loterias.json
-          git diff --cached --quiet || (git commit -m "Atualiza resultados das loterias" && git pull --rebase origin main && git push)
+          import json, pathlib, subprocess, time
+          def git(*args,check=True):
+              return subprocess.run(["git",*args],check=check).returncode
+          files=["resultados-atualizados.json","historico-loterias.json"]
+          generated={name:json.loads(pathlib.Path(name).read_text(encoding="utf-8")) for name in files}
+          git("config","user.name","thor-resultados-bot")
+          git("config","user.email","actions@users.noreply.github.com")
+          git("restore","--",*files)
+          for attempt in range(4):
+              git("pull","--ff-only","origin","main")
+              for name in files:
+                  current=json.loads(pathlib.Path(name).read_text(encoding="utf-8"))
+                  incoming=generated[name]
+                  if name=="resultados-atualizados.json":
+                      for slug,item in incoming.get("resultados",{}).items():
+                          if int(item.get("concurso",0))>=int(current.get("resultados",{}).get(slug,{}).get("concurso",0)):
+                              current.setdefault("resultados",{})[slug]=item
+                      current["atualizadoEm"]=max(current.get("atualizadoEm",""),incoming.get("atualizadoEm",""))
+                  else:
+                      # O histórico gerado já usa o resultado numerado da mesma execução.
+                      # Preserve a versão remota se ela foi alterada por outro processo.
+                      if current.get("atualizadoEm","")<=incoming.get("atualizadoEm",""):
+                          current=incoming
+                  pathlib.Path(name).write_text(json.dumps(current,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+              git("add",*files)
+              if git("diff","--cached","--quiet",check=False)==0:
+                  break
+              git("commit","-m","Atualiza resultados das loterias")
+              if git("push","origin","HEAD:main",check=False)==0:
+                  break
+              # Desfaz somente o commit criado acima nesta execução isolada e tenta
+              # mesclar de novo com a versão remota; nunca força o push.
+              git("reset","--mixed","HEAD~1")
+              git("restore","--",*files)
+              if attempt==3: raise RuntimeError("Publicação concorrente; tentativas esgotadas")
+              time.sleep(2)
