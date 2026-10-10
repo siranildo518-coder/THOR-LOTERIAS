@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#07101f">
+<title>THOR LOTERIAS — Desdobramento</title>
+<style>
+:root{--bg:#07101f;--panel:#101d31;--panel2:#152641;--line:#263b59;--text:#f3f7ff;--muted:#a8b8d0;--gold:#f5c451;--green:#39d98a;--blue:#5aa7ff;--red:#ff6b78}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#142b49 0,#07101f 55%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
+header{padding:24px 16px 18px;text-align:center;border-bottom:1px solid var(--line);background:#07101fbb}header .brand{font-weight:900;letter-spacing:2px;color:var(--gold);font-size:clamp(23px,5vw,34px)}header p{margin:7px 0 0;color:var(--muted)}
+main{max-width:1000px;margin:0 auto;padding:18px 14px 48px}.card{background:linear-gradient(145deg,#12223a,#0c1829);border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 16px;box-shadow:0 12px 30px #0002}
+h2{font-size:18px;margin:0 0 12px}p.help{color:var(--muted);font-size:14px;line-height:1.5;margin:6px 0 12px}
+.ball-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.ball{border:1px solid #355073;background:#0a1627;color:#dce8fb;border-radius:50%;aspect-ratio:1;max-width:66px;width:100%;justify-self:center;font-weight:800;font-size:16px;cursor:pointer;transition:.12s}.ball.selected{background:var(--gold);border-color:#ffe39a;color:#172235;box-shadow:0 0 0 3px #f5c45122}.ball:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field label{display:block;color:var(--muted);font-size:13px;margin:0 0 6px}.field input,.field select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#081426;color:var(--text);font-size:16px}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.pill{background:#0a1728;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:13px;color:var(--muted)}.pill strong{color:var(--gold)}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}button.action{border:0;border-radius:10px;padding:12px 16px;font-weight:800;font-size:14px;cursor:pointer}.primary{background:var(--gold);color:#172235}.secondary{background:#1a3150;color:var(--text);border:1px solid #355073!important}.success{background:#123e35;color:#a8ffda;border:1px solid #286d58!important}
+.notice{display:none;border-radius:10px;padding:11px 13px;margin-top:12px;font-size:14px;background:#3b2029;color:#ffd4d9;border:1px solid #793846}.notice.show{display:block}
+#results{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}.game{background:#0a1728;border:1px solid var(--line);border-radius:12px;padding:12px}.game-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;color:var(--muted);font-size:13px}.numbers{display:flex;flex-wrap:wrap;gap:5px}.number{display:inline-flex;align-items:center;justify-content:center;width:31px;height:31px;border-radius:50%;background:#173a5b;border:1px solid #2b5e88;color:#fff;font-size:12px;font-weight:800}.empty{color:var(--muted);font-size:14px;padding:10px 0}.result-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.small{font-size:12px;color:var(--muted);line-height:1.5;margin-top:12px}
+@media(min-width:600px){.ball-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.ball{font-size:18px}}@media(max-width:390px){.card{padding:14px}.ball-grid{gap:6px}.ball{font-size:14px}.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="brand">THOR LOTERIAS</div><p>Ferramenta de desdobramento • arquivo de teste independente</p></header>
+<main>
+<section class="card">
+<h2>1. Escolha as dezenas</h2>
+<p class="help">Toque nas dezenas para selecionar ou retirar. Para o exemplo da Lotofácil, selecione 20 dezenas entre 01 e 25.</p>
+<div class="ball-grid" id="ballGrid" aria-label="Selecionar dezenas"></div>
+<div class="stats"><div class="pill">Selecionadas: <strong id="selectedCount">0</strong></div><div class="pill">Restantes para selecionar: <strong id="remainingCount">20</strong></div></div>
+<div class="actions"><button class="action secondary" id="select20">Selecionar 01–20</button><button class="action secondary" id="clear">Limpar seleção</button></div>
+</section>
+<section class="card">
+<h2>2. Configure o desdobramento</h2>
+<div class="row">
+<div class="field"><label for="gameSize">Dezenas em cada jogo</label><select id="gameSize"><option value="15" selected>15 dezenas</option><option value="16">16 dezenas</option><option value="17">17 dezenas</option><option value="18">18 dezenas</option><option value="19">19 dezenas</option><option value="20">20 dezenas</option></select></div>
+<div class="field"><label for="gameCount">Quantidade de jogos para gerar</label><input id="gameCount" type="number" min="1" max="500" value="20" inputmode="numeric"></div>
+</div>
+<p class="help">O sistema monta jogos distintos com a quantidade exata de dezenas escolhida e tenta distribuir as dezenas selecionadas de forma equilibrada entre os jogos.</p>
+<div class="actions"><button class="action primary" id="generate">Gerar jogos</button><button class="action secondary" id="balance">Ver distribuição</button></div>
+<div id="notice" class="notice" role="alert"></div>
+</section>
+<section class="card">
+<div class="result-head"><h2>3. Jogos gerados</h2><div class="actions" style="margin:0"><button class="action success" id="copy">Copiar jogos</button><button class="action secondary" id="download">Baixar TXT</button></div></div>
+<div id="summary" class="stats"></div>
+<div id="results"><div class="empty">Escolha suas dezenas e toque em “Gerar jogos”.</div></div>
+<p class="small">Importante: este recurso organiza combinações matemáticas; não prevê resultados nem garante prêmios. A distribuição equilibrada não significa cobertura garantida de todas as combinações possíveis.</p>
+</section>
+</main>
+<script>
+(function(){
+const grid=document.getElementById('ballGrid'), selected=new Set(), resultsEl=document.getElementById('results'), notice=document.getElementById('notice');
+let games=[];
+for(let n=1;n<=25;n++){const b=document.createElement('button');b.type='button';b.className='ball';b.textContent=String(n).padStart(2,'0');b.setAttribute('aria-pressed','false');b.addEventListener('click',()=>{if(selected.has(n))selected.delete(n);else selected.add(n);renderSelection()});grid.appendChild(b)}
+function renderSelection(){[...grid.children].forEach((b,i)=>{const yes=selected.has(i+1);b.classList.toggle('selected',yes);b.setAttribute('aria-pressed',String(yes))});document.getElementById('selectedCount').textContent=selected.size;document.getElementById('remainingCount').textContent=Math.max(0,20-selected.size);notice.classList.remove('show')}
+function warn(t){notice.textContent=t;notice.classList.add('show')}
+document.getElementById('select20').onclick=()=>{selected.clear();for(let n=1;n<=20;n++)selected.add(n);renderSelection()};
+document.getElementById('clear').onclick=()=>{selected.clear();games=[];renderSelection();resultsEl.innerHTML='<div class="empty">Escolha suas dezenas e toque em “Gerar jogos”.</div>';document.getElementById('summary').innerHTML=''};
+function combKey(a){return a.slice().sort((x,y)=>x-y).join(',')}
+function generateBalanced(pool,size,count){
+ const freq=Object.fromEntries(pool.map(n=>[n,0])), pairFreq=new Map(), made=new Set(), out=[];
+ // Create many candidates and choose the one with the lowest combined number/pair usage.
+ for(let g=0;g<count;g++){
+  let best=null,bestScore=Infinity;
+  const trials=Math.min(1800,Math.max(250,pool.length*size*5));
+  for(let t=0;t<trials;t++){
+   const shuffled=pool.slice().sort(()=>Math.random()-.5);
+   const cand=shuffled.slice(0,size).sort((a,b)=>a-b), key=combKey(cand);
+   if(made.has(key))continue;
+   let score=0;
+   for(const n of cand)score+=freq[n]*freq[n]*3+Math.random()*.12;
+   for(let i=0;i<cand.length;i++)for(let j=i+1;j<cand.length;j++){const k=cand[i]+'-'+cand[j];score+=(pairFreq.get(k)||0)*.18}
+   if(score<bestScore){bestScore=score;best=cand}
+  }
+  if(!best){
+   // Exhaustive fallback for small spaces; stop safely if requested count exceeds unique combinations.
+   let found=false;
+   function walk(start,arr){if(found)return;if(arr.length===size){const key=combKey(arr);if(!made.has(key)){best=arr.slice();found=true}return}
+    for(let i=start;i<=pool.length-(size-arr.length);i++){arr.push(pool[i]);walk(i+1,arr);arr.pop();if(found)return}}
+   walk(0,[]);
+   if(!found)break;
+  }
+  made.add(combKey(best));out.push(best);
+  best.forEach(n=>freq[n]++);
+  for(let i=0;i<best.length;i++)for(let j=i+1;j<best.length;j++){const k=best[i]+'-'+best[j];pairFreq.set(k,(pairFreq.get(k)||0)+1)}
+ }
+ return {out,freq};
+}
+document.getElementById('generate').onclick=()=>{
+ const pool=[...selected].sort((a,b)=>a-b), size=Number(document.getElementById('gameSize').value), count=Number(document.getElementById('gameCount').value);
+ if(pool.length<size){warn('Selecione pelo menos '+size+' dezenas para gerar jogos de '+size+'.');return}
+ if(!Number.isInteger(count)||count<1||count>500){warn('Informe uma quantidade de jogos entre 1 e 500.');return}
+ const total=combCount(pool.length,size);
+ if(count>total){warn('Com essa seleção existem apenas '+total.toLocaleString('pt-BR')+' combinações diferentes. Reduza a quantidade de jogos.');return}
+ const generated=generateBalanced(pool,size,count);games=generated.out;renderGames(generated.freq,pool);
+};
+function combCount(n,k){let r=1;for(let i=1;i<=k;i++)r=r*(n-i+1)/i;return Math.round(r)}
+function renderGames(freq,pool){
+ resultsEl.innerHTML='';
+ games.forEach((g,i)=>{const card=document.createElement('article');card.className='game';const head=document.createElement('div');head.className='game-head';head.innerHTML='<strong>Jogo '+String(i+1).padStart(3,'0')+'</strong><span>'+g.length+' dezenas</span>';const nums=document.createElement('div');nums.className='numbers';g.forEach(n=>{const el=document.createElement('span');el.className='number';el.textContent=String(n).padStart(2,'0');nums.appendChild(el)});card.append(head,nums);resultsEl.appendChild(card)});
+ const vals=pool.map(n=>freq[n]||0), min=Math.min(...vals),max=Math.max(...vals);
+ document.getElementById('summary').innerHTML='<div class="pill">Jogos gerados: <strong>'+games.length+'</strong></div><div class="pill">Dezenas por jogo: <strong>'+games[0].length+'</strong></div><div class="pill">Uso por dezena: <strong>'+min+'–'+max+' vezes</strong></div>';
+ document.getElementById('summary').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+document.getElementById('balance').onclick=()=>{
+ if(!games.length){warn('Gere os jogos primeiro para ver a distribuição.');return}
+ const counts={};games.flat().forEach(n=>counts[n]=(counts[n]||0)+1);
+ const textOut=[...selected].sort((a,b)=>a-b).map(n=>String(n).padStart(2,'0')+': '+(counts[n]||0)+' jogo(s)').join('\n');
+ alert('Distribuição das dezenas nos jogos gerados:\n\n'+textOut);
+};
+function gamesText(){return games.map((g,i)=>'Jogo '+String(i+1).padStart(3,'0')+': '+g.map(n=>String(n).padStart(2,'0')).join(' ')).join('\n')}
+document.getElementById('copy').onclick=async()=>{if(!games.length){warn('Gere os jogos antes de copiar.');return}try{await navigator.clipboard.writeText(gamesText());alert('Jogos copiados!')}catch(e){const ta=document.createElement('textarea');ta.value=gamesText();document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();alert('Jogos copiados!')}};
+document.getElementById('download').onclick=()=>{if(!games.length){warn('Gere os jogos antes de baixar.');return}const blob=new Blob(['THOR LOTERIAS - DESDOBRAMENTO\n\n'+gamesText()+'\n'],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='thor-loterias-desdobramento.txt';a.click();URL.revokeObjectURL(a.href)};
+renderSelection();
+})();
+</script>
+</body>
+</html>
