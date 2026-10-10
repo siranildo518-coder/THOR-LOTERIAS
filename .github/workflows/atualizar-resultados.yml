@@ -40,6 +40,18 @@ jobs:
                       erro=e
                       print(slug, f"tentativa {tentativa}/4 falhou:", e)
                       time.sleep(tentativa*3)
+              # O endpoint sem número pode ficar atrasado; confira os próximos
+              # concursos diretamente antes de publicar a base.
+              atual=max(int((d or {}).get("numero") or 0), int(out.get(slug,{}).get("concurso",0)))
+              for proximo in range(atual+1, atual+4):
+                  try:
+                      req=urllib.request.Request(f"https://servicebus2.caixa.gov.br/portaldeloterias/api/{slug}/{proximo}",headers={"Accept":"application/json","User-Agent":"Mozilla/5.0","Cache-Control":"no-cache"})
+                      with urllib.request.urlopen(req,timeout=15) as r: candidato=json.load(r)
+                      if int(candidato.get("numero") or 0)!=proximo or not candidato.get("listaDezenas"): break
+                      d=candidato
+                      print(slug,"concurso atualizado pela consulta numerada:",proximo)
+                  except Exception:
+                      break
               if d:
                   nums=d.get("listaDezenas") or d.get("dezenas") or d.get("numeros") or []
                   n=d.get("numero") or d.get("concurso") or d.get("numeroConcurso")
