@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-10-10T01:03:00.399Z",
+  "atualizadoEm": "2026-10-10T01:06:13.377Z",
   "fonte": "API oficial Loterias CAIXA",
   "resultados": {
     "megasena": {
@@ -47,18 +47,18 @@
       ]
     },
     "diadesorte": {
-      "concurso": 1318,
-      "data": "08/10/2026",
+      "concurso": 1319,
+      "data": "09/10/2026",
       "dezenas": [
-        1,
         2,
-        3,
-        11,
-        20,
-        25,
-        27
+        4,
+        9,
+        10,
+        23,
+        26,
+        28
       ],
-      "mesSorte": "Setembro"
+      "mesSorte": "Janeiro"
     },
     "lotomania": {
       "concurso": 2986,
