@@ -1075,6 +1075,13 @@
       "criadoEm": "2026-10-10T18:19:26.307Z",
       "expiraEm": "2026-10-11T18:19:26.310Z",
       "ativo": true
+    },
+    {
+      "hash": "22a1b774d7b2a14dec0c1c18f5ec5bca9d3f7d22748c4584e6b44ae811e02317",
+      "compatHash": "urzeqp",
+      "criadoEm": "2026-10-10T18:23:04.597Z",
+      "expiraEm": "2026-10-11T18:23:04.597Z",
+      "ativo": true
     }
   ]
 }
