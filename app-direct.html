@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v193-sem-colar'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v194-compartilhar'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3406,10 +3406,7 @@ document.addEventListener('selectstart', e=>{
       <div style="flex:1;min-width:0;">
         <h1 style="font-size:16px;margin:0;">Jogos Desdobrados</h1>
       </div>
-      <a id="floatingSave" title="Baixar todos os jogos (.txt)" style="width:24px;height:24px;border-radius:50%;background:var(--violet);color:#fff;border:none;font-size:10px;box-shadow:0 3px 8px rgba(76,29,149,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;flex:none;">💾</a>
-      <a id="floatingExcel" title="Salvar no Excel" style="width:24px;height:24px;border-radius:50%;background:var(--good);color:#fff;border:none;font-size:10px;box-shadow:0 3px 8px rgba(31,157,116,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;flex:none;">📊</a>
-      <button id="floatingShare" title="Compartilhar todos os jogos" style="width:24px;height:24px;border-radius:50%;background:var(--magenta);color:#fff;border:none;box-shadow:0 3px 8px rgba(214,51,108,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="5" r="3" stroke="white" stroke-width="2"/><circle cx="6" cy="12" r="3" stroke="white" stroke-width="2"/><circle cx="18" cy="19" r="3" stroke="white" stroke-width="2"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5" stroke="white" stroke-width="2"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5" stroke="white" stroke-width="2"/></svg></button>
-      <button id="floatingSalvarNome" title="Salvar jogos com um nome" style="width:24px;height:24px;border-radius:50%;background:#173817;color:#fff;border:none;box-shadow:0 3px 8px rgba(23,56,23,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;"><svg width="13" height="13" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7.83a2 2 0 0 0-.586-1.414l-2.83-2.83A2 2 0 0 0 16.17 3H5z"/><rect x="7" y="4.5" width="8" height="4" rx="1" fill="#173817"/><circle cx="12" cy="15" r="4" fill="#173817"/></svg></button>
+      <button type="button" id="floatingShare" title="Compartilhar todos os jogos" style="height:32px;padding:0 12px;border-radius:8px;background:var(--magenta);color:#fff;border:1px solid rgba(255,255,255,.5);font-size:12px;font-weight:700;cursor:pointer;flex:none;">Compartilhar</button>
     </header>
     <div style="padding:16px 16px 110px;">
       <div class="summary" id="summaryBox2" style="display:none;"></div>
@@ -3612,7 +3609,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V193</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V194</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -12661,7 +12658,7 @@ document.getElementById('backToSelection').addEventListener('click', ()=>{
   irParaSelecao();
 });
 
-document.getElementById('floatingSave').addEventListener('click', function(e){
+document.getElementById('floatingSave')?.addEventListener('click', function(e){
   const text = formatAllGamesText(lastGames);
   const blob = new Blob([text], {type:'text/plain'});
   const url = URL.createObjectURL(blob);
@@ -12692,7 +12689,7 @@ document.getElementById('floatingShare').addEventListener('click', async functio
   }
 });
 
-document.getElementById('floatingSalvarNome').addEventListener('click', function(){
+document.getElementById('floatingSalvarNome')?.addEventListener('click', function(){
   if(!lastGames || lastGames.length === 0){
     alert('Nenhum jogo gerado ainda pra salvar.');
     return;
@@ -12719,12 +12716,10 @@ document.getElementById('btnNomeJogoSalvar').addEventListener('click', ()=>{
   saveToHistorico(summaryHtml, lastGames, nome);
   document.getElementById('overlayNomeJogo').classList.remove('show');
   const btn = document.getElementById('floatingSalvarNome');
-  const original = btn.innerHTML;
-  btn.innerHTML = '✅';
-  setTimeout(()=>{ btn.innerHTML = original; }, 1200);
+  if(btn){const original = btn.innerHTML;btn.innerHTML = '✅';setTimeout(()=>{btn.innerHTML = original;},1200);}
 });
 
-document.getElementById('floatingExcel').addEventListener('click', function(e){
+document.getElementById('floatingExcel')?.addEventListener('click', function(e){
   const maxLen = Math.max(...lastGames.map(g=>g.length));
   const header = ['Jogo', ...Array.from({length:maxLen},(_,i)=>`Dezena ${i+1}`), 'Par','Ímpar','Primo','Fibonacci','Moldura','Retrato','Mult. de 3','Soma'];
   const rows = lastGames.map((g,i)=>{
