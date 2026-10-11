@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-10-11T16:02:37.894Z",
+  "atualizadoEm": "2026-10-11T16:04:15.591535+00:00",
   "fonte": "CAIXA; fontes complementares indicadas por resultado quando API atrasada",
   "resultados": {
     "megasena": {
@@ -12,17 +12,7 @@
         44,
         47,
         57
-      ],
-      "dezenasSegundoSorteio": [],
-      "local": "SÃO PAULO,  SP",
-      "acumulou": true,
-      "dataProxConcurso": "14/10/2026",
-      "dataProximoConcurso": "14/10/2026",
-      "acumuladaProxConcurso": 150000000,
-      "valorEstimadoProximoConcurso": 150000000,
-      "proximoConcurso": 3070,
-      "mesSorte": null,
-      "timeCoracao": null
+      ]
     },
     "lotofacil": {
       "concurso": 3802,
@@ -43,17 +33,7 @@
         21,
         23,
         24
-      ],
-      "dezenasSegundoSorteio": [],
-      "local": "SÃO PAULO, SP",
-      "acumulou": false,
-      "dataProxConcurso": "13/10/2026",
-      "dataProximoConcurso": "13/10/2026",
-      "acumuladaProxConcurso": 2000000,
-      "valorEstimadoProximoConcurso": 2000000,
-      "proximoConcurso": 3803,
-      "mesSorte": null,
-      "timeCoracao": null
+      ]
     },
     "quina": {
       "concurso": 7140,
@@ -64,17 +44,7 @@
         45,
         57,
         59
-      ],
-      "dezenasSegundoSorteio": [],
-      "local": "SÃO PAULO, SP",
-      "acumulou": true,
-      "dataProxConcurso": "13/10/2026",
-      "dataProximoConcurso": "13/10/2026",
-      "acumuladaProxConcurso": 34000000,
-      "valorEstimadoProximoConcurso": 34000000,
-      "proximoConcurso": 7141,
-      "mesSorte": null,
-      "timeCoracao": null
+      ]
     },
     "diadesorte": {
       "concurso": 1320,
@@ -120,17 +90,7 @@
         90,
         93,
         98
-      ],
-      "dezenasSegundoSorteio": [],
-      "local": "SÃO PAULO, SP",
-      "acumulou": true,
-      "dataProxConcurso": "14/10/2026",
-      "dataProximoConcurso": "14/10/2026",
-      "acumuladaProxConcurso": 11500000,
-      "valorEstimadoProximoConcurso": 11500000,
-      "proximoConcurso": 2987,
-      "mesSorte": null,
-      "timeCoracao": null
+      ]
     },
     "supersete": {
       "concurso": 909,
@@ -143,17 +103,7 @@
         0,
         5,
         4
-      ],
-      "dezenasSegundoSorteio": [],
-      "local": "SAO PAULO, SP",
-      "acumulou": true,
-      "dataProxConcurso": "14/10/2026",
-      "dataProximoConcurso": "14/10/2026",
-      "acumuladaProxConcurso": 11000000,
-      "valorEstimadoProximoConcurso": 11000000,
-      "proximoConcurso": 910,
-      "mesSorte": null,
-      "timeCoracao": null
+      ]
     },
     "timemania": {
       "concurso": 2452,
@@ -167,15 +117,6 @@
         68,
         72
       ],
-      "dezenasSegundoSorteio": [],
-      "local": "SÃO PAULO, SP",
-      "acumulou": true,
-      "dataProxConcurso": "11/10/2026",
-      "dataProximoConcurso": "11/10/2026",
-      "acumuladaProxConcurso": 19300000,
-      "valorEstimadoProximoConcurso": 19300000,
-      "proximoConcurso": 2453,
-      "mesSorte": null,
       "timeCoracao": "CONFIANCA SAF    /SE"
     },
     "duplasena": {
@@ -196,16 +137,7 @@
         35,
         44,
         47
-      ],
-      "local": "SÃO PAULO, SP",
-      "acumulou": true,
-      "dataProxConcurso": "14/10/2026",
-      "dataProximoConcurso": "14/10/2026",
-      "acumuladaProxConcurso": 8000000,
-      "valorEstimadoProximoConcurso": 8000000,
-      "proximoConcurso": 3020,
-      "mesSorte": null,
-      "timeCoracao": null
+      ]
     }
   }
 }
