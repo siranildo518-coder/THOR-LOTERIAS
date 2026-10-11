@@ -1,2 +1,2 @@
-// THOR V192 - botão Desdobrador Pro, sem ação
-importScripts('./sw-core-thor7.js?v=thor-v192-desdobrador-botao');
+// THOR V193 - remover Colar de Combinações
+importScripts('./sw-core-thor7.js?v=thor-v193-sem-colar');
