@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-10-11T16:04:15.591535+00:00",
+  "atualizadoEm": "2026-10-11T18:51:26.815998+00:00",
   "fonte": "CAIXA; fontes complementares indicadas por resultado quando API atrasada",
   "resultados": {
     "megasena": {
@@ -58,13 +58,7 @@
         29,
         30
       ],
-      "mesSorte": "Novembro",
-      "nomeTimeCoracaoMesSorte": "Novembro",
-      "fonte": "Resultado conferido em ISTOÉ Dinheiro e Jornal Correio; API CAIXA pendente",
-      "fontes": [
-        "https://istoedinheiro.com.br/dia-de-sorte-1320-resultado-11-10-2026",
-        "https://www.correio24horas.com.br/brasil/dia-de-sorte-1320-hoje-confira-o-resultado-deste-domingo-11-1026"
-      ]
+      "mesSorte": "Novembro"
     },
     "lotomania": {
       "concurso": 2986,
@@ -106,18 +100,18 @@
       ]
     },
     "timemania": {
-      "concurso": 2452,
-      "data": "08/10/2026",
+      "concurso": 2453,
+      "data": "11/10/2026",
       "dezenas": [
-        39,
-        40,
-        60,
-        62,
-        64,
-        68,
-        72
+        2,
+        12,
+        13,
+        17,
+        20,
+        24,
+        30
       ],
-      "timeCoracao": "CONFIANCA SAF    /SE"
+      "timeCoracao": "CUIABA           /MT"
     },
     "duplasena": {
       "concurso": 3019,
