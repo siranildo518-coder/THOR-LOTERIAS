@@ -1,2 +1,2 @@
-// THOR V187 - resultados da tela inicial atualizados
-importScripts('./sw-core-thor7.js?v=thor-v187-resultados-home');
+// THOR V188 - atualização automática dos resultados
+importScripts('./sw-core-thor7.js?v=thor-v188-resultados-auto');
