@@ -1,2 +1,2 @@
-// THOR V193 - remover Colar de Combinações
-importScripts('./sw-core-thor7.js?v=thor-v193-sem-colar');
+// THOR V194 - Compartilhar no topo dos jogos desdobrados
+importScripts('./sw-core-thor7.js?v=thor-v194-compartilhar');
