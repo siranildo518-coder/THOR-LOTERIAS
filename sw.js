@@ -1,2 +1,2 @@
-// THOR V186 - presença e saída
-importScripts('./sw-core-thor7.js?v=thor-v186-saida');
+// THOR V187 - resultados da tela inicial atualizados
+importScripts('./sw-core-thor7.js?v=thor-v187-resultados-home');

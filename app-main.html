@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v145'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v187-resultados-home'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -10508,6 +10508,32 @@ function renderUltimoResultadoTend(g, data){
   if(btnProx) btnProx.addEventListener('click', ()=> atualizarUltimoResultadoTend(g, data.concurso+1));
 }
 
+
+function thorNormalizarHome(g,j){
+ const dezenas=(j?.listaDezenas||j?.dezenas||[]).map(Number),n=Number(j?.numero||j?.concurso);
+ const counts={MS:6,LF:15,QN:5,DIA:7,LM:20,S7:7,TM:7,DS:6};
+ if(!Number.isInteger(n)||n<1||dezenas.length!==counts[g.code]||!dezenas.every(x=>Number.isInteger(x)&&x>=g.range.min&&x<=g.range.max)||(g.code!=='S7'&&new Set(dezenas).size!==dezenas.length))return null;
+ return {...j,concurso:n,dezenas,data:j.dataApuracao||j.data||'',dezenasSegundoSorteio:(j.listaDezenasSegundoSorteio||j.dezenasSegundoSorteio||[]).map(Number),acumulou:j.acumulado??j.acumulou,dataProxConcurso:j.dataProximoConcurso||j.dataProxConcurso,acumuladaProxConcurso:j.valorEstimadoProximoConcurso??j.acumuladaProxConcurso};
+}
+async function thorHomeFonte(url){
+ const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),8000);
+ try{const r=await fetch(url,{cache:'no-store',signal:ctl.signal});if(!r.ok)throw Error('Fonte indisponível');return await r.json()}finally{clearTimeout(timer)}
+}
+async function thorHomeResultadoAtual(g){
+ let data=null;
+ try{const central=await thorHomeFonte('./resultados-atualizados.json?_thor_home='+Date.now());data=thorNormalizarHome(g,central?.resultados?.[g.altSlug])}catch(_){}
+ if(!data){try{data=thorNormalizarHome(g,await fetchConcursoLoteriaRemoto(g))}catch(_){}}
+ if(!data)return null;
+ // A rota "último" pode estar atrasada: confirma também o próximo número.
+ const next=data.concurso+1;
+ const respostas=await Promise.allSettled([
+  thorHomeFonte('https://servicebus2.caixa.gov.br/portaldeloterias/api/'+g.altSlug+'/'+next),
+  thorHomeFonte('https://loteriascaixa-api.herokuapp.com/api/'+g.altSlug+'/'+next)
+ ]);
+ respostas.forEach(r=>{if(r.status!=='fulfilled')return;const x=thorNormalizarHome(g,r.value);if(x&&x.concurso===next)data=x});
+ return data;
+}
+
 async function carregarHomeHero(g){
   let data = homeCache[g.slug];
   // Não troca a tela inicial por "Buscando..." durante a abertura.
@@ -10518,16 +10544,11 @@ async function carregarHomeHero(g){
   // A tela principal usa a mesma fonte central das outras abas.
   // O cache local só pinta instantaneamente; a fonte única sempre é consultada.
   try{
-    const central = await fetch('./resultados-atualizados.json?_thor_home=' + Date.now(), {cache:'no-store'}).then(r=>{if(!r.ok) throw new Error('fonte central indisponível'); return r.json();});
-    const bruto = central && central.resultados && central.resultados[g.altSlug];
-    if(bruto && bruto.concurso && Array.isArray(bruto.dezenas)){
-      const fresco = {...bruto, concurso:Number(bruto.concurso), dezenas:bruto.dezenas.map(Number)};
-      if(!data || Number(fresco.concurso) >= Number(data.concurso||0)){
-        data = fresco;
-        homeCache[g.slug] = fresco;
-        concursoMaisRecentePorJogo[g.slug] = fresco.concurso;
-        try{localStorage.setItem('thor_home_resultado_'+g.slug,JSON.stringify(fresco))}catch(_){}
-      }
+    const fresco=await thorHomeResultadoAtual(g);
+    if(fresco && (!data || fresco.concurso>=Number(data.concurso||0))){
+      data=fresco;homeCache[g.slug]=fresco;
+      concursoMaisRecentePorJogo[g.slug]=fresco.concurso;
+      try{localStorage.setItem('thor_home_resultado_'+g.slug,JSON.stringify(fresco))}catch(_){}
     }
   }catch(_){}
   if(!data){
@@ -10639,8 +10660,10 @@ async function checarNovoResultado(){
   if(navigator.onLine === false) return;
 
   // card "Último Sorteio" da tela Início: sempre mostra o mais recente, então pode atualizar direto
-  const dataHome = await silentFetchLatest(homeGameAtual);
-  if(dataHome && dataHome.concurso && dataHome.concurso !== homeCache[homeGameAtual.slug]?.concurso){
+  const jogoHome=homeGameAtual;
+  const dataHome = await thorHomeResultadoAtual(jogoHome);
+  if(homeGameAtual.code!==jogoHome.code)return;
+  if(dataHome && dataHome.concurso && dataHome.concurso >= Number(homeCache[homeGameAtual.slug]?.concurso||0)){
     homeCache[homeGameAtual.slug] = dataHome;
     concursoMaisRecentePorJogo[homeGameAtual.slug] = dataHome.concurso;
     carregarHomeHero(homeGameAtual);
