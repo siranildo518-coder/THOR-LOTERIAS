@@ -362,7 +362,7 @@ async function fetchOne(k,n){
  const task=(async()=>{
   try{const latest=await loadLocalDraws();const x=n?drawCache.get(id):latest.get(k);if(x)return x}catch{}
   if(n){try{const x=JSON.parse(localStorage.getItem('thor-fp-draw:'+id)||'null');if(x&&validDraw(x,k,n)){drawCache.set(id,x);return x}}catch{}}
-  const sources=['https://servicebus2.caixa.gov.br/portaldeloterias/api/'+k+(n?'/'+n:''),'https://loteriascaixa-api.herokuapp.com/api/'+k+'/'+(n||'latest')];
+  const sources=['https://servicebus3.caixa.gov.br/portaldeloterias/api/'+k+(n?'/'+n:''),'https://servicebus2.caixa.gov.br/portaldeloterias/api/'+k+(n?'/'+n:''),'https://loteriascaixa-api.herokuapp.com/api/'+k+'/'+(n||'latest')];
   let error;
   for(const url of sources){try{const x=await requestDraw(url,k,n);drawCache.set(k+':'+x.numero,x);try{localStorage.setItem('thor-fp-draw:'+k+':'+x.numero,JSON.stringify(x))}catch{}return x}catch(e){error=e}}
   throw error||Error('Não foi possível carregar');

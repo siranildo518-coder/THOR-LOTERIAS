@@ -9,7 +9,7 @@ PATH = pathlib.Path('historico-loterias.json')
 SLUGS = ['megasena', 'lotofacil', 'quina', 'diadesorte', 'lotomania', 'supersete', 'timemania', 'duplasena']
 
 def fetch(slug, number=None):
-    url = 'https://servicebus2.caixa.gov.br/portaldeloterias/api/' + slug
+    url = 'https://servicebus3.caixa.gov.br/portaldeloterias/api/' + slug
     if number is not None:
         url += '/' + str(number)
     else:
@@ -17,7 +17,8 @@ def fetch(slug, number=None):
     req = urllib.request.Request(url, headers={'Accept': 'application/json', 'Cache-Control': 'no-cache', 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://loterias.caixa.gov.br/'})
     for attempt in range(2):
         try:
-            with urllib.request.urlopen(req, timeout=15) as response:
+            request = req if attempt == 0 else urllib.request.Request(req.full_url.replace('servicebus3', 'servicebus2'), headers=dict(req.headers))
+            with urllib.request.urlopen(request, timeout=15) as response:
                 data = json.load(response)
             contest = int(data.get('numero') or data.get('concurso') or 0)
             nums = data.get('listaDezenas') or data.get('dezenas') or []
