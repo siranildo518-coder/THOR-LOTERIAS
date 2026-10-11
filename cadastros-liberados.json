@@ -1159,6 +1159,13 @@
       "criadoEm": "2026-10-11T02:10:36.003Z",
       "expiraEm": "2026-10-12T02:10:36.008Z",
       "ativo": true
+    },
+    {
+      "hash": "aea93cfdff7e044ad72bdffdc235c97d645f54d9ce42ee22841b4ec865cd66f8",
+      "compatHash": "1gcoisk",
+      "criadoEm": "2026-10-11T02:44:14.615Z",
+      "expiraEm": "2026-10-12T02:44:14.620Z",
+      "ativo": true
     }
   ]
 }
