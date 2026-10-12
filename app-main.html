@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
+<head><script id="thorAtualizacaoLegadaV215">(function(){try{if(typeof combinacoesTabRefs!=='undefined'){sessionStorage.setItem('thorAtualizacaoPendente','215');location.replace('./app-direct.html?thor_force_update='+Date.now())}}catch(_){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#07101f">
@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v214-play-compacto'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v215-atualizar-girando'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3651,7 +3651,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V214</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V215</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -16014,31 +16014,41 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
 if(!montar()){var o=new MutationObserver(function(){if(montar())o.disconnect()});o.observe(document.documentElement,{childList:true,subtree:true})}})();
 </script>
 
-<script id="thorAtualizarVersaoV213">
-(function(){var busy=false;
+
+<style id="thorAtualizarGiroV215">
+#menuAtualizar.thor-versao-carregando #menuAtualizarIcone{display:inline-block!important;animation:thorAtualizarGiroV215 .7s linear infinite!important}
+@keyframes thorAtualizarGiroV215{to{transform:rotate(360deg)}}
+</style>
+<script id="thorAtualizarVersaoV215">
+(function(){var busy=false,navigating=false;
+function versaoAtual(){var f=document.querySelector('#drawer footer');return ((f?f.textContent:document.body.textContent).match(/Versão V(\d+)/)||[])[1]||'215'}
+function aviso(texto){var t=document.getElementById('thorVersaoConfirmada');if(!t){t=document.createElement('div');t.id='thorVersaoConfirmada';t.style.cssText='position:fixed;bottom:65px;left:50%;transform:translateX(-50%);z-index:2147483647;background:#064b36;color:white;border:1px solid #69f4bd;border-radius:12px;padding:10px 16px;font:700 13px Arial;white-space:nowrap';document.body.appendChild(t)}t.textContent=texto;setTimeout(function(){t.remove()},3500)}
+function girar(on){var b=document.getElementById('menuAtualizar');if(b){b.classList.toggle('thor-versao-carregando',on);b.setAttribute('aria-busy',String(on))}}
 async function atualizar(){
- if(busy)return;busy=true;
- var b=document.getElementById('menuAtualizar'),old=b?b.textContent:'';
- if(b)b.textContent='Atualizando…';
+ if(busy)return;busy=true;girar(true);
  try{
-  var response=await fetch('./app-direct.html?thor_force_update='+Date.now(),{cache:'no-store'});
+  var url='./app-direct.html?thor_force_update='+Date.now();
+  var response=await fetch(url,{cache:'no-store'});
   if(!response.ok)throw Error('HTTP '+response.status);
   var html=await response.text();
   if(!html.includes('ballGrid')||!html.includes('overlayListaResultados'))throw Error('Página incompleta');
   var nova=(html.match(/Versão V(\d+)/)||[])[1];
-  var atual=(document.body.textContent.match(/Versão V(\d+)/)||[])[1];
-  if('serviceWorker' in navigator){
-   navigator.serviceWorker.getRegistration().then(function(reg){if(reg)reg.update().then(function(){if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'})})}).catch(function(){});
-  }
-  if(nova&&nova!==atual){
+  if(!nova)throw Error('Versão não identificada');
+  if('serviceWorker' in navigator)navigator.serviceWorker.getRegistration().then(function(reg){if(reg)reg.update().catch(function(){})}).catch(function(){});
+  if(nova!==versaoAtual()){
    for(var i=sessionStorage.length-1;i>=0;i--){var k=sessionStorage.key(i);if(/^thor_boot_|^thor_core_/.test(k))sessionStorage.removeItem(k)}
-   document.open();document.write(html);document.close();return;
+   sessionStorage.setItem('thorAtualizacaoPendente',nova);
+   navigating=true;
+   location.replace(url);return;
   }
   if(typeof thorAtualizarHomeAutomatico==='function')await thorAtualizarHomeAutomatico();
- }catch(err){console.error('Atualização não aplicada',err);alert('Não foi possível atualizar agora. Tente novamente.')}
- finally{busy=false;if(b&&b.isConnected)b.textContent=old}
+  aviso('Versão V'+nova+' atualizada');
+ }catch(err){console.error('Atualização não aplicada',err);aviso('Não atualizou. Toque para tentar novamente.')}
+ finally{if(!navigating){busy=false;girar(false)}}
 }
 window.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#menuAtualizar');if(!b)return;e.preventDefault();e.stopImmediatePropagation();atualizar()},true);
+function confirmar(){var pend=sessionStorage.getItem('thorAtualizacaoPendente');if(!pend)return;girar(true);requestAnimationFrame(function(){requestAnimationFrame(function(){if(document.getElementById('homeHero')&&typeof irParaSelecao==='function'){sessionStorage.removeItem('thorAtualizacaoPendente');girar(false);aviso('Versão V'+versaoAtual()+' atualizada')}})})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',confirmar,{once:true});else confirmar();
 })();
 </script>
 </body>
