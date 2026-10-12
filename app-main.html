@@ -15880,7 +15880,14 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
    var btn=document.createElement('button');btn.type='button';btn.setAttribute('aria-label','Voltar à tela inicial');btn.textContent='←';btn.style.cssText='position:absolute;top:16px;left:10px;width:34px;height:32px;z-index:2;border:1px solid #89cae6;border-radius:8px;background:#07324e;color:white;font-size:22px';btn.onclick=voltar;
    t.append(frame,btn);document.body.appendChild(t);telas.set(chave,t);
   }
-  if(ativa)fechar();ativa=t;t.style.display='block';history.pushState({thorTelaSobreHome:true},'',location.href);
+  if(ativa)fechar();
+  ativa=t;
+  // Só mostrar o painel quando o iframe estiver pronto, evitando a tela preta.
+  var frame=t.querySelector('iframe');
+  if(frame && !t.dataset.pronto){
+    frame.addEventListener('load',function(){t.dataset.pronto='1';if(ativa===t)t.style.display='block'}, {once:true});
+  }else{t.style.display='block'}
+  history.pushState({thorTelaSobreHome:true},'',location.href);
  }
  document.addEventListener('click',function(e){
   var b=e.target.closest('#btnEscolhaPraMim,#menuGeradorPalpites,#btnFalhasProHome');
