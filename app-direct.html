@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><script id="thorAtualizacaoLegadaV215">(function(){try{if(typeof combinacoesTabRefs!=='undefined'){sessionStorage.setItem('thorAtualizacaoPendente','216');location.replace('./app-direct.html?thor_force_update='+Date.now())}}catch(_){}})();</script>
+<head><script id="thorAtualizacaoLegadaV217">(function(){try{if(location.pathname.endsWith('/app-direct.html')||typeof combinacoesTabRefs!=='undefined'){sessionStorage.setItem('thorAtualizacaoPendente','217');location.replace('./index.html?thor_force_update='+Date.now())}}catch(_){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#07101f">
@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v216-aviso-versao'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v217-mesma-tela'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3634,7 +3634,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V216</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V217</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -15999,7 +15999,7 @@ function girar(on){var b=document.getElementById('menuAtualizar');if(b){b.classL
 async function atualizar(){
  if(busy)return;busy=true;girar(true);
  try{
-  var url='./app-direct.html?thor_force_update='+Date.now();
+  var stamp=Date.now(),url='./app-main.html?thor_force_update='+stamp;
   var response=await fetch(url,{cache:'no-store'});
   if(!response.ok)throw Error('HTTP '+response.status);
   var html=await response.text();
@@ -16011,7 +16011,8 @@ async function atualizar(){
    for(var i=sessionStorage.length-1;i>=0;i--){var k=sessionStorage.key(i);if(/^thor_boot_|^thor_core_/.test(k))sessionStorage.removeItem(k)}
    sessionStorage.setItem('thorAtualizacaoPendente',nova);
    navigating=true;
-   location.replace(url);return;
+   sessionStorage.setItem('thorAtualizacaoTela',JSON.stringify({homeCode:typeof homeGameAtual!=='undefined'?homeGameAtual.code:null,scroll:document.getElementById('overlayListaResultados')?.scrollTop||0,drawer:document.getElementById('drawer')?.classList.contains('show')||false}));
+   location.replace('./index.html?thor_force_update='+stamp);return;
   }
   if(typeof thorAtualizarHomeAutomatico==='function')await thorAtualizarHomeAutomatico();
   normalizarAtualizar();aviso('Versão V'+nova+' atualizada');
@@ -16019,7 +16020,7 @@ async function atualizar(){
  finally{if(!navigating){busy=false;girar(false)}}
 }
 window.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#menuAtualizar');if(!b)return;e.preventDefault();e.stopImmediatePropagation();atualizar()},true);
-function confirmar(){var pend=sessionStorage.getItem('thorAtualizacaoPendente');if(!pend)return;girar(true);requestAnimationFrame(function(){requestAnimationFrame(function(){if(document.getElementById('homeHero')&&typeof irParaSelecao==='function'){sessionStorage.removeItem('thorAtualizacaoPendente');girar(false);normalizarAtualizar();aviso('Versão V'+versaoAtual()+' atualizada')}})})}
+function confirmar(){var pend=sessionStorage.getItem('thorAtualizacaoPendente');if(!pend)return;girar(true);requestAnimationFrame(function(){requestAnimationFrame(function(){if(document.getElementById('homeHero')&&typeof irParaSelecao==='function'){sessionStorage.removeItem('thorAtualizacaoPendente');try{var contexto=JSON.parse(sessionStorage.getItem('thorAtualizacaoTela')||'null');sessionStorage.removeItem('thorAtualizacaoTela');if(contexto){if(typeof goHome==='function')goHome();var ref=typeof homeTabRefs!=='undefined'?homeTabRefs.find(function(r){return r.g.code===contexto.homeCode}):null;if(ref&&homeGameAtual.code!==contexto.homeCode)ref.tab.click();var home=document.getElementById('overlayListaResultados');if(home)home.scrollTop=contexto.scroll||0;if(contexto.drawer&&typeof openDrawer==='function')openDrawer()}}catch(_){}girar(false);normalizarAtualizar();aviso('Versão V'+versaoAtual()+' atualizada')}})})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',confirmar,{once:true});else confirmar();
 })();
 </script>
