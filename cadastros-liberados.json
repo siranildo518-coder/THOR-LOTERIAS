@@ -1656,6 +1656,13 @@
       "criadoEm": "2026-10-12T21:28:34.625Z",
       "expiraEm": "2026-10-13T21:28:34.625Z",
       "ativo": true
+    },
+    {
+      "hash": "c830cc9a7d9dbdfe0f101cee055dfd40e0be8260efcb2f0f213a72663536a483",
+      "compatHash": "1ajazon",
+      "criadoEm": "2026-10-12T21:38:55.294Z",
+      "expiraEm": "2026-10-13T21:38:55.295Z",
+      "ativo": true
     }
   ]
 }
