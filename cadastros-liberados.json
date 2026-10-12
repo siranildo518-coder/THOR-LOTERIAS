@@ -1642,6 +1642,13 @@
       "criadoEm": "2026-10-12T21:00:11.261Z",
       "expiraEm": "2026-10-13T21:00:11.261Z",
       "ativo": true
+    },
+    {
+      "hash": "3bee692097b86a8451f55af99cc920b704e7d05610980bff9e3542e124161eeb",
+      "compatHash": "ewanxj",
+      "criadoEm": "2026-10-12T21:07:16.451Z",
+      "expiraEm": "2026-10-13T21:07:16.451Z",
+      "ativo": true
     }
   ]
 }
