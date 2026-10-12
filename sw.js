@@ -1,2 +1,2 @@
-// THOR V208 - Atualizar sem recarregar nem remontar a Home
-importScripts('./sw-core-thor7.js?v=thor-v208-centro-moldura-visivel');
+// V210 - Play transfere Análise > Gerar para Combinações
+importScripts('./sw-core-thor7.js?v=thor-v210-play-combinacoes');
