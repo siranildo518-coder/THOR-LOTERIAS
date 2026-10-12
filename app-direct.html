@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><script id="thorAtualizacaoLegadaV217">(function(){try{if(location.pathname.endsWith('/app-direct.html')||typeof combinacoesTabRefs!=='undefined'){sessionStorage.setItem('thorAtualizacaoPendente','217');location.replace('./index.html?thor_force_update='+Date.now())}}catch(_){}})();</script>
+<head><script id="thorAtualizacaoLegadaV217">(function(){try{if(location.pathname.endsWith('/app-direct.html')||typeof combinacoesTabRefs!=='undefined'){sessionStorage.setItem('thorAtualizacaoPendente','224');location.replace('./index.html?thor_force_update='+Date.now())}}catch(_){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#07101f">
@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v217-mesma-tela'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v224-base218-rapida'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3357,7 +3357,30 @@ document.addEventListener('selectstart', e=>{
 #falhaConteudo .centro-num,#molduraConteudo .centro-num{
   position:relative;z-index:1;text-shadow:0 1px 2px rgba(0,0,0,.5)!important;
 }
-</style><style id="thorBootEscuroApp">#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
+</style>
+<style id="thorMolduraDesignV218">
+#molduraPanel .thor-moldura-titulo{text-align:center;color:#d8fff4;margin:10px 0 16px}
+#molduraPanel .thor-moldura-titulo strong{font-size:23px;letter-spacing:1px;display:block}
+#molduraPanel .thor-moldura-titulo small{display:block;font-size:12px;color:#b0d2dc;margin-top:3px}
+#molduraPanel .thor-moldura-controles,#molduraPanel .thor-moldura-balls-card{background:linear-gradient(140deg,#004a4388,#032a35cc)!important;border:1px solid #58e4b8!important;border-radius:18px!important;padding:14px!important;box-shadow:inset 0 1px 5px #7cefd633,0 0 8px #19d79b22!important}
+#molduraPanel .field-label{color:#effffa!important;margin:0 0 12px!important;font-size:12px!important}
+#molduraPanel .thor-moldura-acoes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:center}
+#molduraPanel .thor-moldura-quantidade{display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+#molduraPanel #molduraQtdInput{box-sizing:border-box;width:100%!important;max-width:90px;height:32px!important;padding:4px 9px!important;border:1px solid #6aead1!important;border-radius:11px!important;background:#f2fbff!important;color:#081d30!important;font-size:15px!important}
+#molduraPanel #molduraAtualizarBtn{box-sizing:border-box;width:100%!important;max-width:90px;height:27px!important;min-height:27px!important;margin:0!important;padding:3px 5px!important;font-size:10px!important;border:1px solid #efa9ff!important;border-radius:10px!important;background:linear-gradient(#e57bff,#a10de4 45%,#6609b1)!important;color:white!important;box-shadow:inset 0 2px 3px #fff7,0 2px 0 #470979!important}
+#molduraPanel #thorMolduraPower{--power:#e22742;justify-self:center;width:54px;height:54px;border-radius:50%;border:2px solid #cbd4d8;background:conic-gradient(#f5f8f8,#8b969b,#fff,#899398,#eff4f4);padding:6px;box-shadow:0 4px 6px #0008,inset 0 1px 2px #fff;color:var(--power);cursor:pointer;transition:box-shadow .18s,transform .18s}
+#molduraPanel #thorMolduraPower span{display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:50%;border:2px solid var(--power);box-sizing:border-box;font:bold 28px Arial;background:conic-gradient(#d8e0e1,#fff,#9ca7aa,#edf1f1);text-shadow:0 0 5px var(--power)}
+#molduraPanel #thorMolduraPower[aria-pressed="true"]{--power:#10e68a;transform:translateY(2px) scale(.96);box-shadow:inset 0 3px 6px #0009,0 0 5px #09d88788}
+#molduraPanel #thorMolduraPlay{justify-self:center;width:100%;max-width:90px;min-height:36px;border:1px solid #73f4d2;border-radius:12px;background:linear-gradient(#287e7688,#002d37);color:white;font-size:16px;font-weight:800;box-shadow:inset 0 2px 3px #fff3;cursor:pointer}
+#molduraPanel #thorMolduraPlay:active{transform:translateY(2px);box-shadow:inset 0 3px 5px #0007}
+#molduraPanel #thorMolduraPlay:disabled{opacity:.48;cursor:default}
+#molduraPanel .thor-moldura-balls-card h3{font-size:14px;color:#ecfff9;margin:0 0 12px}
+#molduraPanel .centro-grid{display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;gap:8px 3px!important;justify-items:center}
+#molduraPanel #molduraConteudo .centro-cel{width:clamp(24px,7.2vw,42px)!important;height:clamp(24px,7.2vw,42px)!important;min-width:0!important;min-height:0!important;box-sizing:border-box;cursor:pointer}
+#molduraPanel #molduraConteudo .centro-num{font-size:12px!important}
+#molduraPanel #molduraConteudo .centro-cel.thor-moldura-selecionada{outline:2px solid #36ffb2!important;outline-offset:2px;filter:brightness(1.2)}
+</style>
+<style id="thorBootEscuroApp">#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
 <body>
 <div class="app">
 
@@ -3634,7 +3657,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V217</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V218 · R224</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -3923,10 +3946,17 @@ document.addEventListener('selectstart', e=>{
     </div>
 
     <div id="molduraPanel" style="display:none;">
-      <div class="card">
+      <div class="thor-moldura-titulo"><strong>MOLDURA</strong><small>Análise das dezenas da borda</small></div>
+      <div class="card thor-moldura-controles">
         <label class="field-label" for="molduraQtdInput">Analisar quantos últimos concursos?</label>
-        <input type="number" id="molduraQtdInput" min="2" max="500" value="10" inputmode="numeric" style="background:linear-gradient(135deg,#E5E7EB,#9CA3AF);width:90px;padding:8px 10px;font-size:13px;">
-        <button class="btn-confirm btn-3d" id="molduraAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;">ATUALIZAR</button>
+        <div class="thor-moldura-acoes">
+          <div class="thor-moldura-quantidade">
+            <input type="number" id="molduraQtdInput" min="2" max="500" value="10" inputmode="numeric">
+            <button type="button" class="btn-confirm btn-3d" id="molduraAtualizarBtn">ATUALIZAR</button>
+          </div>
+          <button type="button" id="thorMolduraPower" aria-label="Ligar seleção de dezenas da moldura" aria-pressed="false"><span>⏻</span></button>
+          <button type="button" id="thorMolduraPlay" disabled>Play</button>
+        </div>
       </div>
       <div id="molduraConteudo"></div>
     </div>
@@ -8490,7 +8520,35 @@ function renderFalha(linhas, pares, numeroUltimo){
 
 let molduraCarregouUmaVez = false;
 
+
+var thorMolduraLigada=false,thorMolduraSelecionadas=new Set();
+function thorMolduraSincronizar(){
+ const power=document.getElementById('thorMolduraPower'),play=document.getElementById('thorMolduraPlay');
+ if(power)power.setAttribute('aria-pressed',String(thorMolduraLigada));
+ if(play)play.disabled=!thorMolduraLigada||!thorMolduraSelecionadas.size;
+ document.querySelectorAll('#molduraConteudo .centro-cel').forEach(b=>{const n=Number(b.dataset.n);b.classList.toggle('thor-moldura-selecionada',thorMolduraSelecionadas.has(n));b.setAttribute('aria-pressed',String(thorMolduraSelecionadas.has(n)))});
+}
+function thorMolduraTocar(n){
+ if(!thorMolduraLigada){abrirCentroDezena(n);return}
+ if(thorMolduraSelecionadas.has(n))thorMolduraSelecionadas.delete(n);else thorMolduraSelecionadas.add(n);
+ thorMolduraSincronizar();
+}
+document.getElementById('thorMolduraPower').addEventListener('click',function(){
+ thorMolduraLigada=!thorMolduraLigada;
+ if(!thorMolduraLigada)thorMolduraSelecionadas.clear();
+ thorMolduraSincronizar();
+});
+document.getElementById('thorMolduraPlay').addEventListener('click',function(){
+ if(!thorMolduraLigada||!thorMolduraSelecionadas.size)return;
+ const ref=combinacoesTabRefs.find(r=>r.g.code===tendGameAtual.code);
+ const nums=[...thorMolduraSelecionadas].sort((a,b)=>a-b);
+ if(!ref||nums.some(n=>n<ref.g.range.min||n>ref.g.range.max))return;
+ irParaSelecao();ref.tab.click();selected=new Set(nums);fixedNums=new Set();excludedNums=new Set();
+ ballGrid.querySelectorAll('.ball').forEach(b=>{b.classList.toggle('on',selected.has(Number(b.dataset.n)));b.classList.remove('fixed','excluded','excluir-anim','ball-sumida')});refreshUI();
+});
+
 async function carregarMoldura(gameParam){
+  thorMolduraSelecionadas.clear();thorMolduraSincronizar();
   const game = gameParam || tendGameAtual;
   const qtdEl = document.getElementById('molduraQtdInput');
   let qtd = qtdEl ? parseInt(qtdEl.value, 10) : CENTRO_QTD_PADRAO;
@@ -8533,12 +8591,13 @@ function renderMoldura(linhas, pares, numeroUltimo){
     const pctVem = l.pct===null ? null : 100 - l.pct;
     const estilo = (semDados ? '' : `background:${cor};`) + `animation-delay:${i*330}ms;`;
     return `
-    <div class="centro-cel${semDados ? ' sem-dados' : ''}" style="${estilo}" onclick="abrirCentroDezena(${l.n})" title="${l.n.toString().padStart(2,'0')}: ${semDados ? 'sem dados no período — essa dezena não saiu nos últimos 10 concursos analisados' : (l.pct>=50 ? pctExibicao(l.pct)+'% de chance de falhar' : pctExibicao(pctVem)+'% de chance de vir no próximo concurso')}">
+    <div class="centro-cel${semDados ? ' sem-dados' : ''}" style="${estilo}" data-n="${l.n}" role="button" tabindex="0" onclick="thorMolduraTocar(${l.n})" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();thorMolduraTocar(${l.n})}" title="${l.n.toString().padStart(2,'0')}: ${semDados ? 'sem dados no período — essa dezena não saiu nos últimos 10 concursos analisados' : (l.pct>=50 ? pctExibicao(l.pct)+'% de chance de falhar' : pctExibicao(pctVem)+'% de chance de vir no próximo concurso')}">
       <div class="centro-num">${l.n.toString().padStart(2,'0')}</div>
     </div>`;
   }).join('');
 
-  cont.innerHTML = `<div class="centro-grid">${celulas}</div>`;
+  cont.innerHTML = `<div class="thor-moldura-balls-card"><h3>Dezenas da moldura</h3><div class="centro-grid">${celulas}</div></div>`;
+  thorMolduraSincronizar();
 }
 
 // ---------- Ciclo: quais dezenas já saíram (e quais faltam) no fechamento de ciclo atual ----------
@@ -10391,6 +10450,7 @@ GAMES.forEach(g=>{
 });
 
 function mudarJogoTendencia(g){
+  if(typeof thorMolduraSelecionadas!=='undefined'){thorMolduraSelecionadas.clear();thorMolduraSincronizar()}
   tendGameAtual = g;
   try{localStorage.setItem('thor_dezenas_copiadas_loteria_v1',({MS:'megasena',LF:'lotofacil',QN:'quina',LM:'lotomania',DIA:'diadesorte',TM:'timemania',DS:'duplasena'})[g.code]||'');}catch(_e){}
   tendGameRefs.forEach(ref=>{
