@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v201-abertura'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v202-home-firme'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3348,6 +3348,7 @@ document.addEventListener('selectstart', e=>{
 #tendUltimoResultado .result-ball-sm::before{content:"";position:absolute;top:7%;left:20%;width:60%;height:25%;border-radius:50%;background:linear-gradient(rgba(255,255,255,.7),transparent);pointer-events:none;z-index:-1}
 #tendUltimoResultado .result-balls{row-gap:7px!important}
 </style>
+<style id="thorHomeFirmeV202">#overlayListaResultados,#overlayListaResultados .home-hero,#overlayListaResultados .home-feature-card{animation:none!important;transition:none!important}#overlayListaResultados.show{transform:none!important;opacity:1!important}#overlayListaResultados{scroll-behavior:auto!important}#overlayListaResultados .hh-ball{animation:none!important}</style>
 </head>
 <body>
 <div class="app">
@@ -3625,7 +3626,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V201</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V202</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -3858,7 +3859,7 @@ document.addEventListener('selectstart', e=>{
     <button id="falhasConcursosVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
     <h1 style="font-size:19px;">Falhas e concursos</h1>
   </header>
-  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v201-abertura" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
+  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v202-home-firme" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
 </div>
 
 <nav class="home-bottom-nav" id="bottomNav">
@@ -10284,14 +10285,14 @@ function cloverSVG(baseColor, active){
 // ---------- tela inicial: abas de loteria + card hero ---- */
 const homeTabs = document.getElementById('homeTabs');
 const homeHero = document.getElementById('homeHero');
-let homeGameAtual = LOTOFACIL_GAME;
+let homeGameAtual = (()=>{try{return GAMES.find(g=>g.code===sessionStorage.getItem('thor_home_game'))||LOTOFACIL_GAME}catch(_){return LOTOFACIL_GAME}})();
 const homeCache = {}; // slug -> dados já buscados nesta sessão
 // Primeira pintura: reaproveita o último resultado salvo para a tela inicial aparecer pronta.
 try{
-  const bruto=localStorage.getItem('thor_home_resultado_'+LOTOFACIL_GAME.slug);
+  const bruto=localStorage.getItem('thor_home_resultado_'+homeGameAtual.slug);
   if(bruto){
     const salvo=JSON.parse(bruto);
-    if(salvo && salvo.concurso && Array.isArray(salvo.dezenas)) homeCache[LOTOFACIL_GAME.slug]=salvo;
+    if(salvo && salvo.concurso && Array.isArray(salvo.dezenas)) homeCache[homeGameAtual.slug]=salvo;
   }
 }catch(_){}
 
@@ -10622,7 +10623,7 @@ async function carregarHomeHero(g,usarCache=false){
   const duplaSorteiosHtml = g.code==='DS'
     ? `<div style="font-size:10px;font-weight:900;color:#d9f8ff;margin:6px 0 3px;">1º SORTEIO</div><div class="hh-balls">${balls}</div>${duplaSegundo.length ? `<div style="font-size:10px;font-weight:900;color:#d9f8ff;margin:8px 0 3px;">2º SORTEIO</div><div class="hh-balls">${duplaSegundo.map(d=>`<div class="hh-ball">${d.toString().padStart(2,'0')}</div>`).join('')}</div>` : ''}`
     : `<div class="hh-balls">${balls}</div>`;
-  homeHero.innerHTML = `
+  const homeHTML = `
     <div class="home-hero" style="--hero-accent:${g.color};--hero-accent-deep:${g.color};">
       <h2>${g.nome}</h2>
       <div class="hh-row">📅 Próximo sorteio: ${data.dataProxConcurso || '—'}</div>
@@ -10637,8 +10638,19 @@ async function carregarHomeHero(g,usarCache=false){
       </div>
       <button class="hh-stats-btn" id="homeVerStats">📊 Ver Estatísticas</button>
     </div>`;
+  if(homeHero._thorHomeHTML===homeHTML)return;
+  const primeiraPintura=!homeHero._thorHomeHTML;
+  const homeTela=document.getElementById('overlayListaResultados');
+  const posicao=homeTela.scrollTop;
+  homeHero.innerHTML=homeHTML;
+  homeHero._thorHomeHTML=homeHTML;
+  if(primeiraPintura){try{homeTela.scrollTop=Number(sessionStorage.getItem('thor_home_scroll'))||0}catch(_){}}
+  else homeTela.scrollTop=posicao;
+  try{sessionStorage.setItem('thor_home_game',g.code)}catch(_){}
   document.getElementById('homeVerStats').addEventListener('click', ()=>openResultadoOverlay(g));
 }
+const thorHomeTelaFirme=document.getElementById('overlayListaResultados');
+thorHomeTelaFirme.addEventListener('scroll',()=>{try{sessionStorage.setItem('thor_home_scroll',String(thorHomeTelaFirme.scrollTop))}catch(_){}},{passive:true});
 // Mostra a tela imediatamente; a consulta de resultado não bloqueia a abertura.
 carregarHomeHero(homeGameAtual);
 
@@ -10665,10 +10677,10 @@ if(btnFalhasConcursosHome && overlayFalhasConcursos){
         if(frame.contentWindow && typeof frame.contentWindow.atualizarConcursosCaixa === 'function'){
           frame.contentWindow.atualizarConcursosCaixa();
         }else{
-          frame.src = 'falhas-concursos.html?v=thor7-v201-abertura&t=' + Date.now();
+          frame.src = 'falhas-concursos.html?v=thor7-v202-home-firme&t=' + Date.now();
         }
       }catch(_){
-        frame.src = 'falhas-concursos.html?v=thor7-v201-abertura&t=' + Date.now();
+        frame.src = 'falhas-concursos.html?v=thor7-v202-home-firme&t=' + Date.now();
       }
     }
     try{ history.pushState({thorFalhasConcursos:true},'',location.href); }catch(_){}
@@ -11077,7 +11089,7 @@ function resetScroll(){
   // as telas em tela cheia (home, resultado) e o menu lateral rolam por dentro de si
   // mesmas, então também precisam ser resetadas — senão reabrem no ponto onde
   // ficaram da última vez, dando a impressão de ter ido pra outro canto
-  ['overlayListaResultados','overlayResultado','drawer'].forEach(id=>{
+  ['overlayResultado','drawer'].forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.scrollTop = 0;
   });
@@ -11122,7 +11134,7 @@ function goHome(){
   const main = document.querySelector('.app > section:not(#resultsSection)');
   if(main) main.style.display = 'none';
   document.getElementById('overlayListaResultados').classList.add('show');
-  resetScroll();
+  // Preserva a rolagem da Home ao retornar.
   setActiveTab('tabInicio');
 }
 
@@ -11148,7 +11160,7 @@ function irParaResultados(){
   document.querySelector('.app > section:not(#resultsSection)').style.display='none';
   document.getElementById('resultsSection').style.display='none';
   document.getElementById('overlayListaResultados').classList.add('show');
-  resetScroll();
+  // Preserva a rolagem da Home ao retornar.
   setActiveTab('tabInicio');
 }
 
