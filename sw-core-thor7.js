@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
 // THOR 7 V3.75 - calculadora de probabilidade e cache sincronizados
-const CACHE_NAME='thor-loterias-v212-play-voltar';
+const CACHE_NAME='thor-loterias-v213-play-atualizacao';
 const CORE=['./','./index.html','./index-core-thor7.html','./app-main.html','./app-direct.html','./manifest.json','./icon-192.png','./thor-home-topo-v316.jpg','./cadastros-liberados.json'];
 const PALPITES_CARD='<button class="home-feature-card" style="--fc:#d41948" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">◎</span><span><strong>Palpites</strong><small>Sugestões inteligentes</small></span></button>';
 const CALC_CARD='<button class="home-feature-card" style="--fc:#e98a00" data-home-target="btnSimularAtalho"><span class="hfc-icon">▤</span><span><strong>Calculadora</strong><small>Probabilidades e estimativas</small></span></button>';
@@ -80,6 +80,9 @@ self.addEventListener('fetch',event=>{
 
   // Não interfere em APIs/arquivos externos.
   if(u.origin!==self.location.origin) return;
+  // Atualização explícita de versão: usa a rede, sem retornar o shell antigo.
+  if(u.searchParams.has('thor_force_update')){event.respondWith(respostaAtualizada(new Request(req.url,{cache:'no-store'})));return;}
+
 
   // Resultados oficiais: sempre tenta a rede primeiro para não prender concurso antigo no APK.
   if(u.pathname.endsWith('/historico-loterias.json')||u.pathname.endsWith('/resultados-atualizados.json')||u.pathname.endsWith('/resultados-auto-thor4.js')){
