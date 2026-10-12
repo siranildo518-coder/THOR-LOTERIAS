@@ -3364,6 +3364,23 @@ body{padding-top:var(--thor-area-superior)!important;box-sizing:border-box}
 #homeSideNav{top:var(--thor-area-superior)!important;height:calc(100dvh - var(--thor-area-superior))!important}
 </style>
 
+<style id="thorTopoContinuoV216">
+/* Ajuste EXCLUSIVO do topo da tela inicial: sem alterar conteúdo ou botões. */
+#overlayListaResultados.show #homeSideNav{
+  top:0!important;height:100dvh!important;
+  background:linear-gradient(90deg,#1b2c3a 0%,#586d7a 23%,#233746 59%,#091b2b 100%)!important;
+  border-right:1px solid rgba(151,218,255,.75)!important;
+  box-shadow:inset -5px 0 13px rgba(0,0,0,.5),inset 4px 0 12px rgba(214,237,255,.18),3px 0 8px rgba(0,0,0,.5)!important;
+}
+#overlayListaResultados.show #homeSideNav::before{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:linear-gradient(116deg,transparent 0 11%,rgba(96,194,255,.04) 12%,rgba(185,239,255,.95) 12.3%,rgba(0,151,255,.95) 12.8%,transparent 14%),
+  linear-gradient(105deg,transparent 0 45%,rgba(88,196,255,.05) 46%,rgba(208,246,255,.9) 46.4%,rgba(0,127,255,.85) 47%,transparent 48%);
+  filter:drop-shadow(0 0 5px #00aaff);opacity:.8;
+}
+#overlayListaResultados.show #homeSideNav > *{position:relative;z-index:1}
+#overlayListaResultados.show{border-top:0!important}
+</style>
 <style id="thorCombinacoesVidroV215">
 #thorCombinacoesVidro,#resultsSection{--glass-cyan:#a6f6ff;color:#eefcff;background:radial-gradient(ellipse at 0 20%,#35115c55,transparent 40%),radial-gradient(ellipse at 100% 70%,#005a6855,transparent 45%),#04152b;padding:12px!important}
 #thorCombinacoesVidro .card,#resultsSection .conf-card,#resultsSection .gc-card{background:linear-gradient(135deg,#456c8c99,#0b284bdd 45%,#30557399)!important;border:1px solid #b6efff!important;border-radius:20px!important;box-shadow:inset 0 2px 5px #ffffff90,inset 0 -2px 5px #61edff88,0 0 10px #40dfee44!important;color:#effaff!important}
