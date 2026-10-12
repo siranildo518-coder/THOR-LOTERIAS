@@ -1,2 +1,2 @@
-// THOR V198 - bolinhas dos grupos gerados 3D brilhantes
-importScripts('./sw-core-thor7.js?v=thor-v198-grupos-3d');
+// THOR V199 - Último resultado da Análise em 3D brilhante
+importScripts('./sw-core-thor7.js?v=thor-v199-resultado-3d');

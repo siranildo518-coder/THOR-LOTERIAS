@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v198-grupos-3d'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v199-resultado-3d'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3343,6 +3343,11 @@ document.addEventListener('selectstart', e=>{
 #gerarConteudo>.tend-row.tend-top1 .tend-ball,#gerarConteudo>div:first-child .tend-ball{--thor-grupo-cor:#258ad7}
 #gerarConteudo .tend-ball::before{content:"";position:absolute;top:7%;left:20%;width:60%;height:25%;border-radius:50%;background:linear-gradient(rgba(255,255,255,.7),transparent);pointer-events:none;z-index:-1}
 </style>
+<style id="thorUltimoResultado3DV199">
+#tendUltimoResultado .result-ball-sm{position:relative!important;isolation:isolate;border:0!important;border-radius:50%!important;color:#fff!important;font-weight:800!important;background-color:#0a9b43!important;background-image:radial-gradient(ellipse at 30% 18%,rgba(255,255,255,.85),rgba(255,255,255,.15) 34%,transparent 56%),linear-gradient(155deg,transparent 30%,rgba(0,0,0,.52))!important;box-shadow:inset 2px 3px 4px rgba(255,255,255,.65),inset -3px -4px 5px rgba(0,0,0,.45),0 3px 0 #034823,0 6px 8px rgba(0,0,0,.32)!important;text-shadow:0 1px 2px rgba(0,0,0,.5)!important}
+#tendUltimoResultado .result-ball-sm::before{content:"";position:absolute;top:7%;left:20%;width:60%;height:25%;border-radius:50%;background:linear-gradient(rgba(255,255,255,.7),transparent);pointer-events:none;z-index:-1}
+#tendUltimoResultado .result-balls{row-gap:7px!important}
+</style>
 </head>
 <body>
 <div class="app">
@@ -3620,7 +3625,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V198</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V199</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -3853,7 +3858,7 @@ document.addEventListener('selectstart', e=>{
     <button id="falhasConcursosVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
     <h1 style="font-size:19px;">Falhas e concursos</h1>
   </header>
-  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v198-grupos-3d" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
+  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v199-resultado-3d" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
 </div>
 
 <nav class="home-bottom-nav" id="bottomNav">
@@ -10660,10 +10665,10 @@ if(btnFalhasConcursosHome && overlayFalhasConcursos){
         if(frame.contentWindow && typeof frame.contentWindow.atualizarConcursosCaixa === 'function'){
           frame.contentWindow.atualizarConcursosCaixa();
         }else{
-          frame.src = 'falhas-concursos.html?v=thor7-v198-grupos-3d&t=' + Date.now();
+          frame.src = 'falhas-concursos.html?v=thor7-v199-resultado-3d&t=' + Date.now();
         }
       }catch(_){
-        frame.src = 'falhas-concursos.html?v=thor7-v198-grupos-3d&t=' + Date.now();
+        frame.src = 'falhas-concursos.html?v=thor7-v199-resultado-3d&t=' + Date.now();
       }
     }
     try{ history.pushState({thorFalhasConcursos:true},'',location.href); }catch(_){}
