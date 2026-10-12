@@ -1,2 +1,2 @@
-// V218 - Moldura com seleção ligada e Play para Combinações
-importScripts('./sw-core-thor7.js?v=thor-v218-moldura-play');
+// V219 - setas decorativas no título Moldura
+importScripts('./sw-core-thor7.js?v=thor-v219-moldura-setas');
