@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v227-centro-moldura'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v228-combinacoes-metal'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3422,7 +3422,48 @@ document.addEventListener('selectstart', e=>{
 #falhaPanel #thorCentroPower[aria-pressed="true"] .thor-rocker-on{transform:translateY(1px) rotateY(0deg);background:linear-gradient(#fbfcfc,#e5e9e9);color:#65b923;text-shadow:0 -1px 1px #2f6d0b,0 1px 1px #fff;box-shadow:inset 0 2px 3px #fff,0 1px 2px #0004}
 #falhaPanel #thorCentroPower[aria-pressed="true"] .thor-rocker-off{transform:translateY(-5px) rotateY(-15deg);background:linear-gradient(230deg,#e7eaea,#c3c7c7);color:#b2b6b5;text-shadow:0 1px 1px #fff,0 -1px 1px #7c8282;box-shadow:0 7px 0 #8d9393,0 10px 6px #0006,inset 0 1px 2px #fff}
 #falhaPanel #thorCentroPower:focus-visible{outline:2px solid #fff;outline-offset:4px}
-</style></head>
+</style>
+<style id="thorCombinacoesMetalV228">
+body.thor-combinacoes-metal{background:#09141e!important}
+body.thor-combinacoes-metal #appHeader{padding:12px 14px!important;border:1px solid #a9cbb7;border-radius:0 0 8px 8px;background:repeating-linear-gradient(135deg,#ffffff08 0 1px,transparent 1px 4px),linear-gradient(110deg,#083f2e,#238958 38%,#064330 75%,#1c6945)!important;box-shadow:inset 0 1px 1px #fff9,0 3px 5px #0006!important}
+body.thor-combinacoes-metal #appHeader h1{font-size:18px!important;color:#f4f7f6;text-shadow:0 2px 1px #12392c}
+body.thor-combinacoes-metal #appHeader .hamburger-btn{background:linear-gradient(#27634d,#06382b)!important;border:1px solid #89c6a8!important;border-radius:9px;box-shadow:inset 0 1px 2px #ffffff66,0 2px 2px #0005}
+#thorCombinacoesMetal{--steel:repeating-linear-gradient(172deg,#ffffff12 0 1px,#00000005 1px 2px,transparent 2px 4px),linear-gradient(115deg,#a5adb1,#f2f4f4 20%,#c4cbce 42%,#aab3b7 65%,#e2e6e7 88%,#aab3b7);padding:12px 12px 80px!important;max-width:660px;margin:auto;box-sizing:border-box;color:#101e2b}
+#thorCombinacoesMetal>.card{padding:12px!important;margin:0 0 12px!important;background:var(--steel)!important;border:1px solid #eef4f5!important;border-radius:17px!important;box-shadow:inset 0 2px 2px #fff,inset 0 -2px 3px #667179,0 4px 6px #0007!important;color:#101e2b}
+#thorCombinacoesMetal>.card:first-child>div:first-child{font:800 13px Arial!important;color:#111f2d!important;margin-bottom:10px!important;text-align:center}
+#thorCombinacoesMetal #combinacoesTabs{display:flex!important;gap:5px!important;padding:2px 1px 5px!important;overflow-x:auto;scrollbar-width:none}
+#thorCombinacoesMetal #combinacoesTabs .home-tab{flex:0 0 auto!important;min-height:30px!important;padding:5px 7px!important;font:800 9px Arial!important;white-space:nowrap;border:1px solid var(--tab-accent)!important;border-radius:8px!important;color:var(--tab-accent)!important;background:linear-gradient(#fff,#ccd5d9 48%,#f8fafb)!important;box-shadow:inset 0 1px 1px #fff,0 2px 1px #737f85,0 3px 3px #0003!important}
+#thorCombinacoesMetal #combinacoesTabs .home-tab.active{color:#fff!important;background:linear-gradient(125deg,color-mix(in srgb,var(--tab-accent) 55%,white),var(--tab-accent) 44%,color-mix(in srgb,var(--tab-accent) 55%,black))!important;box-shadow:inset 0 1px 2px #fff9,0 2px 1px #59666c,0 0 3px var(--tab-accent)!important}
+#thorCombinacoesMetal .slider-block{padding:0!important}
+#thorCombinacoesMetal #sliderHint{top:0!important;right:0!important;color:#101e2b!important}
+#thorCombinacoesMetal #sliderHintInput{width:27px!important;border:1px solid #eef3f5!important;border-radius:9px!important;background:linear-gradient(#834fac,#3d0c66)!important;box-shadow:0 0 0 1px #555e65,0 2px 2px #0004;font-size:11px!important}
+#thorCombinacoesMetal .slider-block>div:last-child{margin-top:24px!important;gap:8px!important}
+#thorCombinacoesMetal .stepper-btn{width:27px!important;height:27px!important;font:800 19px Arial!important;flex:none;color:#12202b!important;background:radial-gradient(circle at 30% 22%,#fff,#dfe4e6 50%,#8b969d)!important;border:1px solid #63717a!important;border-radius:50%!important;box-shadow:inset 0 1px 2px #fff,0 2px 2px #0004!important}
+#thorCombinacoesMetal #qtdSlider{height:9px!important;appearance:none;background:linear-gradient(#07131c,#62717a,#d0d8dd)!important;border:1px solid #ecf4f7;border-radius:9px;box-shadow:0 0 0 1px #465660}
+#thorCombinacoesMetal #qtdSlider::-webkit-slider-thumb{appearance:none;width:22px;height:22px;border-radius:50%;border:2px solid #eef2f4;background:radial-gradient(circle at 30% 20%,#cfadf5,#7138a5 50%,#29074c);box-shadow:0 0 0 1px #39434b,0 2px 3px #0005}
+#thorCombinacoesMetal #qtdSlider::-moz-range-thumb{width:19px;height:19px;border-radius:50%;border:2px solid #eef2f4;background:radial-gradient(circle at 30% 20%,#cfadf5,#7138a5 50%,#29074c)}
+#thorCombinacoesMetal #ballGrid{display:grid!important;grid-template-columns:repeat(10,minmax(0,1fr))!important;gap:8px 4px!important;margin:2px 0 14px!important;justify-items:center}
+#thorCombinacoesMetal #ballGrid .ball{box-sizing:border-box;width:100%!important;max-width:39px!important;height:auto!important;aspect-ratio:1;min-width:0!important;min-height:0!important;padding:0!important;border:1px solid #737f85!important;border-radius:50%!important;background:radial-gradient(ellipse at 29% 19%,#fff,#f3f5f5 23%,#c1c8cc 57%,#879399 78%,#e2e7e9)!important;box-shadow:inset 0 1px 2px #fff,0 2px 0 #667178,0 3px 4px #0004!important;color:#0d1b27!important;filter:none!important;transform:none!important}
+#thorCombinacoesMetal #ballGrid .ball span{font:800 clamp(9px,3.1vw,13px) Arial!important;color:inherit!important;text-shadow:0 1px 1px #fff9}
+#thorCombinacoesMetal #ballGrid .ball.on{background:radial-gradient(circle at 30% 20%,#ddc4ff,#8d43c6 48%,#3c086b)!important;color:#fff!important;border-color:#e8d6ff!important}
+#thorCombinacoesMetal #ballGrid .ball.fixed{background:radial-gradient(circle at 30% 20%,#b4f5c3,#299556 48%,#075030)!important;color:#fff!important;border-color:#90f7b0!important}
+#thorCombinacoesMetal #ballGrid .ball.excluded{background:radial-gradient(circle at 30% 20%,#ffc2b8,#d4352a 48%,#810e14)!important;color:#fff!important;border-color:#ffc0b8!important}
+#thorCombinacoesMetal #btnFixarModo,#thorCombinacoesMetal #btnExcluirModo{padding:8px 4px!important;min-height:32px;font:800 10px Arial!important;border-radius:9px!important;background:var(--steel)!important;box-shadow:inset 0 1px 2px #fff,0 2px 0 #647179,0 3px 4px #0003!important}
+#thorCombinacoesMetal #btnFixarModo{border:1px solid #1f7f47!important;color:#124a2c!important}
+#thorCombinacoesMetal #btnExcluirModo{border:1px solid #a9241a!important;color:#50221e!important}
+#thorCombinacoesMetal #btnGerar,#thorCombinacoesMetal #btnLimparSelecao{padding:9px 16px!important;min-height:33px;font:800 11px Arial!important;border:1px solid #f0f5f6!important;border-radius:10px!important;color:#fff!important;box-shadow:0 0 0 1px #4c5961,inset 0 2px 2px #ffffff99,0 3px 0 #56636b,0 5px 5px #0004!important}
+#thorCombinacoesMetal #btnGerar{background:repeating-linear-gradient(135deg,#ffffff08 0 1px,transparent 1px 3px),linear-gradient(130deg,#73c898,#0b7645 48%,#043a26)!important}
+#thorCombinacoesMetal #btnGerar:disabled{opacity:.55!important}
+#thorCombinacoesMetal #btnLimparSelecao{background:repeating-linear-gradient(135deg,#ffffff08 0 1px,transparent 1px 3px),linear-gradient(130deg,#ff8d89,#c41927 48%,#790818)!important}
+#thorCombinacoesMetal button:active{transform:translateY(1px)!important}
+#thorCombinacoesMetal #statsGrid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
+#thorCombinacoesMetal #statsGrid .stat{padding:7px 2px!important;background:var(--steel)!important;border:1px solid #eef4f6;border-radius:10px;box-shadow:0 0 0 1px #818e95,inset 0 1px 1px #fff,0 2px 2px #0003}
+#thorCombinacoesMetal #statsGrid .k{font:700 8px Arial!important;color:#283a48!important;text-transform:uppercase}
+#thorCombinacoesMetal #statsGrid .v{font:800 17px Arial!important;color:#0d1d2a!important;margin-top:4px}
+#thorCombinacoesMetal>.card:last-child{min-height:28px}
+@media(max-width:350px){#thorCombinacoesMetal{padding-left:8px!important;padding-right:8px!important}#thorCombinacoesMetal>.card{padding:9px!important}#thorCombinacoesMetal #ballGrid{gap:7px 3px!important}}
+</style>
+</head>
 <body>
 <div class="app">
 
@@ -3435,7 +3476,7 @@ document.addEventListener('selectstart', e=>{
     </div>
   </header>
 
-  <section style="display:none;">
+  <section id="thorCombinacoesMetal" style="display:none;">
     <div class="card" style="padding:12px;">
       <div style="font-family:'Baloo 2',sans-serif;font-weight:700;color:#4C1D95;font-size:12px;margin-bottom:7px;text-align:center;">Escolha sua loteria</div>
       <div class="home-tabs" id="combinacoesTabs" style="gap:5px;"></div>
@@ -3469,7 +3510,7 @@ document.addEventListener('selectstart', e=>{
       </div>
       <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
         <button class="primary-btn btn-gerar btn-3d-gerar" id="btnGerar" disabled style="padding:8px 16px;font-size:11.5px;border:2px solid #fff;"><span id="btnGerarSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="btnGerarLabel">GERAR</span></button>
-        <button id="btnLimparSelecao" class="btn-3d-conferir" style="padding:8px 16px;border-radius:9px;border:2px solid #fff;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;">🧹 LIMPAR</button>
+        <button id="btnLimparSelecao" class="btn-3d-conferir" style="padding:8px 16px;border-radius:9px;border:2px solid #fff;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;">🗑 LIMPAR</button>
       </div>
     </div>
 
@@ -3699,7 +3740,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V227 · Base V218</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V228 · Base V218</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -11270,6 +11311,7 @@ function fecharModaisGlobais(manter){
 }
 
 function goHome(){
+  document.body.classList.remove("thor-combinacoes-metal");
   const modalIds = ['overlayFotoFull','overlayGaleria','overlayTendencia','overlayMinhasSequencias','overlayAltaQueda','overlayHistorico',
     'overlayResultado','overlayErreX','overlayProb','overlayTrioProb','overlayCentroDezena','overlay','drawer',
     'overlayGeradorLoteria','overlayGeradorFiltro','overlayAnalisadorJogos'];
@@ -11288,6 +11330,7 @@ function goHome(){
 }
 
 function irParaSelecao(){
+  document.body.classList.add("thor-combinacoes-metal");
   // Cada nova entrada abre uma seleção limpa; Play aplica suas dezenas depois.
   selected=new Set();fixedNums=new Set();excludedNums=new Set();
   ballGrid.querySelectorAll('.ball').forEach(b=>b.classList.remove('on','fixed','excluded','excluir-anim','ball-sumida'));
@@ -11311,6 +11354,7 @@ function irParaSelecao(){
 }
 
 function irParaResultados(){
+  document.body.classList.remove("thor-combinacoes-metal");
   document.querySelector('.app > section:not(#resultsSection)').style.display='none';
   document.getElementById('resultsSection').style.display='none';
   document.getElementById('overlayListaResultados').classList.add('show');
