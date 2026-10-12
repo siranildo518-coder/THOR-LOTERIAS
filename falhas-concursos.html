@@ -110,11 +110,12 @@ const API='https://servicebus2.caixa.gov.br/portaldeloterias/api/';const LATEST_
   throw ultimoErro||new Error('Nenhuma fonte disponível');
 }function render(){if(!draw)return;guardarAtual(key,draw.c);$('contest').value=draw.c;$('target').textContent=draw.c+1;$('date').textContent=draw.date;$('balls').innerHTML=draw.nums.slice().sort((a,b)=>a-b).map(n=>'<span class="ball">'+two(n)+'</span>').join('');$('qty').max=draw.nums.length;if(selecaoAtiva&&selecaoAtiva.key===key&&selecaoAtiva.mode===mode)$('qty').value=selecaoAtiva.q;$('next').disabled=draw.c>=latest;
   // As dezenas ficam travadas no último CALCULAR. Navegar só troca o concurso e confere.
-  const pal=(selecaoAtiva&&selecaoAtiva.key===key&&selecaoAtiva.mode===mode&&+draw.c>+selecaoAtiva.base)?selecaoAtiva:null;
+  const pal=(selecaoAtiva&&selecaoAtiva.key===key&&selecaoAtiva.mode===mode)?selecaoAtiva:null;
   if(pal){
     const qExibir=Math.max(1,Math.min(pal.q||pal.ranking.length,pal.ranking.length));
-    const conf=pal.ranking.slice(0,qExibir).map(r=>({...r,sorteada:draw.nums.includes(r.v)}));
-    $('resultTitle').textContent=qExibir+' dezenas escolhidas • concurso '+draw.c;
+    const conferindo=+draw.c>+pal.base;
+    const conf=pal.ranking.slice(0,qExibir).map(r=>({...r,sorteada:conferindo&&draw.nums.includes(r.v)}));
+    $('resultTitle').textContent=conferindo?qExibir+' dezenas escolhidas • concurso '+draw.c:qExibir+' dezenas para '+(mode==='repeat'?'REPETIR':'FALHAR')+' • concurso '+(+pal.base+1);
     $('rank').innerHTML=conf.map((r,i)=>'<div class="rankItem'+(r.sorteada?' acerto-confirmado':'')+'"><div class="rankHead"><span class="rankBall">'+two(r.v)+'</span><small>'+(i+1)+'º</small></div><div class="pct">'+(r.score*100).toFixed(2).replace('.',',')+'%</div>'+(r.sorteada?'<div class="acertou-label">SORTEADA</div>':'')+'</div>').join('');
     $('result').classList.add('show');
   }else{

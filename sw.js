@@ -1,2 +1,2 @@
-// THOR V195 - Análise Gerar sem Copiar e quantidade centralizada
-importScripts('./sw-core-thor7.js?v=thor-v195-gerar-sem-copiar');
+// THOR V196 - preservar dezenas calculadas em Falhas e Concursos
+importScripts('./sw-core-thor7.js?v=thor-v196-falhas-fixas');
