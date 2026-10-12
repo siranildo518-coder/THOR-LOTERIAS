@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v208-centro-moldura-visivel'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v209-sem-pulinho'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3651,7 +3651,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V208</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V209</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -5619,9 +5619,7 @@ document.getElementById('sorteio2QtdBadge').addEventListener('input', (e)=>{
 // tenta esconder a barra de endereço do navegador junto com o teclado,
 // forçando um pequeno scroll (funciona na maioria dos navegadores mobile Android)
 function esconderBarraDoNavegador(){
-  window.scrollTo(0, 1);
-  setTimeout(()=> window.scrollTo(0, 1), 50);
-  setTimeout(()=> window.scrollTo(0, 1), 300);
+  // V209: não deslocar a página artificialmente; evita o "pulinho" visual no Android.
 }
 ['sorteio2QtdBadge','qtdSorteio2'].forEach(id=>{
   const el = document.getElementById(id);
