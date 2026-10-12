@@ -228,7 +228,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v240-abertura-sem-preto'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v241-combinacoes-rolagem'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3505,6 +3505,22 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid .ball.on{background:
 body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid .ball.fixed{background:radial-gradient(circle at 28% 18%,#fff,#a0f2bf 20%,#1eab5b 45%,#07532d 74%,#6ddb94)!important}
 body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid .ball.excluded{background:radial-gradient(circle at 28% 18%,#fff,#ffb0a8 20%,#ee3025 45%,#8f1020 74%,#ff7d7b)!important}
 </style>
+<style id="thorCombinacoesRolagemV241">
+/* Na aba Combinações, somente topo e seletor de loterias permanecem fixos. */
+body.thor-combinacoes-metal{overflow-y:auto!important;overscroll-behavior-y:contain!important;height:auto!important;min-height:100dvh!important}
+body.thor-combinacoes-metal .app{height:auto!important;min-height:100dvh!important;overflow:visible!important}
+body.thor-combinacoes-metal #appHeader{position:sticky!important;top:0!important;z-index:1002!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal{overflow:visible!important;height:auto!important;max-height:none!important;min-height:0!important;contain:none!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal>.card:first-child{position:sticky!important;top:var(--thor-comb-header-h,70px)!important;z-index:1001!important;margin-bottom:12px!important;box-shadow:0 4px 9px #0007!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal>.card:not(:first-child){position:relative;max-height:none!important}
+</style>
+<script id="thorCombinacoesHeaderMeasureV241">
+(function(){
+ function medir(){var h=document.getElementById('appHeader');if(h&&document.body.classList.contains('thor-combinacoes-metal'))document.documentElement.style.setProperty('--thor-comb-header-h',Math.ceil(h.getBoundingClientRect().height)+'px')}
+ document.addEventListener('DOMContentLoaded',function(){medir();if(window.ResizeObserver){var h=document.getElementById('appHeader');if(h)new ResizeObserver(medir).observe(h)}});
+ window.addEventListener('resize',medir,{passive:true});
+})();
+</script>
 </head>
 <body>
 <div class="app">
@@ -3783,7 +3799,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid .ball.excluded{backg
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V240 · Base V218</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V241 · Base V218</span></footer>
 </div>
 
   <div class="contatos-conteudo">
