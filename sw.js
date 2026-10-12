@@ -1,2 +1,2 @@
 // V218 V226 - Moldura com seleção ligada e Play para Combinações
-importScripts('./sw-core-thor7.js?v=thor-v226-inicio-firme');
+importScripts('./sw-core-thor7.js?v=thor-v227-centro-moldura');
