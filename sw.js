@@ -1,2 +1,2 @@
-// V211 - Play do Falhas Pro para Combinações
-importScripts('./sw-core-thor7.js?v=thor-v211-play-falhas');
+// V212 - Play compacto e voltar para o Falhas Pro preservado
+importScripts('./sw-core-thor7.js?v=thor-v212-play-voltar');
