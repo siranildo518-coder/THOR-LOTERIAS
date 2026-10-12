@@ -41,14 +41,5 @@ if (extras.length && !html.includes('frequencia-concorrencia-thor7.js')) {
   html = html.replace('</body>', tags + '</body>');
 }
 
-// Complementos locais não devem bloquear a primeira pintura.
-const scriptsVistos=new Set();
-html=html.replace(/<script\b([^>]*)>[\s\S]*?<\/script\s*>/gi,(tag,attrs)=>{
- const m=attrs.match(/\bsrc\s*=\s*["']([^"']+)["']/i);
- if(!m)return tag;
- const chave=m[1].split('?')[0];if(scriptsVistos.has(chave))return '';scriptsVistos.add(chave);
- return chave.startsWith('./')&&!/\bdefer\b/.test(attrs)?tag.replace('<script','<script defer'):tag;
-});
-html=html.replace(/html,body\{margin:0;min-height:100%;background:linear-gradient\(160deg,#4C1D95,#6D28D9\)!important\}/g,'html,body{margin:0;min-height:100%;background:#07101f!important}');
 fs.writeFileSync(outPath, html);
 console.log('app-direct.html gerado:', html.length, 'bytes; scripts extras:', extras.length);
