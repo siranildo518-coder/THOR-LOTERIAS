@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v205-atualizar-sem-flash'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v206-area-sistema'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3355,6 +3355,14 @@ document.addEventListener('selectstart', e=>{
 .overlay-full,.overlay,.overlay .modal,.overlay-full>.top,.overlay-full>.card,.overlay-full .conf-card,#resultsSection,#thorJogosBranco,#thorJogosSalvosTelaIndependente{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 .overlay-full.show,.overlay.show,.overlay.show .modal,#thorJogosBranco.ativo{transform:none!important;opacity:1!important}
 </style>
+<script id="thorAreaSistemaV206">(function(){var ua=navigator.userAgent||'',app=/; wv\)|\bwv\b|Version\/4\.0.*Android|Android.*Version\/4\.0/i.test(ua)||window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;if(window.self===window.top&&app)document.documentElement.classList.add('thor-area-sistema-app')})();</script>
+<style id="thorAbaixoDaHoraV206">
+:root{--thor-area-superior:env(safe-area-inset-top,0px)}
+html.thor-area-sistema-app{--thor-area-superior:max(env(safe-area-inset-top,0px),32px)}
+body{padding-top:var(--thor-area-superior)!important;box-sizing:border-box}
+.overlay-full,.overlay,.drawer,#drawerOverlay,#thorJogosBranco,#thorJogosSalvosTelaIndependente,#gfcJogosSalvosTela,#thorGeradorPalpites,.thor-tela-arquivo{top:var(--thor-area-superior)!important}
+#homeSideNav{top:var(--thor-area-superior)!important;height:calc(100dvh - var(--thor-area-superior))!important}
+</style>
 <style id="thorBootEscuroApp">#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
 <body>
 <div class="app">
@@ -3632,7 +3640,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V205</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V206</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -3848,7 +3856,7 @@ document.addEventListener('selectstart', e=>{
     <button id="falhasConcursosVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
     <h1 style="font-size:19px;">Falhas e concursos</h1>
   </header>
-  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v205-atualizar-sem-flash" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
+  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v206-area-sistema" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
 </div>
 
 <nav class="home-bottom-nav" id="bottomNav">
@@ -10661,10 +10669,10 @@ if(btnFalhasConcursosHome && overlayFalhasConcursos){
         if(frame.contentWindow && typeof frame.contentWindow.atualizarConcursosCaixa === 'function'){
           frame.contentWindow.atualizarConcursosCaixa();
         }else{
-          frame.src = 'falhas-concursos.html?v=thor7-v205-atualizar-sem-flash&t=' + Date.now();
+          frame.src = 'falhas-concursos.html?v=thor7-v206-area-sistema&t=' + Date.now();
         }
       }catch(_){
-        frame.src = 'falhas-concursos.html?v=thor7-v205-atualizar-sem-flash&t=' + Date.now();
+        frame.src = 'falhas-concursos.html?v=thor7-v206-area-sistema&t=' + Date.now();
       }
     }
     try{ history.pushState({thorFalhasConcursos:true},'',location.href); }catch(_){}
@@ -15859,7 +15867,7 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
  window.thorFecharTelaSobreHome=voltar;
  function abrir(url){
   var chave=url.split('?')[0],t=telas.get(chave);
-  if(!t){t=document.createElement('div');t.style.cssText='display:none;position:fixed;inset:0;z-index:2147483000;background:#07101f';
+  if(!t){t=document.createElement('div');t.className='thor-tela-arquivo';t.style.cssText='display:none;position:fixed;inset:0;z-index:2147483000;background:#07101f';
    var frame=document.createElement('iframe');frame.title=chave.includes('gerador')?'Gerador de Palpites':'Falhas Pro';frame.src=url;frame.style.cssText='display:block;width:100%;height:100%;border:0;background:#07101f';
    var btn=document.createElement('button');btn.type='button';btn.setAttribute('aria-label','Voltar à tela inicial');btn.textContent='←';btn.style.cssText='position:absolute;top:16px;left:10px;width:34px;height:32px;z-index:2;border:1px solid #89cae6;border-radius:8px;background:#07324e;color:white;font-size:22px';btn.onclick=voltar;
    t.append(frame,btn);document.body.appendChild(t);telas.set(chave,t);
