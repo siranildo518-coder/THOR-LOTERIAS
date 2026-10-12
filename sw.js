@@ -1,2 +1,2 @@
-// V213 - retorno do Play e atualização de versão dentro do app
-importScripts('./sw-core-thor7.js?v=thor-v213-play-atualizacao');
+// V214 - Play mais fino e Combinações limpa nas novas entradas
+importScripts('./sw-core-thor7.js?v=thor-v214-play-compacto');
