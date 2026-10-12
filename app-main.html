@@ -4,7 +4,13 @@
 <meta charset="UTF-8"><script>try{history.scrollRestoration="manual"}catch(_){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#07101f">
-<style id="thorFirstPaint">html,body{margin:0;min-height:100%;background:#07101f!important}</style>
+<style id="thorQuenteFalhas3DV235">
+.thor-quente-falha-quadro{margin:13px 0 10px;padding:12px 9px 15px;border:1.5px solid #4bffb0;border-radius:14px;background:linear-gradient(155deg,#06473f,#052b30 75%);box-shadow:inset 0 1px 0 #ffffff29,0 3px 10px #0005;text-align:center}
+.thor-quente-falha-titulo{font-weight:900;font-size:16px;color:#eafff4;margin-bottom:12px;text-shadow:0 2px 3px #0008}
+.thor-quente-falha-bolas{display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
+.thor-quente-falha-bola{width:37px;height:37px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:900;color:#fff;background:radial-gradient(circle at 32% 24%,#ffc87b 0%,#f69a31 27%,#d66d0a 62%,#873800 100%);border:1px solid #ffcb80;box-shadow:inset 2px 3px 4px #ffffff8c,inset -3px -5px 7px #5323009c,0 3px 5px #0008;text-shadow:0 1px 2px #000b;position:relative;flex:none}
+.thor-quente-falha-bola:before{content:"";position:absolute;top:5px;left:8px;width:17px;height:8px;border-radius:50%;background:linear-gradient(#ffffffa8,#ffffff00);transform:rotate(-20deg);pointer-events:none}
+</style><style id="thorFirstPaint">html,body{margin:0;min-height:100%;background:#07101f!important}</style>
 <title>THOR LOTERIAS</title>
 <link rel="stylesheet" href="./analise-frequencia-v347.css?v=thor7-v3-84">
 <script defer src="./analise-repeticao-v343.js?v=thor7-v3-84"></script>
@@ -211,7 +217,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v234-sem-tela-preta'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v235-quentes-falha-3d'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3766,7 +3772,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid .ball.excluded{backg
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V234 · Base V218</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V235 · Base V218</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -6877,7 +6883,10 @@ function renderAltaQueda(linhas, total, numeroUltimo, mediaPresenca){
     ? emQueda.map(l=>itemHtml(l,'queda')).join('')
     : `<div class="aq-empty">Nenhuma dezena em queda</div>`;
 
+  const bolasFalha = maisAtrasadas.map(l=>`<span class="thor-quente-falha-bola" title="Dezena ${l.n.toString().padStart(2,'0')} — atraso de ${l.atraso} concursos">${l.n.toString().padStart(2,'0')}</span>`).join('');
+  const quadroFalha = `<section class="thor-quente-falha-quadro" aria-label="Melhores pra Falha"><div class="thor-quente-falha-titulo">🎯 Melhores pra Falha</div><div class="thor-quente-falha-bolas">${bolasFalha}</div></section>`;
   cont.innerHTML = `
+    ${quadroFalha}
     <div class="note" style="margin:14px 0;">
       Com base nos últimos <strong>${total}</strong> concursos de ${nomeJogo} (até o Nº ${numeroUltimo}).<br>
       <strong>EM ALTA</strong> = saiu mais que a média nesse período · <strong>EM QUEDA</strong> = saiu menos que a média.<br>
