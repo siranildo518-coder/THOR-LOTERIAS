@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v200-jogos-excluir'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v201-abertura'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -539,14 +539,14 @@ async function sairDoLogin(){
 if(!loginJaValidado()){
   const startupGuard = document.createElement('style');
   startupGuard.id = 'thorLoginStartupGuard';
-  startupGuard.textContent = 'html,body{background:linear-gradient(160deg,#4C1D95,#6D28D9)!important} body>*:not(#loginOverlay){visibility:hidden!important}';
+  startupGuard.textContent = 'html,body{background:#07101f!important} body>*:not(#loginOverlay){visibility:hidden!important}';
   document.head.appendChild(startupGuard);
 }
 
 function montarTelaLogin(){
   const overlay = document.createElement('div');
   overlay.id = 'loginOverlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,#4C1D95,#6D28D9);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,sans-serif;';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#07101f;display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,sans-serif;';
   overlay.innerHTML = `
     <div style="background:#fff;border-radius:18px;padding:28px 22px;max-width:340px;width:100%;box-shadow:0 12px 30px rgba(0,0,0,.3);">
       <div id="formLogin">
@@ -3625,7 +3625,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V200</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V201</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -3858,7 +3858,7 @@ document.addEventListener('selectstart', e=>{
     <button id="falhasConcursosVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
     <h1 style="font-size:19px;">Falhas e concursos</h1>
   </header>
-  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v200-jogos-excluir" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
+  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v201-abertura" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
 </div>
 
 <nav class="home-bottom-nav" id="bottomNav">
@@ -10665,10 +10665,10 @@ if(btnFalhasConcursosHome && overlayFalhasConcursos){
         if(frame.contentWindow && typeof frame.contentWindow.atualizarConcursosCaixa === 'function'){
           frame.contentWindow.atualizarConcursosCaixa();
         }else{
-          frame.src = 'falhas-concursos.html?v=thor7-v200-jogos-excluir&t=' + Date.now();
+          frame.src = 'falhas-concursos.html?v=thor7-v201-abertura&t=' + Date.now();
         }
       }catch(_){
-        frame.src = 'falhas-concursos.html?v=thor7-v200-jogos-excluir&t=' + Date.now();
+        frame.src = 'falhas-concursos.html?v=thor7-v201-abertura&t=' + Date.now();
       }
     }
     try{ history.pushState({thorFalhasConcursos:true},'',location.href); }catch(_){}
@@ -13434,7 +13434,7 @@ if('serviceWorker' in navigator){
     function recarregarUmaVez(){
       if(jaRecarregou) return;
       jaRecarregou = true;
-      location.reload();
+      // Aplica a nova versão na próxima abertura, sem recarregar a tela atual.
     }
 
     navigator.serviceWorker.addEventListener('controllerchange', recarregarUmaVez);
