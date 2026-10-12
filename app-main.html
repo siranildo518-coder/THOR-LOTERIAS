@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v203-retorno-firme'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v204-abertura-direta'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3349,6 +3349,12 @@ document.addEventListener('selectstart', e=>{
 #tendUltimoResultado .result-balls{row-gap:7px!important}
 </style>
 <style id="thorHomeFirmeV202">#overlayListaResultados,#overlayListaResultados .home-hero,#overlayListaResultados .home-feature-card{animation:none!important;transition:none!important}#overlayListaResultados.show{transform:none!important;opacity:1!important}#overlayListaResultados{scroll-behavior:auto!important}#overlayListaResultados .hh-ball{animation:none!important}</style>
+<style id="thorAberturaDiretaV204">
+#overlayListaResultados .home-feature-card,#overlayListaResultados .home-tab,#homeSideNav .hs-item,#homeSideNav .hs-menu,#overlayListaResultados .hh-stats-btn,#overlayListaResultados .home-upgrade-btn{border-width:1px!important;transition:none!important;animation:none!important}
+#overlayListaResultados .home-feature-card:active,#overlayListaResultados .home-tab:active{transform:none!important}
+.overlay-full,.overlay,.overlay .modal,.overlay-full>.top,.overlay-full>.card,.overlay-full .conf-card,#resultsSection,#thorJogosBranco,#thorJogosSalvosTelaIndependente{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+.overlay-full.show,.overlay.show,.overlay.show .modal,#thorJogosBranco.ativo{transform:none!important;opacity:1!important}
+</style>
 </head>
 <body>
 <div class="app">
@@ -3626,7 +3632,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V203</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V204</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -3859,7 +3865,7 @@ document.addEventListener('selectstart', e=>{
     <button id="falhasConcursosVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
     <h1 style="font-size:19px;">Falhas e concursos</h1>
   </header>
-  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v203-retorno-firme" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
+  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v204-abertura-direta" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
 </div>
 
 <nav class="home-bottom-nav" id="bottomNav">
@@ -10677,10 +10683,10 @@ if(btnFalhasConcursosHome && overlayFalhasConcursos){
         if(frame.contentWindow && typeof frame.contentWindow.atualizarConcursosCaixa === 'function'){
           frame.contentWindow.atualizarConcursosCaixa();
         }else{
-          frame.src = 'falhas-concursos.html?v=thor7-v203-retorno-firme&t=' + Date.now();
+          frame.src = 'falhas-concursos.html?v=thor7-v204-abertura-direta&t=' + Date.now();
         }
       }catch(_){
-        frame.src = 'falhas-concursos.html?v=thor7-v203-retorno-firme&t=' + Date.now();
+        frame.src = 'falhas-concursos.html?v=thor7-v204-abertura-direta&t=' + Date.now();
       }
     }
     try{ history.pushState({thorFalhasConcursos:true},'',location.href); }catch(_){}
