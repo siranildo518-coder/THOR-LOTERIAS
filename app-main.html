@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><script id="thorAtualizacaoLegadaV217">(function(){try{if(location.pathname.endsWith('/app-direct.html')||typeof combinacoesTabRefs!=='undefined'){sessionStorage.setItem('thorAtualizacaoPendente','223');location.replace('./index.html?thor_force_update='+Date.now())}}catch(_){}})();</script>
+<head><script id="thorAtualizacaoLegadaV217">(function(){try{if(location.pathname.endsWith('/app-direct.html')||typeof combinacoesTabRefs!=='undefined'){sessionStorage.setItem('thorAtualizacaoPendente','224');location.replace('./index.html?thor_force_update='+Date.now())}}catch(_){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#07101f">
@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v223-moldura-cores'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v224-base218-rapida'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3380,53 +3380,6 @@ document.addEventListener('selectstart', e=>{
 #molduraPanel #molduraConteudo .centro-num{font-size:12px!important}
 #molduraPanel #molduraConteudo .centro-cel.thor-moldura-selecionada{outline:2px solid #36ffb2!important;outline-offset:2px;filter:brightness(1.2)}
 </style>
-
-<style id="thorMolduraSetasV219">
-#molduraPanel .thor-moldura-titulo strong{display:flex;align-items:center;justify-content:center;gap:12px}
-#molduraPanel .thor-moldura-titulo strong::before,#molduraPanel .thor-moldura-titulo strong::after{content:"";display:block;width:clamp(24px,9vw,58px);height:9px;background:linear-gradient(90deg,transparent,#53f5c3);clip-path:polygon(0 36%,78% 36%,78% 0,100% 50%,78% 100%,78% 64%,0 64%);filter:drop-shadow(0 0 3px #31e6b4);flex:none}
-#molduraPanel .thor-moldura-titulo strong::after{transform:rotate(180deg)}
-</style>
-
-<style id="thorMolduraBrilhoV220">
-#molduraPanel #thorMolduraPower{display:flex!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important;width:64px!important;height:64px!important;min-width:64px!important;min-height:64px!important;max-width:none!important;padding:7px!important;border:2px solid #eef5f7!important;border-radius:50%!important;background:conic-gradient(from 20deg,#fff,#9fa9ad 20%,#f5fafb 36%,#6f7d82 55%,#fff 75%,#a9b4b8 90%,#fff)!important;box-shadow:0 5px 7px #0009,inset 0 2px 3px #fff!important;color:var(--power)!important;box-sizing:border-box!important;transition:transform .18s ease,box-shadow .18s ease!important;animation:none!important}
-#molduraPanel #thorMolduraPower span{display:flex!important;visibility:visible!important;width:100%!important;height:100%!important;color:var(--power)!important;border:2px solid var(--power)!important;border-radius:50%!important;box-sizing:border-box!important;background:conic-gradient(#f8fbfc,#a0aaae,#fff,#879397,#f6f9fa)!important;box-shadow:inset 0 1px 3px #fff,0 0 4px var(--power)!important}
-#molduraPanel #thorMolduraPower svg{width:26px;height:26px;display:block;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round}
-#molduraPanel #thorMolduraPower[aria-pressed="true"]{transform:translateY(3px) scale(.95)!important;box-shadow:inset 0 4px 8px #000a,0 0 7px #12f69988!important}
-#molduraPanel #thorMolduraPlay{display:block!important;visibility:visible!important;opacity:1!important}
-#molduraPanel #thorMolduraPlay:disabled{opacity:.55!important}
-#molduraPanel .centro-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:13px 8px!important;padding:5px 2px!important}
-#molduraPanel #molduraConteudo .centro-cel{width:clamp(32px,10vw,44px)!important;height:clamp(32px,10vw,44px)!important;min-width:0!important;border:1px solid #ffffff88!important;background-image:radial-gradient(ellipse at 28% 18%,#fff 0%,#ffffffaa 10%,#ffffff11 35%,transparent 50%),linear-gradient(145deg,#ffffff35,transparent 45%,#00000055 100%)!important;box-shadow:inset 3px 4px 6px #ffffff99,inset -5px -7px 10px #0007,0 5px 7px #0008!important;filter:none!important;overflow:hidden!important}
-#molduraPanel #molduraConteudo .centro-cel::before{left:19%!important;top:8%!important;width:48%!important;height:25%!important;background:linear-gradient(#ffffffe6,#ffffff11)!important}
-#molduraPanel #molduraConteudo .centro-num{font-size:14px!important;color:#fff!important;font-weight:900!important;text-shadow:0 2px 3px #0008!important}
-@media(min-width:650px){#molduraPanel .centro-grid{grid-template-columns:repeat(8,minmax(0,1fr))!important}}
-</style>
-
-<style id="thorMolduraRockerV222">
-#molduraPanel #thorMolduraPower{width:100%!important;max-width:104px!important;height:38px!important;min-width:0!important;min-height:38px!important;padding:3px!important;border:1px solid #586064!important;border-radius:8px!important;background:linear-gradient(#050607,#171b1e)!important;box-shadow:inset 0 2px 5px #000,0 2px 2px #0009!important;transform:none!important}
-#molduraPanel #thorMolduraPower span{display:flex!important;position:relative;width:100%!important;height:100%!important;border:1px solid #444b50!important;border-radius:5px!important;background:linear-gradient(105deg,#44484b,#202427 48%,#111416 51%,#292d30)!important;box-shadow:inset 0 1px 2px #ffffff35,2px 1px 4px #000!important;transform:perspective(150px) rotateY(-8deg);transition:transform .18s,background .18s!important;text-shadow:none!important}
-#molduraPanel #thorMolduraPower span::before,#molduraPanel #thorMolduraPower span::after{display:flex;align-items:center;justify-content:center;width:50%;height:100%;font:bold 14px Arial;line-height:1;color:#080b0d;text-shadow:0 1px 1px #ffffff20}
-#molduraPanel #thorMolduraPower span::before{content:"ON";border-right:1px solid #080a0b}
-#molduraPanel #thorMolduraPower span::after{content:"OFF";color:#ff351c;text-shadow:0 0 6px #ff351c99}
-#molduraPanel #thorMolduraPower[aria-pressed="true"]{transform:none!important;box-shadow:inset 0 2px 5px #000,0 2px 2px #0009!important}
-#molduraPanel #thorMolduraPower[aria-pressed="true"] span{transform:perspective(150px) rotateY(8deg);background:linear-gradient(105deg,#202427,#111416 48%,#292d30 51%,#44484b)!important}
-#molduraPanel #thorMolduraPower[aria-pressed="true"] span::before{color:#a0f51b;text-shadow:0 0 6px #a0f51b99}
-#molduraPanel #thorMolduraPower[aria-pressed="true"] span::after{color:#080b0d;text-shadow:0 1px 1px #ffffff20}
-#molduraPanel #thorMolduraPower:focus-visible{outline:2px solid #fff;outline-offset:3px}
-#molduraPanel #molduraConteudo .centro-cel{width:clamp(26px,8vw,34px)!important;height:clamp(26px,8vw,34px)!important}
-#molduraPanel #molduraConteudo .centro-num{font-size:12px!important}
-#molduraPanel .centro-grid{gap:9px 6px!important}
-</style>
-
-<style id="thorMolduraCoresV223">
-#molduraPanel #thorMolduraPower{height:54px!important;min-height:54px!important}
-#molduraPanel #thorMolduraPower span{background:linear-gradient(105deg,#44484b,#202427 48%,#3c0b08 51%,#a51d13)!important;box-shadow:inset 0 1px 2px #ffffff35,inset -2px 0 10px #ff321c55,2px 1px 4px #000!important}
-#molduraPanel #thorMolduraPower span::before,#molduraPanel #thorMolduraPower span::after{font-size:16px}
-#molduraPanel #thorMolduraPower span::after{background:radial-gradient(ellipse,#ff351c55,transparent 75%);border-radius:0 4px 4px 0}
-#molduraPanel #thorMolduraPower[aria-pressed="true"] span{background:linear-gradient(105deg,#638614,#1f3c08 48%,#292d30 51%,#44484b)!important;box-shadow:inset 0 1px 2px #ffffff35,inset 2px 0 10px #a0f51b55,2px 1px 4px #000!important}
-#molduraPanel #thorMolduraPower[aria-pressed="true"] span::before{background:radial-gradient(ellipse,#a0f51b55,transparent 75%);border-radius:4px 0 0 4px}
-#molduraPanel #thorMolduraPower[aria-pressed="true"] span::after{background:none}
-#molduraPanel #molduraConteudo .centro-cel{background-image:radial-gradient(ellipse at 28% 18%,#ffffffbb,transparent 45%),var(--moldura-cor,linear-gradient(160deg,#e2e5ea,#a8b1bf))!important;box-shadow:inset 2px 3px 5px #ffffff70,inset -3px -4px 6px #0003,0 3px 4px #0004!important}
-</style>
 </head>
 <body>
 <div class="app">
@@ -3704,7 +3657,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V223</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V218 · R224</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -4018,7 +3971,7 @@ document.addEventListener('selectstart', e=>{
             <input type="number" id="molduraQtdInput" min="2" max="500" value="10" inputmode="numeric">
             <button type="button" class="btn-confirm btn-3d" id="molduraAtualizarBtn">ATUALIZAR</button>
           </div>
-          <button type="button" id="thorMolduraPower" aria-label="Ligar seleção de dezenas da moldura" aria-pressed="false"><span aria-hidden="true"></span></button>
+          <button type="button" id="thorMolduraPower" aria-label="Ligar seleção de dezenas da moldura" aria-pressed="false"><span>⏻</span></button>
           <button type="button" id="thorMolduraPlay" disabled>Play</button>
         </div>
       </div>
@@ -8643,13 +8596,6 @@ async function carregarMoldura(gameParam){
   }
 }
 
-function corMolduraPorPct(pct){
-  if(pct===null || pct<30) return 'linear-gradient(160deg,#e2e5ea,#a8b1bf)';
-  if(pct<50) return 'linear-gradient(160deg,#ffc880,#e8832c)';
-  const t=Math.max(0,Math.min(1,(pct-50)/50));
-  return `linear-gradient(160deg,rgb(${Math.round(239-49*t)},${Math.round(144-89*t)},${Math.round(145-87*t)}),rgb(${Math.round(211-56*t)},${Math.round(91-56*t)},${Math.round(94-56*t)}))`;
-}
-
 function renderMoldura(linhas, pares, numeroUltimo){
   const cont = document.getElementById('molduraConteudo');
 
@@ -8657,10 +8603,10 @@ function renderMoldura(linhas, pares, numeroUltimo){
   linhas.forEach(l=>{ centroDadosPorN[l.n] = l; });
 
   const celulas = linhas.map((l,i)=>{
-    const cor = corMolduraPorPct(l.pct);
+    const cor = corCentroPorPct(l.pct);
     const semDados = l.pct===null;
     const pctVem = l.pct===null ? null : 100 - l.pct;
-    const estilo = `--moldura-cor:${cor};` + `animation-delay:${i*330}ms;`;
+    const estilo = (semDados ? '' : `background:${cor};`) + `animation-delay:${i*330}ms;`;
     return `
     <div class="centro-cel${semDados ? ' sem-dados' : ''}" style="${estilo}" data-n="${l.n}" role="button" tabindex="0" onclick="thorMolduraTocar(${l.n})" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();thorMolduraTocar(${l.n})}" title="${l.n.toString().padStart(2,'0')}: ${semDados ? 'sem dados no período — essa dezena não saiu nos últimos 10 concursos analisados' : (l.pct>=50 ? pctExibicao(l.pct)+'% de chance de falhar' : pctExibicao(pctVem)+'% de chance de vir no próximo concurso')}">
       <div class="centro-num">${l.n.toString().padStart(2,'0')}</div>

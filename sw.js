@@ -1,2 +1,2 @@
-// V223 - cores por probabilidade e liga/desliga iluminado
-importScripts('./sw-core-thor7.js?v=thor-v223-moldura-cores');
+// V218 R224 - Moldura com seleção ligada e Play para Combinações
+importScripts('./sw-core-thor7.js?v=thor-v224-base218-rapida');
