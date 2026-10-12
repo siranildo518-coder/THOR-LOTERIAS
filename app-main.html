@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v214-topo-home'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v209-sem-seta'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3363,24 +3363,6 @@ body{padding-top:var(--thor-area-superior)!important;box-sizing:border-box}
 .overlay-full,.overlay,.drawer,#drawerOverlay,#thorJogosBranco,#thorJogosSalvosTelaIndependente,#gfcJogosSalvosTela,#thorGeradorPalpites,.thor-tela-arquivo{top:var(--thor-area-superior)!important}
 #homeSideNav{top:var(--thor-area-superior)!important;height:calc(100dvh - var(--thor-area-superior))!important}
 </style>
-
-<link rel="preload" as="image" href="./thor-home-topo-v214.jpg">
-<style id="thorTopoHomeV214">
-html body #overlayListaResultados{top:0!important;padding-top:var(--thor-area-superior,0px)!important;isolation:isolate}
-html body #overlayListaResultados::before{content:"";position:absolute;left:0;top:0;width:100%;height:46.5vw;background:url("./thor-home-topo-v214.jpg") left top/100vw 46.5vw no-repeat;pointer-events:none;z-index:-1}
-html body #overlayListaResultados .home-header{height:calc(46.5vw - var(--thor-area-superior,0px))!important;min-height:90px!important;background:transparent!important;padding:0!important;border:0!important;box-shadow:none!important}
-html body #overlayListaResultados .home-header .home-topbar{display:none!important}
-html body #overlayListaResultados #thorHomeTopoImg{visibility:hidden!important;height:100%!important}
-html body #overlayListaResultados #homeSideNav{isolation:isolate;border-right:0!important;box-shadow:none!important}
-html body #overlayListaResultados #homeSideNav::before{content:"";position:absolute;left:0;right:0;top:0;height:var(--thor-raios-lateral,125px);background:url("./thor-home-topo-v214.jpg") left calc(-1 * var(--thor-area-superior,0px))/100vw 46.5vw no-repeat;z-index:-1;pointer-events:none}
-html body #overlayListaResultados #homeSideNav::after{content:"";position:absolute;top:var(--thor-raios-lateral,125px);bottom:0;right:0;width:1px;background:#89a8bb;pointer-events:none}
-html body #overlayListaResultados #homeSideNav .hs-menu,html body #overlayListaResultados #homeSideNav .hs-item:first-of-type{filter:none!important}
-html body #overlayListaResultados #homeSideNav .hs-menu,html body #overlayListaResultados #homeSideNav button:nth-child(2){box-shadow:inset 0 3px 3px rgba(255,255,255,.92),inset 0 -4px 6px rgba(0,54,94,.52)!important}
-</style>
-<script id="thorTopoHomeMedidaV214">
-(function(){function medir(){var n=document.querySelector('#overlayListaResultados #homeSideNav');if(!n)return;var b=n.children[1];if(!b)return;n.style.setProperty('--thor-raios-lateral',Math.max(0,b.getBoundingClientRect().bottom-n.getBoundingClientRect().top+8)+'px')}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){medir();requestAnimationFrame(medir)},{once:true});else medir();window.addEventListener('resize',medir,{passive:true});})();
-</script>
 </head>
 <body>
 <div class="app">
@@ -3658,7 +3640,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V214</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V209</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -3891,7 +3873,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <button id="falhasConcursosVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
     <h1 style="font-size:19px;">Falhas e concursos</h1>
   </header>
-  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v214-topo-home" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
+  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v209-sem-seta" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
 </div>
 
 <nav class="home-bottom-nav" id="bottomNav">
@@ -10709,10 +10691,10 @@ if(btnFalhasConcursosHome && overlayFalhasConcursos){
         if(frame.contentWindow && typeof frame.contentWindow.atualizarConcursosCaixa === 'function'){
           frame.contentWindow.atualizarConcursosCaixa();
         }else{
-          frame.src = 'falhas-concursos.html?v=thor7-v214-topo-home&t=' + Date.now();
+          frame.src = 'falhas-concursos.html?v=thor7-v209-sem-seta&t=' + Date.now();
         }
       }catch(_){
-        frame.src = 'falhas-concursos.html?v=thor7-v214-topo-home&t=' + Date.now();
+        frame.src = 'falhas-concursos.html?v=thor7-v209-sem-seta&t=' + Date.now();
       }
     }
     try{ history.pushState({thorFalhasConcursos:true},'',location.href); }catch(_){}
