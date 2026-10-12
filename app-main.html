@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v209-sem-seta'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v215-combinacoes-vidro'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3363,6 +3363,39 @@ body{padding-top:var(--thor-area-superior)!important;box-sizing:border-box}
 .overlay-full,.overlay,.drawer,#drawerOverlay,#thorJogosBranco,#thorJogosSalvosTelaIndependente,#gfcJogosSalvosTela,#thorGeradorPalpites,.thor-tela-arquivo{top:var(--thor-area-superior)!important}
 #homeSideNav{top:var(--thor-area-superior)!important;height:calc(100dvh - var(--thor-area-superior))!important}
 </style>
+
+<style id="thorCombinacoesVidroV215">
+#thorCombinacoesVidro,#resultsSection{--glass-cyan:#a6f6ff;color:#eefcff;background:radial-gradient(ellipse at 0 20%,#35115c55,transparent 40%),radial-gradient(ellipse at 100% 70%,#005a6855,transparent 45%),#04152b;padding:12px!important}
+#thorCombinacoesVidro .card,#resultsSection .conf-card,#resultsSection .gc-card{background:linear-gradient(135deg,#456c8c99,#0b284bdd 45%,#30557399)!important;border:1px solid #b6efff!important;border-radius:20px!important;box-shadow:inset 0 2px 5px #ffffff90,inset 0 -2px 5px #61edff88,0 0 10px #40dfee44!important;color:#effaff!important}
+#thorCombinacoesVidro .card>div:first-child,#resultsSection .conf-title{color:#effaff!important}
+#thorCombinacoesVidro .card:has(#qtdSlider)::before{content:"Quantidade de dezenas";display:block;font-weight:800;font-size:15px;color:#fff}
+#thorCombinacoesVidro .card:has(#ballGrid)::before{content:"Selecione suas dezenas";display:block;text-align:center;font-size:16px;font-weight:800;margin-bottom:12px}
+#thorCombinacoesVidro .card:has(#statsGrid)::before{content:"Estatísticas do jogo";display:block;font-size:16px;font-weight:800;margin-bottom:10px}
+#thorCombinacoesVidro #ballGrid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:8px!important;justify-items:center}
+#thorCombinacoesVidro .ball{width:clamp(32px,11vw,52px)!important;height:clamp(32px,11vw,52px)!important;border-radius:50%!important;border:1px solid #e8ffff!important;background:radial-gradient(circle at 28% 20%,#fff 0%,#d8f6ff 17%,#94b9ca 45%,#e6faff 72%,#416680 100%)!important;box-shadow:inset 2px 3px 4px #fff,inset -3px -4px 5px #2d577888,0 3px 5px #0007!important;color:#07172b!important;font-size:18px!important}
+#thorCombinacoesVidro .ball.on{background:radial-gradient(circle at 28% 18%,#fbdfff,#bd38ff 25%,#7600c8 65%,#310067)!important;border-color:#e5a0ff!important;color:white!important;box-shadow:inset 2px 3px 5px #fff9,inset -3px -4px 6px #30004e,0 0 9px #b221ff!important}
+#thorCombinacoesVidro .ball.fixed{background:radial-gradient(circle at 28% 18%,#dffff3,#25df9c 25%,#009568 65%,#003b2c)!important;color:#fff!important}
+#thorCombinacoesVidro .ball.excluded{background:radial-gradient(circle at 28% 18%,#ffd9df,#ff325a 25%,#b7002c 65%,#4d0018)!important;color:#fff!important}
+#thorCombinacoesVidro .ball span{color:inherit!important}
+#thorCombinacoesVidro #btnFixarModo,#thorCombinacoesVidro #btnGerar{background:linear-gradient(180deg,#b7ffe6,#00ba89 25%,#004c46 85%,#37e3a8)!important;border:1px solid #acffdf!important;color:#fff!important;box-shadow:inset 0 3px 5px #ffffffaa,0 0 9px #00efb688!important}
+#thorCombinacoesVidro #btnExcluirModo,#thorCombinacoesVidro #btnLimparSelecao{background:linear-gradient(180deg,#ffbdcb,#ed1649 25%,#6a0022 85%,#ff3c64)!important;border:1px solid #ffbbd0!important;color:#fff!important;box-shadow:inset 0 3px 5px #ffffffaa,0 0 9px #ff235766!important}
+#thorCombinacoesVidro #btnGerar,#thorCombinacoesVidro #btnLimparSelecao{flex:1;min-height:48px;font-size:17px!important;margin:0 4px;border-radius:16px!important}
+#thorCombinacoesVidro #btnGerar:disabled{opacity:.45}
+#thorCombinacoesVidro #btnFixarModo,#thorCombinacoesVidro #btnExcluirModo{min-height:40px;border-radius:13px!important}
+#thorCombinacoesVidro #sliderHintInput{width:40px!important;font-size:16px!important;border-radius:12px!important}
+#thorCombinacoesVidro .stepper-btn{width:30px!important;height:30px!important;border:1px solid #c6f7ff;background:linear-gradient(#668da9,#153752);color:#fff;border-radius:50%}
+#thorCombinacoesVidro #qtdSlider{accent-color:#ad23ed}
+#thorCombinacoesVidro #statsGrid>div{background:linear-gradient(135deg,#6c93b477,#133753)!important;border:1px solid #b6e9ff!important;box-shadow:inset 0 2px 4px #ffffff66!important;border-radius:12px!important;color:#fff!important}
+#thorCombinacoesVidro #statsGrid>div *{color:#e8f8ff!important}
+#thorCombinacoesVidro #combinacoesTabs{overflow-x:auto;flex-wrap:nowrap!important}
+#thorCombinacoesVidro #combinacoesTabs .home-tab{border:1px solid #b5f6ff!important;box-shadow:inset 0 2px 3px #ffffff99,0 0 7px #34dcff55!important;border-radius:12px!important;padding:9px!important;color:#fff!important;background:linear-gradient(160deg,#3b7b96,#03223b)!important}
+#thorCombinacoesVidro #combinacoesTabs .home-tab.active{background:linear-gradient(160deg,#d972ff,#7b00cd 50%,#350050)!important;border-color:#f5c6ff!important}
+body.thor-combinacoes-vidro #appHeader,#resultsSection>header{background:linear-gradient(130deg,#075b4d,#002e30 55%,#137d62)!important;border:1px solid #99ffe1!important;border-radius:16px!important;box-shadow:inset 0 2px 5px #ffffff99,0 0 8px #27efbf88!important}
+#resultsSection .conf-title,#resultsSection .gc-title,#resultsSection .gc-stats{color:#effbff!important}
+</style>
+<script id="thorCombinacoesVidroAtivoV215">
+(function(){function iniciar(){var s=document.getElementById('thorCombinacoesVidro');if(!s)return;function estado(){document.body.classList.toggle('thor-combinacoes-vidro',s.style.display!=='none')}new MutationObserver(estado).observe(s,{attributes:true,attributeFilter:['style']});estado()}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar,{once:true});else iniciar()})();
+</script>
 </head>
 <body>
 <div class="app">
@@ -3376,7 +3409,7 @@ body{padding-top:var(--thor-area-superior)!important;box-sizing:border-box}
     </div>
   </header>
 
-  <section style="display:none;">
+  <section id="thorCombinacoesVidro" style="display:none;">
     <div class="card" style="padding:12px;">
       <div style="font-family:'Baloo 2',sans-serif;font-weight:700;color:#4C1D95;font-size:12px;margin-bottom:7px;text-align:center;">Escolha sua loteria</div>
       <div class="home-tabs" id="combinacoesTabs" style="gap:5px;"></div>
@@ -3640,7 +3673,7 @@ body{padding-top:var(--thor-area-superior)!important;box-sizing:border-box}
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V209</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V215</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -3873,7 +3906,7 @@ body{padding-top:var(--thor-area-superior)!important;box-sizing:border-box}
     <button id="falhasConcursosVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
     <h1 style="font-size:19px;">Falhas e concursos</h1>
   </header>
-  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v209-sem-seta" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
+  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v215-combinacoes-vidro" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
 </div>
 
 <nav class="home-bottom-nav" id="bottomNav">
@@ -10691,10 +10724,10 @@ if(btnFalhasConcursosHome && overlayFalhasConcursos){
         if(frame.contentWindow && typeof frame.contentWindow.atualizarConcursosCaixa === 'function'){
           frame.contentWindow.atualizarConcursosCaixa();
         }else{
-          frame.src = 'falhas-concursos.html?v=thor7-v209-sem-seta&t=' + Date.now();
+          frame.src = 'falhas-concursos.html?v=thor7-v215-combinacoes-vidro&t=' + Date.now();
         }
       }catch(_){
-        frame.src = 'falhas-concursos.html?v=thor7-v209-sem-seta&t=' + Date.now();
+        frame.src = 'falhas-concursos.html?v=thor7-v215-combinacoes-vidro&t=' + Date.now();
       }
     }
     try{ history.pushState({thorFalhasConcursos:true},'',location.href); }catch(_){}
