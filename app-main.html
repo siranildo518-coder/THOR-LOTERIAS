@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v206-area-sistema'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v207-telas-prontas'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3640,7 +3640,7 @@ body{padding-top:var(--thor-area-superior)!important;box-sizing:border-box}
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V206</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V207</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -3873,7 +3873,7 @@ body{padding-top:var(--thor-area-superior)!important;box-sizing:border-box}
     <button id="falhasConcursosVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
     <h1 style="font-size:19px;">Falhas e concursos</h1>
   </header>
-  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v206-area-sistema" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
+  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v207-telas-prontas" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
 </div>
 
 <nav class="home-bottom-nav" id="bottomNav">
@@ -10691,10 +10691,10 @@ if(btnFalhasConcursosHome && overlayFalhasConcursos){
         if(frame.contentWindow && typeof frame.contentWindow.atualizarConcursosCaixa === 'function'){
           frame.contentWindow.atualizarConcursosCaixa();
         }else{
-          frame.src = 'falhas-concursos.html?v=thor7-v206-area-sistema&t=' + Date.now();
+          frame.src = 'falhas-concursos.html?v=thor7-v207-telas-prontas&t=' + Date.now();
         }
       }catch(_){
-        frame.src = 'falhas-concursos.html?v=thor7-v206-area-sistema&t=' + Date.now();
+        frame.src = 'falhas-concursos.html?v=thor7-v207-telas-prontas&t=' + Date.now();
       }
     }
     try{ history.pushState({thorFalhasConcursos:true},'',location.href); }catch(_){}
@@ -15875,28 +15875,35 @@ document.addEventListener('click', (e)=>{
 document.addEventListener('click',function(e){const b=e.target.closest('[data-home-target]');if(!b)return;const t=document.getElementById(b.dataset.homeTarget);if(t)t.click();});
 document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.getElementById('btnMenu')?.click());
 </script>
-<script id="thorTelasSobreHomeV203">
+<script id="thorTelasPreparadasV207">
 (function(){
- var telas=new Map(),ativa=null;
- function fechar(){if(!ativa)return;ativa.style.display='none';ativa=null}
+ var telas=new Map(),ativa=null,pendente=null;
+ function ocultar(t){t.style.visibility='hidden';t.style.pointerEvents='none';t.inert=true;t.setAttribute('aria-hidden','true')}
+ function mostrar(t){if(pendente!==t)return;if(ativa&&ativa!==t)ocultar(ativa);ativa=t;pendente=null;t.inert=false;t.style.visibility='visible';t.style.pointerEvents='auto';t.setAttribute('aria-hidden','false')}
+ function fechar(){pendente=null;if(ativa)ocultar(ativa);ativa=null}
  function voltar(){fechar();if(history.state&&history.state.thorTelaSobreHome)history.back()}
  window.thorFecharTelaSobreHome=voltar;
+ function preparar(url){
+  var chave=url.split('?')[0],t=telas.get(chave);if(t)return t;
+  t=document.createElement('div');t.className='thor-tela-arquivo';t.style.cssText='display:block;visibility:hidden;pointer-events:none;position:fixed;inset:0;z-index:2147483000;background:#07101f';ocultar(t);t.thorPronta=false;
+  var frame=document.createElement('iframe');frame.title=chave.includes('gerador')?'Gerador de Palpites':'Falhas Pro';frame.style.cssText='display:block;width:100%;height:100%;border:0;background:#07101f';
+  frame.onload=function(){requestAnimationFrame(function(){requestAnimationFrame(function(){t.thorPronta=true;if(pendente===t)mostrar(t)})})};
+  var btn=document.createElement('button');btn.type='button';btn.setAttribute('aria-label','Voltar à tela inicial');btn.textContent='←';btn.style.cssText='position:absolute;top:16px;left:10px;width:34px;height:32px;z-index:2;border:1px solid #89cae6;border-radius:8px;background:#07324e;color:white;font-size:22px';btn.onclick=voltar;
+  frame.src=url;t.append(frame,btn);telas.set(chave,t);document.body.appendChild(t);return t;
+ }
  function abrir(url){
-  var chave=url.split('?')[0],t=telas.get(chave);
-  if(!t){t=document.createElement('div');t.className='thor-tela-arquivo';t.style.cssText='display:none;position:fixed;inset:0;z-index:2147483000;background:#07101f';
-   var frame=document.createElement('iframe');frame.title=chave.includes('gerador')?'Gerador de Palpites':'Falhas Pro';frame.src=url;frame.style.cssText='display:block;width:100%;height:100%;border:0;background:#07101f';
-   var btn=document.createElement('button');btn.type='button';btn.setAttribute('aria-label','Voltar à tela inicial');btn.textContent='←';btn.style.cssText='position:absolute;top:16px;left:10px;width:34px;height:32px;z-index:2;border:1px solid #89cae6;border-radius:8px;background:#07324e;color:white;font-size:22px';btn.onclick=voltar;
-   t.append(frame,btn);document.body.appendChild(t);telas.set(chave,t);
-  }
-  if(ativa)fechar();ativa=t;t.style.display='block';history.pushState({thorTelaSobreHome:true},'',location.href);
+  var t=preparar(url);if(ativa===t||pendente===t)return;
+  fechar();pendente=t;history.pushState({thorTelaSobreHome:true},'',location.href);
+  if(t.thorPronta)mostrar(t);
  }
  document.addEventListener('click',function(e){
-  var b=e.target.closest('#btnEscolhaPraMim,#menuGeradorPalpites,#btnFalhasProHome');
-  if(!b)return;
+  var b=e.target.closest('#btnEscolhaPraMim,#menuGeradorPalpites,#btnFalhasProHome');if(!b)return;
   e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
-  abrir(b.id==='btnFalhasProHome'?'./falhas-pro.html':'./gerador.html?v=thor-v203');
+  abrir(b.id==='btnFalhasProHome'?'./falhas-pro.html':'./gerador.html?v=thor-v207');
  },true);
  window.addEventListener('popstate',fechar);
+ function antecipar(){var tarefa=function(){preparar('./gerador.html?v=thor-v207');preparar('./falhas-pro.html')};if(window.requestIdleCallback)requestIdleCallback(tarefa,{timeout:2000});else setTimeout(tarefa,1000)}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',antecipar,{once:true});else antecipar();
 })();
 </script>
 </body>
