@@ -1,2 +1,2 @@
-// THOR V204 - telas sem animação de entrada e bordas finas na Home
-importScripts('./sw-core-thor7.js?v=thor-v204-abertura-direta');
+// THOR V205 - Atualizar sem recarregar nem remontar a Home
+importScripts('./sw-core-thor7.js?v=thor-v205-atualizar-sem-flash');
