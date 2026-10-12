@@ -1,2 +1,2 @@
-// V220 - Moldura com liga/desliga metálico e bolinhas maiores brilhantes
-importScripts('./sw-core-thor7.js?v=thor-v220-moldura-brilho');
+// V221 - bolinhas menores, cores originais da Moldura
+importScripts('./sw-core-thor7.js?v=thor-v221-moldura-bolinhas');
