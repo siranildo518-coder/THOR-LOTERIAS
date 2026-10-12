@@ -3651,7 +3651,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V210</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V211</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -12179,6 +12179,30 @@ document.addEventListener('click',function(e){
   refreshUI();
 },false);
 
+
+function thorReceberFalhasProPlay(data){
+ if(!data||data.type!=='THOR_FALHAS_PRO_PLAY'||!Array.isArray(data.numeros))return;
+ const map={lotofacil:'LF',megasena:'MS',quina:'QN',lotomania:'LM',duplasena:'DS',diadesorte:'DIA',timemania:'TM'};
+ const ref=combinacoesTabRefs.find(r=>r.g.code===map[data.loteria]);
+ if(!ref)return;
+ const nums=[...new Set(data.numeros)];
+ if(!nums.length||nums.some(n=>!Number.isInteger(n)||n<ref.g.range.min||n>ref.g.range.max))return;
+ if(typeof window.thorOcultarTelaSobreHome==='function')window.thorOcultarTelaSobreHome();
+ if(history.state&&history.state.thorTelaSobreHome)history.replaceState(null,'',location.href);
+ irParaSelecao();ref.tab.click();
+ selected=new Set(nums);fixedNums=new Set();excludedNums=new Set();
+ ballGrid.querySelectorAll('.ball').forEach(b=>{b.classList.toggle('on',selected.has(Number(b.dataset.n)));b.classList.remove('fixed','excluded','excluir-anim','ball-sumida')});
+ refreshUI();
+}
+window.addEventListener('message',function(e){
+ if(e.origin!==location.origin)return;
+ const trusted=Array.from(document.querySelectorAll('iframe')).some(f=>f.contentWindow===e.source&&new URL(f.src,location.href).pathname.endsWith('/falhas-pro.html'));
+ if(trusted)thorReceberFalhasProPlay(e.data);
+});
+window.addEventListener('load',function(){
+ try{const data=JSON.parse(sessionStorage.getItem('thorFalhasProPlay')||'null');sessionStorage.removeItem('thorFalhasProPlay');if(data)thorReceberFalhasProPlay(data)}catch(_){}
+},{once:true});
+
 const gerarTopoSelectEl = document.getElementById('gerarTopoSelect');
 if(gerarTopoSelectEl) gerarTopoSelectEl.addEventListener('change', atualizarTopoPreview);
 document.getElementById('subtabFalha').addEventListener('click', ()=>{
@@ -15915,6 +15939,7 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
   function fechar(){if(!ativa)return;ativa.style.display='none';ativa=null}
   function voltar(){fechar();if(history.state&&history.state.thorTelaSobreHome)history.back()}
   window.thorFecharTelaSobreHome=voltar;
+  window.thorOcultarTelaSobreHome=fechar;
   function preparar(url){
     var chave=url.split('?')[0],t=telas.get(chave);
     if(t)return t;

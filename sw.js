@@ -1,2 +1,2 @@
-// V210 - Play transfere Análise > Gerar para Combinações
-importScripts('./sw-core-thor7.js?v=thor-v210-play-combinacoes');
+// V211 - Play do Falhas Pro para Combinações
+importScripts('./sw-core-thor7.js?v=thor-v211-play-falhas');
