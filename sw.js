@@ -1,2 +1,2 @@
 // V218 V226 - Moldura com seleção ligada e Play para Combinações
-importScripts('./sw-core-thor7.js?v=thor-v232-abertura-unica');
+importScripts('./sw-core-thor7.js?v=thor-v233-atualizacao-real');
