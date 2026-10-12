@@ -3358,6 +3358,21 @@ document.addEventListener('selectstart', e=>{
 <style id="thorTouchRapidoV205">
 #overlayListaResultados button,#homeSideNav button,.home-feature-card{touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important}
 #overlayListaResultados .home-feature-card,#homeSideNav .hs-item{transition:none!important;animation:none!important}
+</style><style id="thorCentroMoldura3DV206">
+/* Somente as dezenas de Análise > Centro e Moldura; preserva cores dos cálculos. */
+#falhaConteudo .centro-cel,#molduraConteudo .centro-cel{
+  position:relative!important;border-radius:50%!important;
+  border:1px solid rgba(255,255,255,.42)!important;
+  box-shadow:inset 2px 3px 5px rgba(255,255,255,.55),inset -4px -6px 9px rgba(0,0,0,.3),0 3px 6px rgba(0,0,0,.26)!important;
+  overflow:hidden;animation:none!important;transition:none!important;
+}
+#falhaConteudo .centro-cel::before,#molduraConteudo .centro-cel::before{
+  content:"";position:absolute;pointer-events:none;left:16%;top:9%;width:49%;height:28%;
+  border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,0));transform:rotate(-25deg);
+}
+#falhaConteudo .centro-num,#molduraConteudo .centro-num{
+  position:relative;z-index:1;text-shadow:0 1px 2px rgba(0,0,0,.5)!important;
+}
 </style><style id="thorBootEscuroApp">#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
 <body>
 <div class="app">
