@@ -10,6 +10,14 @@
 .thor-quente-falha-bolas{display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
 .thor-quente-falha-bola{width:37px;height:37px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:900;color:#fff;background:radial-gradient(circle at 32% 24%,#ffaaaa 0%,#f73333 27%,#c40000 62%,#690000 100%);border:1px solid #ffcb80;box-shadow:inset 2px 3px 4px #ffffff8c,inset -3px -5px 7px #5323009c,0 3px 5px #0008;text-shadow:0 1px 2px #000b;position:relative;flex:none}
 .thor-quente-falha-bola:before{content:"";position:absolute;top:5px;left:8px;width:17px;height:8px;border-radius:50%;background:linear-gradient(#ffffffa8,#ffffff00);transform:rotate(-20deg);pointer-events:none}
+</style><style id="thorQuenteDegradeV237">
+#quenteConteudo .thor-quente-falha-quadro{border:2px solid #28ff98!important;box-shadow:0 0 13px #12f18a5c,inset 0 0 12px #0008!important;background:linear-gradient(145deg,#003f33,#00272b)!important}
+#quenteConteudo .thor-quente-falha-titulo{font-size:17px!important;color:#ffe16c!important;text-shadow:0 2px 3px #000,0 0 8px #d4a600}
+#quenteConteudo .thor-quente-falha-bolas{gap:6px!important;flex-wrap:nowrap!important;justify-content:space-around!important}
+#quenteConteudo .thor-quente-falha-item{display:flex;flex-direction:column;align-items:center;min-width:0;flex:1;gap:6px}
+#quenteConteudo .thor-quente-falha-bola{width:clamp(30px,10vw,49px)!important;height:clamp(30px,10vw,49px)!important;background:radial-gradient(circle at 30% 22%,#ffffffb8 0%,transparent 30%),radial-gradient(circle at 35% 28%,color-mix(in srgb,var(--falha-cor) 70%,white),var(--falha-cor) 55%,color-mix(in srgb,var(--falha-cor) 60%,black) 100%)!important;border:1px solid #ffffff7d!important;box-shadow:inset 2px 3px 4px #ffffff70,inset -3px -5px 7px #0007,0 3px 6px #0009!important}
+#quenteConteudo .thor-quente-falha-legenda{font-size:clamp(7px,2vw,11px);font-weight:800;color:#fff;white-space:nowrap;padding:3px 2px;border-radius:7px;width:100%;text-align:center;background:linear-gradient(180deg,color-mix(in srgb,var(--falha-cor) 60%,black),#081a1e);border:1px solid var(--falha-cor);text-shadow:0 1px 2px #000}
+#quenteConteudo .tend-row .tend-sub,#quenteConteudo .tend-row .tend-info>div[style*="font-size:11px"]{display:none!important}
 </style><style id="thorFirstPaint">html,body{margin:0;min-height:100%;background:#07101f!important}</style>
 <title>THOR LOTERIAS</title>
 <link rel="stylesheet" href="./analise-frequencia-v347.css?v=thor7-v3-84">
@@ -6982,7 +6990,14 @@ function renderQuente(trios, maisAtrasadas, total, numeroUltimo){
     return;
   }
 
-  const bolasFalha = maisAtrasadas.map(l=>`<span class="thor-quente-falha-bola" title="Dezena ${l.n.toString().padStart(2,'0')} — atraso de ${l.atraso} concursos">${l.n.toString().padStart(2,'0')}</span>`).join('');
+  const falhaCores = ['#f30000','#e82912','#ff8310','#d8c329','#03b6d8','#1268e6'];
+  const falhaNomes = ['+ Quente','Quente','Morna','Regular','Fria','+ Fria'];
+  const bolasFalha = maisAtrasadas.map((l,i)=>{
+    const faixa = maisAtrasadas.length <= 1 ? 0 : Math.round(i*5/(maisAtrasadas.length-1));
+    const cor = falhaCores[faixa];
+    const nome = falhaNomes[faixa];
+    return `<div class="thor-quente-falha-item"><span class="thor-quente-falha-bola" style="--falha-cor:${cor}" title="Dezena ${l.n.toString().padStart(2,'0')} — atraso de ${l.atraso} concursos">${l.n.toString().padStart(2,'0')}</span><span class="thor-quente-falha-legenda" style="--falha-cor:${cor}">${nome}</span></div>`;
+  }).join('');
   const quadroFalha = `<section class="thor-quente-falha-quadro" aria-label="Melhores pra Falha"><div class="thor-quente-falha-titulo">🎯 Melhores pra Falha</div><div class="thor-quente-falha-bolas">${bolasFalha}</div></section>`;
   const capExibicao = 30;
   const exibidos = trios.slice(0, capExibicao);
@@ -6995,8 +7010,7 @@ function renderQuente(trios, maisAtrasadas, total, numeroUltimo){
       <div style="display:flex;align-items:center;gap:2px;margin-right:10px;">${bolas}</div>
       <div class="tend-info">
         <div class="tend-pct">🔥 Atrasado há combinado: ${item.somaAtraso} concursos (média ${item.mediaAtraso.toFixed(1)})</div>
-        <div class="tend-sub">${detalhes}</div>
-        <div style="font-size:11px;color:var(--violet);margin-top:4px;">Toque para ver a probabilidade de sair de cada dezena →</div>
+
       </div>
     </div>`;
   }).join('');
@@ -7008,10 +7022,7 @@ function renderQuente(trios, maisAtrasadas, total, numeroUltimo){
 
   cont.innerHTML = `
     ${quadroFalha}
-    <div class="note" style="margin:14px 0;">
-      Com base nos últimos <strong>${total}</strong> concursos (até o Nº ${numeroUltimo}), estas são as trincas formadas pelas <strong>${maisAtrasadas.length}</strong> dezenas mais atrasadas (${infoTopo}), da mais "quente" (maior atraso combinado) para a menos.<br>
-      <span style="font-size:11.5px;">Cada sorteio é independente — isso é apenas estatística histórica, não é garantia de resultado futuro.</span> ${nota}
-    </div>
+
     ${rows}`;
 
   cont.querySelectorAll('.trio-clickable').forEach(el=>{
