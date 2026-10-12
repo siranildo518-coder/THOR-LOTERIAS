@@ -1,2 +1,2 @@
-// THOR V202 - Home firme, sem reconstrução nem retorno ao topo
-importScripts('./sw-core-thor7.js?v=thor-v202-home-firme');
+// THOR V203 - gerador sobre Home, retorno sem reconstrução
+importScripts('./sw-core-thor7.js?v=thor-v203-retorno-firme');

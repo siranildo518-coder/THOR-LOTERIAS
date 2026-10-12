@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v202-home-firme'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v203-retorno-firme'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3626,7 +3626,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V202</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V203</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -3859,7 +3859,7 @@ document.addEventListener('selectstart', e=>{
     <button id="falhasConcursosVoltar" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;">←</button>
     <h1 style="font-size:19px;">Falhas e concursos</h1>
   </header>
-  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v202-home-firme" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
+  <iframe loading="lazy" id="falhasConcursosFrame" src="falhas-concursos.html?v=thor7-v203-retorno-firme" title="Falhas e concursos" style="display:block;width:100%;height:calc(100vh - 58px);border:0;background:#eef2f6;"></iframe>
 </div>
 
 <nav class="home-bottom-nav" id="bottomNav">
@@ -10677,10 +10677,10 @@ if(btnFalhasConcursosHome && overlayFalhasConcursos){
         if(frame.contentWindow && typeof frame.contentWindow.atualizarConcursosCaixa === 'function'){
           frame.contentWindow.atualizarConcursosCaixa();
         }else{
-          frame.src = 'falhas-concursos.html?v=thor7-v202-home-firme&t=' + Date.now();
+          frame.src = 'falhas-concursos.html?v=thor7-v203-retorno-firme&t=' + Date.now();
         }
       }catch(_){
-        frame.src = 'falhas-concursos.html?v=thor7-v202-home-firme&t=' + Date.now();
+        frame.src = 'falhas-concursos.html?v=thor7-v203-retorno-firme&t=' + Date.now();
       }
     }
     try{ history.pushState({thorFalhasConcursos:true},'',location.href); }catch(_){}
@@ -15864,6 +15864,30 @@ document.addEventListener('click', (e)=>{
 <script id="home-design-neon-js-0540">
 document.addEventListener('click',function(e){const b=e.target.closest('[data-home-target]');if(!b)return;const t=document.getElementById(b.dataset.homeTarget);if(t)t.click();});
 document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.getElementById('btnMenu')?.click());
+</script>
+<script id="thorTelasSobreHomeV203">
+(function(){
+ var telas=new Map(),ativa=null;
+ function fechar(){if(!ativa)return;ativa.style.display='none';ativa=null}
+ function voltar(){fechar();if(history.state&&history.state.thorTelaSobreHome)history.back()}
+ window.thorFecharTelaSobreHome=voltar;
+ function abrir(url){
+  var chave=url.split('?')[0],t=telas.get(chave);
+  if(!t){t=document.createElement('div');t.style.cssText='display:none;position:fixed;inset:0;z-index:2147483000;background:#07101f';
+   var frame=document.createElement('iframe');frame.title=chave.includes('gerador')?'Gerador de Palpites':'Falhas Pro';frame.src=url;frame.style.cssText='display:block;width:100%;height:100%;border:0;background:#07101f';
+   var btn=document.createElement('button');btn.type='button';btn.setAttribute('aria-label','Voltar à tela inicial');btn.textContent='←';btn.style.cssText='position:absolute;top:16px;left:10px;width:34px;height:32px;z-index:2;border:1px solid #89cae6;border-radius:8px;background:#07324e;color:white;font-size:22px';btn.onclick=voltar;
+   t.append(frame,btn);document.body.appendChild(t);telas.set(chave,t);
+  }
+  if(ativa)fechar();ativa=t;t.style.display='block';history.pushState({thorTelaSobreHome:true},'',location.href);
+ }
+ document.addEventListener('click',function(e){
+  var b=e.target.closest('#btnEscolhaPraMim,#menuGeradorPalpites,#btnFalhasProHome');
+  if(!b)return;
+  e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+  abrir(b.id==='btnFalhasProHome'?'./falhas-pro.html':'./gerador.html?v=thor-v203');
+ },true);
+ window.addEventListener('popstate',fechar);
+})();
 </script>
 </body>
 </html>
