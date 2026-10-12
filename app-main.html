@@ -6884,7 +6884,6 @@ function renderAltaQueda(linhas, total, numeroUltimo, mediaPresenca){
     : `<div class="aq-empty">Nenhuma dezena em queda</div>`;
 
   cont.innerHTML = `
-    ${quadroFalha}
     <div class="note" style="margin:14px 0;">
       Com base nos últimos <strong>${total}</strong> concursos de ${nomeJogo} (até o Nº ${numeroUltimo}).<br>
       <strong>EM ALTA</strong> = saiu mais que a média nesse período · <strong>EM QUEDA</strong> = saiu menos que a média.<br>
@@ -6979,12 +6978,12 @@ async function carregarQuente(gameParam){
 function renderQuente(trios, maisAtrasadas, total, numeroUltimo){
   const cont = document.getElementById('quenteConteudo');
   if(trios.length === 0){
-    const bolasFalha = maisAtrasadas.map(l=>`<span class="thor-quente-falha-bola" title="Dezena ${l.n.toString().padStart(2,'0')} — atraso de ${l.atraso} concursos">${l.n.toString().padStart(2,'0')}</span>`).join('');
-  const quadroFalha = `<section class="thor-quente-falha-quadro" aria-label="Melhores pra Falha"><div class="thor-quente-falha-titulo">🎯 Melhores pra Falha</div><div class="thor-quente-falha-bolas">${bolasFalha}</div></section>`;
   cont.innerHTML = `<div class="note" style="margin:14px 0;">Não há dezenas atrasadas suficientes para formar trincas — aumente o "Top" de dezenas acima.</div>`;
     return;
   }
 
+  const bolasFalha = maisAtrasadas.map(l=>`<span class="thor-quente-falha-bola" title="Dezena ${l.n.toString().padStart(2,'0')} — atraso de ${l.atraso} concursos">${l.n.toString().padStart(2,'0')}</span>`).join('');
+  const quadroFalha = `<section class="thor-quente-falha-quadro" aria-label="Melhores pra Falha"><div class="thor-quente-falha-titulo">🎯 Melhores pra Falha</div><div class="thor-quente-falha-bolas">${bolasFalha}</div></section>`;
   const capExibicao = 30;
   const exibidos = trios.slice(0, capExibicao);
   quenteExibidosAtual = {items: exibidos, total, numeroUltimo};
