@@ -1,2 +1,2 @@
-// THOR V205 - Atualizar sem recarregar nem remontar a Home
-importScripts('./sw-core-thor7.js?v=thor-v205-atualizar-sem-flash');
+// THOR V206 - telas abaixo da área de hora e ícones do sistema
+importScripts('./sw-core-thor7.js?v=thor-v206-area-sistema');
