@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
 // THOR 7 V3.75 - calculadora de probabilidade e cache sincronizados
-const CACHE_NAME='thor-loterias-v259-quadro-falhas';
+const CACHE_NAME='thor-loterias-v260-quadro-falhas';
 const CORE=['./combinacoes-topo-v229.png','./','./index.html','./index-core-thor7.html','./app-main.html','./app-direct.html','./manifest.json','./icon-192.png','./thor-home-topo-v316.jpg','./cadastros-liberados.json'];
 const PALPITES_CARD='<button class="home-feature-card" style="--fc:#d41948" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">◎</span><span><strong>Palpites</strong><small>Sugestões inteligentes</small></span></button>';
 const CALC_CARD='<button class="home-feature-card" style="--fc:#e98a00" data-home-target="btnSimularAtalho"><span class="hfc-icon">▤</span><span><strong>Calculadora</strong><small>Probabilidades e estimativas</small></span></button>';
@@ -108,6 +108,18 @@ self.addEventListener('fetch',event=>{
   }
 
   const chave=chaveCache(req);
+  // Arquivos da versão instalada abrem imediatamente; atualização explícita continua pela rede.
+  if(u.pathname.endsWith('/index-core-thor7.html')||u.pathname.endsWith('/app-main.html')||u.pathname.endsWith('/app-direct.html')){
+    event.respondWith((async()=>{
+      const cache=await caches.open(CACHE_NAME),cached=await cache.match(chave);
+      if(cached){event.waitUntil(atualizarEmSegundoPlano(req,chave));return cached}
+      const fresh=await respostaAtualizada(req);
+      if(fresh&&fresh.ok)await cache.put(chave,fresh.clone());
+      return fresh;
+    })());
+    return;
+  }
+
   // V233: HTML do app usa rede primeiro, com cache apenas quando estiver offline.
   // Evita que o APK fique preso mostrando versões antigas.
 
