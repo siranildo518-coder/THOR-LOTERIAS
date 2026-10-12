@@ -1,2 +1,2 @@
-// V219 - setas decorativas no título Moldura
-importScripts('./sw-core-thor7.js?v=thor-v219-moldura-setas');
+// V220 - Moldura com liga/desliga metálico e bolinhas maiores brilhantes
+importScripts('./sw-core-thor7.js?v=thor-v220-moldura-brilho');
