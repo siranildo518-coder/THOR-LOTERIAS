@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><script id="thorAtualizacaoLegadaV217">(function(){try{if(location.pathname.endsWith('/app-direct.html')||typeof combinacoesTabRefs!=='undefined'){sessionStorage.setItem('thorAtualizacaoPendente','218');location.replace('./index.html?thor_force_update='+Date.now())}}catch(_){}})();</script>
+<head><script id="thorAtualizacaoLegadaV217">(function(){try{if(location.pathname.endsWith('/app-direct.html')||typeof combinacoesTabRefs!=='undefined'){sessionStorage.setItem('thorAtualizacaoPendente','219');location.replace('./index.html?thor_force_update='+Date.now())}}catch(_){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#07101f">
@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v218-moldura-play'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v219-moldura-setas'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3380,6 +3380,12 @@ document.addEventListener('selectstart', e=>{
 #molduraPanel #molduraConteudo .centro-num{font-size:12px!important}
 #molduraPanel #molduraConteudo .centro-cel.thor-moldura-selecionada{outline:2px solid #36ffb2!important;outline-offset:2px;filter:brightness(1.2)}
 </style>
+
+<style id="thorMolduraSetasV219">
+#molduraPanel .thor-moldura-titulo strong{display:flex;align-items:center;justify-content:center;gap:12px}
+#molduraPanel .thor-moldura-titulo strong::before,#molduraPanel .thor-moldura-titulo strong::after{content:"";display:block;width:clamp(24px,9vw,58px);height:9px;background:linear-gradient(90deg,transparent,#53f5c3);clip-path:polygon(0 36%,78% 36%,78% 0,100% 50%,78% 100%,78% 64%,0 64%);filter:drop-shadow(0 0 3px #31e6b4);flex:none}
+#molduraPanel .thor-moldura-titulo strong::after{transform:rotate(180deg)}
+</style>
 <style id="thorBootEscuroApp">#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
 <body>
 <div class="app">
@@ -3657,7 +3663,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V218</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V219</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
