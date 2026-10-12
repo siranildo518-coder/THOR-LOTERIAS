@@ -1,2 +1,2 @@
-// V217 - atualizar preservando abertura e visual normais
-importScripts('./sw-core-thor7.js?v=thor-v217-mesma-tela');
+// V218 - Moldura com seleção ligada e Play para Combinações
+importScripts('./sw-core-thor7.js?v=thor-v218-moldura-play');
