@@ -1,2 +1,2 @@
-// THOR V199 - Último resultado da Análise em 3D brilhante
-importScripts('./sw-core-thor7.js?v=thor-v199-resultado-3d');
+// THOR V200 - janela de exclusão por quantidade nos Jogos Salvos
+importScripts('./sw-core-thor7.js?v=thor-v200-jogos-excluir');
