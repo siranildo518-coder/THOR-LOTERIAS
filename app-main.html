@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><script id="thorAtualizacaoLegadaV217">(function(){try{if(location.pathname.endsWith('/app-direct.html')||typeof combinacoesTabRefs!=='undefined'){sessionStorage.setItem('thorAtualizacaoPendente','221');location.replace('./index.html?thor_force_update='+Date.now())}}catch(_){}})();</script>
+<head><script id="thorAtualizacaoLegadaV217">(function(){try{if(location.pathname.endsWith('/app-direct.html')||typeof combinacoesTabRefs!=='undefined'){sessionStorage.setItem('thorAtualizacaoPendente','222');location.replace('./index.html?thor_force_update='+Date.now())}}catch(_){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#07101f">
@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v221-moldura-bolinhas'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v222-moldura-rocker'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3400,6 +3400,22 @@ document.addEventListener('selectstart', e=>{
 #molduraPanel #molduraConteudo .centro-num{font-size:14px!important;color:#fff!important;font-weight:900!important;text-shadow:0 2px 3px #0008!important}
 @media(min-width:650px){#molduraPanel .centro-grid{grid-template-columns:repeat(8,minmax(0,1fr))!important}}
 </style>
+
+<style id="thorMolduraRockerV222">
+#molduraPanel #thorMolduraPower{width:100%!important;max-width:104px!important;height:38px!important;min-width:0!important;min-height:38px!important;padding:3px!important;border:1px solid #586064!important;border-radius:8px!important;background:linear-gradient(#050607,#171b1e)!important;box-shadow:inset 0 2px 5px #000,0 2px 2px #0009!important;transform:none!important}
+#molduraPanel #thorMolduraPower span{display:flex!important;position:relative;width:100%!important;height:100%!important;border:1px solid #444b50!important;border-radius:5px!important;background:linear-gradient(105deg,#44484b,#202427 48%,#111416 51%,#292d30)!important;box-shadow:inset 0 1px 2px #ffffff35,2px 1px 4px #000!important;transform:perspective(150px) rotateY(-8deg);transition:transform .18s,background .18s!important;text-shadow:none!important}
+#molduraPanel #thorMolduraPower span::before,#molduraPanel #thorMolduraPower span::after{display:flex;align-items:center;justify-content:center;width:50%;height:100%;font:bold 14px Arial;line-height:1;color:#080b0d;text-shadow:0 1px 1px #ffffff20}
+#molduraPanel #thorMolduraPower span::before{content:"ON";border-right:1px solid #080a0b}
+#molduraPanel #thorMolduraPower span::after{content:"OFF";color:#ff351c;text-shadow:0 0 6px #ff351c99}
+#molduraPanel #thorMolduraPower[aria-pressed="true"]{transform:none!important;box-shadow:inset 0 2px 5px #000,0 2px 2px #0009!important}
+#molduraPanel #thorMolduraPower[aria-pressed="true"] span{transform:perspective(150px) rotateY(8deg);background:linear-gradient(105deg,#202427,#111416 48%,#292d30 51%,#44484b)!important}
+#molduraPanel #thorMolduraPower[aria-pressed="true"] span::before{color:#a0f51b;text-shadow:0 0 6px #a0f51b99}
+#molduraPanel #thorMolduraPower[aria-pressed="true"] span::after{color:#080b0d;text-shadow:0 1px 1px #ffffff20}
+#molduraPanel #thorMolduraPower:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#molduraPanel #molduraConteudo .centro-cel{width:clamp(26px,8vw,34px)!important;height:clamp(26px,8vw,34px)!important}
+#molduraPanel #molduraConteudo .centro-num{font-size:12px!important}
+#molduraPanel .centro-grid{gap:9px 6px!important}
+</style>
 </head>
 <body>
 <div class="app">
@@ -3677,7 +3693,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V221</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V222</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -3991,7 +4007,7 @@ document.addEventListener('selectstart', e=>{
             <input type="number" id="molduraQtdInput" min="2" max="500" value="10" inputmode="numeric">
             <button type="button" class="btn-confirm btn-3d" id="molduraAtualizarBtn">ATUALIZAR</button>
           </div>
-          <button type="button" id="thorMolduraPower" aria-label="Ligar seleção de dezenas da moldura" aria-pressed="false"><span><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3v12M9 7a12 12 0 1 0 14 0"/></svg></span></button>
+          <button type="button" id="thorMolduraPower" aria-label="Ligar seleção de dezenas da moldura" aria-pressed="false"><span aria-hidden="true"></span></button>
           <button type="button" id="thorMolduraPlay" disabled>Play</button>
         </div>
       </div>
