@@ -18,16 +18,7 @@ const body = core.slice(start + marker.length, end);
 const transform = new Function('html', body + '; return html;');
 html = transform(html);
 
-// Evita troca visual escuro -> roxo antes do login/home.
-html = html.replace(
-  '<style id="thorBootEscuroApp">html,body{background:#07101f!important}body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style>',
-  '<style id="thorBootEscuroApp">#overlayListaResultados{background:#07101f!important}</style>'
-);
-html = html.replace(
-  '<style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{visibility:hidden!important;background:#07101f!important}',
-  '<style id="thorInicioSemFlash">#overlayListaResultados{visibility:hidden!important;background:#07101f!important}'
-);
-
+// Preserva o fundo escuro da primeira renderização em todas as entradas.
 // Reaproveita automaticamente os scripts extras que o index injeta no modo antigo.
 const extras = [];
 const re = /<script src=\\\"([^"]+)\\\"><\\\\\/script>/g;
