@@ -1544,6 +1544,13 @@
       "criadoEm": "2026-10-12T17:21:18.124Z",
       "expiraEm": "2026-10-13T17:21:18.124Z",
       "ativo": true
+    },
+    {
+      "hash": "60f11a2e2a8297a61936030887775bb34b4687b8695577a39e58c2b0063c778d",
+      "compatHash": "1jawokd",
+      "criadoEm": "2026-10-12T17:23:04.365Z",
+      "expiraEm": "2026-10-13T17:23:04.365Z",
+      "ativo": true
     }
   ]
 }
