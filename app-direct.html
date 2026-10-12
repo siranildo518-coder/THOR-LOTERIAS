@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v228-combinacoes-metal'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v229-topo-brilho'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3425,10 +3425,10 @@ document.addEventListener('selectstart', e=>{
 </style>
 <style id="thorCombinacoesMetalV228">
 body.thor-combinacoes-metal{background:#09141e!important}
-body.thor-combinacoes-metal #appHeader{padding:12px 14px!important;border:1px solid #a9cbb7;border-radius:0 0 8px 8px;background:repeating-linear-gradient(135deg,#ffffff08 0 1px,transparent 1px 4px),linear-gradient(110deg,#083f2e,#238958 38%,#064330 75%,#1c6945)!important;box-shadow:inset 0 1px 1px #fff9,0 3px 5px #0006!important}
+body.thor-combinacoes-metal #appHeader{padding:12px 14px!important;border:1px solid #a9cbb7;border-radius:0 0 8px 8px;background:linear-gradient(110deg,#083f2e,#238958 38%,#064330 75%,#1c6945)!important;box-shadow:inset 0 1px 1px #fff9,0 3px 5px #0006!important}
 body.thor-combinacoes-metal #appHeader h1{font-size:18px!important;color:#f4f7f6;text-shadow:0 2px 1px #12392c}
 body.thor-combinacoes-metal #appHeader .hamburger-btn{background:linear-gradient(#27634d,#06382b)!important;border:1px solid #89c6a8!important;border-radius:9px;box-shadow:inset 0 1px 2px #ffffff66,0 2px 2px #0005}
-#thorCombinacoesMetal{--steel:repeating-linear-gradient(172deg,#ffffff12 0 1px,#00000005 1px 2px,transparent 2px 4px),linear-gradient(115deg,#a5adb1,#f2f4f4 20%,#c4cbce 42%,#aab3b7 65%,#e2e6e7 88%,#aab3b7);padding:12px 12px 80px!important;max-width:660px;margin:auto;box-sizing:border-box;color:#101e2b}
+#thorCombinacoesMetal{--steel:linear-gradient(115deg,#b7c0c7 0%,#fff 17%,#d6dfe5 31%,#eef4f8 48%,#aab9c3 65%,#fff 85%,#b7c5ce);padding:12px 12px 80px!important;max-width:660px;margin:auto;box-sizing:border-box;color:#101e2b}
 #thorCombinacoesMetal>.card{padding:12px!important;margin:0 0 12px!important;background:var(--steel)!important;border:1px solid #eef4f5!important;border-radius:17px!important;box-shadow:inset 0 2px 2px #fff,inset 0 -2px 3px #667179,0 4px 6px #0007!important;color:#101e2b}
 #thorCombinacoesMetal>.card:first-child>div:first-child{font:800 13px Arial!important;color:#111f2d!important;margin-bottom:10px!important;text-align:center}
 #thorCombinacoesMetal #combinacoesTabs{display:flex!important;gap:5px!important;padding:2px 1px 5px!important;overflow-x:auto;scrollbar-width:none}
@@ -3452,9 +3452,9 @@ body.thor-combinacoes-metal #appHeader .hamburger-btn{background:linear-gradient
 #thorCombinacoesMetal #btnFixarModo{border:1px solid #1f7f47!important;color:#124a2c!important}
 #thorCombinacoesMetal #btnExcluirModo{border:1px solid #a9241a!important;color:#50221e!important}
 #thorCombinacoesMetal #btnGerar,#thorCombinacoesMetal #btnLimparSelecao{padding:9px 16px!important;min-height:33px;font:800 11px Arial!important;border:1px solid #f0f5f6!important;border-radius:10px!important;color:#fff!important;box-shadow:0 0 0 1px #4c5961,inset 0 2px 2px #ffffff99,0 3px 0 #56636b,0 5px 5px #0004!important}
-#thorCombinacoesMetal #btnGerar{background:repeating-linear-gradient(135deg,#ffffff08 0 1px,transparent 1px 3px),linear-gradient(130deg,#73c898,#0b7645 48%,#043a26)!important}
+#thorCombinacoesMetal #btnGerar{background:linear-gradient(130deg,#73c898,#0b7645 48%,#043a26)!important}
 #thorCombinacoesMetal #btnGerar:disabled{opacity:.55!important}
-#thorCombinacoesMetal #btnLimparSelecao{background:repeating-linear-gradient(135deg,#ffffff08 0 1px,transparent 1px 3px),linear-gradient(130deg,#ff8d89,#c41927 48%,#790818)!important}
+#thorCombinacoesMetal #btnLimparSelecao{background:linear-gradient(130deg,#ff8d89,#c41927 48%,#790818)!important}
 #thorCombinacoesMetal button:active{transform:translateY(1px)!important}
 #thorCombinacoesMetal #statsGrid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
 #thorCombinacoesMetal #statsGrid .stat{padding:7px 2px!important;background:var(--steel)!important;border:1px solid #eef4f6;border-radius:10px;box-shadow:0 0 0 1px #818e95,inset 0 1px 1px #fff,0 2px 2px #0003}
@@ -3463,11 +3463,37 @@ body.thor-combinacoes-metal #appHeader .hamburger-btn{background:linear-gradient
 #thorCombinacoesMetal>.card:last-child{min-height:28px}
 @media(max-width:350px){#thorCombinacoesMetal{padding-left:8px!important;padding-right:8px!important}#thorCombinacoesMetal>.card{padding:9px!important}#thorCombinacoesMetal #ballGrid{gap:7px 3px!important}}
 </style>
+
+<style id="thorCombinacoesBrilhoV229">
+#thorCombinacoesTopo229{display:none}
+body.thor-combinacoes-metal #appHeader#appHeader{padding:0!important;min-height:0!important;border:0!important;border-radius:0!important;background:#041b36!important;box-shadow:none!important;overflow:hidden}
+body.thor-combinacoes-metal #appHeader #thorCombinacoesTopo229{display:block;width:100%;height:auto;max-height:112px;object-fit:fill;margin:0;border:0}
+body.thor-combinacoes-metal #appHeader#appHeader>div{position:absolute!important;inset:0!important;pointer-events:none;align-items:flex-start!important}
+body.thor-combinacoes-metal #appHeader#appHeader h1{display:none!important}
+body.thor-combinacoes-metal #appHeader#appHeader #btnMenu{pointer-events:auto;position:absolute;top:4px;left:4px;width:25px!important;height:25px!important;padding:0!important;font-size:15px!important;background:linear-gradient(#1c4678dd,#041b3bdd)!important;border:1px solid #f7d375!important;border-radius:5px!important;box-shadow:inset 0 1px 1px #fff7!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal{background:#09141e!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal>.card{box-shadow:inset 0 2px 1px #fff,inset 0 -1px 1px #718491,0 2px 3px #0005!important;backdrop-filter:none!important;filter:none!important;animation:none!important;transition:none!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal>.card::before{display:none!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal #combinacoesTabs .home-tab{color:#fff!important;background:linear-gradient(170deg,#ffffffcc 0%,color-mix(in srgb,var(--tab-accent) 45%,white) 18%,var(--tab-accent) 45%,color-mix(in srgb,var(--tab-accent) 60%,black) 72%,color-mix(in srgb,var(--tab-accent) 70%,white) 100%)!important;border:1px solid #f5faff!important;box-shadow:0 0 0 1px var(--tab-accent),inset 0 2px 1px #fff9,0 2px 2px #0003!important;text-shadow:0 1px 1px #0008;opacity:1!important;filter:none!important;transition:none!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal #combinacoesTabs .home-tab.active{border-color:#fff!important;box-shadow:0 0 0 2px var(--tab-accent),inset 0 2px 1px #fff,0 2px 2px #0003!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal #combinacoesTabs .clover-wrap{filter:none!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal .slider-block{position:relative!important;display:flex!important;flex-direction:column!important;gap:8px!important;margin:0!important;padding:0!important;min-height:0!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal #sliderHint{position:static!important;align-self:flex-end;display:flex!important;align-items:center;gap:6px!important;width:auto!important;max-width:100%!important;height:auto!important;margin:0!important;padding:0!important;transform:none!important;opacity:1!important;visibility:visible!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal #sliderHintInput{width:37px!important;height:23px!important;padding:1px 3px!important;box-sizing:border-box!important;flex:none!important;color:#fff!important;background:linear-gradient(#d39afd,#873dcc 45%,#4b0b82 75%,#c27df1)!important;border:1px solid #fff!important;font-size:12px!important;box-shadow:0 0 0 1px #6a4086,inset 0 1px 1px #fff9!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal #sliderHint span{display:inline!important;color:#112a3d!important;font:700 11px Arial!important;white-space:nowrap!important;opacity:1!important;visibility:visible!important;text-shadow:none!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal .slider-block>div:last-child{margin-top:0!important;width:100%;min-width:0;box-sizing:border-box;display:flex!important;gap:8px!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal #qtdSlider{width:0!important;min-width:0!important;flex:1!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid .ball{background:radial-gradient(ellipse at 30% 18%,#fff 0%,#fff 14%,#e9f0f5 31%,#b2c3cf 54%,#879cac 71%,#e4f0f8 91%,#fff)!important;box-shadow:inset 0 1px 1px #fff,0 2px 0 #798c9a,0 3px 2px #0003!important;transition:none!important;animation:none!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid .ball.on{background:radial-gradient(circle at 28% 18%,#fff,#d7afff 20%,#9141d4 45%,#480c7e 74%,#b76aef)!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid .ball.fixed{background:radial-gradient(circle at 28% 18%,#fff,#a0f2bf 20%,#1eab5b 45%,#07532d 74%,#6ddb94)!important}
+body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid .ball.excluded{background:radial-gradient(circle at 28% 18%,#fff,#ffb0a8 20%,#ee3025 45%,#8f1020 74%,#ff7d7b)!important}
+</style>
 <style id="thorBootEscuroApp">html,body{background:#07101f!important}body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
 <body>
 <div class="app">
 
   <header class="top" id="appHeader">
+<img id="thorCombinacoesTopo229" src="./combinacoes-topo-v229.png" width="1536" height="512" alt="Gerador de Combinações" decoding="async" fetchpriority="low">
     <div style="display:flex;align-items:flex-start;gap:12px;">
       <button class="hamburger-btn" id="btnMenu" aria-label="Abrir menu">☰</button>
       <div>
@@ -3740,7 +3766,7 @@ body.thor-combinacoes-metal #appHeader .hamburger-btn{background:linear-gradient
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V228 · Base V218</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V229 · Base V218</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
