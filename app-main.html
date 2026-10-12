@@ -228,7 +228,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v243-gerador-metalico'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v240-abertura-sem-preto'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3506,41 +3506,6 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid .ball.fixed{backgrou
 body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid .ball.excluded{background:radial-gradient(circle at 28% 18%,#fff,#ffb0a8 20%,#ee3025 45%,#8f1020 74%,#ff7d7b)!important}
 </style>
 
-
-<style id="thor-combinacoes-design-v242">
-/* Escopo restrito ao gerador: não modifica Home nem outras abas. */
-#thorCombinacoesMetal{background:#020b1d!important;color:#f5faff!important;max-width:750px!important;padding:8px 10px 80px!important}
-#thorCombinacoesMetal .thor-v242-banner{display:flex;align-items:center;justify-content:space-between;gap:7px;min-height:94px;padding:10px;border:2px solid #40baff;border-radius:15px;margin-bottom:12px;background:radial-gradient(ellipse at 50% -20%,#1161b4 0%,#071e4c 47%,#020915 90%);box-shadow:inset 0 0 12px #52cfff,0 3px 14px #009cff7a}
-#thorCombinacoesMetal .thor-v242-warrior{font-size:38px;color:#ffd66b;text-shadow:0 0 12px #00bfff}
-#thorCombinacoesMetal .thor-v242-brand{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0}
-#thorCombinacoesMetal .thor-v242-brand strong{font-size:clamp(29px,9vw,54px);line-height:1;font-weight:1000;letter-spacing:2px;color:#ffd45a;text-shadow:0 2px #7b3900,0 0 14px #f7a900}
-#thorCombinacoesMetal .thor-v242-brand span{font-size:clamp(10px,3.4vw,20px);font-weight:1000;color:#f4f8ff;text-shadow:0 2px 4px #000;white-space:nowrap}
-#thorCombinacoesMetal .thor-v242-orbs{font-size:14px;white-space:nowrap;color:#fff;text-shadow:0 0 8px #7f4dff}
-#thorCombinacoesMetal>.card{background:linear-gradient(150deg,#061d3d,#010817 72%)!important;border:2px solid #1c9aff!important;border-radius:17px!important;box-shadow:inset 0 1px 5px #79d5ff99,0 0 9px #0067c788!important;color:#fff!important;padding:13px 10px!important;margin-bottom:13px!important}
-#thorCombinacoesMetal>.card:first-of-type{position:sticky;top:0;z-index:22;background:#03142f!important}
-#thorCombinacoesMetal #combinacoesTabs{display:flex!important;overflow-x:auto!important;scrollbar-width:none;gap:8px!important}
-#thorCombinacoesMetal #combinacoesTabs .home-tab{flex:0 0 auto!important;min-width:95px;padding:12px 9px!important;border:2px solid #81d6ff!important;border-radius:13px!important;color:#fff!important;font-size:12px!important;font-weight:900!important;box-shadow:inset 0 2px 5px #ffffff99,0 5px 0 #020617,0 0 8px #2498ff!important}
-#thorCombinacoesMetal #ballGrid{display:grid!important;grid-template-columns:repeat(10,minmax(0,1fr))!important;gap:5px!important;margin:12px 0 20px!important}
-#thorCombinacoesMetal #ballGrid .ball{width:100%!important;aspect-ratio:1!important;height:auto!important;min-width:0!important;max-width:56px!important;border-radius:50%!important;background:radial-gradient(circle at 33% 19%,#fff 0%,#fff 30%,#e6e7f1 57%,#a7a8b7 79%,#5d6276 100%)!important;color:#0b1220!important;border:1px solid #e9eaff!important;box-shadow:inset 0 2px 3px #fff,0 4px 0 #69677b,0 6px 8px #000b,0 0 5px #c040ff!important;font-size:clamp(10px,2.9vw,19px)!important;font-weight:900!important}
-#thorCombinacoesMetal #ballGrid .ball.selected{background:radial-gradient(circle at 32% 18%,#e2fcff,#2198ff 48%,#08296f 100%)!important;color:#fff!important}
-#thorCombinacoesMetal #ballGrid .ball.fixed{background:radial-gradient(circle at 32% 18%,#dbffe0,#10c94a 52%,#005c22)!important;color:#fff!important}
-#thorCombinacoesMetal #ballGrid .ball.excluded{background:radial-gradient(circle at 32% 18%,#ffe6e6,#fa2a37 52%,#78000d)!important;color:#fff!important}
-#thorCombinacoesMetal #btnFixarModo,#thorCombinacoesMetal #btnExcluirModo,#thorCombinacoesMetal #btnLimparSelecao,#thorCombinacoesMetal #btnGerar{border:2px solid #a8d9ff!important;border-radius:12px!important;color:#fff!important;font-weight:900!important;box-shadow:inset 0 2px 5px #ffffff77,0 5px 0 #031126,0 7px 12px #000a!important;text-shadow:0 2px 3px #000a!important}
-#thorCombinacoesMetal #btnFixarModo{background:linear-gradient(#22f96c,#008e26 58%,#005f1c)!important}
-#thorCombinacoesMetal #btnExcluirModo{background:linear-gradient(#ff6262,#d20a23 58%,#770719)!important}
-#thorCombinacoesMetal #btnLimparSelecao{background:linear-gradient(#47baff,#0069d7 60%,#003b8e)!important}
-#thorCombinacoesMetal #btnGerar{background:linear-gradient(#e350ff,#8e00bd 50%,#440077)!important;min-width:54%;padding:13px 10px!important;font-size:13px!important}
-#thorCombinacoesMetal #statsGrid>*{background:linear-gradient(#092c58,#04152d)!important;color:#fff!important;border:1px solid #338de0!important;border-radius:9px!important}
-#thorCombinacoesMetal #resultBox,#thorCombinacoesMetal #summaryBox{color:#fff!important}
-@media(max-width:390px){#thorCombinacoesMetal #ballGrid{gap:3px!important}#thorCombinacoesMetal .thor-v242-orbs{display:none}}
-
-/* V243: topo e modalidades fixos; restante do gerador rola normalmente. */
-body.thor-combinacoes-metal #appHeader{position:sticky!important;top:0!important;z-index:1000!important}
-body.thor-combinacoes-metal #thorCombinacoesMetal>.thor-v242-banner{position:sticky!important;top:0!important;z-index:40!important}
-body.thor-combinacoes-metal #thorCombinacoesMetal>.card:first-of-type{position:sticky!important;top:0!important;z-index:39!important}
-body.thor-combinacoes-metal #thorCombinacoesMetal>.card:nth-of-type(n+2){position:relative!important;top:auto!important;z-index:auto!important}
-body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{align-content:start!important}
-</style>
 </head>
 <body>
 <div class="app">
@@ -3556,7 +3521,6 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{align-content:start!
   </header>
 
   <section id="thorCombinacoesMetal" style="display:none;">
-<div class="thor-v242-banner"><div class="thor-v242-warrior">⚡</div><div class="thor-v242-brand"><strong>THOR</strong><span>GERADOR DE COMBINAÇÕES</span></div><div class="thor-v242-orbs">⑮ ㉕ ⑩</div></div>
     <div class="card" style="padding:12px;">
       <div style="font-family:'Baloo 2',sans-serif;font-weight:700;color:#4C1D95;font-size:12px;margin-bottom:7px;text-align:center;">Escolha sua loteria</div>
       <div class="home-tabs" id="combinacoesTabs" style="gap:5px;"></div>
@@ -3583,13 +3547,13 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{align-content:start!
     <div class="card">
       <div class="grid-balls" id="ballGrid"></div>
       <div style="margin-bottom:10px;">
-        <button id="btnFixarModo" style="width:100%;padding:10px 16px;border-radius:10px;border:1.5px solid #8C1010;background:#fff;color:#8C1010;font-family:'Baloo 2',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;">📌 FIXAR DEZENAS</button>
+        <button id="btnFixarModo" style="width:100%;padding:10px 16px;border-radius:10px;border:1.5px solid #8C1010;background:#fff;color:#8C1010;font-family:'Baloo 2',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;">📌 FIXAR DEZENAS MARCADAS</button>
       </div>
       <div style="margin-bottom:10px;">
-        <button id="btnExcluirModo" style="width:100%;padding:10px 16px;border-radius:10px;border:1.5px solid #374151;background:#fff;color:#374151;font-family:'Baloo 2',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;">🚫 EXCLUIR DEZENAS</button>
+        <button id="btnExcluirModo" style="width:100%;padding:10px 16px;border-radius:10px;border:1.5px solid #374151;background:#fff;color:#374151;font-family:'Baloo 2',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;">🚫 EXCLUIR DEZENAS MARCADAS</button>
       </div>
       <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-        <button class="primary-btn btn-gerar btn-3d-gerar" id="btnGerar" disabled style="padding:8px 16px;font-size:11.5px;border:2px solid #fff;"><span id="btnGerarSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="btnGerarLabel">⚙ GERAR COMBINAÇÕES</span></button>
+        <button class="primary-btn btn-gerar btn-3d-gerar" id="btnGerar" disabled style="padding:8px 16px;font-size:11.5px;border:2px solid #fff;"><span id="btnGerarSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="btnGerarLabel">GERAR</span></button>
         <button id="btnLimparSelecao" class="btn-3d-conferir" style="padding:8px 16px;border-radius:9px;border:2px solid #fff;background:linear-gradient(135deg,var(--magenta),var(--violet));color:#fff;font-family:'Baloo 2',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;">🗑 LIMPAR</button>
       </div>
     </div>
@@ -3820,7 +3784,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{align-content:start!
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V243 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V240 · Base V218</span></footer>
 </div>
 
   <div class="contatos-conteudo">
