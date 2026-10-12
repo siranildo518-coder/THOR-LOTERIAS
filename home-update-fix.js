@@ -4,7 +4,7 @@
   let atualizando=false;
   function botao(){return document.getElementById('menuAtualizar')}
   function estilo(){if(document.getElementById('thorUpdateAvisoCss'))return;const s=document.createElement('style');s.id='thorUpdateAvisoCss';s.textContent='#menuAtualizar.thor-update-disponivel{background:linear-gradient(180deg,#fff36b,#ffb000 45%,#e75b00)!important;border:2px solid #fff!important;color:#3a1700!important;box-shadow:inset 0 2px 3px rgba(255,255,255,.95),inset 0 -3px 5px rgba(126,43,0,.4),0 0 8px #ffb000,0 0 18px #ff7200!important;animation:thorUpdatePisca 1s ease-in-out infinite alternate!important}#menuAtualizar.thor-update-disponivel:after{content:" • NOVO";font-size:7px;font-weight:1000}@keyframes thorUpdatePisca{from{filter:brightness(1)}to{filter:brightness(1.35)}}#overlayListaResultados,#overlayListaResultados #homeHero,#overlayListaResultados .home-hero{transition:none!important;animation:none!important}';document.head.appendChild(s)}
-  function destacar(){estilo();const b=botao();if(b)b.classList.add('thor-update-disponivel')}
+  function destacar(){if(typeof window.thorChecarNovaVersao==='function')window.thorChecarNovaVersao()}
   function normal(){const b=botao();if(b)b.classList.remove('thor-update-disponivel')}
   function fixarHome(){try{if(typeof closeDrawer==='function')closeDrawer()}catch(_){}}
   function liberarHome(){document.documentElement.classList.remove('thor-home-atualizando');atualizando=false}

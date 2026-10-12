@@ -42,4 +42,7 @@ if (extras.length && !html.includes('frequencia-concorrencia-thor7.js')) {
 }
 
 fs.writeFileSync(outPath, html);
+const version=(html.match(/Versão V(\d+)/)||[])[1];
+if(!version)throw new Error('Versão ausente');
+fs.writeFileSync('app-version.json', JSON.stringify({version:Number(version)})+'\n');
 console.log('app-direct.html gerado:', html.length, 'bytes; scripts extras:', extras.length);

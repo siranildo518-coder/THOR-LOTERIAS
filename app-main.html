@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><script id="thorAtualizacaoLegadaV215">(function(){try{if(typeof combinacoesTabRefs!=='undefined'){sessionStorage.setItem('thorAtualizacaoPendente','215');location.replace('./app-direct.html?thor_force_update='+Date.now())}}catch(_){}})();</script>
+<head><script id="thorAtualizacaoLegadaV215">(function(){try{if(typeof combinacoesTabRefs!=='undefined'){sessionStorage.setItem('thorAtualizacaoPendente','216');location.replace('./app-direct.html?thor_force_update='+Date.now())}}catch(_){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#07101f">
@@ -211,7 +211,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v215-atualizar-girando'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v216-aviso-versao'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -237,24 +237,7 @@ async function obterShaAtualGithub(){
   return null;
 }
 
-function marcarAtualizacaoGithub(sha){
-  GITHUB_SHA_ATUAL = sha;
-  const btn = document.getElementById('menuAtualizar');
-  if(!btn || !sha) return;
-
-  let visto = null;
-  try{ visto = localStorage.getItem(GITHUB_SHA_VISTO_KEY); }catch(e){}
-
-  // Se ainda não existe SHA salvo neste aparelho, NÃO considera a versão como vista.
-  // Isso faz o botão destacar já na primeira checagem depois que o app recebe
-  // este novo sistema de atualização.
-  if(!visto){
-    btn.classList.add('menu-atualizar-destaque');
-    return;
-  }
-
-  btn.classList.toggle('menu-atualizar-destaque', visto !== sha);
-}
+function marcarAtualizacaoGithub(sha){GITHUB_SHA_ATUAL=sha;if(typeof window.thorChecarNovaVersao==='function')window.thorChecarNovaVersao()}
 
 async function verificarAtualizacaoGithub(){
   const sha = await obterShaAtualGithub();
@@ -3651,7 +3634,7 @@ document.addEventListener('selectstart', e=>{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V215</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V216</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -12457,15 +12440,7 @@ function aplicarFotoPerfil(dataUrl){
 })();
 
 // ---------- Destaca "Atualizar" quando sobe uma versão nova do arquivo ----------
-(function verificarVersaoNova(){
-  try{
-    const vista = localStorage.getItem(APP_VERSAO_VISTA_KEY);
-    if(vista !== APP_VERSAO_ATUAL){
-      const item = document.getElementById('menuAtualizar');
-      if(item) item.classList.add('menu-atualizar-destaque');
-    }
-  }catch(e){ /* localStorage indisponível */ }
-})();
+(function verificarVersaoNova(){try{localStorage.setItem(APP_VERSAO_VISTA_KEY,APP_VERSAO_ATUAL)}catch(e){}})();
 
 function getGaleria(){
   try{ return JSON.parse(localStorage.getItem(GALERIA_KEY)) || []; }
@@ -16022,6 +15997,19 @@ if(!montar()){var o=new MutationObserver(function(){if(montar())o.disconnect()})
 <script id="thorAtualizarVersaoV215">
 (function(){var busy=false,navigating=false;
 function versaoAtual(){var f=document.querySelector('#drawer footer');return ((f?f.textContent:document.body.textContent).match(/Versão V(\d+)/)||[])[1]||'215'}
+
+function normalizarAtualizar(){var b=document.getElementById('menuAtualizar');if(b)b.classList.remove('menu-atualizar-destaque','thor-update-disponivel');try{localStorage.setItem('tl_versao_vista',APP_VERSAO_ATUAL)}catch(_){}}
+var checandoVersao=false;
+window.thorChecarNovaVersao=async function(){
+ if(checandoVersao||document.visibilityState==='hidden')return;
+ checandoVersao=true;
+ try{var r=await fetch('./app-version.json?thor_force_update='+Date.now(),{cache:'no-store'});if(!r.ok)return;var j=await r.json(),b=document.getElementById('menuAtualizar');if(!b)return;var nova=Number(j.version),atual=Number(versaoAtual());if(!Number.isInteger(nova))return;b.classList.toggle('menu-atualizar-destaque',nova>atual);b.classList.remove('thor-update-disponivel')}catch(_){}finally{checandoVersao=false}
+};
+normalizarAtualizar();
+setTimeout(window.thorChecarNovaVersao,1500);
+setInterval(window.thorChecarNovaVersao,120000);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')window.thorChecarNovaVersao()});
+
 function aviso(texto){var t=document.getElementById('thorVersaoConfirmada');if(!t){t=document.createElement('div');t.id='thorVersaoConfirmada';t.style.cssText='position:fixed;bottom:65px;left:50%;transform:translateX(-50%);z-index:2147483647;background:#064b36;color:white;border:1px solid #69f4bd;border-radius:12px;padding:10px 16px;font:700 13px Arial;white-space:nowrap';document.body.appendChild(t)}t.textContent=texto;setTimeout(function(){t.remove()},3500)}
 function girar(on){var b=document.getElementById('menuAtualizar');if(b){b.classList.toggle('thor-versao-carregando',on);b.setAttribute('aria-busy',String(on))}}
 async function atualizar(){
@@ -16042,12 +16030,12 @@ async function atualizar(){
    location.replace(url);return;
   }
   if(typeof thorAtualizarHomeAutomatico==='function')await thorAtualizarHomeAutomatico();
-  aviso('Versão V'+nova+' atualizada');
+  normalizarAtualizar();aviso('Versão V'+nova+' atualizada');
  }catch(err){console.error('Atualização não aplicada',err);aviso('Não atualizou. Toque para tentar novamente.')}
  finally{if(!navigating){busy=false;girar(false)}}
 }
 window.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#menuAtualizar');if(!b)return;e.preventDefault();e.stopImmediatePropagation();atualizar()},true);
-function confirmar(){var pend=sessionStorage.getItem('thorAtualizacaoPendente');if(!pend)return;girar(true);requestAnimationFrame(function(){requestAnimationFrame(function(){if(document.getElementById('homeHero')&&typeof irParaSelecao==='function'){sessionStorage.removeItem('thorAtualizacaoPendente');girar(false);aviso('Versão V'+versaoAtual()+' atualizada')}})})}
+function confirmar(){var pend=sessionStorage.getItem('thorAtualizacaoPendente');if(!pend)return;girar(true);requestAnimationFrame(function(){requestAnimationFrame(function(){if(document.getElementById('homeHero')&&typeof irParaSelecao==='function'){sessionStorage.removeItem('thorAtualizacaoPendente');girar(false);normalizarAtualizar();aviso('Versão V'+versaoAtual()+' atualizada')}})})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',confirmar,{once:true});else confirmar();
 })();
 </script>
