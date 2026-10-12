@@ -228,7 +228,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v246-quadro-falhas'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v247-quadro-falhas'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3528,9 +3528,9 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
 #quentePanel .thor-reversas-nota{font:11px/1.5 Arial;color:#d9fff1;margin-top:10px;text-align:center}
 </style>
 
-<style id="thorQuadroFalhasV246">
+<style id="thorQuadroFalhasV247">
 #quentePanel .thor-quadro-falhas-heading{font:800 16px Arial;text-align:center;color:#f0fff8;margin:0 0 14px}
-#quentePanel #quenteConteudo{display:none!important}
+#quentePanel #quenteConteudo{display:block}
 #quentePanel #quenteReversasConteudo .thor-quente-falha-bolas{display:flex!important;flex-wrap:nowrap!important;justify-content:space-between!important;gap:5px!important;overflow-x:auto;overflow-y:hidden;padding:5px 2px 7px;scrollbar-width:thin}
 #quentePanel #quenteReversasConteudo .thor-quente-falha-item{display:flex!important;flex:0 0 auto;align-items:center;justify-content:center;margin:0!important}
 #quentePanel #quenteReversasConteudo .thor-quente-falha-bola{width:clamp(28px,8vw,42px)!important;height:clamp(28px,8vw,42px)!important;flex:none;background:radial-gradient(circle at 30% 22%,#ffffffb8 0%,transparent 30%),radial-gradient(circle at 35% 28%,color-mix(in srgb,var(--falha-cor) 70%,white),var(--falha-cor) 55%,color-mix(in srgb,var(--falha-cor) 60%,black) 100%)!important;border:1px solid #ffffff7d!important;box-shadow:inset 2px 3px 4px #ffffff70,inset -3px -5px 7px #0007,0 3px 5px #0006!important;font-size:12px!important}
@@ -3812,7 +3812,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V246 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V247 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -7026,6 +7026,43 @@ async function carregarFalhasReversas(){
   if(request!==thorReversasPedido||tendGameAtual.code!==game.code)return;
   const validos=historico.filter(c=>c&&Array.isArray(c.dezenas)&&c.dezenas.length);
   const ranking=calcularRankingFalhasReversas(validos,game.range.min,game.range.max,top);
+  {
+    const min=game.range.min,max=game.range.max,numeroUltimo=Number(ultimo.concurso),topo=top;
+    const presenca = {}, atraso = {};
+    for(let n=min;n<=max;n++){ presenca[n]=0; atraso[n]=null; }
+    validos.forEach((data, i)=>{
+      const dezenas = (data.dezenas||[]).map(d=>parseInt(d,10));
+      for(let n=min;n<=max;n++){
+        if(dezenas.includes(n)){
+          presenca[n]++;
+          if(atraso[n]===null) atraso[n] = i;
+        }
+      }
+    });
+    for(let n=min;n<=max;n++){ if(atraso[n]===null) atraso[n] = validos.length; }
+
+    const total = validos.length;
+    const linhas = [];
+    for(let n=min;n<=max;n++){
+      const falhas = total - presenca[n];
+      const pct = total > 0 ? (falhas/total*100) : 0;
+      linhas.push({n, presenca:presenca[n], falhas, pct, atraso:atraso[n]});
+    }
+    // ordena pela dezena que está há mais concursos sem sair (desempate pelo % de falha)
+    linhas.sort((a,b)=> b.atraso - a.atraso || b.pct - a.pct);
+
+    const maisAtrasadas = linhas.slice(0, Math.min(topo, linhas.length));
+
+    const trios = [...combinations(maisAtrasadas.map(l=>l.n), 3)].map(trio=>{
+      const infos = trio.map(n=> maisAtrasadas.find(l=>l.n===n));
+      const somaAtraso = infos.reduce((a,l)=>a+l.atraso,0);
+      return {trio, somaAtraso, mediaAtraso: somaAtraso/3, infos};
+    });
+    trios.sort((a,b)=> b.somaAtraso - a.somaAtraso);
+
+    quenteCarregouUmaVez = true;
+    renderQuente(trios, maisAtrasadas, total, numeroUltimo);
+  }
   const cores=['#f30000','#e82912','#ff8310','#d8c329','#03b6d8','#1268e6'];
   out.innerHTML='<section class="thor-quente-falha-quadro" aria-label="Quadro de falhas"><div class="thor-quente-falha-bolas">'+ranking.dezenas.map((l,i)=>{const cor=cores[Math.round(i*5/Math.max(1,ranking.dezenas.length-1))];return '<div class="thor-quente-falha-item"><span class="thor-quente-falha-bola" style="--falha-cor:'+cor+'" title="Posição '+(i+1)+' no ranking histórico">'+String(l.n).padStart(2,'0')+'</span></div>'}).join('')+'</div></section>';
  }catch(e){if(request===thorReversasPedido)out.innerHTML='<div class="res-error">Não foi possível calcular agora. Toque em Atualizar para tentar novamente.</div>'}
