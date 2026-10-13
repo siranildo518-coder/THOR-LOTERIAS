@@ -228,7 +228,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v272-quadro-falhas'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v272-pc1-quadro-falhas'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -352,7 +352,9 @@ function comprimirFoto(dataUrl, maxLado){
 }
 
 function loginJaValidado(){
-  if(obterContextoAcesso() !== 'app') return false;
+  if(obterContextoAcesso() !== 'app'){
+    try{return localStorage.getItem(LOGIN_STORAGE_KEY)==='1'&&!!localStorage.getItem('tl_hash_atual')&&sessionStorage.getItem('thor_sessao_navegador')===localStorage.getItem('tl_hash_atual')}catch(_){return false}
+  }
   try{ return localStorage.getItem(LOGIN_STORAGE_KEY) === '1' && !!localStorage.getItem('tl_hash_atual'); }catch(e){ return false; }
 }
 
@@ -638,6 +640,7 @@ function montarTelaLogin(){
       if(resultado.ok){
         try{
           localStorage.setItem(LOGIN_STORAGE_KEY, '1');
+        if(obterContextoAcesso()==='navegador')sessionStorage.setItem('thor_sessao_navegador',hash);
           localStorage.setItem('tl_hash_atual', hash);
           localStorage.setItem('tl_nome_conta_'+hash, usuario.trim());
           if(loginFotoSelecionada){
@@ -693,6 +696,7 @@ function montarTelaLogin(){
     if(resultado.ok){
       try{
         localStorage.setItem(LOGIN_STORAGE_KEY,'1');
+        if(obterContextoAcesso()==='navegador')sessionStorage.setItem('thor_sessao_navegador',hash);
         localStorage.setItem('tl_hash_atual',resultado.hash);
         localStorage.setItem('tl_nome_conta_'+resultado.hash,usuario);
       }catch(e){}
@@ -16417,6 +16421,7 @@ function thorTelaAtualizando(on){
 
 async function atualizar(){
  if(busy)return;busy=true;girar(true);
+ if(obterContextoAcesso()==='navegador'&&!document.getElementById('loginOverlay')){try{const hash=localStorage.getItem('tl_hash_atual');if(hash&&localStorage.getItem(LOGIN_STORAGE_KEY)==='1')sessionStorage.setItem('thor_sessao_navegador',hash)}catch(_){}}
  try{
   var stamp=Date.now(),url='./app-main.html?thor_force_update='+stamp;
   var response=await fetch(url,{cache:'no-store'});
