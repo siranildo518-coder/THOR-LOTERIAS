@@ -228,7 +228,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v274-quadro-falhas'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v275-quadro-falhas'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3532,7 +3532,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
 #quentePanel .thor-reversas-nota{font:11px/1.5 Arial;color:#d9fff1;margin-top:10px;text-align:center}
 </style>
 
-<style id="thorQuadroFalhasV274">
+<style id="thorQuadroFalhasV275">
 #quentePanel .thor-quadro-falhas-heading{font:800 16px Arial;text-align:center;color:#f0fff8;margin:0 0 14px}
 #quentePanel #quenteConteudo{display:block}
 #quentePanel #quenteReversasConteudo .thor-quente-falha-bolas{display:flex!important;flex-wrap:nowrap!important;justify-content:space-between!important;gap:5px!important;overflow-x:auto;overflow-y:hidden;padding:5px 2px 7px;scrollbar-width:thin}
@@ -3540,40 +3540,40 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
 #quentePanel #quenteReversasConteudo .thor-quente-falha-bola{width:clamp(28px,8vw,42px)!important;height:clamp(28px,8vw,42px)!important;flex:none;background:radial-gradient(circle at 30% 22%,#ffffffb8 0%,transparent 30%),radial-gradient(circle at 35% 28%,color-mix(in srgb,var(--falha-cor) 70%,white),var(--falha-cor) 55%,color-mix(in srgb,var(--falha-cor) 60%,black) 100%)!important;border:1px solid #ffffff7d!important;box-shadow:inset 2px 3px 4px #ffffff70,inset -3px -5px 7px #0007,0 3px 5px #0006!important;font-size:12px!important}
 #quentePanel #quenteReversasConteudo .thor-quente-falha-quadro{margin:12px 0!important;padding:14px 10px!important}
 </style>
-<style id="thorFalhasDuasFileirasV274">
+<style id="thorFalhasDuasFileirasV275">
 #quentePanel #quenteConteudo .thor-quente-falha-bolas.thor-duas-fileiras,#quentePanel #quenteReversasConteudo .thor-quente-falha-bolas.thor-duas-fileiras{display:grid!important;grid-template-columns:repeat(var(--thor-colunas),minmax(0,1fr))!important;gap:12px 4px!important;overflow:visible!important;justify-items:center!important}
 #quentePanel .thor-duas-fileiras .thor-quente-falha-item{width:100%;min-width:0!important;align-items:center!important}
 #quentePanel #quenteConteudo .thor-duas-fileiras .thor-quente-falha-bola{width:clamp(26px,8vw,42px)!important;height:clamp(26px,8vw,42px)!important;min-width:0!important;flex:none!important;font-size:12px!important}
 #quentePanel .thor-duas-fileiras .thor-quente-falha-legenda{max-width:100%;box-sizing:border-box;font-size:8px!important;padding:2px!important;white-space:nowrap}
-</style><style id="thorFalhasCinzaV274">
+</style><style id="thorFalhasCinzaV275">
 #quentePanel #quenteConteudo .thor-quente-falha-bola.thor-falhou-cinza,#quentePanel #quenteReversasConteudo .thor-quente-falha-bola.thor-falhou-cinza{background:radial-gradient(circle at 28% 22%,#777 0%,#303030 22%,#080808 60%,#000 100%)!important;border-color:#727272!important;box-shadow:inset 2px 3px 4px #ffffffcc,inset -2px -3px 5px #9ba4ac55,0 2px 4px #0003!important;color:#fff!important;text-shadow:none!important;transform:translateY(-5px)!important;transition:transform .15s;font-weight:700!important}
-</style><style id="thorFalhasQuantidadeV274">
+</style><style id="thorFalhasQuantidadeV275">
 #quentePanel #quenteConteudo .thor-quente-falha-bolas.thor-duas-fileiras,#quentePanel #quenteReversasConteudo .thor-quente-falha-bolas.thor-duas-fileiras{grid-template-columns:repeat(var(--thor-colunas),minmax(34px,1fr))!important;overflow-x:auto!important;overflow-y:hidden!important}
-</style><style id="thorSetasFalhasV274">
+</style><style id="thorSetasFalhasV275">
 #quentePanel .thor-quadro-falhas-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
 #quentePanel .thor-quadro-falhas-nav .thor-quadro-falhas-heading{margin:0;flex:1}
 #quentePanel .thor-quadro-falhas-nav button{width:32px;height:30px;flex:none;border:1px solid #a0ffd8;border-radius:8px;background:linear-gradient(#24d77e,#078445);box-shadow:inset 0 1px 2px #fff8,0 2px 0 #034e32;color:white;font-size:16px;cursor:pointer}
 #quentePanel .thor-quadro-falhas-nav button:disabled{opacity:.4;cursor:default}
 #quentePanel .thor-quadro-falhas-nav button:active{transform:translateY(1px)}
-</style><style id="thorQuantidadeGradeV274">
+</style><style id="thorQuantidadeGradeV275">
 #thorQuantidadeFalhasGrade{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
 #thorQuantidadeFalhasGrade button{min-width:0;height:27px;padding:0;border:1px solid #74d6ac;border-radius:5px;background:linear-gradient(#f4fff8,#c9dfd6);color:#183c2c;font:700 11px Arial;box-shadow:0 2px 0 #063e2c;cursor:pointer}
 #thorQuantidadeFalhasGrade button.ativo{background:linear-gradient(#ff7b49,#e73514);border-color:#ffd1b7;color:white}
 #thorQuantidadeFalhasGrade button:disabled{opacity:.25;cursor:default}
-</style><style id="thorQuantidadePopupV274">
+</style><style id="thorQuantidadePopupV275">
 #thorQuantidadeFalhasDialog{width:min(230px,72vw);box-sizing:border-box;padding:12px;border:1px solid #7ff5c6;border-radius:14px;background:#043f37;color:white;box-shadow:0 8px 30px #0007}
 #thorQuantidadeFalhasDialog::backdrop{background:#0008}
 .thor-quantidade-titulo{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font:700 13px Arial}
 #thorQuantidadeFalhasFechar{background:none;border:0;color:white;font-size:24px;cursor:pointer}
 #thorQuantidadeFalhasDialog #thorQuantidadeFalhasGrade button{height:29px;font-size:12px}
 #thorQuantidadeFalhasAbrir{width:100%;cursor:pointer;font-size:11px}
-</style><style id="thorFalhasManualV274">
+</style><style id="thorFalhasManualV275">
 #quenteAtualizarBtn{background:linear-gradient(#dc71ff,#a316df 58%,#7908ac)!important;border:1px solid #f2b5ff!important;box-shadow:inset 0 2px 3px #ffffff80,0 5px 0 #4e076c,0 7px 8px #0005!important;transition:transform .12s,box-shadow .12s!important}
 #quenteAtualizarBtn:active,#quenteAtualizarBtn.thor-falhas-calculando{transform:translateY(4px)!important;box-shadow:inset 0 4px 8px #45005c99,0 1px 0 #4e076c!important}
 .thor-falhas-spinner{display:inline-block;width:14px;height:14px;margin-right:6px;vertical-align:middle;border:2px solid #ffffff55;border-top-color:white;border-radius:50%;animation:thorFalhasSpinner .7s linear infinite}
 @keyframes thorFalhasSpinner{to{transform:rotate(360deg)}}
 #quentePanel #quenteReversasConteudo .thor-quente-falha-bolas:not(.thor-duas-fileiras){justify-content:center!important;gap:6px!important}
-</style><style id="thorFalhouLegendaV274">
+</style><style id="thorFalhouLegendaV275">
 #quentePanel #quenteReversasConteudo .thor-quente-falha-item{flex-direction:column!important;gap:3px!important}
 #quentePanel .thor-falhou-label{display:block;font:600 8px Arial;line-height:10px;color:#e8edef;text-align:center}
 </style></head>
@@ -3852,7 +3852,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V274 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V275 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -16909,7 +16909,7 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
 </script>
 
 <style id="thorAtalhosDescerV184">#overlayListaResultados #homeSideNav #homeSideMenu{margin-top:1cm!important}</style>
-<script id="thorAbrirRastreadorV274">
+<script id="thorAbrirRastreadorV275">
 (function(){
  let tela,frame,pronto=false;
  function preparar(){
@@ -16927,10 +16927,10 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
  window.addEventListener('popstate',()=>{if(tela&&!tela.hidden){tela.hidden=true}});
  if('requestIdleCallback'in window)requestIdleCallback(preparar,{timeout:2500});else setTimeout(preparar,1500);
 })();
-</script><script id="thorDesdobradorIntegradoV274">
+</script><script id="thorDesdobradorIntegradoV275">
 (function(){
  let tela,frame;
- function preparar(){if(tela)return;tela=document.createElement('section');tela.id='thorDesdobradorIntegrado';tela.hidden=true;tela.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#f5f6fa';frame=document.createElement('iframe');frame.title='Desdobrador Pro';frame.style.cssText='width:100%;height:100%;border:0;display:block;background:#f5f6fa';tela.appendChild(frame);document.body.appendChild(tela);frame.src='./desdobrador-pro-v274.html';}
+ function preparar(){if(tela)return;tela=document.createElement('section');tela.id='thorDesdobradorIntegrado';tela.hidden=true;tela.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#031227;width:100%;max-width:none;height:100%;margin:0;padding:0;border:0;box-sizing:border-box';frame=document.createElement('iframe');frame.title='Desdobrador Pro';frame.style.cssText='position:absolute;inset:0;width:100%;max-width:none;height:100%;margin:0;padding:0;border:0;display:block;background:#031227';tela.appendChild(frame);document.body.appendChild(tela);frame.src='./desdobrador-pro-v275.html';}
  function fechar(){if(tela)tela.hidden=true;if(typeof goHome==='function')goHome()}
  function abrir(){preparar();if(!tela.hidden)return;history.pushState({thorDesdobradorIntegrado:true},'');tela.hidden=false;}
  window.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#btnDesdobradorProHome');if(!b)return;e.preventDefault();e.stopImmediatePropagation();abrir()},true);
