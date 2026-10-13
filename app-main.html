@@ -696,7 +696,7 @@ function montarTelaLogin(){
     if(resultado.ok){
       try{
         localStorage.setItem(LOGIN_STORAGE_KEY,'1');
-        if(obterContextoAcesso()==='navegador')sessionStorage.setItem('thor_sessao_navegador',hash);
+        if(obterContextoAcesso()==='navegador')sessionStorage.setItem('thor_sessao_navegador',resultado.hash);
         localStorage.setItem('tl_hash_atual',resultado.hash);
         localStorage.setItem('tl_nome_conta_'+resultado.hash,usuario);
       }catch(e){}
