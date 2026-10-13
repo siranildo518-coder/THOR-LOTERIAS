@@ -725,26 +725,26 @@ function syncAmountFromSlider(){$('amount').value=$('amountSlider').value;previe
 function updateThorGameSizeRange(){
  const el=$('thorGameSizeRange');if(!el)return;
  const c=config(),minOfficial=c[4],maxOfficial=c[5],universe=c[2]-c[1]+1;
- if(!activePanel){const fixed=[...randomFixed].filter(n=>randomSelection.has(n)).length;const n=randomSelection.size;const lo=Math.max(minOfficial,fixed),hi=Math.min(maxOfficial,n);el.textContent=lo<=hi?'🎯 Dezenas por jogo: '+(lo===hi?lo:lo+' a '+hi):'⚠ Selecione dezenas suficientes para formar jogos.';return}
+ if(!activePanel){const fixed=[...randomFixed].filter(n=>randomSelection.has(n)).length;const n=randomSelection.size;const lo=Math.max(minOfficial,fixed),hi=Math.min(maxOfficial,n);el.textContent=lo<=hi?'🎯 Dezenas por jogo: '+(lo===hi?lo:lo+' a '+hi):'⚠ Selecione dezenas suficientes para formar jogos.';return {lo,hi}}
  // Cada linha do Play 1 é cruzada com cada linha do Play 2.
  // Contar dezenas distintas evita descontar duas vezes dezenas repetidas entre Plays.
  const first=modeLines('fails','exclude').flatMap(ex=>modeLines('fails','split').map(inc=>({ex,inc})));
  const second=modeLines('pool','exclude').flatMap(ex=>modeLines('pool','split').map(inc=>({ex,inc})));
  const total=first.length*second.length;
- if(!total||total>20000){el.textContent='⚠ Configure as reduções dos Plays (limite de 20.000 cruzamentos).';return}
+ if(!total||total>20000){el.textContent='⚠ Configure as reduções dos Plays (limite de 20.000 cruzamentos).';return null}
  const fixed=new Set(fixedNumbers());let minimum=0,maximum=Infinity;
  for(const a of first)for(const b of second){
    const excluded=new Set([...a.ex,...b.ex,...(splitDirections.fails==='exclude'?a.inc:[]),...(splitDirections.pool==='exclude'?b.inc:[])]);
    const required=new Set([...fixed,...(splitDirections.fails==='include'?a.inc:[]),...(splitDirections.pool==='include'?b.inc:[])]);
-   if([...required].some(n=>excluded.has(n))){el.textContent='⚠ Existem dezenas obrigatórias e excluídas no mesmo cruzamento. Revise os Plays.';return}
+   if([...required].some(n=>excluded.has(n))){el.textContent='⚠ Existem dezenas obrigatórias e excluídas no mesmo cruzamento. Revise os Plays.';return null}
    minimum=Math.max(minimum,required.size);maximum=Math.min(maximum,universe-excluded.size);
  }
  const lo=Math.max(minOfficial,minimum),hi=Math.min(maxOfficial,maximum);
  const n1=modeLines('fails','split').length,n2=modeLines('pool','split').length;
  const header='🔀 Play 1: '+n1+' grupos × Play 2: '+n2+' grupos = '+total+' cruzamentos. ';
- el.textContent=header+(lo<=hi?'🎯 Dezenas permitidas por jogo: '+(lo===hi?lo:lo+' a '+hi)+'.':'⚠ Não há tamanho de jogo válido para todos os cruzamentos.');
+ el.textContent=header+(lo<=hi?'🎯 Após excluir os grupos, sobram '+maximum+' dezenas por cruzamento (mínimo garantido). Monte jogos de '+(lo===hi?lo:lo+' a '+hi)+' dezenas.':'⚠ Não há tamanho de jogo válido para todos os cruzamentos.');return {lo,hi};
 }
-function preview(){updateThorGameSizeRange();syncReductionChoices();updateCombinationCounts();const size=Number($('size').value),fixed=activePanel?requiredCount():[...randomFixed].filter(n=>randomSelection.has(n)).length,n=activePanel?remainingCount():randomSelection.size,state={size,fixed,n,total:comb(n-fixed,size-fixed)};syncAmountSlider(state);updatePossibleCombinations(state);const input=$('size'),min=String(Math.max(config()[4],fixed)),max=String(Math.max(0,n));if(input.min!==min)input.min=min;if(input.max!==max)input.max=max}
+function preview(){syncReductionChoices();updateCombinationCounts();const size=Number($('size').value),fixed=activePanel?requiredCount():[...randomFixed].filter(n=>randomSelection.has(n)).length,n=activePanel?remainingCount():randomSelection.size,state={size,fixed,n,total:comb(n-fixed,size-fixed)};syncAmountSlider(state);updatePossibleCombinations(state);const input=$('size'),range=updateThorGameSizeRange(),min=String(range?range.lo:Math.max(config()[4],fixed)),max=String(range?range.hi:Math.max(0,n));if(input.min!==min)input.min=min;if(input.max!==max)input.max=max}
 
 function toggleReductions(){const box=$('reductions');if(box.innerHTML&&!box.hidden){box.hidden=true;return}if(showReductions())box.hidden=false}
 function showReductions(){return showModeLines('pool')}
