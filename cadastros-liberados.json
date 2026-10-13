@@ -1733,6 +1733,13 @@
       "criadoEm": "2026-10-13T00:21:50.877Z",
       "expiraEm": "2026-10-14T00:21:50.877Z",
       "ativo": true
+    },
+    {
+      "hash": "43171933f899e631e0a4c6be1fc037dd40e6ae8e53d20374c9b1093dbb099cf9",
+      "compatHash": "dvpzvx",
+      "criadoEm": "2026-10-13T00:22:41.128Z",
+      "expiraEm": "2026-10-14T00:22:41.128Z",
+      "ativo": true
     }
   ]
 }
