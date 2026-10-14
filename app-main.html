@@ -13183,13 +13183,12 @@ document.getElementById('floatingShare').addEventListener('click',function(){
   if(!thorShareTexto){alert('Gere os jogos antes de compartilhar.');return}
   thorShareOverlay.style.display='flex';
 });
-document.getElementById('thorShareJogosSim').addEventListener('click',function(){
+document.getElementById('thorShareJogosSim').addEventListener('click',async function(){
   thorFecharShareJogos();
   if(!thorShareTexto)return;
-  const a=document.createElement('a');
-  a.href='https://api.whatsapp.com/send?text='+encodeURIComponent(thorShareTexto);
-  a.target='_blank';a.rel='noopener noreferrer';
-  document.body.append(a);a.click();a.remove();
+  // Compartilhamento Android nativo evita o erro whatsapp://send dentro do WebView.
+  if(navigator.share){try{await navigator.share({text:thorShareTexto});return}catch(e){if(e?.name==='AbortError')return}}
+  const a=document.createElement('a');a.href='https://wa.me/?text='+encodeURIComponent(thorShareTexto);a.target='_blank';a.rel='noopener noreferrer';document.body.append(a);a.click();a.remove();
 });
 
 document.getElementById('floatingSalvarNome')?.addEventListener('click', function(){
