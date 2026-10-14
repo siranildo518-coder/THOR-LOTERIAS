@@ -228,7 +228,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v304-sair-rodape'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v305-menu-vidro'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3863,9 +3863,9 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
       <button class="drawer-item" id="menuPadroes"><span class="ic">▦</span> Padrões</button>
   <div class="drawer-hr"></div>
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
-  <div class="drawer-hr" id="drawerHrSairLogin" style="margin-top:auto"></div>
+  <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V304 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V305 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -16465,7 +16465,20 @@ function confirmar(){var pend=sessionStorage.getItem('thorAtualizacaoPendente');
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',confirmar,{once:true});else confirmar();
 })();
 </script>
-</body>
+<style id="thorDrawerGlassV305">
+#drawer{background:radial-gradient(ellipse at 10% 70%,#41008a 0%,transparent 48%),linear-gradient(155deg,#080b29 0%,#101544 55%,#050b27 100%)!important;color:#fff!important;max-width:400px!important;width:82%!important;overflow-y:auto!important;scrollbar-width:none}
+#drawer::-webkit-scrollbar{display:none}
+#drawer .drawer-head{background:radial-gradient(circle at 75% 25%,#842cff88,transparent 45%),linear-gradient(125deg,#180449,#4318a5 55%,#12144b)!important;border-bottom:2px solid #7a35e5;padding:30px 20px 23px!important;box-shadow:0 5px 22px #5d17c355}
+#drawer .drawer-head .logo{border:2px solid #c7a1ff!important;box-shadow:0 0 15px #9b3dff, inset 0 0 12px #9b3dff55!important;background:#26175e!important}
+#drawer .drawer-head h2,#drawer .drawer-head p{color:#fff!important}
+#drawer .drawer-item{width:calc(100% - 26px)!important;margin:10px 13px!important;min-height:55px!important;border-radius:16px!important;color:white!important;background:linear-gradient(165deg,#223d82 0%,#101b4b 48%,#100d3e 100%)!important;border:1px solid #785bff!important;box-shadow:inset 0 2px 5px #ffffff45,0 3px 9px #0008,0 0 8px #602aff55!important;font-size:14px!important;padding:12px 16px!important;flex-shrink:0}
+#drawer .drawer-item:active{transform:scale(.98);filter:brightness(1.2)}
+#drawer .drawer-item .ic{font-size:21px!important;width:27px!important}
+#drawer .drawer-hr{background:transparent!important;border:0!important;height:0!important;margin:0!important}
+#drawer #drawerHrSairLogin{margin-top:auto!important;height:0!important}
+#drawer #menuSairLogin{background:linear-gradient(160deg,#9d122f,#360619 65%,#180710)!important;border:1px solid #ff4568!important;box-shadow:inset 0 2px 6px #ff9ab866,0 0 12px #ff224477!important;margin-top:12px!important;margin-bottom:8px!important}
+#drawer #thorDrawerCreditos{margin-top:0!important;flex-shrink:0!important;background:transparent!important;border:0!important;color:#d9d8ed!important;padding:15px 10px calc(25px + env(safe-area-inset-bottom,0px))!important;font-size:12px!important}
+</style></body>
 </html>
 
 <style id="frequencia-dezena-barra-fina-quadrada-final">
