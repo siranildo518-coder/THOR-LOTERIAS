@@ -13178,11 +13178,12 @@ function thorFecharShareJogos(){thorShareOverlay.style.display='none'}
 document.getElementById('thorShareJogosX').onclick=thorFecharShareJogos;
 document.getElementById('thorShareJogosNao').onclick=thorFecharShareJogos;
 thorShareOverlay.addEventListener('click',e=>{if(e.target===thorShareOverlay)thorFecharShareJogos()});
-document.getElementById('floatingShare').addEventListener('click',function(){
+document.getElementById('floatingShare').addEventListener('click',async function(){
   thorShareTexto=(lastGames||[]).map(game=>game.slice().sort((a,b)=>a-b).map(n=>String(n).padStart(2,'0')).join(' ')).join('\n');
   if(!thorShareTexto){alert('Gere os jogos antes de compartilhar.');return}
-  thorShareOverlay.style.display='flex';
-});
+  try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(thorShareTexto)}else{const ta=document.createElement('textarea');ta.value=thorShareTexto;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();if(!document.execCommand('copy'))throw Error('copy');ta.remove()}
+  let toast=document.getElementById('thorJogosCopiadosToast');if(!toast){toast=document.createElement('div');toast.id='thorJogosCopiadosToast';toast.style.cssText='position:fixed;z-index:2147483647;bottom:90px;left:50%;transform:translateX(-50%);background:#183e2c;color:white;padding:12px 22px;border-radius:18px;font-size:17px;font-weight:bold;box-shadow:0 5px 20px #0008;white-space:nowrap';document.body.appendChild(toast)}toast.textContent='Jogos copiados!';toast.style.display='block';clearTimeout(window.__thorCopyToastTimer);window.__thorCopyToastTimer=setTimeout(()=>toast.style.display='none',2200);
+  }catch(e){alert('Não foi possível copiar os jogos.')}});
 document.getElementById('thorShareJogosSim').addEventListener('click',async function(){
  thorFecharShareJogos();if(!thorShareTexto)return;
  try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(thorShareTexto)}else{const ta=document.createElement('textarea');ta.value=thorShareTexto;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();if(!document.execCommand('copy'))throw Error('copy');ta.remove()}alert('Jogos copiados!')}catch(e){alert('Não foi possível copiar automaticamente.')}});
