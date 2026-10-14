@@ -13184,12 +13184,8 @@ document.getElementById('floatingShare').addEventListener('click',function(){
   thorShareOverlay.style.display='flex';
 });
 document.getElementById('thorShareJogosSim').addEventListener('click',async function(){
-  thorFecharShareJogos();
-  if(!thorShareTexto)return;
-  // Compartilhamento Android nativo evita o erro whatsapp://send dentro do WebView.
-  if(navigator.share){try{await navigator.share({text:thorShareTexto});return}catch(e){if(e?.name==='AbortError')return}}
-  try{await navigator.clipboard.writeText(thorShareTexto);alert('Jogos copiados! Cole no chat do WhatsApp.')}catch(_){}const link='https://api.whatsapp.com/send?text='+encodeURIComponent(thorShareTexto);const w=window.open(link,'_blank','noopener,noreferrer');if(!w){const a=document.createElement('a');a.href=link;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Abrir WhatsApp';a.style.cssText='position:fixed;bottom:16px;left:10%;width:80%;z-index:2147483647;padding:15px;background:#128c4a;color:#fff;text-align:center;border-radius:12px';document.body.append(a);setTimeout(()=>a.remove(),30000)}
-});
+ thorFecharShareJogos();if(!thorShareTexto)return;
+ try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(thorShareTexto)}else{const ta=document.createElement('textarea');ta.value=thorShareTexto;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();if(!document.execCommand('copy'))throw Error('copy');ta.remove()}alert('Jogos copiados!')}catch(e){alert('Não foi possível copiar automaticamente.')}});
 
 document.getElementById('floatingSalvarNome')?.addEventListener('click', function(){
   if(!lastGames || lastGames.length === 0){
