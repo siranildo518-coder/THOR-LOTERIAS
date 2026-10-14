@@ -228,7 +228,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v283-quadro-falhas'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v291-desdobrador-pro'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3865,7 +3865,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V286 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V296 · Base V240</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -5120,7 +5120,8 @@ let conferenceDone = false; // só mostra acertos depois de clicar em CONFERIR
 // ---------- build ball grid ----------
 const ballGrid = document.getElementById('ballGrid');
 const ballClickTimer = new Map();
-for(let n=1;n<=100;n++){
+for(let pos=1;pos<=100;pos++){
+  const n=pos===100?0:pos; // Lotomania: 00 na última posição
   const b = document.createElement('button');
   b.className='ball';
   b.innerHTML = `<span>${n.toString().padStart(2,'0')}</span>`;
@@ -10700,15 +10701,15 @@ GAMES.forEach(g=>{
 // (ex: Lotofácil = 01 a 25, Mega-Sena = 01 a 60, Quina = 01 a 80, Dia de Sorte = 01 a 31)
 function aplicarFaixaCombinacoes(g){
   const max = (g.range && g.range.max) ? g.range.max : 100;
-  const min = (g.range && g.range.min) ? Math.max(1, g.range.min) : 1;
+  const min = (g.range && Number.isInteger(g.range.min)) ? g.range.min : 1;
 
   ballGrid.querySelectorAll('.ball').forEach(b=>{
     const n = parseInt(b.dataset.n,10);
     b.style.display = (n>=min && n<=max) ? '' : 'none';
   });
 
-  slider.max = max;
-  sliderHintInput.max = max;
+  slider.max = max-min+1;
+  sliderHintInput.max = max-min+1;
 
   // remove da seleção qualquer dezena que ficou fora da nova faixa
   let mudou = false;
@@ -13144,24 +13145,28 @@ document.getElementById('floatingSave')?.addEventListener('click', function(e){
   // não faz preventDefault: deixa o navegador seguir o link normalmente (é isso que dispara o download)
 });
 
-document.getElementById('floatingShare').addEventListener('click', async function(){
-  // Compartilha somente as dezenas: uma linha por jogo, sem título e sem "Jogo 1".
-  const text = (lastGames || []).map(game =>
-    game.slice().sort((a,b)=>a-b).map(n=>String(n).padStart(2,'0')).join(' ')
-  ).join('\n');
-  if(!text) return;
-  if(navigator.share){
-    try{
-      await navigator.share({ text });
-    }catch(err){
-      // usuário cancelou o compartilhamento — nada a fazer
-    }
-  } else {
-    navigator.clipboard?.writeText(text);
-    const original = this.innerHTML;
-    this.innerHTML = '✅';
-    setTimeout(()=>{ this.innerHTML = original; }, 1200);
-  }
+// Confirmação de compartilhamento da aba Jogos Desdobrados.
+const thorShareOverlay=document.createElement('div');
+thorShareOverlay.id='thorShareJogosModal';
+thorShareOverlay.style.cssText='display:none;position:fixed;inset:0;z-index:2147483646;background:#0008;align-items:center;justify-content:center;padding:16px';
+thorShareOverlay.innerHTML='<div role="dialog" aria-modal="true" aria-label="Aviso de compartilhamento" style="background:white;color:#222;width:min(94vw,440px);border-radius:5px;overflow:hidden;box-shadow:0 8px 30px #0007"><div style="margin:5px;background:linear-gradient(#a4edbd,#60bd8b);padding:13px;text-align:center;font-size:19px;font-weight:700;position:relative">Aviso!<button type="button" id="thorShareJogosX" style="position:absolute;right:5px;top:5px;background:#eee;color:#666;border:1px solid #bbb;padding:2px 8px;font-size:18px">×</button></div><div style="padding:28px 12px;text-align:center;font-size:19px">Deseja compartilhar estes jogos?</div><div style="border-top:1px solid #ccc;display:flex;justify-content:flex-end;gap:9px;padding:15px"><button type="button" id="thorShareJogosSim" style="background:linear-gradient(#fff,#ddd);color:#222;border:2px solid #888;padding:9px 24px;font-size:17px">SIM</button><button type="button" id="thorShareJogosNao" style="background:linear-gradient(#fff,#ddd);color:#222;border:1px solid #bbb;padding:9px 20px;font-size:17px">NÃO</button></div></div>';
+document.body.append(thorShareOverlay);
+let thorShareTexto='';
+function thorFecharShareJogos(){thorShareOverlay.style.display='none'}
+document.getElementById('thorShareJogosX').onclick=thorFecharShareJogos;
+document.getElementById('thorShareJogosNao').onclick=thorFecharShareJogos;
+thorShareOverlay.addEventListener('click',e=>{if(e.target===thorShareOverlay)thorFecharShareJogos()});
+document.getElementById('floatingShare').addEventListener('click',function(){
+  thorShareTexto=(lastGames||[]).map(game=>game.slice().sort((a,b)=>a-b).map(n=>String(n).padStart(2,'0')).join(' ')).join('\n');
+  if(!thorShareTexto){alert('Gere os jogos antes de compartilhar.');return}
+  thorShareOverlay.style.display='flex';
+});
+document.getElementById('thorShareJogosSim').addEventListener('click',async function(){
+  thorFecharShareJogos();
+  if(!thorShareTexto)return;
+  // Compartilhamento Android nativo evita o erro whatsapp://send dentro do WebView.
+  if(navigator.share){try{await navigator.share({text:thorShareTexto});return}catch(e){if(e?.name==='AbortError')return}}
+  const a=document.createElement('a');a.href='https://wa.me/?text='+encodeURIComponent(thorShareTexto);a.target='_blank';a.rel='noopener noreferrer';document.body.append(a);a.click();a.remove();
 });
 
 document.getElementById('floatingSalvarNome')?.addEventListener('click', function(){
@@ -16929,7 +16934,7 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
 </script><script id="thorDesdobradorIntegradoV283">
 (function(){
  let tela,frame;
- function preparar(){if(tela)return;tela=document.createElement('section');tela.id='thorDesdobradorIntegrado';tela.hidden=true;tela.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#031227;width:100%;max-width:none;height:100%;margin:0;padding:0;border:0;box-sizing:border-box';frame=document.createElement('iframe');frame.title='Desdobrador Pro';frame.style.cssText='position:absolute;inset:0;width:100%;max-width:none;height:100%;margin:0;padding:0;border:0;display:block;background:#031227';tela.appendChild(frame);document.body.appendChild(tela);frame.src='./desdobrador-pro-v283.html?v=286';}
+ function preparar(){if(tela)return;tela=document.createElement('section');tela.id='thorDesdobradorIntegrado';tela.hidden=true;tela.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#031227;width:100%;max-width:none;height:100%;margin:0;padding:0;border:0;box-sizing:border-box';frame=document.createElement('iframe');frame.title='Desdobrador Pro';frame.style.cssText='position:absolute;inset:0;width:100%;max-width:none;height:100%;margin:0;padding:0;border:0;display:block;background:#031227';tela.appendChild(frame);document.body.appendChild(tela);frame.src='./desdobrador-pro-v283.html?v=296';}
  function fechar(){if(tela)tela.hidden=true;if(typeof goHome==='function')goHome()}
  function abrir(){preparar();if(!tela.hidden)return;history.pushState({thorDesdobradorIntegrado:true},'');tela.hidden=false;}
  window.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#btnDesdobradorProHome');if(!b)return;e.preventDefault();e.stopImmediatePropagation();abrir()},true);
@@ -16938,10 +16943,14 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
  window.addEventListener('popstate',e=>{
   if(!tela||tela.hidden)return;
   e.stopImmediatePropagation();
-  if(e.state?.thorDesdobradorIntegrado)return;
+  // O histórico de Jogos salvos pertence ao Desdobrador, não à tela inicial.
+  // Nunca fechar o iframe ao retornar entre lista, detalhe e Desdobrador.
+  let savedOpen=false;
+  try{const d=frame?.contentDocument;savedOpen=!!(d&&(d.body.classList.contains('savedView')||d.getElementById('savedGamesDialog')?.open||d.getElementById('saveGamesDialog')?.open));}catch(_){}
+  if(e.state?.thorDesdobradorIntegrado||e.state?.thorSavedView||savedOpen)return;
   fechar();
  },true);
- window.addEventListener('message',e=>{if(frame&&e.source===frame.contentWindow&&e.origin===location.origin&&e.data?.thorDesdobradorVoltar)fechar()});
+ window.addEventListener('message',e=>{if(frame&&e.source===frame.contentWindow&&e.origin===location.origin&&e.data?.thorDesdobradorVoltar){let saved=false;try{const d=frame.contentDocument;saved=!!(d&&(d.body.classList.contains('savedView')||d.getElementById('savedGamesDialog')?.open));}catch(_){}if(!saved)fechar()}});
  if('requestIdleCallback'in window)requestIdleCallback(preparar,{timeout:4000});else setTimeout(preparar,2500);
 })();
 </script>
