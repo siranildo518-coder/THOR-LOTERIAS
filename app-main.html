@@ -228,7 +228,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v308-coroa-menu'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v309-atualizar-laranja'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3866,7 +3866,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V308 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V309 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -16477,6 +16477,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #drawer .drawer-item .ic{font-size:18px!important;width:23px!important}
 #drawer .drawer-hr{background:transparent!important;border:0!important;height:0!important;margin:0!important}
 #drawer #drawerHrSairLogin{margin-top:auto!important;height:0!important}
+#drawer #menuAtualizar.menu-atualizar-destaque{background:linear-gradient(160deg,#ffcf55 0%,#ff8b00 42%,#d94800 100%)!important;color:#fff!important;border:1px solid #ffdd65!important;box-shadow:inset 0 2px 6px #fff8,0 0 12px #ff9000,0 0 22px #ff730099!important;text-shadow:0 1px 2px #8a3300!important;animation:thorAtualizarLaranjaV309 1.6s ease-in-out infinite!important}
+@keyframes thorAtualizarLaranjaV309{0%,100%{filter:brightness(1)}50%{filter:brightness(1.22)}}
 #drawer #menuSairLogin{background:linear-gradient(160deg,#9d122f,#360619 65%,#180710)!important;border:1px solid #ff456899!important;box-shadow:inset 0 2px 6px #ff9ab866,0 0 12px #ff224477!important;margin-top:12px!important;margin-bottom:8px!important}
 #drawer #thorDrawerCreditos{margin-top:0!important;flex-shrink:0!important;background:transparent!important;border:0!important;color:#d9d8ed!important;padding:15px 10px calc(25px + env(safe-area-inset-bottom,0px))!important;font-size:12px!important}
 </style></body>
