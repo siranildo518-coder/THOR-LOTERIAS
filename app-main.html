@@ -228,7 +228,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v302-toast-estilo-android'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v303-compartilhar-vermelho'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3865,7 +3865,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V302 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V303 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -8465,7 +8465,7 @@ function montarResultadoSalvos(){
       b.onclick=fn;menu.append(b);
     };
     opcao('🖨 Imprimir',()=>window.print());
-    opcao('↗ Compartilhar',async()=>{const texto=textoSalvos();if(!texto){alert('Nenhum jogo para copiar.');return}try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(texto)}else{const ta=document.createElement('textarea');ta.value=texto;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();if(!document.execCommand('copy'))throw Error('copy');ta.remove()}alert('Jogos copiados!')}catch(_){alert('Não foi possível copiar os jogos automaticamente.')}});
+    opcao('↗ Compartilhar',async()=>{const texto=textoSalvos();if(!texto){alert('Nenhum jogo para copiar.');return}if(!window.confirm('Deseja compartilhar estes jogos?'))return;try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(texto)}else{const ta=document.createElement('textarea');ta.value=texto;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();if(!document.execCommand('copy'))throw Error('copy');ta.remove()}thorAvisoCopiadoV303()}catch(_){alert('Não foi possível copiar os jogos automaticamente.')}});
     opcao('⬇ TXT',()=>{const blob=new Blob([textoSalvos()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Meus Jogos.txt';document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)});
     salvar.onclick=()=>{menu.style.display=menu.style.display==='flex'?'none':'flex'};
     acoes.append(limpar,salvar);painel.append(acoes,menu);
@@ -13168,6 +13168,7 @@ document.getElementById('floatingSave')?.addEventListener('click', function(e){
 });
 
 // Confirmação de compartilhamento da aba Jogos Desdobrados.
+function thorAvisoCopiadoV303(){let a=document.getElementById('thorAvisoCopiadoV303');if(!a){a=document.createElement('div');a.id='thorAvisoCopiadoV303';a.setAttribute('role','status');a.style.cssText='position:fixed;z-index:2147483647;left:50%;bottom:42px;transform:translateX(-50%);max-width:calc(100vw - 24px);box-sizing:border-box;text-align:center;background:#bd1515;color:#fff;font:600 14px Roboto,Arial,sans-serif;padding:12px 18px;border-radius:24px;box-shadow:0 3px 10px #0004;white-space:nowrap;pointer-events:none';document.body.appendChild(a)}a.textContent='Jogos copiados!';a.style.display='block';clearTimeout(a._timer);a._timer=setTimeout(()=>a.style.display='none',5500)}
 const thorShareOverlay=document.createElement('div');
 thorShareOverlay.id='thorShareJogosModal';
 thorShareOverlay.style.cssText='display:none;position:fixed;inset:0;z-index:2147483646;background:#0008;align-items:center;justify-content:center;padding:16px';
@@ -13185,7 +13186,7 @@ document.getElementById('floatingShare').addEventListener('click',function(){
 });
 document.getElementById('thorShareJogosSim').addEventListener('click',async function(){
  thorFecharShareJogos();if(!thorShareTexto)return;
- try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(thorShareTexto)}else{const ta=document.createElement('textarea');ta.value=thorShareTexto;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();if(!document.execCommand('copy'))throw Error('copy');ta.remove()}const aviso=document.createElement('div');aviso.textContent='Jogos copiados!';aviso.setAttribute('role','status');aviso.style.cssText='position:fixed;z-index:2147483647;left:50%;bottom:42px;transform:translateX(-50%);max-width:calc(100vw - 24px);box-sizing:border-box;text-align:center;background:#323238;color:#fff;font:500 14px Roboto,Arial,sans-serif;padding:12px 18px;border-radius:24px;box-shadow:0 3px 10px #0004;white-space:nowrap;pointer-events:none';document.body.appendChild(aviso);setTimeout(()=>aviso.remove(),5500)}catch(e){alert('Não foi possível copiar automaticamente.')}});
+ try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(thorShareTexto)}else{const ta=document.createElement('textarea');ta.value=thorShareTexto;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();if(!document.execCommand('copy'))throw Error('copy');ta.remove()}const aviso=document.createElement('div');aviso.textContent='Jogos copiados!';aviso.setAttribute('role','status');aviso.style.cssText='position:fixed;z-index:2147483647;left:50%;bottom:42px;transform:translateX(-50%);max-width:calc(100vw - 24px);box-sizing:border-box;text-align:center;background:#bd1515;color:#fff;font:600 14px Roboto,Arial,sans-serif;padding:12px 18px;border-radius:24px;box-shadow:0 3px 10px #0004;white-space:nowrap;pointer-events:none';document.body.appendChild(aviso);setTimeout(()=>aviso.remove(),5500)}catch(e){alert('Não foi possível copiar automaticamente.')}});
 
 document.getElementById('floatingSalvarNome')?.addEventListener('click', function(){
   if(!lastGames || lastGames.length === 0){
