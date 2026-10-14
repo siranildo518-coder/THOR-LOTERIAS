@@ -3865,7 +3865,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div class="drawer-hr" id="drawerHrSairLogin"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V292 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V293 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -5137,7 +5137,8 @@ let conferenceDone = false; // só mostra acertos depois de clicar em CONFERIR
 // ---------- build ball grid ----------
 const ballGrid = document.getElementById('ballGrid');
 const ballClickTimer = new Map();
-for(let n=1;n<=100;n++){
+for(let pos=1;pos<=100;pos++){
+  const n=pos===100?0:pos; // Lotomania: 00 na última posição
   const b = document.createElement('button');
   b.className='ball';
   b.innerHTML = `<span>${n.toString().padStart(2,'0')}</span>`;
@@ -10717,15 +10718,15 @@ GAMES.forEach(g=>{
 // (ex: Lotofácil = 01 a 25, Mega-Sena = 01 a 60, Quina = 01 a 80, Dia de Sorte = 01 a 31)
 function aplicarFaixaCombinacoes(g){
   const max = (g.range && g.range.max) ? g.range.max : 100;
-  const min = (g.range && g.range.min) ? Math.max(1, g.range.min) : 1;
+  const min = (g.range && Number.isInteger(g.range.min)) ? g.range.min : 1;
 
   ballGrid.querySelectorAll('.ball').forEach(b=>{
     const n = parseInt(b.dataset.n,10);
     b.style.display = (n>=min && n<=max) ? '' : 'none';
   });
 
-  slider.max = max;
-  sliderHintInput.max = max;
+  slider.max = max-min+1;
+  sliderHintInput.max = max-min+1;
 
   // remove da seleção qualquer dezena que ficou fora da nova faixa
   let mudou = false;
@@ -16945,7 +16946,7 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
 </script><script id="thorDesdobradorIntegradoV283">
 (function(){
  let tela,frame;
- function preparar(){if(tela)return;tela=document.createElement('section');tela.id='thorDesdobradorIntegrado';tela.hidden=true;tela.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#031227;width:100%;max-width:none;height:100%;margin:0;padding:0;border:0;box-sizing:border-box';frame=document.createElement('iframe');frame.title='Desdobrador Pro';frame.style.cssText='position:absolute;inset:0;width:100%;max-width:none;height:100%;margin:0;padding:0;border:0;display:block;background:#031227';tela.appendChild(frame);document.body.appendChild(tela);frame.src='./desdobrador-pro-v283.html?v=292';}
+ function preparar(){if(tela)return;tela=document.createElement('section');tela.id='thorDesdobradorIntegrado';tela.hidden=true;tela.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#031227;width:100%;max-width:none;height:100%;margin:0;padding:0;border:0;box-sizing:border-box';frame=document.createElement('iframe');frame.title='Desdobrador Pro';frame.style.cssText='position:absolute;inset:0;width:100%;max-width:none;height:100%;margin:0;padding:0;border:0;display:block;background:#031227';tela.appendChild(frame);document.body.appendChild(tela);frame.src='./desdobrador-pro-v283.html?v=293';}
  function fechar(){if(tela)tela.hidden=true;if(typeof goHome==='function')goHome()}
  function abrir(){preparar();if(!tela.hidden)return;history.pushState({thorDesdobradorIntegrado:true},'');tela.hidden=false;}
  window.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#btnDesdobradorProHome');if(!b)return;e.preventDefault();e.stopImmediatePropagation();abrir()},true);
