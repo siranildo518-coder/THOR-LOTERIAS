@@ -662,7 +662,7 @@ function montarTelaLogin(){
     // Validação direta para contas administrativas conhecidas, sem depender de cache/Firebase.
     const ELZIANE_HASH = '1165s8q';
     const GISELE_HASH = 'oybgb0';
-    const credencialOk = cadastroLocalOk || (hash === ELZIANE_HASH || hash === GISELE_HASH) || await credencialValida(hash);
+    const credencialOk = cadastroLocalOk || (hash === ELZIANE_HASH || hash === GISELE_HASH || hash === '1j6mnaf' /* Grêmio 2020 */) || await credencialValida(hash);
     if(credencialOk){
       const btn = document.getElementById('loginBtn');
       erroEl.style.color = '#8B80A3';
