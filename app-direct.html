@@ -16957,7 +16957,7 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
   frame=document.createElement('iframe');frame.title='Rastreador de tendência';frame.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;background:#f5f6fa;visibility:hidden';
   frame.addEventListener('load',()=>{pronto=true;aviso.hidden=true;frame.style.visibility='visible'});
   tela.append(aviso,frame);document.body.appendChild(tela);
-  frame.src='./rastreador-tendencia-v270.html';
+  frame.src='./rastreador-tendencia-v270.html?v=309';
  }
  function abrir(){preparar();if(!tela.hidden)return;try{history.pushState({thorRastreadorIntegrado:true},'')}catch(_){}tela.hidden=false;tela.style.setProperty('display','block','important');}
  window.thorAbrirRastreador=abrir;
