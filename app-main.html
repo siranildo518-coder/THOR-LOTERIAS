@@ -11022,6 +11022,27 @@ async function thorHomeResultadoAtual(g){
  return await thorRenovarResultado(g,null);
 }
 
+/* Sincroniza todas as modalidades na abertura e ao voltar ao aplicativo.
+   Exibe cache imediatamente, mas consulta fontes novas sem exigir toque em Atualizar. */
+let thorSyncTodasEmCurso=false,thorSyncTodasUltima=0;
+async function thorSincronizarTodasLoterias(forcar=false){
+ if(thorSyncTodasEmCurso||(!forcar&&Date.now()-thorSyncTodasUltima<90000)||navigator.onLine===false)return;
+ thorSyncTodasEmCurso=true;thorSyncTodasUltima=Date.now();
+ try{
+  await Promise.allSettled(GAMES.map(async g=>{
+   const antigo=THOR_RESULTADOS_ATUAIS.get(g.code);
+   const salvo=(()=>{try{return JSON.parse(localStorage.getItem('thor_home_resultado_'+g.slug)||'null')}catch(_){return null}})();
+   const base=antigo||thorNormalizarHome(g,salvo);
+   const atual=await thorRenovarResultado(g,base);
+   if(atual&&(!base||atual.concurso>=base.concurso))thorSalvarResultadoCompartilhado(g,atual);
+  }));
+ }finally{thorSyncTodasEmCurso=false}
+}
+window.addEventListener('load',()=>{setTimeout(()=>thorSincronizarTodasLoterias(true),300)});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)thorSincronizarTodasLoterias(true)});
+window.addEventListener('online',()=>thorSincronizarTodasLoterias(true));
+setInterval(()=>{if(!document.hidden)thorSincronizarTodasLoterias()},120000);
+
 async function carregarHomeHero(g,usarCache=false){
   let data = homeCache[g.slug];
   if(!data){try{const salvo=JSON.parse(localStorage.getItem('thor_home_resultado_'+g.slug)||'null');if(salvo&&Number(salvo.concurso)>0){data=salvo;homeCache[g.slug]=salvo;}}catch(_){}}
