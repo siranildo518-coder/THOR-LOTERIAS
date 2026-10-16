@@ -13964,7 +13964,7 @@ if('serviceWorker' in navigator){
         });
       });
       // confere no GitHub se tem versão nova: a cada 60s e sempre que o usuário volta pro app
-      setInterval(()=> registration.update().catch(()=>{}), 60000);
+      setInterval(()=> {if(!document.hidden)registration.update().catch(()=>{})}, 600000);
       document.addEventListener('visibilitychange', ()=>{
         if(document.visibilityState === 'visible') registration.update().catch(()=>{});
       });
@@ -16454,7 +16454,7 @@ window.thorChecarNovaVersao=async function(){
 };
 normalizarAtualizar();
 setTimeout(window.thorChecarNovaVersao,1500);
-setInterval(window.thorChecarNovaVersao,120000);
+setInterval(()=>{if(!document.hidden)window.thorChecarNovaVersao()},600000);
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')window.thorChecarNovaVersao()});
 
 function thorGuardarTelaAtualizacao(){
