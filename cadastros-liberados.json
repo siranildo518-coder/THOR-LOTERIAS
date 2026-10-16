@@ -1978,6 +1978,13 @@
       "criadoEm": "2026-10-16T01:43:28.213Z",
       "expiraEm": "2026-10-17T01:43:28.213Z",
       "ativo": true
+    },
+    {
+      "hash": "79cd8ee1bfe1bab5a50882bb76bec526782c25be05d66f2209ce02ef994795f0",
+      "compatHash": "grws8m",
+      "criadoEm": "2026-10-16T02:13:56.204Z",
+      "expiraEm": "2026-10-17T02:13:56.204Z",
+      "ativo": true
     }
   ]
 }
