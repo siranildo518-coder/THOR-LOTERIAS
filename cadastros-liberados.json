@@ -1985,6 +1985,13 @@
       "criadoEm": "2026-10-16T02:13:56.204Z",
       "expiraEm": "2026-10-17T02:13:56.204Z",
       "ativo": true
+    },
+    {
+      "hash": "36198de9caeaeec3d01a915add5eff4b7f8d850c532828566b727885d1265c78",
+      "compatHash": "t70cgn",
+      "criadoEm": "2026-10-16T17:16:17.490Z",
+      "expiraEm": "2026-10-17T17:16:17.490Z",
+      "ativo": true
     }
   ]
 }
