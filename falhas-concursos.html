@@ -215,5 +215,27 @@ setInterval(()=>{
 // Força nova consulta também quando o iframe é restaurado do cache do Android/WebView.
 window.addEventListener('pageshow',()=>atualizarConcursosCaixa());
 // Na abertura, ignora o concurso visual antigo salvo e sincroniza imediatamente com a fonte única.
-(async()=>{ try{ await atualizarConcursosCaixa(); }catch(_){ await load(); } })();
+(async()=>{
+  // Exibe o último resultado salvo imediatamente, sem depender da rede.
+  const salvo=ultimoGuardado(key);
+  if(salvo&&salvo.c&&Array.isArray(salvo.nums)&&salvo.nums.length){
+    draw=salvo;latest=+salvo.c;render();
+    $('status').textContent='Conferindo resultados mais recentes...';
+  }
+  // Consulta a fonte compartilhada do aplicativo antes das APIs externas.
+  try{
+    const resp=await fetch('resultados-atualizados.json?v='+Date.now(),{cache:'no-store'});
+    if(resp.ok){
+      const json=await resp.json();
+      const x=json?.resultados?.[LOT[key][1]];
+      if(x&&+x.concurso>0&&Array.isArray(x.dezenas)&&x.dezenas.length===LOT[key][2]){
+        const d={c:+x.concurso,date:x.data||'',nums:x.dezenas.map(Number)};
+        if(!draw||d.c>=draw.c){draw=d;latest=Math.max(latest,d.c);guardarUltimo(key,d);render();}
+      }
+    }
+  }catch(_){}
+  // Se não há cache, carrega diretamente; atualizações posteriores são em segundo plano.
+  if(!draw) await load();
+  atualizarConcursosCaixa();
+})();
 </script></body></html>
