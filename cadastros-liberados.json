@@ -1992,6 +1992,13 @@
       "criadoEm": "2026-10-16T17:16:17.490Z",
       "expiraEm": "2026-10-17T17:16:17.490Z",
       "ativo": true
+    },
+    {
+      "hash": "d3de115fc07b8c554647ef47512a1465c2e6eddd404adaf3e510e0f623459490",
+      "compatHash": "pgkv2j",
+      "criadoEm": "2026-10-16T17:20:41.776Z",
+      "expiraEm": "2026-10-17T17:20:41.776Z",
+      "ativo": true
     }
   ]
 }
