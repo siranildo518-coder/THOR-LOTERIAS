@@ -1964,6 +1964,13 @@
       "criadoEm": "2026-10-16T01:09:38.986Z",
       "expiraEm": "2026-10-17T01:09:38.986Z",
       "ativo": true
+    },
+    {
+      "hash": "a79738f8a381b6c5eb131b52bd3cb0b5dcefc0c037c4dbc383f0a2cd0260b26c",
+      "compatHash": "1ql95d4",
+      "criadoEm": "2026-10-16T01:16:46.407Z",
+      "expiraEm": "2026-10-17T01:16:46.408Z",
+      "ativo": true
     }
   ]
 }
