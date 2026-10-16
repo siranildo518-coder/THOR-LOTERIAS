@@ -2027,6 +2027,13 @@
       "criadoEm": "2026-10-16T23:02:45.440Z",
       "expiraEm": "2026-10-17T23:02:45.440Z",
       "ativo": true
+    },
+    {
+      "hash": "fd1ef4e56fb567700117bd3b50aa9caff1ddef3f54b55dbd90ff4366bb585fde",
+      "compatHash": "w8joba",
+      "criadoEm": "2026-10-16T23:19:37.877Z",
+      "expiraEm": "2026-10-17T23:19:37.877Z",
+      "ativo": true
     }
   ]
 }
