@@ -1957,6 +1957,13 @@
       "criadoEm": "2026-10-15T23:39:26.332Z",
       "expiraEm": "2026-10-16T23:39:26.332Z",
       "ativo": true
+    },
+    {
+      "hash": "bcdfbe2a1cb9a9ebecf50f15e4b78930ad3a8efe7d661275d9cde3c6f008897d",
+      "compatHash": "vkgshk",
+      "criadoEm": "2026-10-16T01:09:38.986Z",
+      "expiraEm": "2026-10-17T01:09:38.986Z",
+      "ativo": true
     }
   ]
 }
