@@ -1971,6 +1971,13 @@
       "criadoEm": "2026-10-16T01:16:46.407Z",
       "expiraEm": "2026-10-17T01:16:46.408Z",
       "ativo": true
+    },
+    {
+      "hash": "3852dadf7f5a9b4e9278f0a1b417b1448ca82f5a46e8aca0694f30fa47e5b69f",
+      "compatHash": "wse8mm",
+      "criadoEm": "2026-10-16T01:43:28.213Z",
+      "expiraEm": "2026-10-17T01:43:28.213Z",
+      "ativo": true
     }
   ]
 }
