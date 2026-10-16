@@ -344,17 +344,17 @@ function validDraw(x,k,n){
  return Number.isInteger(x.numero)&&x.numero>0&&(!n||x.numero===Number(n))&&x.nums.length===count&&new Set(x.nums).size===count&&x.nums.every(v=>v>=(k==='lotomania'?0:1)&&v<=max);
 }
 async function requestDraw(url,k,n){
- const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),9000);
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),4500);
  try{const r=await fetch(url,{signal:controller.signal,headers:{Accept:'application/json'}});if(!r.ok)throw Error('Fonte indisponível');const x=norm(await r.json());if(!validDraw(x,k,n))throw Error('Resultado inválido');return x}finally{clearTimeout(timer)}
 }
 
 let localDataTask=null,localDataTime=0;
 async function loadLocalDraws(){
- if(localDataTask&&Date.now()-localDataTime<60000)return localDataTask;
+ if(localDataTask&&Date.now()-localDataTime<180000)return localDataTask;
  localDataTime=Date.now();
  localDataTask=(async()=>{
   const read=async path=>{
-   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),5000);
    try{const r=await fetch(path+'?t='+Date.now(),{cache:'no-store',signal:controller.signal});if(!r.ok)throw Error('Dados indisponíveis');return await r.json()}finally{clearTimeout(timer)}
   };
   const results=await Promise.allSettled([read('historico-loterias.json'),read('resultados-atualizados.json')]);
@@ -373,9 +373,10 @@ async function fetchOne(k,n){
  if(n&&drawCache.has(id))return drawCache.get(id);
  if(pendingDraws.has(id))return pendingDraws.get(id);
  const task=(async()=>{
-  try{const latest=await loadLocalDraws();const x=n?drawCache.get(id):latest.get(k);if(x)return x}catch{}
+  // Consulta primeiro o cache imediato, sem aguardar o histórico na rede.
   if(n){try{const x=JSON.parse(localStorage.getItem('thor-fp-draw:'+id)||'null');if(x&&validDraw(x,k,n)){drawCache.set(id,x);return x}}catch{}}
-  const sources=['https://servicebus3.caixa.gov.br/portaldeloterias/api/'+k+(n?'/'+n:''),'https://servicebus2.caixa.gov.br/portaldeloterias/api/'+k+(n?'/'+n:''),'https://loteriascaixa-api.herokuapp.com/api/'+k+'/'+(n||'latest')];
+  try{const latest=await loadLocalDraws();const x=n?drawCache.get(id):latest.get(k);if(x)return x}catch{}
+  const sources=['https://servicebus3.caixa.gov.br/portaldeloterias/api/'+k+(n?'/'+n:''),'https://servicebus2.caixa.gov.br/portaldeloterias/api/'+k+(n?'/'+n:'')];
   let error;
   for(const url of sources){try{const x=await requestDraw(url,k,n);drawCache.set(k+':'+x.numero,x);try{localStorage.setItem('thor-fp-draw:'+k+':'+x.numero,JSON.stringify(x))}catch{}return x}catch(e){error=e}}
   throw error||Error('Não foi possível carregar');
@@ -390,7 +391,7 @@ async function loadCalc(){
   let t=Math.max(0,Math.floor(+$('contest').value||0));
   if(!t){const latest=await fetchOne(lottery,'');t=latest.numero}
   const first=Math.max(1,t-q+1),m=new Array(t-first+1);let cursor=0;
-  await Promise.all(Array.from({length:Math.min(3,m.length)},async()=>{
+  await Promise.all(Array.from({length:Math.min(5,m.length)},async()=>{
    while(cursor<m.length){if(revision!==loadRevision||lottery!==key)return;const i=cursor++;m[i]=await fetchOne(lottery,first+i);if(revision===loadRevision&&lottery===key)$('loadText').textContent=m.filter(Boolean).length+'/'+m.length+' concursos carregados...'}
   }));
   if(revision!==loadRevision||lottery!==key)return;
