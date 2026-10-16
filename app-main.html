@@ -16975,7 +16975,12 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
  window.thorAbrirRastreador=abrir;
  window.addEventListener('pointerup',function(e){if(e.pointerType!=='touch')return;const b=e.target.closest&&e.target.closest('#btnRastreadorTendenciaHome');if(!b)return;e.preventDefault();e.stopImmediatePropagation();abrir()},true);
  window.addEventListener('click',function(e){const b=e.target.closest&&e.target.closest('#btnRastreadorTendenciaHome');if(!b)return;e.preventDefault();e.stopImmediatePropagation();abrir()},true);
- window.addEventListener('popstate',()=>{if(tela&&!tela.hidden){tela.hidden=true;tela.style.removeProperty('display')}});
+ window.addEventListener('popstate',()=>{if(tela&&!tela.hidden){try{if(frame?.contentWindow?.document?.getElementById('trackerProView')?.hidden===false){return}}catch(_){}tela.hidden=true;tela.style.removeProperty('display')}});
+ window.addEventListener('message',function(e){
+  if(!frame||e.source!==frame.contentWindow||!e.data||e.data.thorTrackerNavigation!=='back')return;
+  // O retorno do Pro deve permanecer dentro do Rastreador de Tendência.
+  if(tela){tela.hidden=false;tela.style.setProperty('display','block','important')}
+ });
  if('requestIdleCallback'in window)requestIdleCallback(preparar,{timeout:2500});else setTimeout(preparar,1500);
 })();
 </script><script id="thorDesdobradorIntegradoV283">
