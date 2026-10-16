@@ -333,6 +333,23 @@ $('go-auto').onchange=()=>{$('selection').classList.add('hidden');mode=null;};
 $('go-quantity').oninput=()=>{const el=$('go-quantity');if(el.value==='')return;el.value=Math.max(1,Math.min(GAMES[game].max-GAMES[game].min+1,Number(el.value)||1));$('selection').classList.add('hidden');mode=null;};
 function updateGoFilter(){$('go-heading').textContent='▥ Boas pra '+($('go-type').value==='excluir'?'excluir':'fixar')};updateGoFilter();
 $('count').oninput=()=>{if(stats.length||busy){cancelAnalysis();status('Quantidade alterada. Clique em Analisar concursos para recalcular.')}};drawGames();restoreLatest();refreshLatest().then(()=>status('Último concurso carregado automaticamente. Clique em Analisar concursos.')).catch(e=>status(e.message,true));
+/* Atualização automática dos resultados, sem modificar análises já escolhidas. */
+let thorLastAutoCheck=0;
+async function thorAutoLatest(force=false){
+ if(document.hidden||busy||navBusy||latestPromise)return;
+ if(!force&&Date.now()-thorLastAutoCheck<90000)return;
+ thorLastAutoCheck=Date.now();
+ const old=latest?.numero||0,key=game;
+ try{const current=await refreshLatest(true);
+ if(key!==game)return;
+ if(current.numero>old){status('Novo resultado oficial disponível: concurso '+current.numero+'.');}
+ }catch(e){if(!latest)status('Sem conexão para atualizar os resultados. Tentaremos novamente.',true)}
+}
+setInterval(()=>thorAutoLatest(),120000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)thorAutoLatest(true)});
+window.addEventListener('focus',()=>thorAutoLatest());
+window.addEventListener('message',e=>{if(e.data&&e.data.thorRefreshTrackerPro===true)thorAutoLatest(true)});
+
 </script><script>(function(){var el=document.getElementById('go-type');if(!el)return;function sync(){el.dataset.mode=el.value}el.addEventListener('change',sync);sync();})();</script><script id="thor-v38-ball-control-script">
 (function(){
  const root=document.documentElement;
