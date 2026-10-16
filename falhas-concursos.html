@@ -47,6 +47,30 @@ const API='https://servicebus2.caixa.gov.br/portaldeloterias/api/';const LATEST_
     }catch(_){}
   }
 
+  // Mesma fonte dinâmica da tela inicial: consulta as duas APIs da CAIXA,
+  // inclusive o concurso seguinte, e escolhe sempre o mais recente validado.
+  const proximo=Math.max(latest||0,+(ultimoGuardado(key)?.c||0),+(draw?.c||0))+1;
+  const urlsHome=[
+    'https://servicebus3.caixa.gov.br/portaldeloterias/api/'+slug,
+    'https://servicebus2.caixa.gov.br/portaldeloterias/api/'+slug,
+    'https://loteriascaixa-api.herokuapp.com/api/'+slug+'/latest',
+    ...(!n&&proximo>1?[
+      'https://servicebus3.caixa.gov.br/portaldeloterias/api/'+slug+'/'+proximo,
+      'https://servicebus2.caixa.gov.br/portaldeloterias/api/'+slug+'/'+proximo
+    ]:[])
+  ];
+  const homeRes=await Promise.allSettled(urlsHome.map(async url=>{
+    const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),6500);
+    try{
+      const r=await fetch(url+(url.includes('?')?'&':'?')+'_thor='+Date.now(),{cache:'no-store',signal:ctl.signal});
+      if(!r.ok)throw Error('HTTP '+r.status);
+      const j=await r.json(),c=Number(j.numero??j.concurso??j.numeroConcurso),nums=j.listaDezenas??j.dezenas??j.numeros;
+      if(!Number.isInteger(c)||!Array.isArray(nums)||nums.length!==LOT[key][2]||new Set(nums.map(Number)).size!==nums.length||nums.some(v=>!Number.isInteger(Number(v))||Number(v)<(key==='lotomania'?0:1)||Number(v)>LOT[key][3]))throw Error('Resultado inválido');
+      if(n&&c!==n)throw Error('Concurso diferente');
+      return {c,date:j.dataApuracao||j.data||'',nums:nums.map(Number)};
+    }finally{clearTimeout(timer)}
+  }));
+  for(const x of homeRes)if(x.status==='fulfilled')candidatos.push(x.value);
   let ultimoErro=null;
 
   // Para concurso específico, basta uma resposta válida do número pedido.
