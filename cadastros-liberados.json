@@ -2020,6 +2020,13 @@
       "criadoEm": "2026-10-16T22:19:58.145Z",
       "expiraEm": "2026-10-17T22:19:58.145Z",
       "ativo": true
+    },
+    {
+      "hash": "baa15c44e3a995a4e26dfbe4e119b3b71f43bf5dc8016310d805568f18bdc736",
+      "compatHash": "1urooix",
+      "criadoEm": "2026-10-16T23:02:45.440Z",
+      "expiraEm": "2026-10-17T23:02:45.440Z",
+      "ativo": true
     }
   ]
 }
