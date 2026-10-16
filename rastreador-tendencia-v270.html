@@ -192,7 +192,7 @@ document.addEventListener('contextmenu',event=>{if(!event.target.closest('input,
 </script><style>#trackerProView{position:fixed;inset:0;z-index:99999;background:white}#trackerProView[hidden]{display:none}#trackerProFrame{width:100%;height:100%;border:0;display:block}</style><section id="trackerProView" hidden><iframe id="trackerProFrame" title="Rastreador Pro V52"></iframe></section><script>
 (function(){
 const view=document.getElementById('trackerProView'),frame=document.getElementById('trackerProFrame');let ready=false;
-frame.src='./rastreador-pro-v270.html?v=309';ready=true;
+frame.src='./rastreador-pro-v270.html?v=314';ready=true;
 window.openTrackerPro=function(){if(!view.hidden)return;history.pushState({thorTrackerPro:true},'');view.hidden=false;try{frame.contentWindow.postMessage({thorRefreshTrackerPro:true},'*')}catch(e){}};
 window.addEventListener('popstate',function(e){view.hidden=!(e.state&&e.state.thorTrackerPro);});
 })();
