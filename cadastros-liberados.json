@@ -2118,6 +2118,13 @@
       "criadoEm": "2026-10-17T22:51:32.151Z",
       "expiraEm": "2026-10-18T22:51:32.152Z",
       "ativo": true
+    },
+    {
+      "hash": "73d7d84022e9043f233bd35ce0b186ce9136fd9f67d78fad6356129f658addb4",
+      "compatHash": "27sggz",
+      "criadoEm": "2026-10-17T22:52:45.693Z",
+      "expiraEm": "2026-10-18T22:52:45.693Z",
+      "ativo": true
     }
   ]
 }
