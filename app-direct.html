@@ -16414,13 +16414,13 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
     if(e.type==='click'&&Date.now()-ultimoToque<650){e.preventDefault();e.stopImmediatePropagation();return}
     if(e.type==='pointerup'&&e.pointerType==='touch')ultimoToque=Date.now();
     e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
-    abrir(b.id==='btnFalhasProHome'?'./falhas-pro.html':'./gerador.html?v=thor-v330-lotomania-max-100');
+    abrir(b.id==='btnFalhasProHome'?'./falhas-pro.html':'./gerador-palpite-100.html?v=thor-v331-commit-restaurado');
   }
   document.addEventListener('pointerup',function(e){if(e.pointerType==='touch')acionar(e)},true);
   document.addEventListener('click',acionar,true);
   window.addEventListener('popstate',fechar);
   // Pré-carregamento após a primeira renderização, sem bloquear os demais botões.
-  function antecipar(){preparar('./falhas-pro.html');preparar('./gerador.html?v=thor-v330-lotomania-max-100')}
+  function antecipar(){preparar('./falhas-pro.html');preparar('./gerador-palpite-100.html?v=thor-v331-commit-restaurado')}
   if(document.readyState==='complete')setTimeout(antecipar,1200);
   else window.addEventListener('load',function(){setTimeout(antecipar,1200)},{once:true});
 })();
