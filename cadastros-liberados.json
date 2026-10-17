@@ -2062,6 +2062,13 @@
       "criadoEm": "2026-10-17T16:13:47.417Z",
       "expiraEm": "2026-10-18T16:13:47.418Z",
       "ativo": true
+    },
+    {
+      "hash": "21b6ab0fd167f253b544f915e0605ba23c38ccf1744a00e55f5b9a5336d157cb",
+      "compatHash": "kv11ru",
+      "criadoEm": "2026-10-17T16:34:09.427Z",
+      "expiraEm": "2026-10-18T16:34:09.427Z",
+      "ativo": true
     }
   ]
 }
