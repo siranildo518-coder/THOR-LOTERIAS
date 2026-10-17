@@ -8527,7 +8527,8 @@ function montarResultadoSalvos(){
         indice++;
         const numeros=jogo.map(Number).filter(Number.isFinite);
         const acertos=resultado?numeros.filter(n=>sorteadas.has(n)).length:0;
-        const premiado=resultado&&!!faixaPremioGerador(code,acertos);
+        const faixaNormal=!!faixaPremioGerador(code,acertos);
+        const premiado=!!resultado && (numeros.length > (code==='LF'?15:code==='MS'?6:Infinity) ? acertos === (code==='LF'?15:6) : faixaNormal);
         const destaque=premiado&&acertos===maiorAcerto;
         const card=document.createElement('div');
         card.className='game-card'+(premiado?' premiado':'')+(destaque?' top-score':'');
