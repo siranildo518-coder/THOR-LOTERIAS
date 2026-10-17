@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-10-17T00:46:30.560497+00:00",
+  "atualizadoEm": "2026-10-17T05:04:10.244860+00:00",
   "fonte": "API oficial Loterias CAIXA",
   "loterias": {
     "megasena": [
@@ -10918,6 +10918,26 @@
     ],
     "duplasena": [
       {
+        "concurso": 3021,
+        "data": "16/10/2026",
+        "dezenas": [
+          3,
+          4,
+          35,
+          37,
+          44,
+          50
+        ],
+        "dezenasSegundoSorteio": [
+          2,
+          5,
+          21,
+          24,
+          28,
+          49
+        ]
+      },
+      {
         "concurso": 3020,
         "data": "14/10/2026",
         "dezenas": [
@@ -12895,26 +12915,6 @@
           44,
           49,
           50
-        ]
-      },
-      {
-        "concurso": 2921,
-        "data": "04/02/2026",
-        "dezenas": [
-          7,
-          20,
-          22,
-          33,
-          42,
-          49
-        ],
-        "dezenasSegundoSorteio": [
-          3,
-          13,
-          17,
-          20,
-          22,
-          31
         ]
       }
     ]
