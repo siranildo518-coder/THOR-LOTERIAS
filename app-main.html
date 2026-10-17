@@ -16429,7 +16429,7 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
     if(e.type==='click'&&Date.now()-ultimoToque<650){e.preventDefault();e.stopImmediatePropagation();return}
     if(e.type==='pointerup'&&e.pointerType==='touch')ultimoToque=Date.now();
     e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
-    abrir(b.id==='btnFalhasProHome'?'./falhas-pro.html':'./gerador.html?v=thor-v203');
+    abrir(b.id==='btnFalhasProHome'?'./falhas-pro.html':'./gerador.html?v=thor-v324-spinner-quantidade');
   }
   document.addEventListener('pointerup',function(e){if(e.pointerType==='touch')acionar(e)},true);
   document.addEventListener('click',acionar,true);
