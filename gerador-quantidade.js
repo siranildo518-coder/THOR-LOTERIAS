@@ -1,5 +1,5 @@
 // THOR LOTERIAS - quantidade de jogos no gerador
-// Base 142 preservada. Permite escolher de 1 a 30 jogos.
+// Base 142 preservada. Permite escolher de 1 a 1000 jogos.
 (function(){
   function aplicar(){
     var controls=document.querySelector('.controls'), btn=document.getElementById('gerar');
@@ -7,10 +7,10 @@
     var bloco=document.createElement('div');
     bloco.id='thorQtdJogos';
     bloco.style.marginTop='10px';
-    bloco.innerHTML='<label class="label" for="qtdJogos">Quantidade de jogos (1 a 30)</label><input class="field" id="qtdJogos" type="number" min="1" max="30" value="30" inputmode="numeric">';
+    bloco.innerHTML='<label class="label" for="qtdJogos">Quantidade de jogos (1 a 1000)</label><input class="field" id="qtdJogos" type="number" min="1" max="1000" value="30" inputmode="numeric">';
     controls.appendChild(bloco);
     var input=document.getElementById('qtdJogos');
-    function qtd(){var n=parseInt(input.value,10);if(!Number.isFinite(n))n=30;n=Math.max(1,Math.min(30,n));return n}
+    function qtd(){var n=parseInt(input.value,10);if(!Number.isFinite(n))n=30;n=Math.max(1,Math.min(1000,n));return n}
     function atualizar(){var n=qtd();btn.innerHTML='🎲 &nbsp; GERAR '+n+' JOGO'+(n===1?'':'S')}
     input.addEventListener('input',atualizar);input.addEventListener('change',function(){input.value=qtd();atualizar()});
     atualizar();
