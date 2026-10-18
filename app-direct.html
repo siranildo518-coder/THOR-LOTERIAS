@@ -16419,10 +16419,7 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
   document.addEventListener('pointerup',function(e){if(e.pointerType==='touch')acionar(e)},true);
   document.addEventListener('click',acionar,true);
   window.addEventListener('popstate',fechar);
-  // Pré-carregamento após a primeira renderização, sem bloquear os demais botões.
-  function antecipar(){preparar('./falhas-pro.html');preparar('./gerador.html?v=thor-v315-antes-nome-salvar')}
-  if(document.readyState==='complete')setTimeout(antecipar,1200);
-  else window.addEventListener('load',function(){setTimeout(antecipar,1200)},{once:true});
+  // V315: telas secundárias são preparadas ao tocar, liberando a abertura da Home.
 })();
 </script>
 
