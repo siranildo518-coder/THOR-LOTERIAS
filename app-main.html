@@ -16420,8 +16420,8 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
     var t=preparar(url);
     if(ativa&&ativa!==t)fechar();
     ativa=t;
-    // Manter a Home visível enquanto a página de destino termina de carregar.
-    if(t.dataset.pronto==='1')t.style.display='block';
+    // Mostra o destino no mesmo toque, sem retorno visual à Home.
+    t.style.display='block';
     try{history.pushState({thorTelaSobreHome:true},'',location.href)}catch(_){}
   }
   function acionar(e){
@@ -16435,7 +16435,9 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
   document.addEventListener('pointerup',function(e){if(e.pointerType==='touch')acionar(e)},true);
   document.addEventListener('click',acionar,true);
   window.addEventListener('popstate',fechar);
-  // V315: telas secundárias são preparadas ao tocar, liberando a abertura da Home.
+  // Aquecer apenas o gerador após a abertura da Home, sem bloquear a interface.
+  function aquecer(){if(document.getElementById('btnEscolhaPraMim'))preparar('./gerador.html?v=thor-v315-antes-nome-salvar')}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(aquecer,700)},{once:true});else setTimeout(aquecer,700);
 })();
 </script>
 
