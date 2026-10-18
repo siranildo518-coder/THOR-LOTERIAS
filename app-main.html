@@ -603,16 +603,6 @@ function montarTelaLogin(){
         </div>
         <div id="loginErro" style="color:#B7791F;font-size:12.5px;min-height:16px;margin-bottom:8px;"></div>
         <button id="loginBtn" style="width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#4C1D95,#6D28D9);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">ENTRAR</button>
-        <button id="thorEsqueceuAcessoBtn" type="button" onclick="document.getElementById('thorRecuperacaoAdmin').style.display='flex'" style="display:block;margin:10px auto 0;padding:8px 12px;border:0;background:transparent;color:#5B21B6;text-decoration:underline;font-weight:700;cursor:pointer;">🔐 Esqueceu usuário ou senha?</button>
-        <div id="thorRecuperacaoAdmin" role="dialog" aria-modal="true" aria-label="Recuperação de acesso" style="display:none;position:fixed;inset:0;z-index:2147483646;background:rgba(7,12,32,.82);align-items:center;justify-content:center;padding:16px;">
-          <div style="width:100%;max-width:370px;padding:23px 20px;border-radius:17px;background:#fff;color:#2d1855;text-align:center;box-shadow:0 12px 45px #0006;">
-            <div style="font-size:32px;">🔐</div>
-            <h2 style="font-size:20px;margin:9px 0;">Recuperar acesso</h2>
-            <p style="font-size:14px;line-height:1.55;">Esqueceu seu usuário ou senha? Solicite a recuperação diretamente ao administrador do THOR LOTERIAS.</p>
-            <p style="font-size:12px;line-height:1.5;color:#6b587f;">Por segurança, somente o administrador poderá autorizar a redefinição. A trava do aparelho permanece ativa. Nunca informe sua senha atual a ninguém.</p>
-            <button type="button" onclick="document.getElementById('thorRecuperacaoAdmin').style.display='none'" style="width:100%;padding:12px;background:#5B21B6;border:0;border-radius:10px;color:#fff;font-weight:800;cursor:pointer;">ENTENDI · VOLTAR AO LOGIN</button>
-          </div>
-        </div>
         <button id="abrirCadastroBtn" type="button" style="width:100%;padding:12px;margin-top:10px;border:1px solid #6D28D9;border-radius:10px;background:#fff;color:#5B21B6;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">CRIAR MEU CADASTRO</button>
       </div>
       <div id="formCadastroTeste" style="display:none;">
@@ -3621,11 +3611,6 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
 </style><style id="thorFalhouLegendaV283">
 #quentePanel #quenteReversasConteudo .thor-quente-falha-item{flex-direction:column!important;gap:3px!important}
 #quentePanel .thor-falhou-label{display:block;font:600 8px Arial;line-height:10px;color:#e8edef;text-align:center}
-</style><style id="thorPlacarDefinitivoV315">
-#thorContadorOficial .tco-faixas{display:grid!important;grid-auto-flow:column!important;grid-auto-columns:minmax(0,1fr)!important;grid-template-columns:none!important;gap:4px!important;width:100%!important}
-#thorContadorOficial .tco-faixa{display:block!important;flex:none!important;min-width:0!important;overflow:hidden!important;padding:0!important;border:1px solid #8ba5b6!important;border-radius:9px!important;background:#123b56!important}
-#thorContadorOficial .tco-faixa>.tco-num{display:block!important;position:static!important;float:none!important;width:100%!important;height:26px!important;line-height:26px!important;margin:0!important;padding:0!important;text-align:center!important;font-size:13px!important;font-weight:900!important;background:#123b56!important;color:#fff!important}
-#thorContadorOficial .tco-faixa>.tco-qtd{display:block!important;position:static!important;float:none!important;width:100%!important;height:30px!important;line-height:30px!important;margin:0!important;padding:0!important;text-align:center!important;font-size:15px!important;font-weight:900!important;color:#071b2d!important;border-radius:0!important}
 </style></head>
 <body>
 <div class="app">
@@ -16435,8 +16420,8 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
     var t=preparar(url);
     if(ativa&&ativa!==t)fechar();
     ativa=t;
-    // Exibe a tela de destino imediatamente, sem salto de volta para a Home.
-    t.style.display='block';
+    // Manter a Home visível enquanto a página de destino termina de carregar.
+    if(t.dataset.pronto==='1')t.style.display='block';
     try{history.pushState({thorTelaSobreHome:true},'',location.href)}catch(_){}
   }
   function acionar(e){
@@ -16450,9 +16435,7 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
   document.addEventListener('pointerup',function(e){if(e.pointerType==='touch')acionar(e)},true);
   document.addEventListener('click',acionar,true);
   window.addEventListener('popstate',fechar);
-  // Pré-carrega o gerador após a primeira pintura para que o primeiro toque abra sem esperar a rede.
-  function aquecerGerador(){if(document.getElementById('btnEscolhaPraMim'))preparar('./gerador.html?v=thor-v315-antes-nome-salvar')}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(aquecerGerador,450)},{once:true});else setTimeout(aquecerGerador,450);
+  // V315: telas secundárias são preparadas ao tocar, liberando a abertura da Home.
 })();
 </script>
 

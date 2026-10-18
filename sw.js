@@ -1,2 +1,2 @@
 // THOR LOTERIAS OFICIAL V315 - atualizacao automatica
-importScripts('./sw-core-thor7.js?v=thor-v315-home-update-1810');
+importScripts('./sw-core-thor7.js?v=thor-v315-restaurada-sem-manual-1810');
