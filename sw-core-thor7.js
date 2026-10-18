@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
 // THOR 7 V3.75 - calculadora de probabilidade e cache sincronizados
-const CACHE_NAME='thor-loterias-v315-abertura-cache-rapida';
+const CACHE_NAME='thor-loterias-v315-restaurada-rede-20261018';
 const CORE=['./combinacoes-topo-v229.png','./','./index.html','./index-core-thor7.html','./app-main.html','./app-direct.html','./manifest.json','./icon-192.png','./thor-home-topo-v316.jpg','./cadastros-liberados.json'];
 const PALPITES_CARD='<button class="home-feature-card" style="--fc:#d41948" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">◎</span><span><strong>Palpites</strong><small>Sugestões inteligentes</small></span></button>';
 const CALC_CARD='<button class="home-feature-card" style="--fc:#e98a00" data-home-target="btnSimularAtalho"><span class="hfc-icon">▤</span><span><strong>Calculadora</strong><small>Probabilidades e estimativas</small></span></button>';
@@ -108,23 +108,17 @@ self.addEventListener('fetch',event=>{
   }
 
 
-  // Interface salva abre imediatamente; resultados e permissões continuam na rede.
-  const shellRapido=['index.html','index-core-thor7.html','app-main.html','app-direct.html','resultados-auto-thor4.js'];
+  // Atualização da V315: a interface sempre consulta a versão publicada antes do cache.
+  const shellRapido=['index.html','index-core-thor7.html','app-main.html','app-direct.html','resultados-auto-thor4.js','gerador.html'];
   const nomeArquivo=u.pathname.split('/').pop()||'index.html';
   if(shellRapido.includes(nomeArquivo)){
-    const cachePromise=caches.open(CACHE_NAME);
-    const savedPromise=cachePromise.then(cache=>cache.match(chaveCache(req)));
-    // Registrar a renovação durante o evento mantém o worker vivo em segundo plano.
-    const refreshPromise=savedPromise.then(saved=>saved?atualizarEmSegundoPlano(req,chaveCache(req)):null);
-    event.waitUntil(refreshPromise.catch(()=>{}));
     event.respondWith((async()=>{
-      const saved=await savedPromise;
-      if(saved)return saved;
+      const cache=await caches.open(CACHE_NAME),chave=chaveCache(req);
       try{
-        const fresh=await respostaAtualizada(req);
-        if(fresh&&fresh.ok)await (await cachePromise).put(chaveCache(req),fresh.clone());
-        return fresh;
-      }catch(_){return await offlineFallback(req)||Response.error()}
+        const fresh=await respostaAtualizada(new Request(req.url,{cache:'no-store',credentials:req.credentials}));
+        if(fresh&&fresh.ok){await cache.put(chave,fresh.clone());return fresh}
+        throw Error('Resposta desatualizada');
+      }catch(_){return await cache.match(chave)||offlineFallback(req)||Response.error()}
     })());
     return;
   }
