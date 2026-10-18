@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
 // THOR 7 V3.75 - calculadora de probabilidade e cache sincronizados
-const CACHE_NAME='thor-loterias-v315-rede-primeiro-placar-20261018';
+const CACHE_NAME='thor-loterias-v315-atualizacao-automatica-20261018';
 const CORE=['./combinacoes-topo-v229.png','./','./index.html','./index-core-thor7.html','./app-main.html','./app-direct.html','./manifest.json','./icon-192.png','./thor-home-topo-v316.jpg','./cadastros-liberados.json'];
 const PALPITES_CARD='<button class="home-feature-card" style="--fc:#d41948" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">◎</span><span><strong>Palpites</strong><small>Sugestões inteligentes</small></span></button>';
 const CALC_CARD='<button class="home-feature-card" style="--fc:#e98a00" data-home-target="btnSimularAtalho"><span class="hfc-icon">▤</span><span><strong>Calculadora</strong><small>Probabilidades e estimativas</small></span></button>';
@@ -109,7 +109,7 @@ self.addEventListener('fetch',event=>{
 
 
   // Arquivos da interface: sempre usar a versão publicada antes do cache.
-  const shellAtual=['index.html','index-core-thor7.html','app-main.html','app-direct.html','resultados-auto-thor4.js'];
+  const shellAtual=['index.html','index-core-thor7.html','app-main.html','app-direct.html','resultados-auto-thor4.js','gerador.html','gerador-palpite-100.html'];
   const arquivoAtual=u.pathname.split('/').pop()||'index.html';
   if(shellAtual.includes(arquivoAtual)){
     event.respondWith((async()=>{
