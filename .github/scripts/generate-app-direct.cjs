@@ -32,6 +32,12 @@ if (extras.length && !html.includes('frequencia-concorrencia-thor7.js')) {
   html = html.replace('</body>', tags + '</body>');
 }
 
+// Uma só instalação do conferidor na página final.
+let temConferidor=false;
+html=html.replace(/<script\b[^>]*src=["']\.\/resultados-auto-thor4\.js[^"']*["'][^>]*><\/script>/gi,function(tag){
+ if(temConferidor)return '';
+ temConferidor=true;return tag;
+});
 fs.writeFileSync(outPath, html);
 const version=(html.match(/Versão V(\d+)/)||[])[1];
 if(!version)throw new Error('Versão ausente');

@@ -1,5 +1,7 @@
 (function(){
 'use strict';
+if(window.__thorColetorTodasPontuacoes)return;
+window.__thorColetorTodasPontuacoes=true;
 // THOR 7 V3.11 - Resultado Oficial com atualização após a aba realmente ficar ativa.
 const jogos=[{slug:'megasena',nome:'Mega-Sena'},{slug:'lotofacil',nome:'Lotofácil'},{slug:'quina',nome:'Quina'},{slug:'diadesorte',nome:'Dia de Sorte'},{slug:'lotomania',nome:'Lotomania'},{slug:'supersete',nome:'Super Sete'},{slug:'timemania',nome:'Timemania'},{slug:'duplasena',nome:'Dupla Sena'}],emBusca={},cacheResultado={},concursoSelecionado={};
 const minimoPremio={megasena:4,lotofacil:11,quina:2,diadesorte:4,lotomania:15,supersete:3,timemania:3,duplasena:3};
@@ -49,7 +51,7 @@ function atualizarTodos(){
  jogos.forEach(function(g){if(concursoSelecionado[g.slug]&&slugAtivo()===g.slug)return;buscar(g.slug,null,false,slugAtivo()===g.slug)})
 }
 function acionar(b){const s=slugBotao(b);if(!s)return;area();mostrarColetor(s);delete concursoSelecionado[s];setTimeout(function(){const atual=slugAtivo();if(atual===s||!atual)buscar(s,null,false,true)},100)}
-function ligar(){css();const bar=document.getElementById('thorJogosLoterias');if(!bar)return false;bar.querySelectorAll('.thorJogoLoteria').forEach(b=>{if(b.dataset.thorResultadoLigado)return;b.dataset.thorResultadoLigado='1';b.addEventListener('click',()=>acionar(b),{passive:true})});const ativa=bar.querySelector('.thorJogoLoteria.ativa')||bar.querySelector('.thorJogoLoteria');if(ativa&&!document.getElementById('thorJogosResultado'))acionar(ativa);return true}let tentativas=0;function iniciar(){if(ligar())return;if(++tentativas<50)setTimeout(iniciar,200)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){iniciar();setTimeout(atualizarTodos,1200)},{once:true});else{iniciar();setTimeout(atualizarTodos,1200)}
+function ligar(){css();const bar=document.getElementById('thorJogosLoterias');if(!bar)return false;bar.querySelectorAll('.thorJogoLoteria').forEach(b=>{if(b.dataset.thorResultadoLigado)return;b.dataset.thorResultadoLigado='1';b.addEventListener('click',()=>acionar(b),{passive:true})});const ativa=bar.querySelector('.thorJogoLoteria.ativa')||bar.querySelector('.thorJogoLoteria');if(ativa){const slug=slugBotao(ativa);if(!document.getElementById('thorJogosResultado'))acionar(ativa);else if(slug){area();mostrarColetor(slug)}}return true}let tentativas=0;function iniciar(){if(ligar())return;if(++tentativas<50)setTimeout(iniciar,200)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){iniciar();setTimeout(atualizarTodos,1200)},{once:true});else{iniciar();setTimeout(atualizarTodos,1200)}
 document.addEventListener('visibilitychange',function(){if(!document.hidden)atualizarTodos()});
 setInterval(atualizarTodos,300000);
 window.thorAtualizarResultados=function(){atualizarTodos()};
