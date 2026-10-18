@@ -1,2 +1,2 @@
 // THOR LOTERIAS OFICIAL V315 - atualizacao automatica
-importScripts('./sw-core-thor7.js?v=thor-v315-placar-dom-20261018');
+importScripts('./sw-core-thor7.js?v=thor-v315-rede-primeiro-placar-20261018');
