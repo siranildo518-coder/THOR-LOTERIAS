@@ -115,7 +115,7 @@ self.addEventListener('fetch',event=>{
     event.respondWith((async()=>{
       const cache=await caches.open(CACHE_NAME),chave=chaveCache(req);
       try{
-        const fresh=await fetch(new Request(req.url,{cache:'no-store',credentials:req.credentials,headers:req.headers}));
+        const fresh=await respostaAtualizada(new Request(req.url,{cache:'no-store',credentials:req.credentials,headers:req.headers}));
         if(fresh&&fresh.ok){await cache.put(chave,fresh.clone());return fresh}
         throw Error('sem resposta atual');
       }catch(_){return await cache.match(chave)||offlineFallback(req)||Response.error()}
