@@ -109,7 +109,7 @@ self.addEventListener('fetch',event=>{
 
 
   // Arquivos da interface: sempre usar a versão publicada antes do cache.
-  const shellAtual=['index.html','index-core-thor7.html','app-main.html','app-direct.html','resultados-auto-thor4.js','gerador.html','gerador-palpite-100.html'];
+  const shellAtual=['index.html','index-core-thor7.html','app-main.html','app-direct.html','resultados-auto-thor4.js','gerador.html','gerador-palpite-100.html','gerador-visual-v318.css','gerador-visual-v318.js','gerador-ajustes-v321.css','gerador-topo-v319.jpg'];
   const arquivoAtual=u.pathname.split('/').pop()||'index.html';
   if(shellAtual.includes(arquivoAtual)){
     event.respondWith((async()=>{
