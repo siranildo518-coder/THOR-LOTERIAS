@@ -15,7 +15,7 @@ function thorBootArquivo(path,key){
  }).then(function(texto){return {ok:true,text:function(){return Promise.resolve(texto)}}});
 }
 
-window.__thorAppMainPrefetch=thorBootArquivo('./app-main.html?v=thor-v330-lotomania-100-linhas-colunas-pro','thor_boot_main_v306').catch(function(){return null});
+window.__thorAppMainPrefetch=thorBootArquivo('./app-main.html?v=thor-v330-lotomania-100-linhas-colunas-posicao','thor_boot_main_v306').catch(function(){return null});
 // Sempre busca o núcleo atual. Não guarda mais o HTML do aplicativo em sessionStorage.
 // localStorage continua intacto para preservar login e o ID usado na trava do aparelho.
 var r=await thorBootArquivo('./index-core-thor7.html?v=thor-v330-lotomania-100','thor_boot_core_v306');
