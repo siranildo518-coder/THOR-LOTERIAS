@@ -2258,6 +2258,13 @@
       "criadoEm": "2026-10-19T20:32:23.898Z",
       "expiraEm": "2026-10-20T20:32:23.898Z",
       "ativo": true
+    },
+    {
+      "hash": "2cae682ff0f4d06fd0afaae290c85e88d9d1729ce44098c1541ad75c7882b4bc",
+      "compatHash": "1p9dhst",
+      "criadoEm": "2026-10-19T22:02:30.052Z",
+      "expiraEm": "2026-10-20T22:02:30.052Z",
+      "ativo": true
     }
   ]
 }
