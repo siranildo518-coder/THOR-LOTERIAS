@@ -11363,8 +11363,14 @@ function applySliderCount(n){
     if(excludedNums.has(dezena)) continue;
     novaSelecao.add(dezena);
   }
+  // Ao escolher todas as 100 dezenas da Lotomania, 00 precisa estar no conjunto.
+  if(targetCount===100 && limiteAtual===100){
+    novaSelecao.add(0);
+    novaSelecao.delete(100);
+    excludedNums.delete(0);
+  }
   selected = novaSelecao;
-  document.querySelectorAll('.ball').forEach(b=>{
+  ballGrid.querySelectorAll('.ball').forEach(b=>{
     const bn = parseInt(b.dataset.n,10);
     b.classList.toggle('on', selected.has(bn));
     b.classList.toggle('fixed', fixedNums.has(bn));
