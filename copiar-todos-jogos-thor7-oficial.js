@@ -10,8 +10,8 @@
       return Number(valor);
     });
     var lot=document.getElementById('lot'),tipo=lot&&lot.value;
-    var limites={lotofacil:25,megasena:60,quina:80,lotomania:100,diadesorte:31,timemania:80,duplasena:50};
-    var max=limites[tipo],min=1;
+    var limites={lotofacil:25,megasena:60,quina:80,lotomania:99,diadesorte:31,timemania:80,duplasena:50};
+    var max=limites[tipo],min=tipo==='lotomania'?0:1;
     if(tipo==='supersete'){max=9;min=0}
     var qtd=document.getElementById('qtdDezenas');
     var esperada=qtd?Number(qtd.value):null;
