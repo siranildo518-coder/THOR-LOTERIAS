@@ -60,7 +60,7 @@
     }catch(_){}
     if(!ok)ok=copiarFallback(texto);
     if(status)status.textContent=ok
-      ? '✓ '+jogos.length+' jogos copiados. Agora é só colar no Mobile Loterias.'
+      ? '✓ '+jogos.length+' jogos copiados.'
       : 'Não foi possível copiar. Tente novamente.';
     var btn=document.getElementById('copiarTodosJogosOficial');
     if(btn&&ok){
