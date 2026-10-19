@@ -13160,7 +13160,7 @@ function renderGameCards(){
     card.className = 'game-card' + (premiado ? ' premiado':'') + (isTopScore ? ' top-score':'');
     card.innerHTML = `
       <div class="gc-index">Jogo ${i+1}${badge}${topTag}</div>
-      <div class="gc-balls">${g.map(n=>`<div class="gc-ball${conferindo && confResult.has(n) ? ' hit':''}${fixedNums.has(n) ? ' fixed':''}"><span>${n.toString().padStart(2,'0')}</span></div>`).join('')}</div>
+      <div class="gc-balls">${g.map(n=>`<div class="gc-ball${conferindo && confResult.has(n) ? ' hit':''}${fixedNums.has(n) ? ' fixed':''}"><span>${(n===100?0:n).toString().padStart(2,'0')}</span></div>`).join('')}</div>
       <div class="gc-stats">
         <div class="s"><div class="k">PAR</div><div class="v">${st.par}</div></div>
         <div class="s"><div class="k">ÍMPAR</div><div class="v">${st.impar}</div></div>
@@ -13223,7 +13223,7 @@ document.getElementById('thorShareJogosX').onclick=thorFecharShareJogos;
 document.getElementById('thorShareJogosNao').onclick=thorFecharShareJogos;
 thorShareOverlay.addEventListener('click',e=>{if(e.target===thorShareOverlay)thorFecharShareJogos()});
 document.getElementById('floatingShare').addEventListener('click',function(){
-  thorShareTexto=(lastGames||[]).map(game=>game.slice().sort((a,b)=>a-b).map(n=>String(n).padStart(2,'0')).join(' ')).join('\n');
+  thorShareTexto=(lastGames||[]).map(game=>game.slice().sort((a,b)=>(a===100?0:a)-(b===100?0:b)).map(n=>String(n===100?0:n).padStart(2,'0')).join(' ')).join('\n');
   if(!thorShareTexto){alert('Gere os jogos antes de compartilhar.');return}
   thorShareOverlay.style.display='flex';
 });
@@ -13303,12 +13303,12 @@ function* combinations(arr, k){
 }
 
 function formatGame(g){
-  return g.map(x=>x.toString().padStart(2,'0')).join(' ');
+  return g.map(x=>String(x===100?0:x).padStart(2,'0')).join(' ');
 }
 
 // quebra as dezenas de um jogo em fileiras de até 10 por linha
 function formatGameRows(g){
-  const nums = g.map(x=>x.toString().padStart(2,'0'));
+  const nums = g.map(x=>String(x===100?0:x).padStart(2,'0'));
   const rows = [];
   for(let i=0;i<nums.length;i+=10) rows.push(nums.slice(i,i+10).join(' '));
   return rows;
