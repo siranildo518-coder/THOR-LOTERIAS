@@ -3,13 +3,29 @@
   if(window.__thorCopiarTodosOficial)return;
   window.__thorCopiarTodosOficial=true;
 
+  function numerosDoCard(card){
+    var nums=Array.from(card.querySelectorAll('.balls .ball')).map(function(ball){
+      var valor=(ball.textContent||'').trim();
+      if(!/^\\d{1,3}$/.test(valor))return NaN;
+      return Number(valor);
+    });
+    var lot=document.getElementById('lot'),tipo=lot&&lot.value;
+    var limites={lotofacil:25,megasena:60,quina:80,lotomania:100,diadesorte:31,timemania:80,duplasena:50};
+    var max=limites[tipo],min=1;
+    if(tipo==='supersete'){max=9;min=0}
+    var qtd=document.getElementById('qtdDezenas');
+    var esperada=qtd?Number(qtd.value):null;
+    if(!nums.length||nums.some(function(n){return !Number.isInteger(n)||(max!==undefined&&(n<min||n>max))}))throw Error('Jogo com dezena inválida.');
+    if(tipo!=='supersete'&&new Set(nums).size!==nums.length)throw Error('Jogo com dezenas repetidas.');
+    if(Number.isInteger(esperada)&&esperada>0&&nums.length!==esperada)throw Error('Jogo com '+nums.length+' dezenas; solicitado '+esperada+'.');
+    return nums.map(function(n){return String(n).padStart(2,'0')}).join(' ');
+  }
+  window.thorCopiarNumerosCard=numerosDoCard;
   function jogosDaTela(){
-    return Array.from(document.querySelectorAll('#out .game')).map(function(card){
-      return Array.from(card.querySelectorAll('.ball')).map(function(ball){
-        var n=parseInt((ball.textContent||'').replace(/\D/g,''),10);
-        return Number.isFinite(n)?String(n).padStart(2,'0'):'';
-      }).filter(Boolean).join(' ');
-    }).filter(Boolean);
+    var cards=Array.from(document.querySelectorAll('#out .game'));
+    var jogos=cards.map(numerosDoCard);
+    if(new Set(jogos).size!==jogos.length)throw Error('Há jogos repetidos. Gere novamente antes de copiar.');
+    return jogos;
   }
 
   function copiarFallback(texto){
@@ -27,8 +43,9 @@
   }
 
   async function copiarTodos(){
-    var jogos=jogosDaTela();
     var status=document.getElementById('status');
+    var jogos;
+    try{jogos=jogosDaTela()}catch(e){if(status)status.textContent='Não copiado: '+e.message;return}
     if(!jogos.length){
       if(status)status.textContent='Gere os jogos antes de copiar.';
       return;
@@ -80,7 +97,7 @@
     document.head.appendChild(css);
 
     var obs=new MutationObserver(function(){
-      copiar.style.display=jogosDaTela().length?'block':'none';
+      copiar.style.display=document.querySelectorAll('#out .game').length?'block':'none';
     });
     obs.observe(document.getElementById('out'),{childList:true,subtree:true});
     return true;
