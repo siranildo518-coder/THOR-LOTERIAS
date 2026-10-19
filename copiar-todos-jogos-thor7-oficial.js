@@ -10,15 +10,15 @@
       return Number(valor);
     });
     var lot=document.getElementById('lot'),tipo=lot&&lot.value;
-    var limites={lotofacil:25,megasena:60,quina:80,lotomania:99,diadesorte:31,timemania:80,duplasena:50};
-    var max=limites[tipo],min=tipo==='lotomania'?0:1;
+    var limites={lotofacil:25,megasena:60,quina:80,lotomania:100,diadesorte:31,timemania:80,duplasena:50};
+    var max=limites[tipo],min=1;
     if(tipo==='supersete'){max=9;min=0}
     var qtd=document.getElementById('qtdDezenas');
     var esperada=qtd?Number(qtd.value):null;
     if(!nums.length||nums.some(function(n){return !Number.isInteger(n)||(max!==undefined&&(n<min||n>max))}))throw Error('Jogo com dezena inválida.');
     if(tipo!=='supersete'&&new Set(nums).size!==nums.length)throw Error('Jogo com dezenas repetidas.');
     if(Number.isInteger(esperada)&&esperada>0&&nums.length!==esperada)throw Error('Jogo com '+nums.length+' dezenas; solicitado '+esperada+'.');
-    return nums.map(function(n){return String(n).padStart(2,'0')}).join(' ');
+    return nums.map(function(n){return String(tipo==='lotomania'&&n===100?0:n).padStart(2,'0')}).join(' ');
   }
   window.thorCopiarNumerosCard=numerosDoCard;
   function jogosDaTela(){
