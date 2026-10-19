@@ -6,7 +6,7 @@
   function numerosDoCard(card){
     var nums=Array.from(card.querySelectorAll('.balls .ball')).map(function(ball){
       var valor=(ball.textContent||'').trim();
-      if(!/^\\d{1,3}$/.test(valor))return NaN;
+      if(!/^\d{1,3}$/.test(valor))return NaN;
       return Number(valor);
     });
     var lot=document.getElementById('lot'),tipo=lot&&lot.value;
