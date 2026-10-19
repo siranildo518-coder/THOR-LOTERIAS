@@ -13245,7 +13245,7 @@ document.getElementById('thorShareJogosX').onclick=thorFecharShareJogos;
 document.getElementById('thorShareJogosNao').onclick=thorFecharShareJogos;
 thorShareOverlay.addEventListener('click',e=>{if(e.target===thorShareOverlay)thorFecharShareJogos()});
 document.getElementById('floatingShare').addEventListener('click',function(){
-  thorShareTexto=(lastGames||[]).map(game=>game.slice().sort((a,b)=>(a===100?0:a)-(b===100?0:b)).map(n=>String(n===100?0:n).padStart(2,'0')).join(' ')).join('\n');
+  thorShareTexto=(lastGames||[]).map(game=>game.slice().sort((a,b)=>a-b).map(n=>String(n===100?0:n).padStart(2,'0')).join(' ')).join('\n');
   if(!thorShareTexto){alert('Gere os jogos antes de compartilhar.');return}
   thorShareOverlay.style.display='flex';
 });
