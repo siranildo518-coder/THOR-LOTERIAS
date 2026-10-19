@@ -11359,8 +11359,9 @@ function applySliderCount(n){
   const novaSelecao = new Set(fixedNums);
   const limiteAtual = parseInt(slider.max,10) || 100;
   for(let i=1; novaSelecao.size < targetCount && i<=limiteAtual; i++){
-    if(excludedNums.has(i)) continue;
-    novaSelecao.add(i);
+    const dezena = i===100 ? 0 : i; // Lotomania: a 100ª bolinha é 00
+    if(excludedNums.has(dezena)) continue;
+    novaSelecao.add(dezena);
   }
   selected = novaSelecao;
   document.querySelectorAll('.ball').forEach(b=>{
