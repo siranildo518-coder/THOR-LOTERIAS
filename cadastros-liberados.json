@@ -2286,6 +2286,13 @@
       "criadoEm": "2026-10-20T19:50:39.411Z",
       "expiraEm": "2026-10-21T19:50:39.411Z",
       "ativo": true
+    },
+    {
+      "hash": "2462cc469faf26ba6c787687e2fdf0c112e3f1d2d900c2c6ac66d2b4d8ff17eb",
+      "compatHash": "ufmwis",
+      "criadoEm": "2026-10-20T19:52:54.203Z",
+      "expiraEm": "2026-10-21T19:52:54.203Z",
+      "ativo": true
     }
   ]
 }
