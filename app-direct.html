@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v316-testar-20261021'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v317-gerar-sem-percentuais-20261021'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3910,7 +3910,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V316 · Base V240 · Testar 02</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V317 · Base V240</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -10100,24 +10100,9 @@ async function atualizarTopoPreview(){
       return `<span class="tend-ball" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;width:28px;height:28px;border-radius:50%;margin-right:4px;margin-bottom:4px;--thor-gerar-cor:${cor};background:${cor};color:${corTexto};border-color:transparent;">${l.n.toString().padStart(2,'0')}</span>`;
     }).join('');
 
-    const listaPct = top.map(l=>`
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-        <div style="width:22px;height:22px;border-radius:7px;padding:1.5px;background:linear-gradient(135deg,#FCA5A5,#DC2626);flex:none;">
-          <div style="width:100%;height:100%;border-radius:5.5px;background:linear-gradient(135deg,#FEE2E2,#FCA5A5);display:flex;align-items:center;justify-content:center;">
-            <span style="font-family:'Baloo 2',sans-serif;font-weight:700;font-size:10px;color:#991B1B;">${l.n.toString().padStart(2,'0')}</span>
-          </div>
-        </div>
-        <div style="flex:1;height:4px;border-radius:3px;background:var(--ball-off);overflow:hidden;">
-          <div style="height:100%;border-radius:3px;width:${pctExibicao(l.pct)}%;background:linear-gradient(90deg,var(--magenta),var(--violet));"></div>
-        </div>
-        <span style="font-size:11px;font-weight:700;color:var(--violet-deep);width:30px;flex:none;text-align:right;">${pctExibicao(l.pct)}%</span>
-      </div>`).join('');
-
     preview.innerHTML = `
       <div style="font-size:11.5px;color:var(--muted);margin-bottom:6px;">Dezenas selecionadas com esse filtro (em ordem sequencial — azul mais escuro = maior chance de falhar):</div>
-      <div style="display:flex;align-items:center;flex-wrap:wrap;margin-bottom:12px;">${bolas}</div>
-      <div style="font-size:11.5px;color:var(--muted);margin-bottom:6px;">Chance de falha — da maior para a menor:</div>
-      <div>${listaPct}</div>`;
+      <div style="display:flex;align-items:center;flex-wrap:wrap;margin-bottom:12px;">${bolas}</div>`;
     preview.dataset.playGame=g.code;
     const playReady=document.getElementById('thorGerarPlay');if(playReady)playReady.disabled=false;
   }catch(e){
