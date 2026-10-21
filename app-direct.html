@@ -3910,7 +3910,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V315 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V315 · Base V240 · Testar 01</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -16459,9 +16459,13 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
 #gerarPanel .thor-gerar-play-row #gerarTopoInput{margin:0!important;flex:0 0 92px}
 #gerarPanel #thorGerarPlay{min-height:34px;padding:7px 18px;border-radius:12px;border:1px solid #8bffd4;background:linear-gradient(#3dff9c,#00ae62 50%,#006339);color:#fff;font-weight:800;box-shadow:inset 0 2px 3px #ffffff88;cursor:pointer}
 #gerarPanel #thorGerarPlay:disabled{opacity:.45;cursor:default}
+#gerarPanel #thorGerarTestar{min-height:34px;padding:7px 14px;border-radius:12px;border:1px solid #a8ced5;background:linear-gradient(#fff,#d6e5eb 50%,#a9bdc8);color:#17384a;font-weight:800;box-shadow:inset 0 2px 3px #ffffff88;cursor:pointer}
+#gerarPanel .thor-gerar-play-row{gap:8px}
+#gerarPanel .thor-gerar-play-row #thorGerarPlay,#gerarPanel .thor-gerar-play-row #thorGerarTestar{flex:0 1 auto;min-width:0}
+
 </style>
 <script id="thorGerarPlayMontarV210">
-(function(){function montar(){var input=document.getElementById('gerarTopoInput');if(!input||document.getElementById('thorGerarPlay'))return false;var row=document.createElement('div');row.className='thor-gerar-play-row';input.parentNode.insertBefore(row,input);row.appendChild(input);var b=document.createElement('button');b.id='thorGerarPlay';b.type='button';b.textContent='▶ Play';b.disabled=!document.getElementById('gerarTopoPreview').dataset.playGame;row.appendChild(b);return true}
+(function(){function montar(){var input=document.getElementById('gerarTopoInput');if(!input||document.getElementById('thorGerarPlay'))return false;var row=document.createElement('div');row.className='thor-gerar-play-row';input.parentNode.insertBefore(row,input);row.appendChild(input);var b=document.createElement('button');b.id='thorGerarPlay';b.type='button';b.textContent='▶ Play';b.disabled=!document.getElementById('gerarTopoPreview').dataset.playGame;row.appendChild(b);var testar=document.createElement('button');testar.id='thorGerarTestar';testar.type='button';testar.textContent='Testar';row.appendChild(testar);return true}
 if(!montar()){var o=new MutationObserver(function(){if(montar())o.disconnect()});o.observe(document.documentElement,{childList:true,subtree:true})}})();
 </script>
 
