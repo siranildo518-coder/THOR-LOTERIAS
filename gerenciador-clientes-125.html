@@ -19,7 +19,7 @@
     .config{margin-top:24px;border-top:1px solid #ece7f2;padding-top:16px}.config summary{cursor:pointer;color:var(--roxo);font-weight:800}
     .info{margin-top:16px;min-height:46px;padding:12px;border-radius:12px;background:#f5f1fb;color:#635a70;line-height:1.45}.info.ok{background:#e7f8ed;color:#126833}.info.erro{background:#fff0f0;color:#a61d27}
     .nota{font-size:12px;color:#81798b;margin-top:10px;line-height:1.4}.tag{display:inline-block;background:#eee8f8;color:#5b21b6;border-radius:999px;padding:4px 9px;font-weight:700;margin-top:8px}
-    .clientes{margin-top:22px;border-top:1px solid #ece7f2;padding-top:18px}.clientes-topo{display:flex;align-items:center;justify-content:space-between;gap:10px}.clientes h2{margin:0;color:var(--roxo);font-size:19px}.atualizar{height:38px;padding:0 13px;background:linear-gradient(#7950d7,#4d1c9c);box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:12px}.lista{display:grid;gap:9px;margin-top:13px}.cliente{border:1px solid #e5dfec;border-radius:13px;padding:11px;background:#fbfaff}.cliente-linha{display:flex;align-items:center;justify-content:space-between;gap:8px}.cliente strong{font-size:15px}.codigo{font:11px monospace;color:#81798b;margin-top:4px}.protegida{color:#6a6175;font-size:12px}.acoes{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.redefinir,.ver,.remover,.liberar{height:32px;padding:0 8px;border-radius:8px;box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:10px}.redefinir{background:linear-gradient(#7c2be8,#5317ac)}.ver{background:linear-gradient(#2686dc,#14549a)}.remover{background:linear-gradient(#ee5353,#aa2028)}.liberar{background:linear-gradient(#f3a51f,#c66a00)}.navegador{background:linear-gradient(#18a86b,#08734a)}.vazio{color:#81798b;text-align:center;padding:14px}
+    .clientes{margin-top:22px;border-top:1px solid #ece7f2;padding-top:18px}.clientes-topo{display:flex;align-items:center;justify-content:space-between;gap:10px}.clientes h2{margin:0;color:var(--roxo);font-size:19px}.atualizar{height:38px;padding:0 13px;background:linear-gradient(#7950d7,#4d1c9c);box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:12px}.lista{display:grid;gap:9px;margin-top:13px}.cliente{border:1px solid #e5dfec;border-radius:13px;padding:11px;background:#fbfaff}.cliente-linha{display:flex;align-items:center;justify-content:space-between;gap:8px}.cliente strong{font-size:15px}.versao-status{font-size:11px;margin-top:7px;padding:5px 7px;border-radius:7px;background:#eee;color:#555;line-height:1.4}.versao-status.ok{background:#e0f7e9;color:#09662e}.versao-status.antiga{background:#ffe7e7;color:#a51622}.versao-status.pendente{background:#fff3d5;color:#825500}.codigo{font:11px monospace;color:#81798b;margin-top:4px}.protegida{color:#6a6175;font-size:12px}.acoes{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.redefinir,.ver,.remover,.liberar{height:32px;padding:0 8px;border-radius:8px;box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:10px}.redefinir{background:linear-gradient(#7c2be8,#5317ac)}.ver{background:linear-gradient(#2686dc,#14549a)}.remover{background:linear-gradient(#ee5353,#aa2028)}.liberar{background:linear-gradient(#f3a51f,#c66a00)}.navegador{background:linear-gradient(#18a86b,#08734a)}.vazio{color:#81798b;text-align:center;padding:14px}
     @media(max-width:380px){.linha{grid-template-columns:1fr}.card{padding:20px 16px}}
   </style>
 </head>
@@ -51,7 +51,7 @@
         <button class="atualizar" id="carregarClientes" type="button">ATUALIZAR</button>
       </div>
       <p class="nota">Senhas novas criadas neste gerenciador podem ser visualizadas somente neste aparelho. Para senhas antigas indisponíveis, use “Redefinir”.</p>
-      <div id="listaClientes" class="lista"><div class="vazio">Toque em ATUALIZAR para ver os clientes.</div></div>
+      <p class="nota" id="resumoVersoes">Versões: aguardando consulta.</p><div id="listaClientes" class="lista"><div class="vazio">Toque em ATUALIZAR para ver os clientes.</div></div>
     </section>
 
     <details class="config">
@@ -247,11 +247,50 @@
       return clientes;
     }
 
+    const THOR_FIREBASE_KEY='AIzaSyB3C4umom-ke5d339tcDgRD3A9Oqg4OydE';
+    async function obterPresencas(){
+      // A leitura respeita as regras do Firestore. Nunca exibe um status inventado.
+      const auth=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+THOR_FIREBASE_KEY,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({returnSecureToken:true}),cache:'no-store'
+      });
+      if(!auth.ok)throw Error('Autenticação da presença indisponível');
+      const cred=await auth.json();
+      const res=await fetch('https://firestore.googleapis.com/v1/projects/thor-loterias/databases/(default)/documents/presenca_online?pageSize=1000',{
+        headers:{Authorization:'Bearer '+cred.idToken},cache:'no-store'
+      });
+      if(!res.ok)throw Error('Sem permissão para consultar presença ('+res.status+')');
+      const data=await res.json();
+      const mapa=new Map();
+      for(const doc of data.documents||[]){
+        const f=doc.fields||{},hash=f.contaHash?.stringValue;
+        if(!hash)continue;
+        const ts=Date.parse(f.ultimaAtividade?.timestampValue||doc.updateTime||'')||0;
+        const anterior=mapa.get(hash);
+        if(!anterior||ts>anterior.ts)mapa.set(hash,{ts,versao:f.versaoApp?.stringValue||'',plataforma:f.plataforma?.stringValue||'',online:f.online?.booleanValue===true});
+      }
+      return mapa;
+    }
+    function formatarStatusVersao(cliente,versaoAtual,presencas,erro){
+      if(erro)return {classe:'pendente',texto:'Versão: não verificada — '+erro};
+      const p=presencas.get(cliente.hash);
+      if(!p)return {classe:'pendente',texto:'Versão: sem registro (cliente ainda não comunicou)'};
+      const recente=p.ts&&Date.now()-p.ts<180000;
+      const data=p.ts?new Date(p.ts).toLocaleString('pt-BR'):'não informada';
+      if(!p.versao)return {classe:'pendente',texto:'Versão: não informada • Última atividade: '+data};
+      const atualizado=p.versao===versaoAtual;
+      return {classe:atualizado?'ok':'antiga',texto:(atualizado?'ATUALIZADO':'DESATUALIZADO')+' • '+p.versao+' • '+(p.plataforma||'Dispositivo não identificado')+' • '+(recente&&p.online?'Online':'Última atividade: '+data)};
+    }
     async function carregarClientes(){
       const area=$('listaClientes');area.innerHTML='<div class="vazio">Carregando clientes…</div>';
       try{
         const atual=await github('app-main.html?ref=main');
-        const clientes=extrairClientes(base64ParaUtf8(atual.content));
+        const textoApp=base64ParaUtf8(atual.content);
+        const clientes=extrairClientes(textoApp);
+        const versaoAtual=(textoApp.match(/const APP_VERSAO_ATUAL\\s*=\\s*['"]([^'"]+)/)||[])[1]||'';
+        let presencas=new Map(),erroPresenca='';
+        try{presencas=await obterPresencas()}catch(e){erroPresenca=e.message||'consulta indisponível'}
+        let atualizados=0,antigos=0,pendentes=0;
+        $('resumoVersoes').textContent=erroPresenca?'Consulta de versões indisponível: '+erroPresenca:'Versão oficial: '+(versaoAtual||'não identificada');
         if(!clientes.length){area.innerHTML='<div class="vazio">Nenhum cliente encontrado.</div>';return}
         area.innerHTML='';
         clientes.forEach(cliente=>{
@@ -261,6 +300,9 @@
           const nome=document.createElement('strong');nome.textContent=cliente.nome;
           const senha=document.createElement('div');senha.className='protegida';senha.textContent='Senha: ••••••';
           const codigo=document.createElement('div');codigo.className='codigo';codigo.textContent='Código: '+cliente.hash;
+          const infoVersao=formatarStatusVersao(cliente,versaoAtual,presencas,erroPresenca);
+          const statusVersao=document.createElement('div');statusVersao.className='versao-status '+infoVersao.classe;statusVersao.textContent=infoVersao.texto;
+          if(infoVersao.classe==='ok')atualizados++;else if(infoVersao.classe==='antiga')antigos++;else pendentes++;
           const acoes=document.createElement('div');acoes.className='acoes';
           const ver=document.createElement('button');ver.type='button';ver.className='ver';ver.textContent='VER SENHA';
           ver.onclick=()=>{if(cliente.senha){senha.textContent='Senha: '+cliente.senha;setTimeout(()=>senha.textContent='Senha: ••••••',10000)}else alert('A senha antiga não pode ser recuperada. Use Redefinir.')};
@@ -269,8 +311,9 @@
           const liberar=document.createElement('button');liberar.type='button';liberar.className='liberar';liberar.textContent='LIBERAR APARELHO';liberar.onclick=()=>liberarAparelho(cliente);
           const navegador=document.createElement('button');navegador.type='button';navegador.className='navegador';navegador.textContent='ACESSO NAVEGADOR';navegador.onclick=()=>alternarAcessoNavegador(cliente,navegador);
           atualizarBotaoNavegador(cliente,navegador);
-          acoes.append(ver,redefinir,liberar,navegador,remover);dados.append(nome,senha,codigo);linha.append(dados,acoes);item.append(linha);area.append(item);
+          acoes.append(ver,redefinir,liberar,navegador,remover);dados.append(nome,senha,codigo,statusVersao);linha.append(dados,acoes);item.append(linha);area.append(item);
         });
+        $('resumoVersoes').textContent+=' • Atualizados: '+atualizados+' • Desatualizados: '+antigos+' • Sem confirmação: '+pendentes;
       }catch(e){area.innerHTML='<div class="vazio">'+String(e.message||e)+'</div>';mostrar(String(e.message||e),'erro')}
     }
 
