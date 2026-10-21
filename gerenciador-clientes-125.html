@@ -286,7 +286,7 @@
         const atual=await github('app-main.html?ref=main');
         const textoApp=base64ParaUtf8(atual.content);
         const clientes=extrairClientes(textoApp);
-        const versaoAtual=(textoApp.match(/const APP_VERSAO_ATUAL\\s*=\\s*['"]([^'"]+)/)||[])[1]||'';
+        const versaoAtual=(textoApp.match(/const APP_VERSAO_ATUAL\s*=\s*['"]([^'"]+)/)||[])[1]||'';
         let presencas=new Map(),erroPresenca='';
         try{presencas=await obterPresencas()}catch(e){erroPresenca=e.message||'consulta indisponível'}
         let atualizados=0,antigos=0,pendentes=0;
