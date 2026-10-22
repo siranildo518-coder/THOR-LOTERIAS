@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-10-22T00:43:43.804080+00:00",
+  "atualizadoEm": "2026-10-22T05:27:10.771200+00:00",
   "fonte": "CAIXA; fontes complementares indicadas por resultado quando API atrasada",
   "resultados": {
     "megasena": {
@@ -47,55 +47,55 @@
       ]
     },
     "diadesorte": {
-      "concurso": 1327,
-      "data": "20/10/2026",
+      "concurso": 1328,
+      "data": "21/10/2026",
       "dezenas": [
-        10,
-        11,
-        20,
-        22,
+        3,
+        4,
+        5,
+        15,
         23,
-        24,
-        26
+        28,
+        31
       ],
-      "mesSorte": "Março"
+      "mesSorte": "Novembro"
     },
     "lotomania": {
-      "concurso": 2989,
-      "data": "19/10/2026",
+      "concurso": 2990,
+      "data": "21/10/2026",
       "dezenas": [
+        4,
         6,
+        11,
+        19,
         25,
-        26,
+        27,
+        29,
         32,
-        45,
-        46,
-        49,
-        50,
-        51,
-        53,
-        58,
-        62,
-        74,
-        77,
-        85,
-        90,
-        91,
-        92,
-        96,
+        35,
+        37,
+        42,
+        52,
+        63,
+        66,
+        67,
+        70,
+        76,
+        80,
+        81,
         99
       ]
     },
     "supersete": {
-      "concurso": 912,
-      "data": "19/10/2026",
+      "concurso": 913,
+      "data": "21/10/2026",
       "dezenas": [
         5,
-        8,
-        2,
         9,
-        3,
         7,
+        9,
+        5,
+        8,
         2
       ]
     },
@@ -114,23 +114,23 @@
       "timeCoracao": "PORTO VELHO      /RO"
     },
     "duplasena": {
-      "concurso": 3022,
-      "data": "19/10/2026",
+      "concurso": 3023,
+      "data": "21/10/2026",
       "dezenas": [
-        14,
-        29,
-        32,
-        38,
-        39,
-        42
+        8,
+        12,
+        20,
+        43,
+        47,
+        50
       ],
       "dezenasSegundoSorteio": [
-        23,
-        25,
-        26,
-        37,
+        21,
+        34,
         41,
-        42
+        45,
+        46,
+        50
       ]
     }
   }
