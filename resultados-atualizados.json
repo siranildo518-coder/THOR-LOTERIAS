@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-10-21T22:14:14.418831+00:00",
+  "atualizadoEm": "2026-10-22T00:43:43.804080+00:00",
   "fonte": "CAIXA; fontes complementares indicadas por resultado quando API atrasada",
   "resultados": {
     "megasena": {
@@ -15,35 +15,35 @@
       ]
     },
     "lotofacil": {
-      "concurso": 3809,
-      "data": "20/10/2026",
+      "concurso": 3810,
+      "data": "21/10/2026",
       "dezenas": [
         1,
-        3,
-        4,
         5,
         6,
-        8,
-        9,
+        7,
+        10,
         11,
+        14,
+        15,
+        16,
         17,
         18,
         19,
         20,
-        21,
         23,
-        25
+        24
       ]
     },
     "quina": {
-      "concurso": 7147,
-      "data": "20/10/2026",
+      "concurso": 7148,
+      "data": "21/10/2026",
       "dezenas": [
-        5,
-        21,
-        44,
-        50,
-        57
+        13,
+        16,
+        55,
+        72,
+        74
       ]
     },
     "diadesorte": {
