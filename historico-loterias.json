@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-10-23T00:59:42.880804+00:00",
+  "atualizadoEm": "2026-10-23T05:56:38.411991+00:00",
   "fonte": "API oficial Loterias CAIXA",
   "loterias": {
     "megasena": [
@@ -4410,6 +4410,19 @@
     ],
     "diadesorte": [
       {
+        "concurso": 1329,
+        "data": "22/10/2026",
+        "dezenas": [
+          1,
+          6,
+          7,
+          9,
+          25,
+          29,
+          31
+        ]
+      },
+      {
         "concurso": 1328,
         "data": "21/10/2026",
         "dezenas": [
@@ -5694,19 +5707,6 @@
           17,
           18,
           27
-        ]
-      },
-      {
-        "concurso": 1229,
-        "data": "23/06/2026",
-        "dezenas": [
-          1,
-          11,
-          12,
-          18,
-          27,
-          28,
-          31
         ]
       }
     ],
