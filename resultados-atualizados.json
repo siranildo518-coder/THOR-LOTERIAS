@@ -1,61 +1,61 @@
 {
-  "atualizadoEm": "2026-10-22T22:42:38.397011+00:00",
+  "atualizadoEm": "2026-10-23T00:59:40.265040+00:00",
   "fonte": "CAIXA; fontes complementares indicadas por resultado quando API atrasada",
   "resultados": {
     "megasena": {
-      "concurso": 3072,
-      "data": "20/10/2026",
+      "concurso": 3073,
+      "data": "22/10/2026",
       "dezenas": [
-        2,
-        6,
-        9,
-        16,
-        31,
-        40
+        4,
+        13,
+        23,
+        28,
+        41,
+        58
       ]
     },
     "lotofacil": {
-      "concurso": 3810,
-      "data": "21/10/2026",
+      "concurso": 3811,
+      "data": "22/10/2026",
       "dezenas": [
         1,
+        3,
         5,
-        6,
         7,
+        8,
+        9,
         10,
         11,
-        14,
+        12,
         15,
         16,
-        17,
         18,
         19,
-        20,
         23,
-        24
+        25
       ]
     },
     "quina": {
-      "concurso": 7148,
-      "data": "21/10/2026",
+      "concurso": 7149,
+      "data": "22/10/2026",
       "dezenas": [
-        13,
-        16,
-        55,
-        72,
-        74
+        12,
+        53,
+        54,
+        58,
+        75
       ]
     },
     "diadesorte": {
-      "concurso": 1328,
-      "data": "21/10/2026",
+      "concurso": 1329,
+      "data": "22/10/2026",
       "dezenas": [
-        3,
-        4,
-        5,
-        15,
-        23,
-        28,
+        1,
+        6,
+        7,
+        9,
+        25,
+        29,
         31
       ],
       "mesSorte": "Novembro"
@@ -100,18 +100,18 @@
       ]
     },
     "timemania": {
-      "concurso": 2457,
-      "data": "20/10/2026",
+      "concurso": 2458,
+      "data": "22/10/2026",
       "dezenas": [
-        25,
-        28,
-        51,
-        53,
-        56,
+        14,
+        45,
+        49,
+        52,
+        55,
         59,
-        69
+        80
       ],
-      "timeCoracao": "PORTO VELHO      /RO"
+      "timeCoracao": "TOMBENSE         /MG"
     },
     "duplasena": {
       "concurso": 3023,
