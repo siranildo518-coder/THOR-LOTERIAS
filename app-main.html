@@ -3882,6 +3882,37 @@ width:clamp(19px,5vw,30px)!important;height:clamp(19px,5vw,30px)!important;
 max-width:30px!important;max-height:30px!important;font-size:10px!important;
 }
 #quentePanel .qf-foto-rodapes{position:relative!important;z-index:1!important}
+</style><style id="thorQuenteBolasAbaixoV343">
+/* Bolinhas em linha própria: nunca sobrepor o texto ilustrado. O rodapé desce no fluxo. */
+#quentePanel .qf-foto-resultados{
+ position:relative!important;top:auto!important;left:auto!important;right:auto!important;
+ width:100%!important;height:auto!important;min-height:34px!important;
+ margin:0!important;padding:2px 2.3% 3px!important;box-sizing:border-box!important;
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ align-items:start!important;gap:0!important;overflow:visible!important;
+ background:linear-gradient(90deg,#330405 0%,#240203 49.8%,#00361c 50.2%,#002f1a 100%)!important;
+ border:0!important;box-shadow:none!important;pointer-events:auto!important;
+}
+#quentePanel .qf-foto-resultados>.qf-foto-normal,
+#quentePanel .qf-foto-resultados>.qf-foto-reversa{
+ min-width:0!important;padding:0 3%!important;margin:0!important;
+ background:none!important;border:0!important;box-shadow:none!important;
+ overflow:visible!important;
+}
+#quentePanel .qf-foto-resultados .qf-bolas{
+ display:flex!important;flex-wrap:wrap!important;justify-content:flex-start!important;
+ align-content:flex-start!important;gap:3px 5px!important;padding:0!important;
+ margin:0!important;background:none!important;overflow:visible!important;
+}
+#quentePanel .qf-foto-resultados .thor-quente-falha-item{
+ width:clamp(19px,5vw,27px)!important;max-width:27px!important;
+ height:auto!important;flex:0 0 auto!important;margin:0!important;
+}
+#quentePanel .qf-foto-resultados .thor-quente-falha-bola{
+ width:clamp(19px,5vw,27px)!important;height:clamp(19px,5vw,27px)!important;
+ max-width:27px!important;max-height:27px!important;font-size:10px!important;
+}
+#quentePanel .qf-foto-rodapes{position:relative!important;top:auto!important;margin:0!important;z-index:1!important}
 </style></head>
 <body>
 <div class="app">
