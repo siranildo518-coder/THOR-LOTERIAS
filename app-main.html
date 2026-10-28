@@ -3918,9 +3918,9 @@ html body #overlayGeradorFiltro .gfc-dark-input-wrap>button,html body #overlayGe
 html body #overlayGeradorFiltro #gfcLimparFiltrosBtn,html body #overlayGeradorFiltro #geradorFiltroGerarBtn{font-size:clamp(13px,3vw,21px)!important;height:46px!important}
 @media(prefers-reduced-motion:reduce){html body #overlayGeradorFiltro #geradorFiltroAnalise .gfc-rep-slide343{animation:none!important}}
 </style><style id="fechamentoSalvosRetiradoV344">
-html body #overlayGeradorFiltro #geradorFiltroTabJogos,
-html body #gfcJogosSalvosTela{display:none!important}
-html body #overlayGeradorFiltro #geradorFiltroTabConfig{flex:1!important;width:100%!important}
+html body #overlayGeradorFiltro #geradorFiltroTabJogos{display:block!important;flex:1!important}
+html body #gfcJogosSalvosTela:not([style*='display: flex']):not([style*='display:flex']){display:none!important}
+html body #overlayGeradorFiltro #geradorFiltroTabConfig{flex:1!important}
 </style></head>
 <body>
 <div class="app">
@@ -8887,7 +8887,7 @@ async function carregarResultadoSalvos(numero){
   }
 }
 function mostrarJogosSalvosFechamento(){
-  return; // V344: tela antiga retirada para substituição do design; registros preservados.
+  // V348 teste: reativar visualização de jogos salvos por modalidade.
   gfcSalvosNomeAberto=null;gfcSalvosMenuAberto=false;
   const g=geradorGameAtual;
   gfcSalvosResultado=geradorUltimoResultado?.gameCode===g?.code?{
@@ -8898,6 +8898,24 @@ function mostrarJogosSalvosFechamento(){
   gfcSalvosErro='';
   montarResultadoSalvos();
   const tela=document.getElementById('gfcJogosSalvosTela');
+  let seletor=document.getElementById('thorFechLoterias');
+  if(!seletor){
+    seletor=document.createElement('nav');seletor.id='thorFechLoterias';
+    seletor.setAttribute('aria-label','Loterias dos jogos salvos');
+    GERADOR_GAMES.forEach(loteria=>{
+      const botao=document.createElement('button');botao.type='button';botao.textContent=loteria.nome;
+      botao.dataset.code=loteria.code;
+      botao.addEventListener('click',()=>{
+        geradorGameAtual=loteria;
+        gfcSalvosResultado=null;gfcSalvosErro='';
+        montarResultadoSalvos();carregarResultadoSalvos();
+        seletor.querySelectorAll('button').forEach(b=>b.classList.toggle('ativo',b.dataset.code===loteria.code));
+      });
+      seletor.appendChild(botao);
+    });
+    tela.querySelector('header').after(seletor);
+  }
+  seletor.querySelectorAll('button').forEach(b=>b.classList.toggle('ativo',b.dataset.code===g?.code));
   if(tela.style.display!=='flex'){
     try{history.pushState({thorJogosSalvos:true},'',location.href)}catch(_){}
     tela.style.display='flex';
