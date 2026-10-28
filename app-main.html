@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v343-quente-20261028'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v344-quente-20261028'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3917,6 +3917,10 @@ html body #overlayGeradorFiltro #geradorFiltroConfigAvancada .gfc-dark-title,htm
 html body #overlayGeradorFiltro .gfc-dark-input-wrap>button,html body #overlayGeradorFiltro .gfc-dark-input-wrap>input{font-size:clamp(12px,2.8vw,18px)!important;height:40px!important}
 html body #overlayGeradorFiltro #gfcLimparFiltrosBtn,html body #overlayGeradorFiltro #geradorFiltroGerarBtn{font-size:clamp(13px,3vw,21px)!important;height:46px!important}
 @media(prefers-reduced-motion:reduce){html body #overlayGeradorFiltro #geradorFiltroAnalise .gfc-rep-slide343{animation:none!important}}
+</style><style id="fechamentoSalvosRetiradoV344">
+html body #overlayGeradorFiltro #geradorFiltroTabJogos,
+html body #gfcJogosSalvosTela{display:none!important}
+html body #overlayGeradorFiltro #geradorFiltroTabConfig{flex:1!important;width:100%!important}
 </style></head>
 <body>
 <div class="app">
@@ -4194,7 +4198,7 @@ html body #overlayGeradorFiltro #gfcLimparFiltrosBtn,html body #overlayGeradorFi
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V343 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V344 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -8883,6 +8887,7 @@ async function carregarResultadoSalvos(numero){
   }
 }
 function mostrarJogosSalvosFechamento(){
+  return; // V344: tela antiga retirada para substituição do design; registros preservados.
   gfcSalvosNomeAberto=null;gfcSalvosMenuAberto=false;
   const g=geradorGameAtual;
   gfcSalvosResultado=geradorUltimoResultado?.gameCode===g?.code?{
