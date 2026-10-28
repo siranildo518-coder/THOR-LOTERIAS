@@ -3753,7 +3753,15 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
 #quentePanel .qf-foto-resultados .thor-quente-falha-bola.thor-falhou-cinza{background:radial-gradient(circle at 30% 18%,#eee,#777 35%,#292929 75%,#050505)!important;color:white!important;text-shadow:none!important}
 #quentePanel .qf-foto-resultados .thor-falhou-label{display:none!important}
 #quentePanel .qf-foto-resultados .res-loading,#quentePanel .qf-foto-resultados .res-error{font:10px/1.3 Arial!important;padding:7px 3px!important;color:white!important}
-</style></head>
+<style id="thorQuenteCompactoSemFaixasV328">
+/* Ajuste exclusivo do Quente: manter a arte original e reduzir espaços vazios. */
+#quentePanel .qf-foto-exata{margin:2px 0 4px!important;background:#003b2b!important;overflow:hidden!important}
+#quentePanel .qf-foto-resultados{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:0!important;padding:0!important;background:linear-gradient(90deg,#630006 0 50%,#004c20 50% 100%)!important}
+#quentePanel .qf-foto-resultados>div{box-sizing:border-box!important;min-width:0!important;min-height:0!important;padding:2px 3%!important;border-width:1px!important}
+#quentePanel .qf-foto-resultados .qf-bolas{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:3px 2px!important;margin:0!important;padding:1px 0!important;align-content:start!important}
+#quentePanel .qf-foto-resultados .thor-quente-falha-bola{width:83%!important;max-width:45px!important;margin:auto!important;font-size:clamp(9px,2.35vw,17px)!important}
+#quentePanel .qf-foto-resultados .thor-quente-falha-item{min-width:0!important}
+</style></style></head>
 <body>
 <div class="app">
 
