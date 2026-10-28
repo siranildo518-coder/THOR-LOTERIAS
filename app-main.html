@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v334-quente-20261028'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v335-quente-20261028'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3796,6 +3796,15 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
 #quentePanel .qf-foto-resultados .thor-quente-falha-bola::before,#quentePanel .qf-foto-resultados .thor-quente-falha-bola::after{content:none!important;display:none!important}
 #quentePanel .qf-foto-resultados .qf-foto-reversa .thor-quente-falha-bola{width:min(100%,30px)!important;max-width:30px!important}
 #quentePanel .qf-foto-rodapes{clear:both!important}
+</style><style id="thorQuenteFaixaContidaV335">
+/* Faixa de resultados limitada à largura da arte e bolas do tamanho do exemplo inferior. */
+#quentePanel,#quentePanel .qf-foto-exata,#quentePanel .qf-foto-resultados{box-sizing:border-box!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important}
+#quentePanel .qf-foto-resultados{width:100%!important;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:0!important;margin:0!important;padding:0!important;overflow:hidden!important}
+#quentePanel .qf-foto-resultados>.qf-foto-normal,#quentePanel .qf-foto-resultados>.qf-foto-reversa{box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important;padding:3px 4%!important;margin:0!important;box-shadow:none!important}
+#quentePanel .qf-foto-resultados .qf-bolas{box-sizing:border-box!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:3px 1px!important;max-width:100%!important;min-width:0!important;width:100%!important;padding:0!important;margin:0!important}
+#quentePanel .qf-foto-resultados .thor-quente-falha-item{box-sizing:border-box!important;min-width:0!important;width:100%!important;max-width:100%!important;overflow:hidden!important;display:flex!important;align-items:center!important;justify-content:center!important}
+#quentePanel .qf-foto-resultados .thor-quente-falha-bola{box-sizing:border-box!important;width:min(6vw,25px)!important;max-width:25px!important;min-width:0!important;height:auto!important;aspect-ratio:1!important;padding:0!important;margin:0 auto!important;font:800 clamp(8px,2.1vw,11px)/1 Arial!important;flex:none!important;transform:none!important;border:1px solid #ffffff66!important;box-shadow:inset 0 1px 2px #ffffff33,0 1px 2px #0005!important}
+#quentePanel .qf-foto-resultados .thor-quente-falha-bola::before,#quentePanel .qf-foto-resultados .thor-quente-falha-bola::after{display:none!important;content:none!important}
 </style></head>
 <body>
 <div class="app">
@@ -4073,7 +4082,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V334 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V335 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
