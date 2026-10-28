@@ -16843,6 +16843,27 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
+
+<style id="thorAnaliseAtualizandoV340">#overlayTendencia button.thor-analise-atualizando{display:inline-flex!important;align-items:center;justify-content:center;gap:6px;white-space:nowrap}#overlayTendencia .thor-analise-spinner{display:inline-block;width:12px;height:12px;flex:0 0 12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:thorAnaliseSpin .65s linear infinite}@keyframes thorAnaliseSpin{to{transform:rotate(360deg)}}</style>
+<script id="thorAnaliseAtualizandoScriptV340">(function(){
+ document.addEventListener('click',function(e){
+  var b=e.target&&e.target.closest&&e.target.closest('button');
+  if(!b||!b.closest('#overlayTendencia')||b.dataset.thorAtualizando==='1')return;
+  var label=(b.textContent||'').trim();
+  if(!/^atualizar(?:\\s|$)/i.test(label))return;
+  b.dataset.thorAtualizando='1';
+  var anterior=b.innerHTML;
+  b.classList.add('thor-analise-atualizando');
+  b.innerHTML='<span class="thor-analise-spinner" aria-hidden="true"></span><span>Atualizando...</span>';
+  b.setAttribute('aria-busy','true');
+  setTimeout(function(){
+   b.innerHTML=anterior;
+   b.classList.remove('thor-analise-atualizando');
+   b.removeAttribute('aria-busy');
+   delete b.dataset.thorAtualizando;
+  },1600);
+ },true);
+})();</script>
 </body>
 </html>
 
