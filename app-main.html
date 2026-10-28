@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v332-quente-20261028'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v333-quente-20261028'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3771,6 +3771,21 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
 #quentePanel .qf-foto-instrucoes{aspect-ratio:1024/883!important;background-position-y:bottom!important}
 #quentePanel .qf-foto-resultados{width:100%!important;gap:0!important;padding:0!important;box-sizing:border-box!important}
 #quentePanel .qf-foto-resultados .thor-quente-falha-bola{width:80%!important;max-width:43px!important}
+</style><style id="thorQuenteLayoutReferenciaV333">
+/* Quente: compactação sem zoom, sem banner e sem transbordar cartões. */
+#quentePanel{min-width:0!important;overflow-x:clip!important}
+#quentePanel>.card{margin-bottom:5px!important}
+#quentePanel .qf-banner{display:none!important}
+#quentePanel .qf-foto-exata{width:100%!important;max-width:100%!important;margin:0!important;padding:0!important;background:transparent!important;box-sizing:border-box!important;overflow:hidden!important}
+#quentePanel .qf-recorte{width:100%!important;background-size:100% auto!important;background-position-x:center!important}
+#quentePanel .qf-foto-resultados{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important;gap:0!important;padding:0!important;margin:0!important;box-sizing:border-box!important;overflow:hidden!important}
+#quentePanel .qf-foto-resultados>div{box-sizing:border-box!important;min-width:0!important;max-width:100%!important;overflow:hidden!important;padding:1px 3%!important;border-width:1px!important}
+#quentePanel .qf-foto-resultados .qf-bolas{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:2px!important;padding:1px 0!important;margin:0!important}
+#quentePanel .qf-foto-resultados .thor-quente-falha-item{min-width:0!important;max-width:100%!important;overflow:hidden!important}
+#quentePanel .qf-foto-resultados .thor-quente-falha-bola{width:76%!important;max-width:37px!important;min-width:0!important;border-radius:50%!important;font-size:clamp(9px,2.2vw,15px)!important;box-shadow:inset 0 1px 2px #ffffff40,0 1px 2px #0006!important;text-shadow:none!important}
+#quentePanel .qf-foto-normal .thor-quente-falha-bola{background:radial-gradient(circle at 38% 28%,#ff9999 0%,#ee3939 42%,#b50000 80%,#790000 100%)!important}
+#quentePanel .qf-foto-reversa .thor-quente-falha-bola{background:radial-gradient(circle at 38% 28%,#a3ffc0 0%,#33ce73 45%,#007a38 85%,#005323 100%)!important}
+#quentePanel .qf-foto-resultados .thor-quente-falha-bola::before,#quentePanel .qf-foto-resultados .thor-quente-falha-bola::after{display:none!important;content:none!important}
 </style></head>
 <body>
 <div class="app">
@@ -4048,7 +4063,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V332 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V333 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -4478,7 +4493,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
     </div>
 
     <div id="quentePanel" style="display:none;">
-      <div class="qf-banner" role="img" aria-label="Tor Loterias — Falhas e Falhas Reversas"></div>
+      
       <div class="card">
         <div class="thor-quadro-falhas-nav"><button type="button" id="thorFalhasAnterior" aria-label="Concurso anterior e atualizar falhas">◀</button><div class="thor-quadro-falhas-heading">QUADRO DE FALHAS</div><button type="button" id="thorFalhasProximo" aria-label="Próximo concurso e atualizar falhas">▶</button></div>
 <div class="thor-quente-filtros"><div><label class="field-label" for="quenteQtdSelect">Últimos concursos</label><input type="number" id="quenteQtdSelect" class="qtd-pill" min="2" max="500" value="25" inputmode="numeric" aria-label="Quantidade de últimos concursos"></div><div><label class="field-label" for="quenteTopoSelect">Quantidade de dezenas</label><input type="hidden" id="quenteTopoSelect" value="8"><button type="button" id="thorQuantidadeFalhasAbrir" class="qtd-pill" aria-haspopup="dialog">8 dezenas de falha ▾</button><dialog id="thorQuantidadeFalhasDialog"><div class="thor-quantidade-titulo">Quantidade de falhas<button type="button" id="thorQuantidadeFalhasFechar" aria-label="Fechar">×</button></div><div id="thorQuantidadeFalhasGrade" role="group" aria-label="Quantidade de dezenas"></div></dialog></div></div>
