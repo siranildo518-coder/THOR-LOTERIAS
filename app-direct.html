@@ -1,4 +1,4 @@
-+<!DOCTYPE html>
+++<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <script id="thor-linhas-colunas-captura-prioritaria">(function(){
@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v324-falhas-20261028'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v325-falhas-20261028'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3682,6 +3682,61 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
 #quentePanel .qf-ajuda p{font:12px/1.45 Arial;margin:0 0 7px}
 #quentePanel .qf-ajuda small{font:10px/1.35 Arial;color:#d5e9f2;display:block}
 #quentePanel .qf-vazio,#quentePanel .qf-col .res-loading,#quentePanel .qf-col .res-error{font:11px/1.4 Arial;padding:10px 2px;color:#fff}
+</style><style id="qfCompletoV325">
+#quentePanel .qf-comparacao{gap:7px}
+#quentePanel .qf-col{border:3px solid #ffd378;outline:1px solid #fff6;box-shadow:inset 0 0 0 2px #fff7,inset 0 0 18px #ff3434aa,0 0 8px #ff303088;padding:9px 6px}
+#quentePanel .qf-reversa{border-color:#a5ff8f;box-shadow:inset 0 0 0 2px #fff7,inset 0 0 18px #20ff5aaa,0 0 8px #20ee6688}
+#quentePanel .qf-col h3{font-size:clamp(16px,4.3vw,34px);font-weight:1000;letter-spacing:-.6px;color:#ffe968;text-shadow:-1px -1px #fff8,1px 2px #7f4000,2px 3px #000}
+#quentePanel .qf-bolas{grid-template-columns:repeat(var(--qf-cols,4),minmax(0,1fr));gap:7px 2px}
+#quentePanel .qf-bolas .thor-quente-falha-bola{width:100%!important;max-width:42px!important;height:auto!important;aspect-ratio:1;font-size:clamp(10px,2.9vw,16px)!important}
+#quentePanel .qf-ajuda{display:flex;align-items:center;gap:9px;border:3px solid #ffd463;box-shadow:inset 0 0 0 2px #fff9,inset 0 0 15px #05afff;border-radius:18px;padding:11px 9px;margin-top:9px}
+#quentePanel .qf-alvo{font-size:clamp(35px,11vw,80px);filter:drop-shadow(0 3px 2px #000);flex:none}
+#quentePanel .qf-ajuda h3{font-weight:1000;font-size:clamp(17px,5vw,32px);color:#ffe665;text-shadow:1px 2px #573400,2px 3px #000;margin-bottom:5px}
+#quentePanel .qf-ajuda p{font-size:clamp(10px,2.6vw,14px);line-height:1.35;margin:0}
+#quentePanel .qf-estrategia{margin:10px 0;padding:5px;border:2px solid #ffe584;border-radius:19px;background:linear-gradient(120deg,#b16b00,#ffe779 18%,#684700 40%,#ffd544 72%,#6c4600);box-shadow:0 0 8px #ffc53188,inset 0 0 3px #fff}
+#quentePanel .qf-estrategia>h3{font:1000 clamp(15px,4.2vw,28px)/1.1 Arial;text-align:center;color:#090d17;text-shadow:0 1px #fff;margin:3px 0 7px}
+#quentePanel .qf-passos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}
+#quentePanel .qf-passos article{min-width:0;display:flex;flex-direction:column;align-items:center;border:1px solid #bde8fa;border-radius:11px;padding:6px 3px;background:linear-gradient(135deg,#fff,#e3f7ff 50%,#a9d6e9);box-shadow:inset 0 0 5px white;color:#061b35;text-align:center}
+#quentePanel .qf-passos header{width:100%;display:flex;flex-direction:column;align-items:center;gap:4px}
+#quentePanel .qf-num{display:flex;align-items:center;justify-content:center;width:23px;height:23px;border-radius:50%;color:#fff;font:bold 17px Arial;border:1px solid #fff;box-shadow:inset 0 2px 4px #fff8,0 2px 2px #0004}
+#quentePanel .qf-passos h4{font:900 clamp(8px,2.2vw,13px)/1.15 Arial;margin:0;min-height:25px;color:#071b35}
+#quentePanel .qf-icone{font-size:clamp(24px,6.5vw,45px);margin:7px 0}
+#quentePanel .qf-passos p{font:clamp(8px,2.1vw,12px)/1.3 Arial;color:#081d30;margin:5px 0 8px;overflow-wrap:break-word}
+#quentePanel .qf-acao{box-sizing:border-box;display:block;width:100%;margin-top:auto;border:1px solid #fff8;border-radius:7px;color:#fff;font:800 clamp(7px,1.9vw,11px)/1.15 Arial;padding:6px 1px;text-align:center;box-shadow:inset 0 2px 4px #fff7,0 2px 3px #0004}
+#quentePanel .qf-red{background:linear-gradient(#ff5145,#d90000 55%,#7d0000)}
+#quentePanel .qf-green{background:linear-gradient(#36ea62,#00992c 55%,#004922)}
+#quentePanel .qf-blue{background:linear-gradient(#4ce5ff,#007ae6 55%,#00348d)}
+#quentePanel .qf-orange{background:linear-gradient(#ffda43,#ff8600 55%,#b84300)}
+#quentePanel .qf-purple{background:linear-gradient(#e443ff,#8400e5 55%,#3c0090)}
+#quentePanel .qf-modalidades{width:100%;margin-top:4px}
+#quentePanel .qf-modalidades span{display:block;margin:2px 0;border-radius:3px;color:#fff;background:linear-gradient(#31b985,#00694d);font:bold clamp(6px,1.6vw,10px) Arial;padding:3px 0;white-space:nowrap}
+#quentePanel .qf-modalidades span:nth-child(2){background:linear-gradient(#ed4bd1,#9b0086)}
+#quentePanel .qf-modalidades span:nth-child(3){background:linear-gradient(#4278ff,#18239a)}
+#quentePanel .qf-modalidades span:nth-child(4){background:linear-gradient(#ffce40,#c47500)}
+#quentePanel .qf-modalidades span:nth-child(5){background:linear-gradient(#a339ff,#4b00b4)}
+#quentePanel .qf-modalidades span:nth-child(6){background:linear-gradient(#31d6ff,#0076a8)}
+#quentePanel .qf-modalidades span:nth-child(7){background:linear-gradient(#fb568d,#a90037)}
+#quentePanel .qf-modalidades span:nth-child(8){background:linear-gradient(#55b9ff,#005a9c)}
+#quentePanel .qf-rodape-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:6px;margin:10px 0 18px}
+#quentePanel .qf-exemplo,#quentePanel .qf-dicas{min-width:0;border:2px solid #e7caff;border-radius:15px;padding:6px 4px;background:linear-gradient(130deg,#7600bd,#310080);box-shadow:inset 0 0 7px #b838ff,0 0 6px #aa30ff;color:white}
+#quentePanel .qf-dicas{border-color:#72d8ff;background:linear-gradient(140deg,#00407d,#00102c);box-shadow:inset 0 0 8px #078aff,0 0 7px #006bff}
+#quentePanel .qf-rodape-grid h3{font:900 clamp(10px,2.7vw,18px)/1.1 Arial;margin:2px 0 6px;text-align:center;color:white}
+#quentePanel .qf-dicas h3{color:#ffe354}
+#quentePanel .qf-ilustrativo{font:7px/1.2 Arial;margin:0 0 5px;text-align:center;color:#eee}
+#quentePanel .qf-exemplo-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px}
+#quentePanel .qf-exemplo-cols article{min-width:0;border-radius:7px;background:linear-gradient(#fff,#c8e9f7);padding:6px 2px;display:flex;flex-direction:column;color:#001a38}
+#quentePanel .qf-exemplo-cols h4{font:bold clamp(7px,1.7vw,12px)/1.15 Arial;text-align:center;margin:0 0 6px;color:#bd1010;min-height:25px;overflow-wrap:anywhere}
+#quentePanel .qf-exemplo-cols article:nth-child(2) h4{color:#07802a}
+#quentePanel .qf-exemplo-cols article:nth-child(3) h4{color:#043d9b}
+#quentePanel .qf-exemplo-cols small{font-size:inherit;color:#071e38}
+#quentePanel .qf-mini{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 2px;margin:4px 0 9px}
+#quentePanel .qf-mini span{display:flex;align-items:center;justify-content:center;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 30% 20%,#fff,#ff3333 50%,#940000);color:#fff;border:1px solid #fff8;font:800 clamp(9px,2.2vw,14px) Arial;box-shadow:0 2px 2px #0004}
+#quentePanel .qf-mini-green span{background:radial-gradient(circle at 30% 20%,#fff,#29cc5f 50%,#00592c)}
+#quentePanel .qf-mini-blue span{background:radial-gradient(circle at 30% 20%,#fff,#23acff 50%,#004c99)}
+#quentePanel .qf-dicas ul{list-style:none;padding:0;margin:5px 0}
+#quentePanel .qf-dicas li{position:relative;padding-left:12px;margin:0 0 8px;font:clamp(8px,2vw,12px)/1.3 Arial;color:#fff}
+#quentePanel .qf-dicas li:before{content:'✓';position:absolute;left:0;color:#61ff97;font-weight:900}
+@media(min-width:600px){#quentePanel .qf-passos header{flex-direction:row;justify-content:center}#quentePanel .qf-mini{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style><style id="thorBootEscuroApp">html,body{background:#07101f!important}body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
 <body>
 <div class="app">
@@ -3959,7 +4014,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V324 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V325 · Base V240</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -4382,7 +4437,25 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
         <section class="qf-col qf-normal"><h3>✖ FALHAS</h3><p>MAIORES TAXAS DE NÃO SAIR</p><div id="quenteConteudo" aria-live="polite"><p class="qf-vazio">Toque em Atualizar para calcular.</p></div><b class="qf-final">PARA ANALISAR EXCLUSÕES</b></section>
         <section class="qf-col qf-reversa"><h3>✔ FALHAS REVERSAS</h3><p>MAIOR PRESENÇA NO HISTÓRICO</p><div id="quenteReversasConteudo" aria-live="polite"><p class="qf-vazio">Toque em Atualizar para calcular.</p></div><b class="qf-final">PARA VARIAR SUAS ESCOLHAS</b></section>
       </div>
-      <section class="qf-ajuda"><h3>🎯 COMO USAR JUNTAS?</h3><p>As Falhas mostram as dezenas que mais ficaram ausentes. As Reversas mantêm o cálculo de frequência cruzada das dezenas que mais saíram. Escolha os concursos e a quantidade, toque em Atualizar e compare os dois grupos.</p><small>Percentuais do histórico analisado. Atraso e frequência não aumentam a chance real no próximo sorteio independente.</small></section>
+      <section class="qf-ajuda"><span class="qf-alvo" aria-hidden="true">🎯</span><div><h3>COMO USAR JUNTAS?</h3><p>As <b>Falhas</b> ajudam a analisar exclusões, e as <b>Falhas Reversas</b> ajudam a variar e priorizar dezenas. Compare os dois históricos para organizar suas escolhas.</p></div></section>
+      <section class="qf-estrategia" aria-label="Estratégia passo a passo">
+        <h3>ESTRATÉGIA PASSO A PASSO</h3>
+        <div class="qf-passos">
+          <article><header><b class="qf-num qf-red">1</b><h4>DEFINA<br>A LOTERIA</h4></header><div class="qf-modalidades"><span>Mega-Sena</span><span>Lotofácil</span><span>Quina</span><span>Dia de Sorte</span><span>Lotomania</span><span>Super Sete</span><span>Timemania</span><span>Dupla Sena</span></div><p>Escolha a modalidade nos botões acima.</p></article>
+          <article><header><b class="qf-num qf-blue">2</b><h4>ANALISE<br>AS FALHAS</h4></header><div class="qf-icone">🔎</div><p>Escolha a quantidade de dezenas e confira as maiores taxas de ausência no histórico.</p><strong class="qf-acao qf-red">ANALISE<br>EXCLUSÕES</strong></article>
+          <article><header><b class="qf-num qf-green">3</b><h4>ANALISE<br>AS REVERSAS</h4></header><div class="qf-icone">📊</div><p>Confira as dezenas com maior frequência cruzada nos concursos selecionados.</p><strong class="qf-acao qf-green">USE PARA<br>VARIAR</strong></article>
+          <article><header><b class="qf-num qf-orange">4</b><h4>MONTE<br>SEU JOGO</h4></header><div class="qf-icone">⚙️</div><p>Compare falhas e reversas. Complete sua seleção observando ciclo, frequência e atrasos.</p><strong class="qf-acao qf-orange">ORGANIZE<br>SUAS ESCOLHAS</strong></article>
+          <article><header><b class="qf-num qf-purple">5</b><h4>CONFIRA<br>E EVOLUA</h4></header><div class="qf-icone">📋</div><p>Use o conferidor, analise os resultados e revise suas escolhas a cada concurso.</p><strong class="qf-acao qf-purple">CONFIRA<br>OS RESULTADOS</strong></article>
+        </div>
+      </section>
+      <div class="qf-rodape-grid">
+        <section class="qf-exemplo"><h3>EXEMPLO PRÁTICO · LOTOFÁCIL</h3><p class="qf-ilustrativo">Ilustração de montagem — não é o resultado do cálculo.</p><div class="qf-exemplo-cols">
+          <article><h4>FALHAS<br><small>(8 dezenas)</small></h4><div class="qf-mini qf-mini-red"><span>04</span><span>08</span><span>12</span><span>17</span><span>22</span><span>25</span><span>19</span><span>20</span></div><b class="qf-acao qf-red">EXCLUIR</b></article>
+          <article><h4>FALHAS REVERSAS<br><small>(8 dezenas)</small></h4><div class="qf-mini qf-mini-green"><span>01</span><span>03</span><span>06</span><span>09</span><span>11</span><span>13</span><span>15</span><span>24</span></div><b class="qf-acao qf-green">VARIAR</b></article>
+          <article><h4>COMPLETAR<br><small>(mais 7 dezenas)</small></h4><div class="qf-mini qf-mini-blue"><span>02</span><span>05</span><span>07</span><span>10</span><span>14</span><span>18</span><span>21</span></div><b class="qf-acao qf-blue">COM EQUILÍBRIO</b></article>
+        </div></section>
+        <section class="qf-dicas"><h3>💡 DICAS IMPORTANTES</h3><ul><li>Use uma janela maior para comparar o histórico: 25, 50 ou mais concursos.</li><li>Compare Falhas e Falhas Reversas.</li><li>Observe também ciclo, tendência e frequência.</li><li>Confira os resultados antes de ajustar suas escolhas.</li><li>Atraso não significa que uma dezena vai sair ou falhar.</li><li>Não existe garantia: os percentuais descrevem o histórico.</li><li>Use como apoio à análise. Cada sorteio é independente.</li></ul></section>
+      </div>
     </div>
 
     <div id="manualPanel" style="display:none;">
@@ -7117,7 +7190,7 @@ function renderQuadroFalhas(ranking,tipo){
   const numero=l.n===100?'00':String(l.n).padStart(2,'0');
   return '<div class="thor-quente-falha-item"><span class="thor-quente-falha-bola" data-dezena="'+l.n+'" style="--falha-cor:'+cor+'" title="'+contagem+' de '+ranking.total+' concursos: '+descricao+'">'+numero+'</span><span class="qf-pct">'+pct+'%</span></div>';
  }).join('');
- return '<p class="qf-base">'+ranking.total+' concursos · % de '+descricao+'</p><div class="qf-bolas">'+bolas+'</div>';
+ return '<p class="qf-base">'+ranking.total+' concursos · % de '+descricao+'</p><div class="qf-bolas" style="--qf-cols:'+Math.min(6,ranking.dezenas.length)+'">'+bolas+'</div>';
 }
 
 // Falhas reversas: ranking histórico de frequência cruzada; não altera Quentes.
@@ -17096,4 +17169,5 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
  if('requestIdleCallback'in window)requestIdleCallback(preparar,{timeout:4000});else setTimeout(preparar,2500);
 })();
 </script>
+
 
