@@ -3762,7 +3762,31 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
 #quentePanel .qf-foto-resultados .qf-bolas{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:3px 2px!important;margin:0!important;padding:1px 0!important;align-content:start!important}
 #quentePanel .qf-foto-resultados .thor-quente-falha-bola{width:83%!important;max-width:45px!important;margin:auto!important;font-size:clamp(9px,2.35vw,17px)!important}
 #quentePanel .qf-foto-resultados .thor-quente-falha-item{min-width:0!important}
-</style></style></head>
+</style></style><style id="thorQuenteQuadroLarguraTotalV331">
+/* Quente: imagem e quadro ocupam toda a largura útil do celular, sem moldura verde. */
+#quentePanel .qf-foto-exata{
+  box-sizing:border-box!important;
+  width:calc(100% + 24px)!important;
+  max-width:none!important;
+  margin:0 -12px 0!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  overflow:hidden!important;
+}
+#quentePanel .qf-recorte{
+  width:100%!important;
+  background-size:112% auto!important;
+  background-position-x:center!important;
+}
+#quentePanel .qf-foto-titulos{aspect-ratio:1024/219!important;background-position-y:21.53369481%!important}
+#quentePanel .qf-foto-rodapes{aspect-ratio:1024/53!important;background-position-y:40.21665538%!important}
+#quentePanel .qf-foto-instrucoes{aspect-ratio:1024/788!important;background-position-y:bottom!important}
+#quentePanel .qf-foto-resultados{width:100%!important;box-sizing:border-box!important;padding:0!important;gap:0!important}
+#quentePanel .qf-foto-resultados .thor-quente-falha-bola{max-width:43px!important;width:80%!important}
+@media(max-width:420px){#quentePanel .qf-foto-exata{width:calc(100% + 24px)!important;margin-left:-12px!important;margin-right:-12px!important}}
+</style></head>
 <body>
 <div class="app">
 
