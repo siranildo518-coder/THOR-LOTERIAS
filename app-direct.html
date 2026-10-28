@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v325-falhas-20261028'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v326-falhas-20261028'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3737,6 +3737,22 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
 #quentePanel .qf-dicas li{position:relative;padding-left:12px;margin:0 0 8px;font:clamp(8px,2vw,12px)/1.3 Arial;color:#fff}
 #quentePanel .qf-dicas li:before{content:'✓';position:absolute;left:0;color:#61ff97;font-weight:900}
 @media(min-width:600px){#quentePanel .qf-passos header{flex-direction:row;justify-content:center}#quentePanel .qf-mini{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style><style id="qfFotoExataV326">
+#quentePanel .qf-foto-exata{width:100%;margin:10px 0 12px;background:#00141c;overflow:hidden}
+#quentePanel .qf-recorte{width:100%;background-image:url('./quentes-falhas-topo-v324.png');background-repeat:no-repeat;background-size:100% auto}
+#quentePanel .qf-foto-titulos{aspect-ratio:1024/245;background-position:center 21.53369481%}
+#quentePanel .qf-foto-rodapes{aspect-ratio:1024/59;background-position:center 40.21665538%}
+#quentePanel .qf-foto-instrucoes{aspect-ratio:1024/883;background-position:center bottom}
+#quentePanel .qf-foto-resultados{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1%;padding:0 1.2%;background:#031a14;min-height:0}
+#quentePanel .qf-foto-resultados>div{min-width:0;padding:0 3%;border-left:2px solid #ff999b;border-right:2px solid #ff999b;background:linear-gradient(90deg,#8b090a,#250000 12%,#390000 85%,#9d0b0b);box-shadow:inset 2px 0 3px #ff433d,inset -2px 0 3px #ff433d}
+#quentePanel .qf-foto-resultados>.qf-foto-reversa{border-color:#65ff84;background:linear-gradient(90deg,#006c26,#00230d 12%,#003519 85%,#007e33);box-shadow:inset 2px 0 3px #15ff50,inset -2px 0 3px #15ff50}
+#quentePanel .qf-foto-resultados .qf-bolas{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:5px 2px!important;padding:2px 0 3px!important;margin:0!important;min-height:0!important}
+#quentePanel .qf-foto-resultados .thor-quente-falha-item{width:100%!important;min-width:0!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:1px!important;padding:0!important;margin:0!important}
+#quentePanel .qf-foto-resultados .thor-quente-falha-bola{width:100%!important;max-width:65px!important;height:auto!important;min-width:0!important;aspect-ratio:1!important;flex:none!important;display:flex!important;align-items:center!important;justify-content:center!important;border-radius:50%!important;border:1px solid #ffffff99!important;background:radial-gradient(circle at 30% 18%,#fff 0%,#ffc5c1 16%,#fb4c45 52%,#ba0000 82%,#730000 100%)!important;box-shadow:inset 1px 2px 4px #fff7,0 2px 3px #0008!important;color:#171212!important;font:900 clamp(9px,2.8vw,29px) Arial!important;text-shadow:0 1px #fff5!important;transform:none!important}
+#quentePanel .qf-foto-reversa .thor-quente-falha-bola{background:radial-gradient(circle at 30% 18%,#fff 0%,#d6ffdc 16%,#78e897 52%,#159a54 82%,#005c2b 100%)!important}
+#quentePanel .qf-foto-resultados .thor-quente-falha-bola.thor-falhou-cinza{background:radial-gradient(circle at 30% 18%,#eee,#777 35%,#292929 75%,#050505)!important;color:white!important;text-shadow:none!important}
+#quentePanel .qf-foto-resultados .thor-falhou-label{display:none!important}
+#quentePanel .qf-foto-resultados .res-loading,#quentePanel .qf-foto-resultados .res-error{font:10px/1.3 Arial!important;padding:7px 3px!important;color:white!important}
 </style><style id="thorBootEscuroApp">html,body{background:#07101f!important}body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
 <body>
 <div class="app">
@@ -4014,7 +4030,7 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V325 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V326 · Base V240</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -4433,29 +4449,15 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #ballGrid{margin-bottom:8px!im
 <div class="thor-quente-filtros"><div><label class="field-label" for="quenteQtdSelect">Últimos concursos</label><input type="number" id="quenteQtdSelect" class="qtd-pill" min="2" max="500" value="25" inputmode="numeric" aria-label="Quantidade de últimos concursos"></div><div><label class="field-label" for="quenteTopoSelect">Quantidade de dezenas</label><input type="hidden" id="quenteTopoSelect" value="8"><button type="button" id="thorQuantidadeFalhasAbrir" class="qtd-pill" aria-haspopup="dialog">8 dezenas de falha ▾</button><dialog id="thorQuantidadeFalhasDialog"><div class="thor-quantidade-titulo">Quantidade de falhas<button type="button" id="thorQuantidadeFalhasFechar" aria-label="Fechar">×</button></div><div id="thorQuantidadeFalhasGrade" role="group" aria-label="Quantidade de dezenas"></div></dialog></div></div>
         <button class="btn-confirm btn-3d-quente" id="quenteAtualizarBtn" style="width:100%;margin-top:9px;padding:9px;border-radius:9px;border:none;font-size:12.5px;">ATUALIZAR</button>
       </div>
-      <div class="qf-comparacao">
-        <section class="qf-col qf-normal"><h3>✖ FALHAS</h3><p>MAIORES TAXAS DE NÃO SAIR</p><div id="quenteConteudo" aria-live="polite"><p class="qf-vazio">Toque em Atualizar para calcular.</p></div><b class="qf-final">PARA ANALISAR EXCLUSÕES</b></section>
-        <section class="qf-col qf-reversa"><h3>✔ FALHAS REVERSAS</h3><p>MAIOR PRESENÇA NO HISTÓRICO</p><div id="quenteReversasConteudo" aria-live="polite"><p class="qf-vazio">Toque em Atualizar para calcular.</p></div><b class="qf-final">PARA VARIAR SUAS ESCOLHAS</b></section>
-      </div>
-      <section class="qf-ajuda"><span class="qf-alvo" aria-hidden="true">🎯</span><div><h3>COMO USAR JUNTAS?</h3><p>As <b>Falhas</b> ajudam a analisar exclusões, e as <b>Falhas Reversas</b> ajudam a variar e priorizar dezenas. Compare os dois históricos para organizar suas escolhas.</p></div></section>
-      <section class="qf-estrategia" aria-label="Estratégia passo a passo">
-        <h3>ESTRATÉGIA PASSO A PASSO</h3>
-        <div class="qf-passos">
-          <article><header><b class="qf-num qf-red">1</b><h4>DEFINA<br>A LOTERIA</h4></header><div class="qf-modalidades"><span>Mega-Sena</span><span>Lotofácil</span><span>Quina</span><span>Dia de Sorte</span><span>Lotomania</span><span>Super Sete</span><span>Timemania</span><span>Dupla Sena</span></div><p>Escolha a modalidade nos botões acima.</p></article>
-          <article><header><b class="qf-num qf-blue">2</b><h4>ANALISE<br>AS FALHAS</h4></header><div class="qf-icone">🔎</div><p>Escolha a quantidade de dezenas e confira as maiores taxas de ausência no histórico.</p><strong class="qf-acao qf-red">ANALISE<br>EXCLUSÕES</strong></article>
-          <article><header><b class="qf-num qf-green">3</b><h4>ANALISE<br>AS REVERSAS</h4></header><div class="qf-icone">📊</div><p>Confira as dezenas com maior frequência cruzada nos concursos selecionados.</p><strong class="qf-acao qf-green">USE PARA<br>VARIAR</strong></article>
-          <article><header><b class="qf-num qf-orange">4</b><h4>MONTE<br>SEU JOGO</h4></header><div class="qf-icone">⚙️</div><p>Compare falhas e reversas. Complete sua seleção observando ciclo, frequência e atrasos.</p><strong class="qf-acao qf-orange">ORGANIZE<br>SUAS ESCOLHAS</strong></article>
-          <article><header><b class="qf-num qf-purple">5</b><h4>CONFIRA<br>E EVOLUA</h4></header><div class="qf-icone">📋</div><p>Use o conferidor, analise os resultados e revise suas escolhas a cada concurso.</p><strong class="qf-acao qf-purple">CONFIRA<br>OS RESULTADOS</strong></article>
+      <section class="qf-foto-exata" aria-label="Falhas e Falhas Reversas">
+        <div class="qf-recorte qf-foto-titulos" role="img" aria-label="Falhas em vermelho e Falhas Reversas em verde, com as descrições da imagem original"></div>
+        <div class="qf-foto-resultados">
+          <div id="quenteConteudo" class="qf-foto-normal" aria-label="Dezenas de falhas calculadas" aria-live="polite"></div>
+          <div id="quenteReversasConteudo" class="qf-foto-reversa" aria-label="Dezenas de falhas reversas calculadas" aria-live="polite"></div>
         </div>
+        <div class="qf-recorte qf-foto-rodapes" role="img" aria-label="Ideal para excluir dezenas. Ideal para variar."></div>
+        <div class="qf-recorte qf-foto-instrucoes" role="img" aria-label="Como usar juntas, estratégia passo a passo, exemplo prático e dicas importantes: arte original. Os números do exemplo são ilustrativos."></div>
       </section>
-      <div class="qf-rodape-grid">
-        <section class="qf-exemplo"><h3>EXEMPLO PRÁTICO · LOTOFÁCIL</h3><p class="qf-ilustrativo">Ilustração de montagem — não é o resultado do cálculo.</p><div class="qf-exemplo-cols">
-          <article><h4>FALHAS<br><small>(8 dezenas)</small></h4><div class="qf-mini qf-mini-red"><span>04</span><span>08</span><span>12</span><span>17</span><span>22</span><span>25</span><span>19</span><span>20</span></div><b class="qf-acao qf-red">EXCLUIR</b></article>
-          <article><h4>FALHAS REVERSAS<br><small>(8 dezenas)</small></h4><div class="qf-mini qf-mini-green"><span>01</span><span>03</span><span>06</span><span>09</span><span>11</span><span>13</span><span>15</span><span>24</span></div><b class="qf-acao qf-green">VARIAR</b></article>
-          <article><h4>COMPLETAR<br><small>(mais 7 dezenas)</small></h4><div class="qf-mini qf-mini-blue"><span>02</span><span>05</span><span>07</span><span>10</span><span>14</span><span>18</span><span>21</span></div><b class="qf-acao qf-blue">COM EQUILÍBRIO</b></article>
-        </div></section>
-        <section class="qf-dicas"><h3>💡 DICAS IMPORTANTES</h3><ul><li>Use uma janela maior para comparar o histórico: 25, 50 ou mais concursos.</li><li>Compare Falhas e Falhas Reversas.</li><li>Observe também ciclo, tendência e frequência.</li><li>Confira os resultados antes de ajustar suas escolhas.</li><li>Atraso não significa que uma dezena vai sair ou falhar.</li><li>Não existe garantia: os percentuais descrevem o histórico.</li><li>Use como apoio à análise. Cada sorteio é independente.</li></ul></section>
-      </div>
     </div>
 
     <div id="manualPanel" style="display:none;">
@@ -7188,9 +7190,9 @@ function renderQuadroFalhas(ranking,tipo){
   const contagem=normal?ranking.total-l.presenca:l.presenca;
   const pct=(100*contagem/ranking.total).toLocaleString('pt-BR',{maximumFractionDigits:1});
   const numero=l.n===100?'00':String(l.n).padStart(2,'0');
-  return '<div class="thor-quente-falha-item"><span class="thor-quente-falha-bola" data-dezena="'+l.n+'" style="--falha-cor:'+cor+'" title="'+contagem+' de '+ranking.total+' concursos: '+descricao+'">'+numero+'</span><span class="qf-pct">'+pct+'%</span></div>';
+  return '<div class="thor-quente-falha-item"><span class="thor-quente-falha-bola" data-dezena="'+l.n+'" style="--falha-cor:'+cor+'" title="'+contagem+' de '+ranking.total+' concursos: '+descricao+'">'+numero+'</span></div>';
  }).join('');
- return '<p class="qf-base">'+ranking.total+' concursos · % de '+descricao+'</p><div class="qf-bolas" style="--qf-cols:'+Math.min(6,ranking.dezenas.length)+'">'+bolas+'</div>';
+ return '<div class="qf-bolas" aria-label="'+ranking.total+' concursos analisados">'+bolas+'</div>';
 }
 
 // Falhas reversas: ranking histórico de frequência cruzada; não altera Quentes.
@@ -17169,5 +17171,6 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
  if('requestIdleCallback'in window)requestIdleCallback(preparar,{timeout:4000});else setTimeout(preparar,2500);
 })();
 </script>
+
 
 
