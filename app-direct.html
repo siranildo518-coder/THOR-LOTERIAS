@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v341-quente-20261028'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v342-quente-20261028'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3856,7 +3856,46 @@ html body #overlayGeradorFiltro #geradorFiltroUltimoResultado{padding:0!importan
 #geradorFiltroUltimoResultado .gfr-place{margin-top:7px;font-size:9px;color:#52616d}
 #geradorFiltroUltimoResultado .res-loading,#geradorFiltroUltimoResultado .res-error{padding:14px}
 </style>
-<style id="thorBootEscuroApp">html,body{background:#07101f!important}body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
+<style id="fechamentoModeloV342">/* Modelo aprovado — V342 */
+html body #overlayGeradorFiltro{background:radial-gradient(ellipse at 40% 0,#270839,#100620 55%,#0b051c)!important;color:#fff!important}
+html body #overlayGeradorFiltro>div{padding:10px 12px 30px!important}
+html body #overlayGeradorFiltro #geradorFiltroUltimoResultado{border-radius:18px!important;border:1px solid #dfbd66!important}
+html body #overlayGeradorFiltro .gfr-header{background:linear-gradient(#009a38,#004522)!important;border-bottom:0;padding:9px 8px!important;grid-template-columns:1fr 3fr 1fr}
+html body #overlayGeradorFiltro .gfr-nav{min-height:30px;border:1px solid #70eb83!important;border-radius:10px;box-shadow:inset 0 1px 4px #ccff8b88,0 2px 4px #001a0c;background:linear-gradient(#15ce4b,#008032 65%,#004e23)}
+html body #overlayGeradorFiltro .gfr-body{border:1px solid #d4b969;border-radius:17px;padding:6px 18px 7px!important;background:linear-gradient(125deg,#fafbff,#dce3ef 70%,#f0f4f8)!important}
+html body #overlayGeradorFiltro .gfr-contest{font-size:clamp(10px,2.5vw,17px);margin-bottom:9px;padding:3px 15px}
+html body #overlayGeradorFiltro .gfr-balls{gap:5px 2.5%!important}
+html body #overlayGeradorFiltro .gfr-ball{flex-basis:9.7%!important;width:9.7%!important;font-size:clamp(10px,2.7vw,20px)}
+html body #overlayGeradorFiltro .gfr-place{font-size:clamp(8px,1.8vw,12px);margin-top:6px}
+html body #overlayGeradorFiltro #geradorFiltroAnalise{padding:9px 10px!important;background:linear-gradient(120deg,#35114e,#150b27)!important;border:1px solid #b66be2!important;border-radius:16px!important;margin:9px 0!important;box-shadow:inset 0 1px 3px #ce99ff44,0 0 7px #7200bf44!important}
+html body #overlayGeradorFiltro #geradorFiltroAnalise .stat-sub-title{font-size:clamp(10px,2.6vw,17px)!important;line-height:1.25!important;color:#f3e9ff!important;margin:0 0 7px!important}
+html body #overlayGeradorFiltro #geradorFiltroAnalise>div:last-child{display:flex;flex-wrap:wrap;gap:5px 1.5%;justify-content:center}
+html body #overlayGeradorFiltro #geradorFiltroAnalise .gfc-ball-rep{flex:0 0 8.2%!important;width:8.2%!important;min-width:0!important;height:auto!important;aspect-ratio:1;margin:0!important;font-size:clamp(9px,2.4vw,17px)!important;border:1.5px solid #ebadff!important;box-shadow:inset 0 1px 3px #fffc,0 0 5px #b721d977!important}
+html body #overlayGeradorFiltro #geradorFiltroTabs{gap:7px!important;margin:9px 0 7px!important}
+html body #overlayGeradorFiltro #geradorFiltroTabs .gfc-tab-btn{height:37px!important;border:1px solid #9cabc8!important;background:linear-gradient(#69758c,#242b43)!important;border-radius:12px!important;font-size:clamp(10px,2.7vw,17px)!important;box-shadow:inset 0 1px 3px #fff8,0 2px 5px #0005!important}
+html body #overlayGeradorFiltro #geradorFiltroTabs #geradorFiltroTabConfig{background:linear-gradient(#c33dff,#7900ca 65%,#6200a8)!important;border-color:#dc8fff!important}
+html body #overlayGeradorFiltro #thorAcoesSalvarC4{margin:0 0 10px!important;gap:7px!important}
+html body #overlayGeradorFiltro #gfcSalvarJogosTopo,html body #overlayGeradorFiltro #thorExportarJogosC4{height:36px!important;border-radius:11px!important;padding:4px!important;font-size:clamp(10px,2.5vw,16px)!important;box-shadow:inset 0 1px 3px #fff9,0 2px 5px #0005!important}
+html body #overlayGeradorFiltro #gfcSalvarJogosTopo{background:linear-gradient(#05d374,#008d47 65%,#006336)!important;border:1px solid #7aeea3!important}
+html body #overlayGeradorFiltro #thorExportarJogosC4{background:linear-gradient(#1497ff,#0061c3 65%,#003b8b)!important;border:1px solid #7bcfff!important}
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada{padding:0!important;background:none!important;border:0!important;box-shadow:none!important}
+html body #overlayGeradorFiltro .gfc-settings342,html body #overlayGeradorFiltro .gfc-filters342{padding:9px!important;background:linear-gradient(125deg,#27103a,#100b22)!important;border:1px solid #9554c1!important;border-radius:15px!important;box-shadow:inset 0 1px 3px #c494ff33,0 0 8px #6500ad33!important;margin-bottom:7px}
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada .gfc-dark-title{font-size:clamp(12px,3vw,20px)!important;margin:0 0 8px!important;line-height:1.2!important;text-shadow:none!important}
+html body #overlayGeradorFiltro .gfc-setting342{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:center;gap:6px;padding:4px 6px;border:1px solid #65607966;border-radius:9px;margin:3px 0;background:linear-gradient(110deg,#29243c,#121329)}
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada .gfc-setting342 .gfc-dark-label{text-transform:none!important;font-size:clamp(9px,2.2vw,15px)!important;line-height:1.2;margin:0!important;font-weight:700!important;letter-spacing:0}
+html body #overlayGeradorFiltro .gfc-setting342 .gfc-dark-stepper-row{grid-template-columns:30px minmax(0,1fr) 30px!important;gap:5px!important;margin:0!important;padding:0!important;background:none!important;border:0!important}
+html body #overlayGeradorFiltro .gfc-setting342 .gfc-dark-stepper-btn{width:30px!important;height:30px!important;font-size:21px!important;border-radius:7px!important}
+html body #overlayGeradorFiltro .gfc-setting342 .gfc-dark-value-input{height:30px!important;min-width:0!important;padding:0!important;font-size:17px!important;border-radius:7px!important}
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada .gfc-filters342>.gfc-dark-label{font-size:clamp(12px,3vw,20px)!important;margin:0 0 8px!important}
+html body #overlayGeradorFiltro .gfc-dark-filtros{gap:6px!important}
+html body #overlayGeradorFiltro .gfc-dark-input-wrap>button,html body #overlayGeradorFiltro .gfc-dark-input-wrap>input{height:34px!important;border-radius:10px!important;font-size:clamp(9px,2.3vw,16px)!important}
+html body #overlayGeradorFiltro #gfcFiltroSoma{background:linear-gradient(#aab4c9,#58627a 55%,#353e54)!important;color:white!important;border:1px solid #bac9e3!important;box-shadow:inset 0 1px 3px #fff9!important}
+html body #overlayGeradorFiltro .gfc-dark-input-wrap>span{color:white!important}
+html body #overlayGeradorFiltro .gfc-actions342{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+html body #overlayGeradorFiltro #gfcLimparFiltrosBtn,html body #overlayGeradorFiltro #geradorFiltroGerarBtn{width:100%!important;height:42px!important;margin:0!important;border-radius:12px!important;padding:3px!important;font-size:clamp(11px,2.6vw,19px)!important;border:1px solid #b9c8e3!important}
+html body #overlayGeradorFiltro #gfcLimparFiltrosBtn{background:linear-gradient(#b1bdd2,#626e85 50%,#364359)!important;box-shadow:inset 0 2px 3px #fffa,0 0 8px #9861d344!important}
+html body #overlayGeradorFiltro #geradorFiltroGerarBtn{background:linear-gradient(#33fa63,#00b943 55%,#007e33)!important;border-color:#acffb6!important;box-shadow:inset 0 2px 3px #fffb,0 0 8px #18cb5066!important}
+</style><style id="thorBootEscuroApp">html,body{background:#07101f!important}body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
 <body>
 <div class="app">
 
@@ -4133,7 +4172,7 @@ html body #overlayGeradorFiltro #geradorFiltroUltimoResultado{padding:0!importan
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V341 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V342 · Base V240</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -5293,30 +5332,30 @@ html body #overlayGeradorFiltro #geradorFiltroUltimoResultado{padding:0!importan
 
     <div id="geradorFiltroTabPanelConfig">
       <div class="gfc-dark-card" id="geradorFiltroConfigAvancada">
-        <div class="gfc-dark-title">Configurações avançadas</div>
+        <div class="gfc-settings342"><div class="gfc-dark-title">Configurações avançadas</div>
 
-        <div class="gfc-dark-label">Número de dezenas por jogo</div>
+        <div class="gfc-setting342"><div class="gfc-dark-label">Número de dezenas por jogo</div>
         <div class="gfc-dark-stepper-row">
           <button type="button" class="gfc-dark-stepper-btn" id="gfcDezenasMenos">−</button>
           <input type="number" inputmode="numeric" class="gfc-dark-value-input" id="gfcDezenasValor" value="15">
           <button type="button" class="gfc-dark-stepper-btn plus" id="gfcDezenasMais">+</button>
-        </div>
+        </div></div>
 
-        <div class="gfc-dark-label">Repetidas do concurso anterior</div>
+        <div class="gfc-setting342"><div class="gfc-dark-label">Repetidas do concurso anterior</div>
         <div class="gfc-dark-stepper-row" id="gfcRepetidasRow">
           <button type="button" class="gfc-dark-stepper-btn" id="gfcRepMenos">−</button>
           <button type="button" class="gfc-dark-value-input gfc-repetidas-value" id="gfcFiltroRepetidas" data-label="Repetidas" value="">9</button>
           <button type="button" class="gfc-dark-stepper-btn plus" id="gfcRepMais">+</button>
-        </div>
+        </div></div>
 
-        <div class="gfc-dark-label">Quantidade de jogos (1-5000)</div>
+        <div class="gfc-setting342"><div class="gfc-dark-label">Quantidade de jogos (1-5000)</div>
         <div class="gfc-dark-stepper-row">
           <button type="button" class="gfc-dark-stepper-btn" id="gfcQtdMenos">−</button>
           <input type="number" inputmode="numeric" class="gfc-dark-value-input" id="gfcQtdValor" value="10">
           <button type="button" class="gfc-dark-stepper-btn plus" id="gfcQtdMais">+</button>
-        </div>
+        </div></div>
 
-        <div class="gfc-dark-label">🛠️ Filtros personalizados</div>
+        </div><div class="gfc-filters342"><div class="gfc-dark-label">⚑ Filtros personalizados</div>
         <div class="gfc-dark-filtros">
           <div class="gfc-dark-input-wrap"><button type="button" id="gfcFiltroPares" class="gfc-multi-btn" data-label="Pares">Pares</button></div>
           <div class="gfc-dark-input-wrap"><button type="button" id="gfcFiltroImpares" class="gfc-multi-btn" data-label="Ímpares">Ímpares</button></div>
@@ -5349,10 +5388,10 @@ html body #overlayGeradorFiltro #geradorFiltroUltimoResultado{padding:0!importan
             </div>
           </div>
         </div>
-        <button type="button" id="gfcLimparFiltrosBtn" style="width:100%;margin-top:8px;padding:8px 10px;border:1.5px solid #A21CAF;border-radius:10px;background:#fff;color:#7E22CE;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">🧹 LIMPAR FILTROS</button>
-        <div id="gfcFiltroAlerta" class="gfc-filtro-alerta" role="alert" aria-live="polite"></div>
+        </div><div class="gfc-actions342"><button type="button" id="gfcLimparFiltrosBtn" style="width:100%;margin-top:8px;padding:8px 10px;border:1.5px solid #A21CAF;border-radius:10px;background:#fff;color:#7E22CE;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">🧹 LIMPAR FILTROS</button>
+        
 
-        <button type="button" class="gfc-dark-btn" id="geradorFiltroGerarBtn"><span id="geradorFiltroGerarSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="geradorFiltroGerarLabel">Gerar jogos</span></button>
+        <button type="button" class="gfc-dark-btn" id="geradorFiltroGerarBtn"><span id="geradorFiltroGerarSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;animation:girarBtn .6s linear infinite;"></span><span id="geradorFiltroGerarLabel">Gerar jogos</span></button></div><div id="gfcFiltroAlerta" class="gfc-filtro-alerta" role="alert" aria-live="polite"></div>
       </div>
     </div>
 
