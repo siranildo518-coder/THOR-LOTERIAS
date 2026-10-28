@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v340-quente-20261028'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v341-quente-20261028'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3842,6 +3842,20 @@ html body #quentePanel .qf-foto-instrucoes{width:100%!important;aspect-ratio:100
 #quentePanel .qf-zoom-stage{position:relative}
 html body #quentePanel .qf-zoom-stage .qf-foto-exata{width:var(--qf-base-width,100%)!important;max-width:none!important;transform:scale(var(--qf-scale,1));transform-origin:top left}
 </style>
+<style id="geradorResultadoVerdeV341">
+html body #overlayGeradorFiltro #geradorFiltroUltimoResultado{padding:0!important;margin-bottom:12px!important;border:2px solid #dfa638!important;border-radius:18px!important;background:linear-gradient(#fff,#edf3f8)!important;box-shadow:0 1px 3px #0002!important;overflow:hidden;color:#182631}
+#geradorFiltroUltimoResultado .gfr-header{display:grid;grid-template-columns:minmax(60px,1fr) minmax(0,3fr) minmax(60px,1fr);align-items:center;gap:7px;padding:12px 8px 15px;border-bottom:2px solid #e6b548;background:repeating-linear-gradient(0deg,#ffffff03 0 1px,transparent 1px 3px),linear-gradient(#0dbd4a,#00862e 45%,#004d21);box-shadow:inset 0 2px 3px #a1f27e80}
+#geradorFiltroUltimoResultado .gfr-title{text-align:center;font-size:clamp(11px,2.7vw,22px);line-height:1.15;font-weight:900;color:#fff;text-shadow:0 1px 2px #003716}
+#geradorFiltroUltimoResultado .gfr-title span{color:#ffe25b}
+#geradorFiltroUltimoResultado .gfr-nav{width:100%;min-height:38px;padding:7px 2px;border:2px solid #e8cb61;border-radius:11px;color:#fff;font-family:inherit;font-size:clamp(9px,2.1vw,15px);font-weight:800;background:linear-gradient(#26d15b,#07a63e 50%,#006727);box-shadow:inset 0 2px 3px #b5ef6c99,0 4px 0 #174b19;cursor:pointer}
+#geradorFiltroUltimoResultado .gfr-nav:active{transform:translateY(2px);box-shadow:inset 0 1px 3px #0004,0 2px 0 #174b19}
+#geradorFiltroUltimoResultado .gfr-body{padding:9px 4px 10px;text-align:center;background:linear-gradient(#fafbfd,#edf3f8)}
+#geradorFiltroUltimoResultado .gfr-contest{display:table;margin:0 auto 10px;padding:4px 12px;border:1px solid #b2bec5;border-radius:30px;background:linear-gradient(#fff,#dce6ec);box-shadow:inset 0 1px 2px #fff;font-size:clamp(10px,2.5vw,18px);line-height:1.3;font-weight:800;color:#182631}
+#geradorFiltroUltimoResultado .gfr-balls{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:5px 1%;width:100%;margin:0;padding:0}
+#geradorFiltroUltimoResultado .gfr-ball{flex:0 0 6.769%;width:6.769%;min-width:0;aspect-ratio:1;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border:1px solid #030508;border-radius:50%;background:radial-gradient(circle at 30% 20%,#b6bdc4 0%,#60676d 18%,#20252b 40%,#06080b 68%,#000 100%);box-shadow:inset 0 1px 2px #fff9,inset -1px -2px 2px #000,0 2px 3px #0004;color:white;font-size:clamp(8px,2.2vw,17px);line-height:1;font-weight:800;text-shadow:0 1px 2px #000}
+#geradorFiltroUltimoResultado .gfr-place{margin-top:7px;font-size:9px;color:#52616d}
+#geradorFiltroUltimoResultado .res-loading,#geradorFiltroUltimoResultado .res-error{padding:14px}
+</style>
 </head>
 <body>
 <div class="app">
@@ -4119,7 +4133,7 @@ html body #quentePanel .qf-zoom-stage .qf-foto-exata{width:var(--qf-base-width,1
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V340 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V341 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -8179,20 +8193,22 @@ function renderUltimoResultadoGerador(g, data){
   if(!box) return;
   const nums = (data.dezenas||[]).map(d=>parseInt(d,10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b);
   const ballsHtml = nums.length
-    ? `<div class="result-balls" style="justify-content:center;flex-wrap:wrap;gap:5px;margin-bottom:6px;">${nums.map(n=>`<div class="result-ball-sm">${n.toString().padStart(2,'0')}</div>`).join('')}</div>`
+    ? `<div class="gfr-balls">${nums.map(n=>`<div class="gfr-ball">${n.toString().padStart(2,'0')}</div>`).join('')}</div>`
     : '';
   const maisRecente = concursoMaisRecentePorJogo[g.slug];
   // Mantém Próximo clicável: ao tocar, consulta diretamente o concurso seguinte.
   const podeAvancar = true;
   box.innerHTML = `
-    <div class="res-card-title" style="margin-bottom:6px;font-size:12.5px;">Resultado — ${g.nome}</div>
-    <div class="res-nav-row" style="margin-bottom:6px;">
-      <button class="res-nav-btn" id="geradorResAnterior" aria-label="Concurso anterior" style="width:46px;height:46px;padding:0;border-radius:50%;font-size:19px;font-weight:900;background:linear-gradient(180deg,#2f9bea 0%,#0869b4 70%,#064d87 100%);color:#fff;border:2px solid #e4b44a;box-shadow:0 5px 0 #6b5320,0 7px 12px rgba(0,0,0,.30);display:flex;align-items:center;justify-content:center;">◀◀</button>
-      <div class="res-concurso-num" style="font-size:16px;">Nº ${data.concurso}</div>
-      <button class="res-nav-btn" id="geradorResProximo" aria-label="Próximo concurso" style="width:46px;height:46px;padding:0;border-radius:50%;font-size:19px;font-weight:900;background:linear-gradient(180deg,#2f9bea 0%,#0869b4 70%,#064d87 100%);color:#fff;border:2px solid #e4b44a;box-shadow:0 5px 0 #6b5320,0 7px 12px rgba(0,0,0,.30);display:flex;align-items:center;justify-content:center;" ${podeAvancar ? '' : 'disabled'}>▶▶</button>
+    <div class="gfr-header">
+      <button type="button" class="gfr-nav" id="geradorResAnterior" aria-label="Concurso anterior">‹ Anterior</button>
+      <div class="gfr-title"><span>Resultado Oficial</span> - ${g.nome}</div>
+      <button type="button" class="gfr-nav" id="geradorResProximo" aria-label="Próximo concurso" ${podeAvancar ? '' : 'disabled'}>Próximo ›</button>
     </div>
-    ${ballsHtml}
-    <div class="res-local" style="font-size:10.5px;text-align:center;">${data.local ? `Sorteio em ${data.local} • ` : ''}${data.data || '—'}</div>`;
+    <div class="gfr-body">
+      <div class="gfr-contest">Concurso ${data.concurso} · ${data.data || '—'}</div>
+      ${ballsHtml}
+      ${data.local ? `<div class="gfr-place">Sorteio em ${data.local}</div>` : ''}
+    </div>`;
 
   const abrirConcursoRapido = (numero)=>{
     const pronto = obterConcursoCache(g, numero);
