@@ -1,62 +1,62 @@
 {
-  "atualizadoEm": "2026-10-28T00:22:56.614908+00:00",
+  "atualizadoEm": "2026-10-28T06:00:28.744739+00:00",
   "fonte": "CAIXA; fontes complementares indicadas por resultado quando API atrasada",
   "resultados": {
     "megasena": {
-      "concurso": 3075,
-      "data": "26/10/2026",
+      "concurso": 3076,
+      "data": "27/10/2026",
       "dezenas": [
-        7,
-        10,
-        14,
-        27,
-        36,
-        55
+        6,
+        30,
+        32,
+        38,
+        49,
+        57
       ]
     },
     "lotofacil": {
-      "concurso": 3814,
-      "data": "26/10/2026",
+      "concurso": 3815,
+      "data": "27/10/2026",
       "dezenas": [
-        1,
-        4,
+        3,
+        5,
         6,
-        8,
         9,
+        10,
+        11,
         12,
         13,
+        14,
         15,
         16,
         17,
-        18,
-        21,
-        22,
-        24,
+        19,
+        23,
         25
       ]
     },
     "quina": {
-      "concurso": 7152,
-      "data": "26/10/2026",
+      "concurso": 7153,
+      "data": "27/10/2026",
       "dezenas": [
         18,
-        22,
-        24,
-        25,
-        52
+        36,
+        53,
+        64,
+        67
       ]
     },
     "diadesorte": {
-      "concurso": 1332,
-      "data": "26/10/2026",
+      "concurso": 1333,
+      "data": "27/10/2026",
       "dezenas": [
-        7,
-        9,
-        18,
-        26,
-        27,
-        28,
-        29
+        10,
+        12,
+        14,
+        20,
+        22,
+        25,
+        26
       ],
       "mesSorte": "Abril"
     },
@@ -100,18 +100,18 @@
       ]
     },
     "timemania": {
-      "concurso": 2459,
-      "data": "24/10/2026",
+      "concurso": 2460,
+      "data": "27/10/2026",
       "dezenas": [
-        16,
-        31,
-        54,
-        59,
-        64,
-        70,
-        73
+        3,
+        14,
+        18,
+        24,
+        25,
+        41,
+        70
       ],
-      "timeCoracao": "AMERICA          /RN"
+      "timeCoracao": "VITORIA          /BA"
     },
     "duplasena": {
       "concurso": 3025,
