@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v339-quente-20261028'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v340-quente-20261028'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3838,7 +3838,7 @@ html body #quentePanel .qf-foto-instrucoes{width:100%!important;aspect-ratio:100
 #quentePanel .qf-zoom-controls button{display:grid;place-items:center;width:34px;height:30px;padding:0;border:1px solid #71f5b1;border-radius:9px;background:linear-gradient(#13c574,#00723e);box-shadow:inset 0 1px 3px #ffffff80,0 2px 3px #0005;color:#fff;font:bold 23px Arial;cursor:pointer}
 #quentePanel .qf-zoom-controls button:disabled{opacity:.45;cursor:default}
 #quentePanel .qf-zoom-controls output{min-width:42px;text-align:center;color:#fff;font-size:12px;font-weight:700}
-#quentePanel .qf-zoom-viewport{width:100%;max-width:100%;overflow:auto;overscroll-behavior-x:contain}
+#quentePanel .qf-zoom-viewport{width:100%;max-width:100%;overflow:auto;overscroll-behavior-x:contain;touch-action:pan-x pan-y}
 #quentePanel .qf-zoom-stage{position:relative}
 html body #quentePanel .qf-zoom-stage .qf-foto-exata{width:var(--qf-base-width,100%)!important;max-width:none!important;transform:scale(var(--qf-scale,1));transform-origin:top left}
 </style>
@@ -4119,7 +4119,7 @@ html body #quentePanel .qf-zoom-stage .qf-foto-exata{width:var(--qf-base-width,1
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V339 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V340 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -16780,7 +16780,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #drawer #thorDrawerCreditos{margin-top:0!important;flex-shrink:0!important;background:transparent!important;border:0!important;color:#d9d8ed!important;padding:15px 10px calc(25px + env(safe-area-inset-bottom,0px))!important;font-size:12px!important}
 </style><script src="./calculadora-probabilidade-v331.js?v=thor7-v3-84"></script><script src="./calculadora-probabilidade-v336.js?v=thor7-v3-84"></script><script src="./fechamento-visual-v327.js?v=thor7-v3-84"></script><script src="./fechamento-detalhe-v328.js?v=thor7-v3-84"></script><script src="./fechamento-resultados-v330.js?v=thor7-v3-84"></script><script src="./gerador-palpites.js?v=thor7-v3-84"></script><script src="./resultados-auto-thor4.js?v=compartilhar-oficiais-20261022"></script><script src="./remover-conferidor-c3.js?v=thor7-oficial-c8"></script><script src="./exportar-jogos-oficial-c8.js?v=thor7-oficial-c8"></script><script>(function(){function montarTopoHome(){var h=document.querySelector('#overlayListaResultados .home-header');if(!h||document.getElementById('thorHomeTopoImg'))return;h.innerHTML='<img id="thorHomeTopoImg" src="./thor-home-topo-v316.jpg" alt="THOR LOTERIAS">'}function ligarEscolha(){var b=document.getElementById('btnEscolhaPraMim');if(!b)return;b.removeAttribute('data-home-target');b.onclick=function(e){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();location.href='./gerador.html?v=thor7-v315-salvar-lotomania-00-1910'}}function montarJogos(){if(document.getElementById('thorJogosBranco'))return;var tela=document.createElement('div');tela.id='thorJogosBranco';tela.innerHTML='<div id="thorJogosTopo"><img id="thorJogosTopoImg" src="./thor-jogos-oficiais-topo.jpg" alt="THOR LOTERIAS"></div><div id="thorJogosConteudo"><div id="thorJogosLoterias"><button class="thorJogoLoteria ativa" type="button">Mega-Sena</button><button class="thorJogoLoteria" type="button">Lotofácil</button><button class="thorJogoLoteria" type="button">Quina</button><button class="thorJogoLoteria" type="button">Dia de Sorte</button><button class="thorJogoLoteria" type="button">Lotomania</button><button class="thorJogoLoteria" type="button">Super Sete</button><button class="thorJogoLoteria" type="button">Timemania</button><button class="thorJogoLoteria" type="button">Dupla Sena</button></div></div>';document.body.appendChild(tela);window.addEventListener('popstate',function(){tela.classList.remove('ativo')});tela.querySelectorAll('.thorJogoLoteria').forEach(function(b){b.onclick=function(){tela.querySelectorAll('.thorJogoLoteria').forEach(function(x){x.classList.remove('ativa')});b.classList.add('ativa')}});document.addEventListener('click',function(e){var a=e.target&&e.target.closest?e.target.closest('button,a,[role="button"],.hs-item,.home-feature-card'):null;if(!a||tela.contains(a))return;var txt=(a.textContent||'').replace(/\s+/g,' ').trim();var side=a.matches&&a.matches('#homeSideNav .hs-item:last-child');if(txt==='Jogos'||/^Jogos\s/i.test(txt)||txt==='JOGOS OFICIAIS'||side){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();tela.classList.add('ativo');try{history.pushState({thorJogos:true},'',location.href)}catch(_){}}},true)}function revelar(){var h=document.getElementById('homeHero');if(!h)return false;document.documentElement.classList.add('thor-home-pronta');return true}function iniciar(){ligarEscolha();montarJogos()}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar,{once:true});else iniciar();if(!revelar()){var o=new MutationObserver(function(){ligarEscolha();montarJogos();if(revelar())o.disconnect()});o.observe(document.documentElement,{childList:true,subtree:true,characterData:true});setTimeout(function(){document.documentElement.classList.add('thor-home-pronta');o.disconnect()},8000)}})();</script>
 
-<script id="qfZoomScriptV339">
+<script id="qfZoomScriptV340">
 (function(){
  function init(){
   const viewport=document.getElementById('qfZoomViewport');
@@ -16788,7 +16788,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   const stage=document.getElementById('qfZoomStage'),art=stage.querySelector('.qf-foto-exata');
   const minus=document.getElementById('qfZoomMinus'),plus=document.getElementById('qfZoomPlus'),value=document.getElementById('qfZoomValue');
   let percent=100;
-  try{const saved=Number(localStorage.getItem('thor_quente_zoom'));if(Number.isFinite(saved)&&saved>=100)percent=Math.min(200,Math.max(100,Math.round(saved/10)*10));}catch(e){}
+  try{const saved=Number(localStorage.getItem('thor_quente_zoom'));if(Number.isFinite(saved)&&saved>=100)percent=Math.min(200,Math.max(100,Math.round(saved)));}catch(e){}
   function layout(){
    const width=viewport.clientWidth;
    if(!width)return;
@@ -16797,14 +16797,45 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    stage.style.width=(width*percent/100)+'px';
    stage.style.height=(art.offsetHeight*percent/100)+'px';
   }
-  function update(){
+  function update(save=true){
    value.textContent=percent+'%';
    minus.disabled=percent<=100;plus.disabled=percent>=200;
    layout();
-   try{localStorage.setItem('thor_quente_zoom',String(percent));}catch(e){}
+   if(save)try{localStorage.setItem('thor_quente_zoom',String(percent));}catch(e){}
   }
   minus.addEventListener('click',function(){percent=Math.max(100,percent-10);update();});
   plus.addEventListener('click',function(){percent=Math.min(200,percent+10);update();});
+
+  let pinch=null;
+  function distance(touches){return Math.hypot(touches[0].clientX-touches[1].clientX,touches[0].clientY-touches[1].clientY);}
+  function startPinch(event){
+   if(event.touches.length!==2){pinch=null;return;}
+   const span=distance(event.touches);
+   if(span<1)return;
+   const rect=viewport.getBoundingClientRect();
+   const center=(event.touches[0].clientX+event.touches[1].clientX)/2-rect.left;
+   pinch={span,percent,anchor:(viewport.scrollLeft+center)/(percent/100)};
+   if(event.cancelable)event.preventDefault();
+  }
+  viewport.addEventListener('touchstart',startPinch,{passive:false});
+  viewport.addEventListener('touchmove',function(event){
+   if(event.touches.length!==2){pinch=null;return;}
+   if(!pinch){startPinch(event);return;}
+   if(event.cancelable)event.preventDefault();
+   percent=Math.max(100,Math.min(200,Math.round(pinch.percent*distance(event.touches)/pinch.span)));
+   update(false);
+   const rect=viewport.getBoundingClientRect();
+   const center=(event.touches[0].clientX+event.touches[1].clientX)/2-rect.left;
+   viewport.scrollLeft=Math.max(0,pinch.anchor*(percent/100)-center);
+  },{passive:false});
+  function endPinch(event){
+   if(pinch)update();
+   pinch=null;
+   if(event.touches.length===2)startPinch(event);
+  }
+  viewport.addEventListener('touchend',endPinch,{passive:false});
+  viewport.addEventListener('touchcancel',endPinch,{passive:false});
+
   if(typeof ResizeObserver!=='undefined'){const observer=new ResizeObserver(layout);observer.observe(viewport);observer.observe(art);}
   window.addEventListener('resize',layout);
   update();
