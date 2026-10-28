@@ -16759,7 +16759,26 @@ var checandoVersao=false;
 window.thorChecarNovaVersao=async function(){
  if(checandoVersao||document.visibilityState==='hidden')return;
  checandoVersao=true;
- try{var r=await fetch('./app-version.json?thor_force_update='+Date.now(),{cache:'no-store'});if(!r.ok)return;var j=await r.json(),b=document.getElementById('menuAtualizar');if(!b)return;var nova=Number(j.version),atual=Number(versaoAtual());if(!Number.isInteger(nova))return;b.classList.toggle('menu-atualizar-destaque',nova>atual);b.classList.remove('thor-update-disponivel')}catch(_){}finally{checandoVersao=false}
+ try{
+  var b=document.getElementById('menuAtualizar');if(!b)return;
+  var nova=0;
+  try{var r=await fetch('./app-version.json?thor_force_update='+Date.now(),{cache:'no-store'});if(r.ok){var j=await r.json();nova=Number(j.version)||0}}catch(_){}
+  var atual=Number(versaoAtual());
+  var pendente=nova>atual;
+  // Além do número, detecta mudanças reais do arquivo principal no GitHub.
+  // A assinatura só é marcada como vista quando o usuário escolhe atualizar.
+  try{
+    var sha=await obterShaAtualGithub();
+    if(sha){
+      GITHUB_SHA_ATUAL=sha;
+      var visto=localStorage.getItem(GITHUB_SHA_VISTO_KEY);
+      if(visto && visto!==sha)pendente=true;
+      else if(!visto && !pendente)localStorage.setItem(GITHUB_SHA_VISTO_KEY,sha);
+    }
+  }catch(_){}
+  b.classList.toggle('menu-atualizar-destaque',pendente);
+  b.classList.remove('thor-update-disponivel');
+ }catch(_){}finally{checandoVersao=false}
 };
 normalizarAtualizar();
 setTimeout(window.thorChecarNovaVersao,1500);
