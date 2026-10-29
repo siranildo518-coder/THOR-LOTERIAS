@@ -1,2 +1,2 @@
-// THOR LOTERIAS V337 — visual de Análise > Falhas
-importScripts('./sw-core-thor7.js?v=thor-v350-quente-20261028');
+// THOR LOTERIAS V351 — atualização de cache do Posicionamento
+importScripts('./sw-core-thor7.js?v=thor-v351-dourado-20261029');
