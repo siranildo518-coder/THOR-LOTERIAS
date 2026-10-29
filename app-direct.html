@@ -5523,7 +5523,7 @@ filter:none!important;
           <button type="button" class="gfc-dark-stepper-btn plus" id="gfcDezenasMais">+</button>
         </div>
 
-        <div class="gfc-dark-label">Repetidas do concurso anterior</div>
+        <div class="gfc-dark-label">Repetidas do concurso atual (para o próximo)</div>
         <div class="gfc-dark-stepper-row" id="gfcRepetidasRow">
           <button type="button" class="gfc-dark-stepper-btn" id="gfcRepMenos">−</button>
           <button type="button" class="gfc-dark-value-input gfc-repetidas-value" id="gfcFiltroRepetidas" data-label="Repetidas" value="">9</button>
@@ -8604,10 +8604,11 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
     renderGeradorAnalise(g, ultimo, anterior, repMediaHist, faixaMin, faixaMax,
       maisSairam.slice(0,5).map(x=>x.n), maisAtrasadas.slice(0,5).map(x=>x.n));
 
-    // gera os jogos: dezenas por jogo, quantas repetem do concurso anterior (nunca do atual), e os
+    // gera os jogos: dezenas por jogo, quantas repetem do concurso ATUAL para o próximo, e os
     // filtros opcionais de pares/ímpares/primos — tudo vindo das configurações avançadas
-    if(!anterior || !Array.isArray(anterior.dezenas)) throw new Error('sem concurso anterior suficiente pra gerar');
-    const numsAnteriorBase = anterior.dezenas.map(d=>parseInt(d,10)).filter(n=>!isNaN(n));
+    // A base das repetidas é o concurso que aparece na tela (ex.: 3816 para jogar 3817).
+    if(!Array.isArray(ultimo.dezenas)) throw new Error('sem dezenas do concurso atual para gerar');
+    const numsAnteriorBase = ultimo.dezenas.map(d=>parseInt(d,10)).filter(n=>!isNaN(n));
     const ultimoSet = new Set(numsAnteriorBase);
     const seen = new Set();
     const jogos = [];
@@ -8645,7 +8646,7 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
       return;
     }
 
-    geradorUltimoJogosCtx = { g, jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo, baseRepetidas:numsAnteriorBase, concursoBase:anterior.concurso, conferidoConcurso:null };
+    geradorUltimoJogosCtx = { g, jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo, baseRepetidas:numsAnteriorBase, concursoBase:ultimo.concurso, conferidoConcurso:null };
     salvarGeradorEstado(g.code, { jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo, baseRepetidas:numsAnteriorBase, concursoBase:anterior.concurso });
     renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, validos.length, numeroUltimo, dezenasPorJogo);
   }catch(e){
