@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v360-repetidas-pretas-20261029'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v361-salvar-jogos-20261029'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -4354,7 +4354,7 @@ filter:none!important;
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V360 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V361 · Base V240</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -8848,9 +8848,65 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
 
 // Jogos salvos com nome no aparelho; mesma chave usada na outra entrada do app.
 const GFC_SALVOS_NOME_KEY='tl_gerador_salvos_nome_v1';
-function listarJogosSalvosFechamento(){
-  try{const dados=JSON.parse(localStorage.getItem(GFC_SALVOS_NOME_KEY)||'[]');return Array.isArray(dados)?dados:[]}catch(_){return []}
+let gfcSalvosMemoria=null,gfcSalvosCarga=null,gfcSalvosBanco=false;
+function gfcBancoSalvos(gravar,dados){
+ return new Promise((resolve,reject)=>{
+  let pedido,db,terminou=false;
+  const fim=(erro,valor)=>{if(terminou)return;terminou=true;clearTimeout(timer);if(db)db.close();erro?reject(erro):resolve(valor)};
+  const timer=setTimeout(()=>fim(new Error('Armazenamento não respondeu.')),10000);
+  try{pedido=indexedDB.open('thor_fechamento_jogos',1)}catch(e){fim(e);return}
+  pedido.onupgradeneeded=()=>{const b=pedido.result;if(!b.objectStoreNames.contains('salvos'))b.createObjectStore('salvos')};
+  pedido.onerror=()=>fim(pedido.error);
+  pedido.onblocked=()=>fim(new Error('Feche outras janelas do aplicativo e tente novamente.'));
+  pedido.onsuccess=()=>{
+   db=pedido.result;if(terminou){db.close();return}
+   let tx,valor;
+   try{tx=db.transaction('salvos',gravar?'readwrite':'readonly');
+    const req=gravar?tx.objectStore('salvos').put(dados,'grupos'):tx.objectStore('salvos').get('grupos');
+    req.onsuccess=()=>{valor=req.result};
+    tx.oncomplete=()=>fim(null,gravar?dados:valor);
+    tx.onabort=()=>fim(tx.error||new Error('Gravação interrompida.'));
+    tx.onerror=()=>{}; // onabort confirma que a transação não foi gravada.
+   }catch(e){fim(e)}
+  };
+ });
 }
+async function carregarJogosSalvosFechamento(){
+ if(gfcSalvosMemoria!==null)return gfcSalvosMemoria;
+ if(gfcSalvosCarga)return gfcSalvosCarga;
+ gfcSalvosCarga=(async()=>{
+  let banco,erroBanco;
+  try{banco=await gfcBancoSalvos(false)}catch(e){erroBanco=e}
+  if(banco!==undefined){
+   if(!Array.isArray(banco))throw new Error('Os jogos salvos precisam ser recuperados.');
+   gfcSalvosBanco=true;gfcSalvosMemoria=banco;return banco;
+  }
+  const bruto=localStorage.getItem(GFC_SALVOS_NOME_KEY);
+  if(bruto!==null){
+   const antigos=JSON.parse(bruto);
+   if(!Array.isArray(antigos))throw new Error('Os jogos salvos precisam ser recuperados.');
+   gfcSalvosMemoria=antigos;return antigos;
+  }
+  if(erroBanco)throw erroBanco;
+  gfcSalvosMemoria=[];return gfcSalvosMemoria;
+ })();
+ try{return await gfcSalvosCarga}finally{gfcSalvosCarga=null}
+}
+async function gravarJogosSalvosFechamento(dados){
+ await carregarJogosSalvosFechamento();
+ try{
+  await gfcBancoSalvos(true,dados);
+  gfcSalvosBanco=true;gfcSalvosMemoria=dados;
+  // A migração só remove a cópia antiga depois do commit durável no banco.
+  try{localStorage.removeItem(GFC_SALVOS_NOME_KEY)}catch(_){}
+ }catch(e){
+  if(gfcSalvosBanco)throw e;
+  localStorage.setItem(GFC_SALVOS_NOME_KEY,JSON.stringify(dados));
+  gfcSalvosMemoria=dados;
+ }
+}
+function listarJogosSalvosFechamento(){return (gfcSalvosMemoria||[]).slice()}
+
 let gfcSalvosResultado=null;
 let gfcSalvosErro='';
 let gfcSalvosPedido=0;
@@ -8911,7 +8967,7 @@ function montarResultadoSalvos(){
  on('sgCopy',async()=>{try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(text());else{const a=document.createElement('textarea');a.value=text();a.style.cssText='position:fixed;left:-9999px';document.body.append(a);a.select();const ok=document.execCommand('copy');a.remove();if(!ok)throw Error()}status('Jogos copiados.')}catch(_){status('Não foi possível copiar. Use Salvar jogos para baixar.')}});
  on('sgSave',()=>{const u=URL.createObjectURL(new Blob([text()],{type:'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download='THOR-'+g.code+'-jogos-salvos.txt';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);status('Arquivo dos jogos preparado.')});
  let confirm=false;
- on('sgClear',()=>{if(!confirm){confirm=true;document.getElementById('sgClear').textContent='Confirmar limpeza';status('Remove somente os jogos de '+g.nome+'.');return}try{localStorage.setItem(GFC_SALVOS_NOME_KEY,JSON.stringify(listarJogosSalvosFechamento().filter(x=>x.gameCode!==g.code)));montarResultadoSalvos()}catch(_){status('Não foi possível limpar os jogos.')}});
+ on('sgClear',async()=>{if(!confirm){confirm=true;document.getElementById('sgClear').textContent='Confirmar limpeza';status('Remove somente os jogos de '+g.nome+'.');return}try{await gravarJogosSalvosFechamento(listarJogosSalvosFechamento().filter(x=>x.gameCode!==g.code));montarResultadoSalvos()}catch(_){status('Não foi possível limpar os jogos.')}});
 }
 async function carregarResultadoSalvos(numero){
  const g=sgGame,pedido=++gfcSalvosPedido;if(!g)return;gfcSalvosErro='';
@@ -8928,10 +8984,13 @@ function sgSelect(code){
  const cache=obterConcursoCache(g);gfcSalvosResultado=cache?.concurso?{concurso:+cache.concurso,dezenas:(cache.dezenas||[]).map(Number),data:cache.data||''}:null;
  montarResultadoSalvos();carregarResultadoSalvos();
 }
-function mostrarJogosSalvosFechamento(){
+async function mostrarJogosSalvosFechamento(){
  const tela=document.getElementById('gfcJogosSalvosTela');
  if(tela.style.display!=='flex'){try{history.pushState({thorJogosSalvos:true},'',location.href)}catch(_){}tela.style.display='flex'}
- sgSelect(geradorGameAtual?.code||GERADOR_GAMES[0].code);
+ const painel=document.getElementById('geradorFiltroTabPanelSalvos');
+ painel.textContent='Carregando jogos salvos…';
+ try{await carregarJogosSalvosFechamento();if(tela.style.display==='flex')sgSelect(geradorGameAtual?.code||GERADOR_GAMES[0].code)}
+ catch(_){painel.textContent='Não foi possível ler os jogos salvos. Feche e abra esta tela para tentar novamente. Seus jogos não foram apagados.'}
 }
 
 let gfcJogosSalvosFechando=false;
@@ -8981,15 +9040,23 @@ window.addEventListener('popstate',e=>{
 document.getElementById('gfcSalvarJogosTopo').addEventListener('click',abrirSalvarJogosFechamento);
 document.getElementById('gfcSalvarNomeCancelar').addEventListener('click',fecharSalvarJogosFechamento);
 document.getElementById('gfcSalvarNomeVoltar').addEventListener('click',fecharSalvarJogosFechamento);
-document.getElementById('gfcSalvarNomeConfirmar').addEventListener('click',()=>{
+document.getElementById('gfcSalvarNomeConfirmar').addEventListener('click',async()=>{
   const ctx=geradorUltimoJogosCtx,nome=document.getElementById('gfcSalvarNomeCampo').value.trim();
   const erro=document.getElementById('gfcSalvarNomeErro');
   if(!ctx||!geradorGameAtual||ctx.g.code!==geradorGameAtual.code||!ctx.jogos?.length){erro.textContent='Gere os jogos primeiro.';return}
   if(!nome){erro.textContent='Digite o nome do jogo.';return}
+  const botao=document.getElementById('gfcSalvarNomeConfirmar');
+  if(botao.disabled)return;
+  botao.disabled=true;botao.textContent='Salvando…';erro.textContent='';
+  try{
+  await carregarJogosSalvosFechamento();
   const salvos=listarJogosSalvosFechamento();
   salvos.unshift({id:Date.now(),nome,data:new Date().toISOString(),gameCode:ctx.g.code,loteria:ctx.g.nome,jogos:ctx.jogos.map(j=>j.slice()),maisAtrasadas:ctx.maisAtrasadas||[],maisSairam:ctx.maisSairam||[],totalConcursos:ctx.totalConcursos||0,numeroUltimo:ctx.numeroUltimo||0,depSize:ctx.depSize||0});
-  try{localStorage.setItem(GFC_SALVOS_NOME_KEY,JSON.stringify(salvos.slice(0,50)))}catch(_){erro.textContent='Não foi possível salvar neste aparelho.';return}
+  await gravarJogosSalvosFechamento(salvos);
   fecharSalvarJogosFechamento();
+  }catch(e){
+   erro.textContent=e?.name==='QuotaExceededError'?'O armazenamento está cheio. Exporte seus jogos para guardar uma cópia antes de liberar espaço.':'Não foi possível concluir a gravação. Tente novamente. Os jogos continuam na tela.';
+  }finally{botao.disabled=false;botao.textContent='Salvar'}
   // Permanece com os jogos gerados na tela; Meus jogos salvos mostra o registro depois.
 });
 document.getElementById('gfcSalvarNomeCampo').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('gfcSalvarNomeConfirmar').click()}});
