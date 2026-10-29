@@ -2552,6 +2552,13 @@
       "criadoEm": "2026-10-29T14:40:59.318Z",
       "expiraEm": "2026-10-30T14:40:59.318Z",
       "ativo": true
+    },
+    {
+      "hash": "981e47c521048f246287d88d9f9a65849479157c61128b23bcc1a3ac6056fbae",
+      "compatHash": "mbgrmo",
+      "criadoEm": "2026-10-29T18:53:10.515Z",
+      "expiraEm": "2026-10-30T18:53:10.516Z",
+      "ativo": true
     }
   ]
 }
