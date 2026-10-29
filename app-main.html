@@ -3999,6 +3999,16 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #downloadBtn{background:linear
 #thorCombinacoesMetal #ballGrid .ball.ball-sumida{opacity:1!important;visibility:visible!important;display:flex!important}
 #thorCombinacoesMetal #btnFixarModo.active{background:linear-gradient(#55d890,#087b43)!important;color:#fff!important;border-color:#075a32!important}
 #thorCombinacoesMetal #btnExcluirModo.active{background:linear-gradient(#ff7777,#c70b21)!important;color:#fff!important;border-color:#9d0a1d!important}
+</style><style id="thor-combinacoes-3d-sem-sombra-inferior">
+/* Bolinhas com volume 3D interno, sem sombra projetada abaixo */
+#thorCombinacoesMetal #ballGrid .ball,
+#thorCombinacoesMetal #ballGrid .ball.on,
+#thorCombinacoesMetal #ballGrid .ball.fixed,
+#thorCombinacoesMetal #ballGrid .ball.excluded{
+box-shadow:inset 0 2px 3px rgba(255,255,255,.72),inset 0 -3px 5px rgba(0,0,0,.22)!important;
+filter:none!important;
+}
+#thorCombinacoesMetal #ballGrid .ball span{text-shadow:none!important}
 </style></head>
 <body>
 <div class="app">
