@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v345-quente-20261028'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v346-quente-20261028'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3884,6 +3884,48 @@ html body #geradorFiltroTabPanelSalvos{padding:0 6px 24px!important}
 #gfcJogosSalvosTela .sg-game-top b{font-size:15px;color:#ffe373;background:#171717;border-radius:8px;padding:4px 9px}
 #gfcJogosSalvosTela .sg-game-top strong{font-size:23px;font-weight:900;color:#171717;padding:3px 7px;border:1px solid #282722;border-radius:9px;background:linear-gradient(#fff4bd,#f5cd4b);box-shadow:0 2px 3px #0003}
 #gfcJogosSalvosTela .sg-name{font-size:10px;color:#6a5b31;margin:0 0 6px;overflow-wrap:anywhere}
+</style><style id="fechamentoDouradoV346">
+html body #overlayGeradorFiltro{background:#fff8dc!important;color:#24221c!important}
+html body #overlayGeradorFiltro>div{padding:9px 10px 28px!important}
+html body #overlayGeradorFiltro #geradorFiltroUltimoResultado,
+html body #overlayGeradorFiltro #geradorFiltroAnalise,
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada,
+html body #overlayGeradorFiltro #geradorConferenciaResumo{padding:10px!important;margin-bottom:10px!important;border:2px solid #292822!important;border-radius:13px!important;background:linear-gradient(125deg,#fff9df,#f9da6c)!important;color:#24221c!important;box-shadow:inset 0 0 0 2px #ecc75c,0 2px 4px #0003!important}
+html body #overlayGeradorFiltro #geradorFiltroUltimoResultado .res-card-title,
+html body #overlayGeradorFiltro #geradorFiltroAnalise .stat-sub-title,
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada .gfc-dark-title{padding:10px 8px!important;margin:0 0 9px!important;background:linear-gradient(90deg,#161616,#343434)!important;color:#ffdf70!important;border:1px solid #baa14e!important;border-radius:9px!important;font-size:14px!important;line-height:1.25!important;text-shadow:none!important}
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada .gfc-dark-title:before{color:#ffdf70!important}
+html body #overlayGeradorFiltro #geradorFiltroUltimoResultado .res-nav-row{justify-content:center!important;gap:8px!important;margin:10px 0 13px!important}
+html body #overlayGeradorFiltro #geradorFiltroUltimoResultado .res-nav-btn{width:42px!important;height:38px!important;min-height:38px!important;padding:4px!important;border:2px solid #292822!important;border-radius:9px!important;background:linear-gradient(#fff0a4,#eab923)!important;box-shadow:inset 0 1px 2px #fff,0 2px 3px #0003!important;color:#24231d!important;font-size:17px!important}
+html body #overlayGeradorFiltro #geradorFiltroUltimoResultado .res-concurso-num{padding:8px!important;min-width:125px!important;background:#fff!important;border:2px solid #242424!important;border-radius:9px!important;text-align:center!important;font-size:21px!important;line-height:1.2!important;color:#1a293c!important}
+html body #overlayGeradorFiltro #geradorFiltroUltimoResultado .result-balls{display:grid!important;grid-template-columns:repeat(10,minmax(0,1fr))!important;gap:4px!important;margin:0!important}
+html body #overlayGeradorFiltro #geradorFiltroUltimoResultado .result-ball-sm,
+html body #overlayGeradorFiltro #geradorFiltroAnalise .gfc-ball-rep{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-width:0!important;height:auto!important;aspect-ratio:1!important;margin:0!important;border:0!important;border-radius:50%!important;color:#fff!important;background:radial-gradient(circle at 30% 20%,#c8cbcb,#5b5d60 26%,#18191b 60%,#020304)!important;font-size:clamp(10px,2.7vw,18px)!important;font-weight:900!important;box-shadow:inset 0 1px 2px #fff7,0 3px 5px #0004!important;text-shadow:none!important}
+html body #overlayGeradorFiltro #geradorFiltroAnalise>div:last-child{display:grid!important;grid-template-columns:repeat(10,minmax(0,1fr))!important;gap:4px!important}
+html body #overlayGeradorFiltro #geradorFiltroAnalise .gfc-ball-rep{background:radial-gradient(circle at 30% 20%,#a38bcf,#643b93 42%,#36234f)!important}
+html body #overlayGeradorFiltro #geradorFiltroUltimoResultado .res-local{font-size:11px!important;color:#686553!important;line-height:1.4!important;margin-top:8px!important}
+html body #overlayGeradorFiltro #geradorFiltroTabs{gap:7px!important;margin:8px 0!important}
+html body #overlayGeradorFiltro #geradorFiltroTabs .gfc-tab-btn{height:40px!important;border:2px solid #7793a7!important;border-radius:9px!important;background:linear-gradient(#316f9f,#113e68)!important;color:#fff!important;box-shadow:inset 0 1px 2px #fff9,0 2px 3px #0004!important;font-size:13px!important}
+html body #overlayGeradorFiltro #geradorFiltroTabs #geradorFiltroTabConfig{background:linear-gradient(#fff0a4,#eab923)!important;border-color:#292822!important;color:#24221c!important}
+html body #overlayGeradorFiltro #gfcSalvarJogosTopo,
+html body #overlayGeradorFiltro #thorExportarJogosC4{height:38px!important;border:2px solid #7793a7!important;border-radius:9px!important;background:linear-gradient(#316f9f,#113e68)!important;color:#fff!important;box-shadow:inset 0 1px 2px #fff9,0 2px 3px #0004!important;font-size:12px!important}
+html body #overlayGeradorFiltro #gfcSalvarJogosTopo{background:linear-gradient(#24974d,#075c30)!important;border-color:#557a3b!important}
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada .gfc-dark-label{color:#343027!important;font-size:12px!important;line-height:1.3!important;margin:10px 0 5px!important;text-shadow:none!important}
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada .gfc-dark-stepper-row{grid-template-columns:40px minmax(0,1fr) 40px!important;gap:7px!important;padding:6px!important;border:1.5px solid #292822!important;border-radius:10px!important;background:#fff8dc!important;box-shadow:none!important}
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada .gfc-dark-stepper-btn{width:40px!important;height:35px!important;background:linear-gradient(#ff6f71,#cb202e)!important;border:1.5px solid #88262c!important;border-radius:8px!important;box-shadow:inset 0 1px 2px #fff9,0 2px 3px #0003!important;color:white!important}
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada .gfc-dark-stepper-btn.plus{background:linear-gradient(#24974d,#075c30)!important;border-color:#557a3b!important}
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada .gfc-dark-value-input{height:35px!important;background:#fff!important;color:#1a293c!important;border:1.5px solid #292822!important;border-radius:8px!important;font-size:21px!important;box-shadow:none!important}
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada .gfc-dark-input-wrap>button,
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada .gfc-dark-input-wrap>input{height:38px!important;padding:5px 3px!important;border:1.5px solid #292822!important;border-radius:9px!important;background:linear-gradient(#fff9db,#eeca56)!important;color:#24221c!important;font-size:12px!important;box-shadow:inset 0 1px 2px #fff,0 2px 3px #0003!important;text-shadow:none!important}
+html body #overlayGeradorFiltro #geradorFiltroConfigAvancada .gfc-dark-input-wrap>span{color:#24221c!important}
+html body #overlayGeradorFiltro #gfcLimparFiltrosBtn,
+html body #overlayGeradorFiltro #geradorFiltroGerarBtn{width:100%!important;height:43px!important;margin:10px 0 0!important;padding:5px!important;border:2px solid #88262c!important;border-radius:9px!important;background:linear-gradient(#ff6f71,#cb202e)!important;color:#fff!important;font-size:15px!important;box-shadow:inset 0 1px 2px #fff9,0 2px 3px #0004!important}
+html body #overlayGeradorFiltro #geradorFiltroGerarBtn{background:linear-gradient(#24974d,#075c30)!important;border-color:#557a3b!important}
+html body #overlayGeradorFiltro #geradorFiltroTabPanelJogos{color:#24221c!important}
+html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-row{padding:9px!important;margin:7px 0!important;border:1.5px solid #282722!important;border-radius:12px!important;background:linear-gradient(115deg,#fff9df,#f6d970)!important;box-shadow:0 2px 3px #0002!important;color:#24221c!important}
+html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-ball{background:radial-gradient(circle at 30% 20%,#fff,#e0e5df 50%,#aeb9b3)!important;color:#141414!important;text-shadow:none!important;box-shadow:inset 0 1px 2px #fff7,0 3px 5px #0004!important;border:0!important}
+html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-ball.sg-acertou{background:radial-gradient(circle at 30% 20%,#a38bcf,#643b93 42%,#36234f)!important;color:#fff!important}
+html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-ball.fixa-gerador{outline:2px solid #a27616;outline-offset:1px}
 </style><style id="thorBootEscuroApp">html,body{background:#07101f!important}body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
 <body>
 <div class="app">
@@ -4161,7 +4203,7 @@ html body #geradorFiltroTabPanelSalvos{padding:0 6px 24px!important}
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V345 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V346 · Base V240</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -8521,6 +8563,7 @@ function atualizarConferenciaGeradorLeve(g, jogos){
       row.style.borderColor = faixa ? '#1F9D74' : '';
       row.querySelectorAll('.gerador-jogo-ball').forEach(ball=>{
         const acertou = resultadoSet.has(Number(ball.dataset.num));
+        ball.classList.toggle('sg-acertou',acertou);
         ball.style.backgroundImage = acertou ? `linear-gradient(rgba(16,140,86,.62), rgba(6,90,58,.62)), url(${BALL_PHOTO_URL})` : `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url(${BALL_PHOTO_URL})`;
         ball.style.borderColor = acertou ? 'transparent' : 'var(--line,#E7DFF5)';
         ball.style.color = acertou ? '#fff' : 'var(--violet-deep)';
@@ -8577,7 +8620,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
           const bg = acertou
             ? `linear-gradient(rgba(16,140,86,.62), rgba(6,90,58,.62)), url(${BALL_PHOTO_URL})`
             : `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url(${BALL_PHOTO_URL})`;
-          return `<span class="gerador-jogo-ball${fixa ? ' fixa-gerador' : ''}" data-num="${n}" title="${fixa ? 'Dezena fixa' : ''}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background-image:${bg};background-size:cover;background-position:center;background-blend-mode:multiply;border:${fixa ? '2px solid #F59E0B' : ('1px solid '+(acertou ? 'transparent' : 'var(--line,#E7DFF5)'))};color:${acertou ? '#fff' : 'var(--violet-deep)'};font-family:'Baloo 2',sans-serif;font-size:10.5px;font-weight:${fixa ? '900' : '700'};text-shadow:${acertou ? '0 1px 2px rgba(0,0,0,.35)' : '0 1px 2px rgba(255,255,255,.9)'};">${n.toString().padStart(2,'0')}</span>`;
+          return `<span class="gerador-jogo-ball${fixa ? ' fixa-gerador' : ''}${acertou ? ' sg-acertou' : ''}" data-num="${n}" title="${fixa ? 'Dezena fixa' : ''}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background-image:${bg};background-size:cover;background-position:center;background-blend-mode:multiply;border:${fixa ? '2px solid #F59E0B' : ('1px solid '+(acertou ? 'transparent' : 'var(--line,#E7DFF5)'))};color:${acertou ? '#fff' : 'var(--violet-deep)'};font-family:'Baloo 2',sans-serif;font-size:10.5px;font-weight:${fixa ? '900' : '700'};text-shadow:${acertou ? '0 1px 2px rgba(0,0,0,.35)' : '0 1px 2px rgba(255,255,255,.9)'};">${n.toString().padStart(2,'0')}</span>`;
         }).join('')}
       </div>
       ${badge}
