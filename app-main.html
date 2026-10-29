@@ -3989,7 +3989,17 @@ body.thor-combinacoes-metal #thorCombinacoesMetal #statsGrid .k,body.thor-combin
 body.thor-combinacoes-metal #thorCombinacoesMetal #summaryBox,body.thor-combinacoes-metal #thorCombinacoesMetal #resultBox,body.thor-combinacoes-metal #thorCombinacoesMetal #warnBox{color:#29271e}
 body.thor-combinacoes-metal #thorCombinacoesMetal #downloadBtn{background:linear-gradient(#367da7,#17456b)!important;border:1.5px solid #718c99!important;color:#fff!important}
 </style>
-</head>
+<style id="thor-combinacoes-bolas-brancas-v383">
+/* Gerador de combinações: branco normal, preto marcado, verde fixado, vermelho excluído */
+#thorCombinacoesMetal #ballGrid .ball:not(.on):not(.fixed):not(.excluded){background:radial-gradient(circle at 30% 20%,#fff 0%,#fff 35%,#e5e5e5 72%,#b6b6b6 100%)!important;color:#111!important;border:1px solid #a9a9a9!important;opacity:1!important;visibility:visible!important}
+#thorCombinacoesMetal #ballGrid .ball.on:not(.fixed):not(.excluded){background:radial-gradient(circle at 30% 18%,#777 0%,#242424 47%,#050505 100%)!important;color:#fff!important;border-color:#444!important}
+#thorCombinacoesMetal #ballGrid .ball.fixed{background:radial-gradient(circle at 30% 18%,#9bf2b7 0%,#1dba64 45%,#056633 100%)!important;color:#fff!important;border-color:#18874d!important}
+#thorCombinacoesMetal #ballGrid .ball.excluded{background:radial-gradient(circle at 30% 18%,#ffb2aa 0%,#ec343d 45%,#940913 100%)!important;color:#fff!important;border-color:#b91e27!important;opacity:1!important;visibility:visible!important;text-decoration:none!important}
+#thorCombinacoesMetal #ballGrid .ball.excluded span{text-decoration:none!important}
+#thorCombinacoesMetal #ballGrid .ball.ball-sumida{opacity:1!important;visibility:visible!important;display:flex!important}
+#thorCombinacoesMetal #btnFixarModo.active{background:linear-gradient(#55d890,#087b43)!important;color:#fff!important;border-color:#075a32!important}
+#thorCombinacoesMetal #btnExcluirModo.active{background:linear-gradient(#ff7777,#c70b21)!important;color:#fff!important;border-color:#9d0a1d!important}
+</style></head>
 <body>
 <div class="app">
 
@@ -6494,23 +6504,10 @@ btnExcluirModo.addEventListener('click', ()=>{
     });
     falarExclusaoDezenas(paraExcluir.length);
 
-    // estoura uma bolinha de cada vez, com um intervalo entre cada uma
-    paraExcluir.forEach((n, idx)=>{
-      setTimeout(()=>{
-        const el = ballGrid.querySelector(`.ball[data-n="${n}"]`);
-        if(el){
-          el.classList.remove('on');
-          el.classList.add('excluded');
-          el.classList.remove('excluir-anim', 'ball-sumida');
-          void el.offsetWidth; // reinicia a animação mesmo se já tiver rodado antes
-          el.classList.add('excluir-anim');
-          setTimeout(()=> estourarBalaoParticulas(el), 920); // dispara junto com o instante do estouro (~88% da animação de 1.05s)
-          el.addEventListener('animationend', ()=>{
-            el.classList.remove('excluir-anim');
-            el.classList.add('ball-sumida'); // some de vez, deixando o espaço vazio
-          }, {once:true});
-        }
-      }, idx * 1200);
+    // Mantém as dezenas excluídas visíveis e vermelhas na grade.
+    paraExcluir.forEach(n=>{
+      const el=ballGrid.querySelector(`.ball[data-n="${n}"]`);
+      if(el){el.classList.remove('on','fixed','excluir-anim','ball-sumida');el.classList.add('excluded');}
     });
   }
   refreshUI();
