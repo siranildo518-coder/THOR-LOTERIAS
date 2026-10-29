@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v359-selecionadas-sorteadas-20261029'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v360-repetidas-pretas-20261029'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -4354,7 +4354,7 @@ filter:none!important;
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V359 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V360 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -8700,7 +8700,7 @@ function atualizarConferenciaGeradorLeve(g, jogos){
         ball.classList.toggle('sg-acertou',selecionada);
         ball.classList.remove('gfc-sorteada');
       });
-      const badge=row.querySelector('.gerador-hit-badge');if(badge)badge.innerHTML='<span class="tp-single">'+selecionadas+' selecionadas</span>';
+      const badge=row.querySelector('.gerador-hit-badge');if(badge)badge.innerHTML='<span class="tp-single">'+selecionadas+' repetidas</span>';
       const premio=row.querySelector('.gerador-premio-wrap');if(premio){premio.innerHTML='';premio.style.display='none'}
       row.style.background='';row.style.borderColor='';
     });
@@ -8749,7 +8749,7 @@ function atualizarConferenciaGeradorLeve(g, jogos){
         const acertou = resultadoSet.has(Number(ball.dataset.num));
         const selecionada=selecionadasSet.has(Number(ball.dataset.num));
         ball.classList.toggle('sg-acertou',selecionada);
-        ball.classList.toggle('gfc-sorteada',acertou&&!selecionada);
+        ball.classList.toggle('gfc-sorteada',acertou);
         ball.style.backgroundImage = acertou ? `linear-gradient(rgba(16,140,86,.62), rgba(6,90,58,.62)), url(${BALL_PHOTO_URL})` : `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url(${BALL_PHOTO_URL})`;
         ball.style.borderColor = acertou ? 'transparent' : 'var(--line,#E7DFF5)';
         ball.style.color = acertou ? '#fff' : 'var(--violet-deep)';
@@ -8797,7 +8797,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     if(conferindo) distribuicaoAcertos.set(hits, (distribuicaoAcertos.get(hits) || 0) + 1);
     if(faixa) totalPremiados++;
     const selecionadas=jogo.filter(n=>selecionadasSet.has(Number(n))).length;
-    const badge = `<span class="gerador-hit-badge">${conferindo?thorPremioCard347(g.code,hits,jogo.length):'<span class="tp-single">'+selecionadas+' selecionadas</span>'}</span>`;
+    const badge = `<span class="gerador-hit-badge">${conferindo?thorPremioCard347(g.code,hits,jogo.length):'<span class="tp-single">'+selecionadas+' repetidas</span>'}</span>`;
     const premioTag = faixa
       ? `<div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:#fff;background:linear-gradient(135deg,#1F9D74,#15764F);padding:3px 8px;border-radius:20px;display:inline-block;margin-top:5px;">🏆 PREMIADO — ${faixa.label}</div>`
       : '';
@@ -8808,7 +8808,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
         ${jogo.map(n=>{
           const fixa = gfcFixasSelecionadas.has(n);
           const acertou = selecionadasSet.has(Number(n));
-          const sorteada = conferindo && resultadoSet.has(Number(n)) && !acertou;
+          const sorteada = conferindo && resultadoSet.has(Number(n));
           const bg = acertou
             ? `linear-gradient(rgba(16,140,86,.62), rgba(6,90,58,.62)), url(${BALL_PHOTO_URL})`
             : `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url(${BALL_PHOTO_URL})`;
