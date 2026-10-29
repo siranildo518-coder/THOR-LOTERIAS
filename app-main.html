@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v348-quente-20261028'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v349-quente-20261028'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3942,6 +3942,10 @@ html body #overlayGeradorFiltro #geradorResTentar{width:auto!important;height:au
 html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-hit-badge,
 html body #gfcJogosSalvosTela .sg-game-top>strong{display:block!important;max-width:none!important;white-space:nowrap!important;padding:6px 8px!important;line-height:1.2!important}
 html body .tp-single{display:inline!important;white-space:nowrap!important;font-size:clamp(10px,2.8vw,16px)!important;font-weight:800!important;color:#171717!important}
+</style><style id="premiadoVerdeV349">
+html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-hit-badge:has(.tp-win),
+html body #gfcJogosSalvosTela .sg-game-top>strong:has(.tp-win){background:linear-gradient(#d9ffe0,#70d999)!important;border-color:#287a43!important;box-shadow:inset 0 1px 2px #fff9,0 2px 3px #0003!important}
+html body .tp-single.tp-win{color:#133d20!important}
 </style></head>
 <body>
 <div class="app">
@@ -4219,7 +4223,7 @@ html body .tp-single{display:inline!important;white-space:nowrap!important;font-
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V348 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V349 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -8605,7 +8609,7 @@ function atualizarConferenciaGeradorLeve(g, jogos){
       const badge = row.querySelector('.gerador-hit-badge');
       if(badge){
         badge.style.color = faixa ? '#1F9D74' : 'var(--muted)';
-        badge.innerHTML = thorPremioCard347(g.code,hits);
+        badge.innerHTML = thorPremioCard347(g.code,hits,jogos[idx].length);
       }
       const premioWrap = row.querySelector('.gerador-premio-wrap');
       if(premioWrap){
@@ -8624,9 +8628,10 @@ function atualizarConferenciaGeradorLeve(g, jogos){
 }
 
 
-function thorPremioCard347(code,hits){
+function thorPremioCard347(code,hits,quantidade){
  const faixa=hits===null?null:faixaPremioGerador(code,hits);
- return '<span class="tp-single">'+(hits===null?'—':hits+' pontos'+(faixa?' · Premiado':''))+'</span>';
+ const premiado=!!faixa && (code!=='LF'||quantidade===15||(quantidade>15&&hits===15));
+ return '<span class="tp-single'+(premiado?' tp-win':'')+'">'+(hits===null?'—':hits+' pontos'+(premiado?' · Premiado':''))+'</span>';
 }
 
 function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcursos, numeroUltimo, depSize){
@@ -8643,7 +8648,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     const faixa = conferindo ? faixaPremioGerador(g.code, hits) : null;
     if(conferindo) distribuicaoAcertos.set(hits, (distribuicaoAcertos.get(hits) || 0) + 1);
     if(faixa) totalPremiados++;
-    const badge = `<span class="gerador-hit-badge">${thorPremioCard347(g.code,hits)}</span>`;
+    const badge = `<span class="gerador-hit-badge">${thorPremioCard347(g.code,hits,jogo.length)}</span>`;
     const premioTag = faixa
       ? `<div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:#fff;background:linear-gradient(135deg,#1F9D74,#15764F);padding:3px 8px;border-radius:20px;display:inline-block;margin-top:5px;">🏆 PREMIADO — ${faixa.label}</div>`
       : '';
@@ -8752,7 +8757,7 @@ function montarResultadoSalvos(){
  <section class="sg-panel"><h2>JOGOS SALVOS</h2><div class="sg-actions">
  <button id="sgCopy" class="sg-blue" ${!all.length?'disabled':''}>Copiar jogos</button><button id="sgClear" class="sg-red" ${!all.length?'disabled':''}>🗑 Limpar</button><button id="sgSave" class="sg-blue" ${!all.length?'disabled':''}>▣ Salvar jogos</button><button id="sgWins" class="sg-green" aria-pressed="${sgOnlyWins}" ${!result||!all.length?'disabled':''}>${sgOnlyWins?'Todos os jogos':'🏆 Jogos premiados'}</button></div>
  <p id="sgStatus" role="status"></p><p class="sg-count">${all.length} jogos salvos em ${sgEscape(g.nome)}.</p>
- ${visible.slice(0,sgLimit).map(j=>'<article class="sg-game"><div class="sg-game-top"><b>Jogo '+j.index+'</b><strong>'+thorPremioCard347(g.code,j.hits)+'</strong></div><div class="sg-name">'+sgEscape(j.nome)+'</div><div class="sg-balls">'+j.numeros.map(n=>ball(n,drawn.has(sgNormalize(n))?'hit':'miss')).join('')+'</div></article>').join('')}
+ ${visible.slice(0,sgLimit).map(j=>'<article class="sg-game"><div class="sg-game-top"><b>Jogo '+j.index+'</b><strong>'+thorPremioCard347(g.code,j.hits,j.numeros.length)+'</strong></div><div class="sg-name">'+sgEscape(j.nome)+'</div><div class="sg-balls">'+j.numeros.map(n=>ball(n,drawn.has(sgNormalize(n))?'hit':'miss')).join('')+'</div></article>').join('')}
  ${!visible.length?'<p class="sg-muted">'+(all.length?'Nenhum jogo premiado neste concurso.':'Salve jogos nesta loteria para vê-los aqui.')+'</p>':''}
  ${visible.length>sgLimit?'<button class="sg-gold" id="sgMore">Mostrar mais jogos</button>':''}</section>`;
  p.querySelectorAll('[data-sg-game]').forEach(b=>b.onclick=()=>sgSelect(b.dataset.sgGame));
