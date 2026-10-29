@@ -8606,7 +8606,7 @@ function atualizarConferenciaGeradorLeve(g, jogos){
 function thorPremioCard347(code,hits){
  const faixa=hits===null?null:faixaPremioGerador(code,hits);
  const valor=faixa?.label?.match(/R\$\s*[\d.,]+/)?.[0]||null;
- return '<span class="tp-label">'+(faixa?'🏆 Jogo premiado':hits===null?'Aguardando resultado':'Pontuação')+'</span><strong class="tp-points">'+(hits===null?'—':hits+' pontos')+'</strong>'+(faixa?'<span class="tp-value">'+(valor?'Faixa: '+valor:'Valor a confirmar')+'</span>':'');
+ return '<span class="tp-label">'+(faixa?'🏆 Jogo premiado':hits===null?'Aguardando resultado':'Pontuação')+'</span><span class="tp-points">'+(hits===null?'—':hits+' pontos')+'</span>'+(faixa?'<span class="tp-value">'+(valor?'Faixa: '+valor:'Valor a confirmar')+'</span>':'');
 }
 
 function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcursos, numeroUltimo, depSize){
