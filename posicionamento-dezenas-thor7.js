@@ -21,3 +21,5 @@
 #thorPosTabela .tp-info{margin:10px!important;background:#0c0c0c!important;color:#fff!important;border:3px solid #e9be43!important;border-radius:12px!important;padding:13px!important;font-size:12px!important}
 @media(max-width:600px){#thorPosTabela .tp-top{display:block!important}#thorPosTabela .tp-controls{margin-top:10px!important}#thorPosTabela .tp-table{min-width:600px!important}#thorPosTabela .tp-table th{font-size:10px!important}#thorPosTabela .tp-table td{font-size:11px!important}}
 `;document.head.appendChild(st)})();
+
+(function(){if(document.getElementById('thorPosCompactV352'))return;var s=document.createElement('style');s.id='thorPosCompactV352';s.textContent='#thorPosTabela .tp-atualizar{height:29px!important;padding:0 7px!important;font-size:11px!important;border-radius:7px!important}#thorPosTabela .tp-controls input{width:56px!important;height:28px!important;font-size:13px!important;border-radius:7px!important}#thorPosTabela .tp-dez{width:29px!important;height:29px!important;font-size:12px!important}#thorPosTabela .tp-top{padding:8px 7px!important}#thorPosTabela .tp-table td{padding:3px!important}';document.head.appendChild(s)})();
