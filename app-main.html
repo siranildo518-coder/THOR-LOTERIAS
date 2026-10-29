@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v357-cadastro-copiar-20261029'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v358-repetidas-conferir-20261029'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -4353,7 +4353,7 @@ filter:none!important;
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V357 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V358 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -8341,6 +8341,7 @@ function abrirGeradorFiltro(code){
       g: geradorGameAtual, jogos: estadoSalvo.jogos,
       maisAtrasadas: estadoSalvo.maisAtrasadas||[], maisSairam: estadoSalvo.maisSairam||[],
       totalConcursos: estadoSalvo.totalConcursos||0, numeroUltimo: estadoSalvo.numeroUltimo||0,
+      baseRepetidas: estadoSalvo.baseRepetidas||[], concursoBase: estadoSalvo.concursoBase||0, conferidoConcurso:null,
       depSize: estadoSalvo.depSize||0
     };
     renderGeradorResultado(geradorGameAtual, estadoSalvo.jogos, estadoSalvo.maisAtrasadas||[],
@@ -8439,6 +8440,7 @@ function renderUltimoResultadoGerador(g, data){
   // Anterior/Próximo pra um concurso diferente)
   geradorUltimoResultado = { gameCode: g.code, concurso: data.concurso, dezenas: new Set(nums) };
   if(geradorUltimoJogosCtx && geradorUltimoJogosCtx.g.code === g.code){
+    geradorUltimoJogosCtx.conferidoConcurso = Number(data.concurso)>Number(geradorUltimoJogosCtx.numeroUltimo) ? Number(data.concurso) : null;
     atualizarConferenciaGeradorLeve(geradorUltimoJogosCtx.g, geradorUltimoJogosCtx.jogos);
   }
 
@@ -8556,7 +8558,9 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
     const min = g.range.min, max = g.range.max;
     // "ultimo" aqui é o concurso ATUAL — usado só pra exibir na tela (título, "concurso X"),
     // nunca entra como base de cálculo/geração dos jogos.
-    const ultimo = await fetchConcursoLoteria(g);
+    const concursoEscolhido = geradorUltimoResultado?.gameCode===g.code ? Number(geradorUltimoResultado.concurso) : null;
+    const ultimo = await fetchConcursoLoteria(g, concursoEscolhido||undefined);
+    if(concursoEscolhido && Number(ultimo?.concurso)!==concursoEscolhido) throw new Error('O concurso escolhido ainda não está disponível');
     if(!ultimo || !ultimo.concurso || !Array.isArray(ultimo.dezenas)) throw new Error('resposta inválida da API');
     const numeroUltimo = ultimo.concurso;
 
@@ -8571,7 +8575,7 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
     await Promise.all(pendentes);
     const validos = concursos.filter(Boolean);
     if(validos.length === 0) throw new Error('sem dados suficientes');
-    const anterior = validos[0] || null; // concurso imediatamente anterior ao atual — base real da geração
+    const anterior = concursos.find(c=>Number(c?.concurso)===Number(numeroUltimo)-1) || null; // concurso imediatamente anterior ao atual — base real da geração
 
     const presenca = {}, atraso = {};
     for(let n=min;n<=max;n++){ presenca[n]=0; atraso[n]=null; }
@@ -8657,8 +8661,8 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
       return;
     }
 
-    geradorUltimoJogosCtx = { g, jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo };
-    salvarGeradorEstado(g.code, { jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo });
+    geradorUltimoJogosCtx = { g, jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo, baseRepetidas:numsAnteriorBase, concursoBase:anterior.concurso, conferidoConcurso:null };
+    salvarGeradorEstado(g.code, { jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo, baseRepetidas:numsAnteriorBase, concursoBase:anterior.concurso });
     renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, validos.length, numeroUltimo, dezenasPorJogo);
   }catch(e){
     console.error('gerador multi-loteria falhou:', e);
@@ -8674,10 +8678,35 @@ const BALL_PHOTO_URL = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDA
 
 
 let geradorConferenciaToken = 0;
+function gfcEstadoMarcacao(g){
+  const ctx=geradorUltimoJogosCtx;
+  const resultado=geradorUltimoResultado;
+  const conferindo=!!(ctx&&ctx.g.code===g.code&&resultado?.gameCode===g.code&&ctx.conferidoConcurso!==null&&Number(ctx.conferidoConcurso)===Number(resultado.concurso));
+  return {conferindo,resultadoSet:conferindo?resultado.dezenas:new Set(ctx?.g.code===g.code?(ctx.baseRepetidas||[]).map(Number):[])};
+}
+function gfcAtualizarStatusConferencia(g){
+  const status=document.getElementById('gfcStatusConferencia');
+  if(!status)return;
+  const ctx=geradorUltimoJogosCtx,{conferindo}=gfcEstadoMarcacao(g);
+  status.textContent=conferindo?'Conferido com o concurso '+geradorUltimoResultado.concurso+'.':ctx?.concursoBase?'Marcadas somente as repetidas do concurso '+ctx.concursoBase+'. Avance o concurso ou toque em Conferir jogos.':'Jogos ainda não conferidos. Toque em Conferir jogos.';
+}
+
 function atualizarConferenciaGeradorLeve(g, jogos){
   if(!geradorUltimoResultado || geradorUltimoResultado.gameCode !== g.code) return;
   const token = ++geradorConferenciaToken;
-  const resultadoSet = geradorUltimoResultado.dezenas;
+  const {conferindo,resultadoSet} = gfcEstadoMarcacao(g);
+  gfcAtualizarStatusConferencia(g);
+  if(!conferindo){
+    document.querySelectorAll('#geradorFiltroResultado .gerador-jogo-row').forEach(row=>{
+      row.querySelectorAll('.gerador-jogo-ball').forEach(ball=>ball.classList.toggle('sg-acertou',resultadoSet.has(Number(ball.dataset.num))));
+      const badge=row.querySelector('.gerador-hit-badge');if(badge)badge.innerHTML='—';
+      const premio=row.querySelector('.gerador-premio-wrap');if(premio){premio.innerHTML='';premio.style.display='none'}
+      row.style.background='';row.style.borderColor='';
+    });
+    const total=document.getElementById('geradorTotalPremiados');if(total)total.textContent='Não conferido';
+    const op=document.getElementById('geradorOportunidades');if(op)op.style.display='none';
+    return;
+  }
   const distribuicao = new Map();
   let totalPremiados = 0;
   const hitsPorJogo = new Array(jogos.length);
@@ -8755,8 +8784,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
   const out = document.getElementById('geradorFiltroResultado');
 
   // confere cada jogo contra o resultado oficial mostrado no card acima (se for da mesma loteria)
-  const conferindo = geradorUltimoResultado && geradorUltimoResultado.gameCode === g.code;
-  const resultadoSet = conferindo ? geradorUltimoResultado.dezenas : null;
+  const {conferindo,resultadoSet} = gfcEstadoMarcacao(g);
   let totalPremiados = 0;
   const distribuicaoAcertos = new Map();
 
@@ -8775,7 +8803,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
       <div class="tp-game-balls" style="display:flex;flex-wrap:wrap;gap:4px;flex:1;">
         ${jogo.map(n=>{
           const fixa = gfcFixasSelecionadas.has(n);
-          const acertou = conferindo && resultadoSet.has(n);
+          const acertou = resultadoSet.has(Number(n));
           const bg = acertou
             ? `linear-gradient(rgba(16,140,86,.62), rgba(6,90,58,.62)), url(${BALL_PHOTO_URL})`
             : `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url(${BALL_PHOTO_URL})`;
@@ -8795,6 +8823,8 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     : '';
 
   out.innerHTML = `
+    <button type="button" id="gfcConferirJogos" style="padding:9px 14px;margin:0 0 8px;border:2px solid #393425;border-radius:10px;background:linear-gradient(#fff6c7,#f3cd54);color:#27251d;font-size:14px;font-weight:800;cursor:pointer">✓ Conferir jogos</button>
+    <p id="gfcStatusConferencia" role="status" style="font-size:12px;color:#514b35;margin:0 0 10px"></p>
     <div id="geradorConferenciaResumo" style="background:#fff;border:1.5px solid #E7DFF5;border-radius:13px;padding:8px 10px;margin-bottom:8px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;">
         <strong style="font-family:'Baloo 2',sans-serif;font-size:12px;color:#A21CAF;">Conferidor de acertos — ${g.nome}</strong>
@@ -8810,6 +8840,13 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     ${listaJogosHtml}
   `;
 
+  gfcAtualizarStatusConferencia(g);
+  document.getElementById('gfcConferirJogos').addEventListener('click',()=>{
+    if(!geradorUltimoResultado||geradorUltimoResultado.gameCode!==g.code){document.getElementById('gfcStatusConferencia').textContent='Carregue o resultado para conferir.';return}
+    if(!geradorUltimoJogosCtx||geradorUltimoJogosCtx.g.code!==g.code)return;
+    geradorUltimoJogosCtx.conferidoConcurso=Number(geradorUltimoResultado.concurso);
+    atualizarConferenciaGeradorLeve(g,jogos);
+  });
   // atualiza o nome da aba com a quantidade de jogos e já leva o usuário pra ela
   const tabJogosBtn = document.getElementById('geradorFiltroTabJogos');
   // Jogos gerados aparecem no painel; a aba Meus jogos salvos lista apenas os salvos com nome.
