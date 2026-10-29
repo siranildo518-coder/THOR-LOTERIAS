@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v340-quente-20261028'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v345-quente-20261028'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3842,7 +3842,49 @@ html body #quentePanel .qf-foto-instrucoes{width:100%!important;aspect-ratio:100
 #quentePanel .qf-zoom-stage{position:relative}
 html body #quentePanel .qf-zoom-stage .qf-foto-exata{width:var(--qf-base-width,100%)!important;max-width:none!important;transform:scale(var(--qf-scale,1));transform-origin:top left}
 </style>
-</head>
+<style id="salvosDouradoV345">
+html body #gfcJogosSalvosTela{background:#fff8dc!important;color:#24221c!important;font-family:Arial,sans-serif}
+html body #gfcJogosSalvosTela>header{background:linear-gradient(#363636,#171717)!important;color:#ffe278!important;padding:10px 12px!important;min-height:46px;flex:none}
+html body #geradorFiltroTabPanelSalvos{padding:0 6px 24px!important}
+#gfcJogosSalvosTela .sg-tabs{display:flex;gap:6px;overflow:auto;padding:10px 1px;position:sticky;top:0;z-index:2;background:#fff8dc}
+#gfcJogosSalvosTela button{font-family:inherit;cursor:pointer;font-weight:800}
+#gfcJogosSalvosTela button:disabled{opacity:.45;cursor:default}
+#gfcJogosSalvosTela .sg-tabs button{flex:none;padding:10px 13px;border:1.5px solid #34302a;border-radius:9px;background:linear-gradient(#fff6ce,#e8c64e);color:#24221c;font-size:13px}
+#gfcJogosSalvosTela .sg-tabs button[aria-pressed=true]{background:linear-gradient(#45413a,#171715);color:#ffe77b}
+#gfcJogosSalvosTela .sg-panel{padding:9px;margin:0 0 9px;border:2px solid #292822;border-radius:13px;background:linear-gradient(125deg,#fff9df,#f9da6c);box-shadow:inset 0 0 0 2px #ecc75c,0 2px 4px #0003}
+#gfcJogosSalvosTela .sg-panel h2{margin:0 0 9px;padding:10px 8px;background:linear-gradient(90deg,#161616,#343434);color:#ffdf70;border:1px solid #baa14e;border-radius:9px;font-size:14px;line-height:1.2}
+#gfcJogosSalvosTela .sg-result{padding:12px 8px 10px;border:2px solid #292822;border-radius:12px;background:#fff8dc}
+#gfcJogosSalvosTela .sg-nav{display:flex;justify-content:center;align-items:center;gap:7px;margin-bottom:12px}
+#gfcJogosSalvosTela .sg-gold,#gfcJogosSalvosTela .sg-nav button{border:2px solid #292822;border-radius:9px;background:linear-gradient(#fff0a4,#eab923);box-shadow:inset 0 1px 2px #fff,0 2px 3px #0003;color:#24231d;padding:8px 12px;font-size:16px}
+#gfcJogosSalvosTela .sg-nav strong{padding:8px;min-width:125px;max-width:60%;background:white;border:2px solid #242424;border-radius:9px;text-align:center;font-size:21px;color:#1a293c}
+#gfcJogosSalvosTela .sg-balls{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px}
+#gfcJogosSalvosTela .sg-ball{display:flex;align-items:center;justify-content:center;aspect-ratio:1;min-width:0;border-radius:50%;color:white;background:radial-gradient(circle at 30% 20%,#c8cbcb,#5b5d60 26%,#18191b 60%,#020304);font-weight:900;font-size:clamp(10px,2.7vw,18px);box-shadow:inset 0 1px 2px #fff7,0 3px 5px #0004}
+#gfcJogosSalvosTela .sg-ball.hit{background:radial-gradient(circle at 30% 20%,#a38bcf,#643b93 42%,#36234f)}
+#gfcJogosSalvosTela .sg-ball.miss{background:radial-gradient(circle at 30% 20%,#fff,#e0e5df 50%,#aeb9b3);color:#141414}
+#gfcJogosSalvosTela .sg-date{margin-top:7px;text-align:center;color:#686553;font-size:11px}
+#gfcJogosSalvosTela .sg-check{margin-top:9px}
+#gfcJogosSalvosTela .sg-muted{font-size:12px;color:#6b6d65;line-height:1.4;margin:9px 0}
+#gfcJogosSalvosTela .sg-error{font-size:12px;color:#941d22}
+#gfcJogosSalvosTela .sg-summary{padding:8px;border:1.5px solid #292822;border-radius:11px;background:#fff7d1}
+#gfcJogosSalvosTela .sg-summary header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:5px;font-size:12px;margin-bottom:7px}
+#gfcJogosSalvosTela .sg-scores{display:flex;flex-wrap:wrap;gap:5px}
+#gfcJogosSalvosTela .sg-score{display:flex;flex-direction:column;align-items:center;padding:6px 9px;border:1.5px solid #292822;border-radius:8px;background:linear-gradient(#fffdf1,#f0d77b);box-shadow:0 2px 3px #0002;font-size:12px}
+#gfcJogosSalvosTela .sg-score.best{background:linear-gradient(#e2ffe4,#68d795);border-color:#38824a}
+#gfcJogosSalvosTela .sg-score small{font-size:10px;margin-top:2px}
+#gfcJogosSalvosTela .sg-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+#gfcJogosSalvosTela .sg-actions button{min-width:0;min-height:40px;border-radius:9px;padding:5px 2px;color:#fff;font-size:12px;line-height:1.1;box-shadow:inset 0 1px 2px #fff9,0 2px 3px #0004;border:2px solid #7793a7}
+#gfcJogosSalvosTela .sg-blue{background:linear-gradient(#316f9f,#113e68)}
+#gfcJogosSalvosTela .sg-red{background:linear-gradient(#ff6f71,#cb202e);border-color:#88262c!important}
+#gfcJogosSalvosTela .sg-green{background:linear-gradient(#24974d,#075c30);border-color:#557a3b!important}
+#gfcJogosSalvosTela .sg-count{font-size:13px;font-weight:800;color:#315c30;margin:13px 0}
+#gfcJogosSalvosTela #sgStatus{font-size:12px;color:#344e35}
+#gfcJogosSalvosTela #sgStatus:empty{display:none}
+#gfcJogosSalvosTela .sg-game{border:1.5px solid #282722;border-radius:12px;margin:6px 0;padding:7px;background:linear-gradient(115deg,#fff9df,#f6d970);box-shadow:0 2px 3px #0002}
+#gfcJogosSalvosTela .sg-game-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+#gfcJogosSalvosTela .sg-game-top b{font-size:15px;color:#ffe373;background:#171717;border-radius:8px;padding:4px 9px}
+#gfcJogosSalvosTela .sg-game-top strong{font-size:23px;font-weight:900;color:#171717;padding:3px 7px;border:1px solid #282722;border-radius:9px;background:linear-gradient(#fff4bd,#f5cd4b);box-shadow:0 2px 3px #0003}
+#gfcJogosSalvosTela .sg-name{font-size:10px;color:#6a5b31;margin:0 0 6px;overflow-wrap:anywhere}
+</style></head>
 <body>
 <div class="app">
 
@@ -4119,7 +4161,7 @@ html body #quentePanel .qf-zoom-stage .qf-foto-exata{width:var(--qf-base-width,1
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V340 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V345 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -8613,209 +8655,76 @@ let gfcSalvosErro='';
 let gfcSalvosPedido=0;
 let gfcSalvosNomeAberto=null;
 let gfcSalvosMenuAberto=false;
-function montarResultadoSalvos(){
-  const painel=document.getElementById('geradorFiltroTabPanelSalvos');
-  painel.replaceChildren();
-  const g=geradorGameAtual,resultado=gfcSalvosResultado;
-  const box=document.createElement('section');
-  box.style.cssText='background:#fff;border:1px solid #c8d3df;padding:12px;margin-bottom:14px;color:#172033;';
-  const titulo=document.createElement('strong');
-  titulo.textContent='Resultado — '+(g?.nome||'Loteria');
-  box.append(titulo);
-  const nav=document.createElement('div');
-  nav.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0;';
-  const anterior=document.createElement('button'),proximo=document.createElement('button');
-  anterior.type=proximo.type='button';
-  anterior.textContent='◀ Anterior';proximo.textContent='Próximo ▶';
-  for(const botao of [anterior,proximo])botao.style.cssText='padding:10px;background:#1765a7;color:#fff;border:1px solid #9bbbd2;font-weight:700;';
-  const numero=document.createElement('strong');
-  numero.textContent=resultado?'Nº '+resultado.concurso:'Carregando resultado…';
-  anterior.disabled=!resultado||resultado.concurso<=1;
-  proximo.disabled=!resultado;
-  anterior.onclick=()=>carregarResultadoSalvos(resultado.concurso-1);
-  proximo.onclick=()=>carregarResultadoSalvos(resultado.concurso+1);
-  nav.append(anterior,numero,proximo);box.append(nav);
-  if(resultado){
-    const dezenas=document.createElement('div');
-    dezenas.style.cssText='display:flex;flex-wrap:wrap;gap:5px;justify-content:center;';
-    for(const n of resultado.dezenas){
-      const bola=document.createElement('span');
-      bola.textContent=String(n).padStart(2,'0');
-      bola.style.cssText='width:29px;height:29px;border-radius:50%;background:#1675b5;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;';
-      dezenas.append(bola);
-    }
-    box.append(dezenas);
-    const data=document.createElement('div');
-    data.style.cssText='text-align:center;color:#526477;font-size:12px;margin-top:8px;';
-    data.textContent=resultado.data||'';box.append(data);
-  }
-  if(gfcSalvosErro){
-    const aviso=document.createElement('div');
-    aviso.style.cssText='color:#b91c1c;font-size:12px;margin-top:8px;';
-    aviso.textContent=gfcSalvosErro;box.append(aviso);
-  }
-  painel.append(box);
-  const code=g?.code;
-  const salvos=listarJogosSalvosFechamento().filter(item=>item&&item.gameCode===code);
-  if(!salvos.length){
-    const vazio=document.createElement('p');vazio.textContent='Nenhum jogo salvo para esta loteria.';painel.append(vazio);
-  }else{
-    const acoes=document.createElement('div');
-    acoes.style.cssText='display:flex;gap:9px;margin-bottom:14px;';
-    const estilo3d='flex:1;padding:11px;border-radius:5px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;transition:transform .08s,box-shadow .08s;';
-    const limpar=document.createElement('button');
-    limpar.type='button';limpar.textContent='Limpar jogos';
-    limpar.style.cssText=estilo3d+'background:linear-gradient(#f04a4a,#b8111b);border:1px solid #8f0d15;box-shadow:0 5px 0 #790b12,0 8px 11px #0003;';
-    const salvar=document.createElement('button');
-    salvar.type='button';salvar.textContent='Salvar';
-    salvar.style.cssText=estilo3d+'background:linear-gradient(#279ce0,#0969ae);border:1px solid #075b98;box-shadow:0 5px 0 #064a7d,0 8px 11px #0003;';
-    const afundar=b=>{b.onpointerdown=()=>{b.style.transform='translateY(4px)';b.style.boxShadow='0 1px 0 #3338,0 2px 4px #0002'};b.onpointerup=b.onpointercancel=b.onpointerleave=()=>{b.style.transform='';b.style.boxShadow=b===limpar?'0 5px 0 #790b12,0 8px 11px #0003':'0 5px 0 #064a7d,0 8px 11px #0003'}};
-    afundar(limpar);afundar(salvar);
-    let confirmar=false;
-    limpar.onclick=()=>{
-      if(!confirmar){confirmar=true;limpar.textContent='Confirmar limpeza';return}
-      try{
-        localStorage.setItem(GFC_SALVOS_NOME_KEY,JSON.stringify(listarJogosSalvosFechamento().filter(item=>item.gameCode!==code)));
-        gfcSalvosNomeAberto=null;gfcSalvosMenuAberto=false;montarResultadoSalvos();
-      }catch(_){limpar.textContent='Tente novamente';confirmar=false}
-    };
-    const menu=document.createElement('div');
-    menu.style.cssText='display:none;gap:8px;margin:-4px 0 14px;';
-    const textoSalvos=()=>{
-      const linhas=['THOR LOTERIAS - JOGOS SALVOS',''];
-      for(const item of salvos){
-        linhas.push(String(item.nome||'Jogos salvos'));
-        const jogos=Array.isArray(item.jogos)?item.jogos:[];
-        jogos.forEach((j,i)=>linhas.push('Jogo '+(i+1)+': '+j.map(n=>String(n).padStart(2,'0')).join(' ')));
-        linhas.push('');
-      }
-      return linhas.join('\\n');
-    };
-    const opcao=(rotulo,fn)=>{
-      const b=document.createElement('button');b.type='button';b.textContent=rotulo;
-      b.style.cssText='flex:1;padding:9px 4px;border-radius:5px;background:linear-gradient(#279ce0,#0969ae);color:#fff;border:1px solid #075b98;font-size:11px;font-weight:800;box-shadow:0 4px 0 #064a7d,0 6px 8px #0002;transition:transform .08s,box-shadow .08s;';
-      b.onpointerdown=()=>{b.style.transform='translateY(3px)';b.style.boxShadow='0 1px 0 #064a7d'};
-      b.onpointerup=b.onpointercancel=b.onpointerleave=()=>{b.style.transform='';b.style.boxShadow='0 4px 0 #064a7d,0 6px 8px #0002'};
-      b.onclick=fn;menu.append(b);
-    };
-    opcao('🖨 Imprimir',()=>window.print());
-    opcao('↗ Compartilhar',async()=>{const texto=textoSalvos();if(!texto){alert('Nenhum jogo para copiar.');return}if(!window.confirm('Deseja compartilhar estes jogos?'))return;try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(texto)}else{const ta=document.createElement('textarea');ta.value=texto;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();if(!document.execCommand('copy'))throw Error('copy');ta.remove()}thorAvisoCopiadoV303()}catch(_){alert('Não foi possível copiar os jogos automaticamente.')}});
-    opcao('⬇ TXT',()=>{const blob=new Blob([textoSalvos()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Meus Jogos.txt';document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)});
-    salvar.onclick=()=>{menu.style.display=menu.style.display==='flex'?'none':'flex'};
-    acoes.append(limpar,salvar);painel.append(acoes,menu);
-  }
-  const sorteadas=new Set(resultado?.dezenas||[]);
-  const grupos=new Map();
-  for(const item of salvos){
-    const nome=String(item.nome||'Jogo sem nome').trim()||'Jogo sem nome';
-    const chave=nome.toLocaleLowerCase('pt-BR');
-    if(!grupos.has(chave))grupos.set(chave,{nome,itens:[]});
-    grupos.get(chave).itens.push(item);
-  }
-  if(grupos.size){
-    const total=salvos.reduce((s,item)=>s+(Array.isArray(item.jogos)?item.jogos.length:0),0);
-    const detalhes=document.createElement('details');
-    detalhes.open=gfcSalvosMenuAberto;
-    detalhes.ontoggle=()=>{gfcSalvosMenuAberto=detalhes.open};
-    const cabecalho=document.createElement('summary');
-    cabecalho.style.cssText='display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;background:#fff;border:1px solid #b8c6d4;padding:14px;margin:8px 0;color:#172033;font-size:15px;font-weight:700;box-shadow:0 5px 0 #aeb7bf,0 8px 12px #0002;list-style:none;cursor:pointer;';
-    const tituloGrupo=document.createElement('span');tituloGrupo.textContent='Jogos salvos';
-    const contagem=document.createElement('span');contagem.style.cssText='color:#385773;font-size:12px;';
-    contagem.textContent=total+' jogos ▼';
-    cabecalho.append(tituloGrupo,contagem);detalhes.append(cabecalho);painel.append(detalhes);
-    const blocos=new Map(),botoes=new Map();
-    for(const [chave,grupo] of grupos){
-      const botao=document.createElement('button');botao.type='button';
-      botao.style.cssText='display:flex;justify-content:space-between;width:100%;text-align:left;background:#fff;border:1px solid #b8c6d4;padding:14px;margin:12px 0;color:#172033;font-size:15px;font-weight:700;box-shadow:0 5px 0 #aeb7bf,0 8px 12px #0002;';
-      const qtd=grupo.itens.reduce((n,item)=>n+(Array.isArray(item.jogos)?item.jogos.length:0),0);
-      botao.textContent=grupo.nome+' — '+qtd+' jogos';detalhes.append(botao);botoes.set(chave,botao);
-      const bloco=document.createElement('div');
-      bloco.hidden=true;
-      let indice=0;
-      const jogosDoGrupo=grupo.itens.flatMap(item=>Array.isArray(item.jogos)?item.jogos:[]).filter(Array.isArray);
-      const maiorAcerto=resultado?Math.max(0,...jogosDoGrupo.map(jogo=>jogo.filter(n=>sorteadas.has(Number(n))).length)):0;
-      for(const jogo of jogosDoGrupo){
-        indice++;
-        const numeros=jogo.map(Number).filter(Number.isFinite);
-        const acertos=resultado?numeros.filter(n=>sorteadas.has(n)).length:0;
-        const faixaNormal=!!faixaPremioGerador(code,acertos);
-        const premiado=!!resultado && (numeros.length > (code==='LF'?15:code==='MS'?6:Infinity) ? acertos === (code==='LF'?15:6) : faixaNormal);
-        const destaque=premiado&&acertos===maiorAcerto;
-        const card=document.createElement('div');
-        card.className='game-card'+(premiado?' premiado':'')+(destaque?' top-score':'');
-        const titulo=document.createElement('div');titulo.className='gc-index';
-        titulo.append('Jogo '+indice);
-        if(resultado){
-          const selo=document.createElement('span');selo.className='gc-badge'+(destaque?' top':'');
-          selo.textContent=acertos+' pontos';titulo.append(selo);
-          if(destaque){const premio=document.createElement('span');premio.className='gc-top-tag';premio.textContent='🏆 Jogo premiado';titulo.append(premio)}
-        }
-        card.append(titulo);
-        const bolas=document.createElement('div');bolas.className='gc-balls';
-        for(const n of numeros){
-          const bola=document.createElement('div');bola.className='gc-ball'+(resultado&&sorteadas.has(n)?' hit':'');
-          const texto=document.createElement('span');texto.textContent=String(n).padStart(2,'0');bola.append(texto);bolas.append(bola);
-        }
-        card.append(bolas);
-        if(code==='LF'&&typeof statsForGame==='function'){
-          const st=statsForGame(numeros),grade=document.createElement('div');grade.className='gc-stats';
-          for(const [rotulo,valor] of [['PAR',st.par],['ÍMPAR',st.impar],['PRIMO',st.primo],['FIBONACCI',st.fib],['MOLDURA',st.moldura],['RETRATO',st.retrato],['MÚLT. 3',st.mult3],['SOMA',st.soma]]){
-            const celula=document.createElement('div');celula.className='s';
-            const label=document.createElement('div');label.className='k';label.textContent=rotulo;
-            const valorEl=document.createElement('div');valorEl.className='v';valorEl.textContent=valor;
-            celula.append(label,valorEl);grade.append(celula);
-          }
-          card.append(grade);
-        }
-        bloco.append(card);
-      }
-      detalhes.append(bloco);blocos.set(chave,bloco);
-      botao.onclick=()=>{
-        gfcSalvosNomeAberto=chave;
-        for(const [id,area] of blocos)area.hidden=id!==chave;
-        for(const [id,el] of botoes)el.style.borderColor=id===chave?'#1765a7':'#b8c6d4';
-      };
-    }
-    if(gfcSalvosNomeAberto&&botoes.has(gfcSalvosNomeAberto))botoes.get(gfcSalvosNomeAberto).click();
-  }
 
+let sgGame=null,sgOnlyWins=false,sgLimit=50;
+function sgEscape(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function sgNumber(n){return sgGame?.code==='LM'&&Number(n)===100?'00':String(n).padStart(2,'0');}
+function sgNormalize(n){return sgGame?.code==='LM'&&Number(n)===100?0:Number(n);}
+function sgGames(){return listarJogosSalvosFechamento().filter(x=>x&&x.gameCode===sgGame?.code).flatMap(x=>(Array.isArray(x.jogos)?x.jogos:[]).filter(Array.isArray).map(j=>({nome:String(x.nome||'Jogos salvos'),numeros:j.map(Number).filter(Number.isFinite)})));}
+function sgScore(j){
+ if(!gfcSalvosResultado)return {hits:null,win:false};
+ const drawn=new Set(gfcSalvosResultado.dezenas.map(sgNormalize));
+ const hits=[...new Set(j.numeros.map(sgNormalize))].filter(n=>drawn.has(n)).length;
+ const expanded=j.numeros.length>(sgGame.code==='LF'?15:sgGame.code==='MS'?6:Infinity);
+ return {hits,win:expanded?hits===(sgGame.code==='LF'?15:6):!!faixaPremioGerador(sgGame.code,hits)};
+}
+function montarResultadoSalvos(){
+ const p=document.getElementById('geradorFiltroTabPanelSalvos'),g=sgGame;if(!p||!g)return;
+ const result=gfcSalvosResultado,all=sgGames().map((j,i)=>({...j,...sgScore(j),index:i+1}));
+ const drawn=new Set((result?.dezenas||[]).map(sgNormalize)),counts=new Map();
+ if(result)all.forEach(j=>counts.set(j.hits,(counts.get(j.hits)||0)+1));
+ const visible=all.filter(j=>!sgOnlyWins||j.win);
+ const ball=(n,cls='')=>'<span class="sg-ball '+cls+'">'+sgNumber(n)+'</span>';
+ p.innerHTML=`
+ <nav class="sg-tabs" aria-label="Loterias">${GERADOR_GAMES.map(x=>'<button type="button" data-sg-game="'+x.code+'" aria-pressed="'+(x.code===g.code)+'">'+sgEscape(x.nome)+'</button>').join('')}</nav>
+ <section class="sg-panel"><h2>RESULTADO OFICIAL E CONFERIDOR</h2>
+ <div class="sg-result"><div class="sg-nav"><button id="sgPrev" aria-label="Concurso anterior" ${!result||result.concurso<=1?'disabled':''}>❮</button><strong>${result?result.concurso:'Carregando…'}</strong><button id="sgNext" aria-label="Próximo concurso" ${!result?'disabled':''}>❯</button></div>
+ <div class="sg-balls">${(result?.dezenas||[]).map(n=>ball(n)).join('')}</div><div class="sg-date">${sgEscape(result?.data||'')}</div></div>
+ <button class="sg-gold sg-check" id="sgCheck">✓ Conferir jogos</button>
+ <p class="sg-muted">${result?'Conferência: concurso '+result.concurso+' · '+all.length+' jogos':'Buscando resultado de '+sgEscape(g.nome)+'…'}</p>
+ ${gfcSalvosErro?'<p class="sg-error">'+sgEscape(gfcSalvosErro)+'</p>':''}
+ <div class="sg-summary"><header><b>🏆 CONFERIDOR DE ACERTOS</b><b>${sgEscape(g.nome)}</b></header><div class="sg-scores">
+ ${[...counts].sort((a,b)=>b[0]-a[0]).map(([hits,qtd],i)=>'<div class="sg-score '+(!i?'best':'')+'"><b>'+hits+' pontos</b><small>'+qtd+' jogo(s)</small></div>').join('')}
+ ${!all.length?'<p>Nenhum jogo salvo para esta loteria.</p>':''}</div></div></section>
+ <section class="sg-panel"><h2>JOGOS SALVOS</h2><div class="sg-actions">
+ <button id="sgCopy" class="sg-blue" ${!all.length?'disabled':''}>Copiar jogos</button><button id="sgClear" class="sg-red" ${!all.length?'disabled':''}>🗑 Limpar</button><button id="sgSave" class="sg-blue" ${!all.length?'disabled':''}>▣ Salvar jogos</button><button id="sgWins" class="sg-green" aria-pressed="${sgOnlyWins}" ${!result||!all.length?'disabled':''}>${sgOnlyWins?'Todos os jogos':'🏆 Jogos premiados'}</button></div>
+ <p id="sgStatus" role="status"></p><p class="sg-count">${all.length} jogos salvos em ${sgEscape(g.nome)}.</p>
+ ${visible.slice(0,sgLimit).map(j=>'<article class="sg-game"><div class="sg-game-top"><b>Jogo '+j.index+'</b><strong>'+ (j.hits===null?'—':j.hits)+'</strong></div><div class="sg-name">'+sgEscape(j.nome)+'</div><div class="sg-balls">'+j.numeros.map(n=>ball(n,drawn.has(sgNormalize(n))?'hit':'miss')).join('')+'</div></article>').join('')}
+ ${!visible.length?'<p class="sg-muted">'+(all.length?'Nenhum jogo premiado neste concurso.':'Salve jogos nesta loteria para vê-los aqui.')+'</p>':''}
+ ${visible.length>sgLimit?'<button class="sg-gold" id="sgMore">Mostrar mais jogos</button>':''}</section>`;
+ p.querySelectorAll('[data-sg-game]').forEach(b=>b.onclick=()=>sgSelect(b.dataset.sgGame));
+ const on=(id,fn)=>{const e=document.getElementById(id);if(e)e.onclick=fn;};
+ on('sgPrev',()=>carregarResultadoSalvos(result.concurso-1));on('sgNext',()=>carregarResultadoSalvos(Number(result.concurso)+1));
+ on('sgCheck',()=>carregarResultadoSalvos(result?.concurso));on('sgWins',()=>{sgOnlyWins=!sgOnlyWins;sgLimit=50;montarResultadoSalvos()});
+ on('sgMore',()=>{sgLimit+=50;montarResultadoSalvos()});
+ const status=t=>document.getElementById('sgStatus').textContent=t;
+ const text=()=>all.map(j=>j.numeros.map(sgNumber).join(' ')).join('\n');
+ on('sgCopy',async()=>{try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(text());else{const a=document.createElement('textarea');a.value=text();a.style.cssText='position:fixed;left:-9999px';document.body.append(a);a.select();const ok=document.execCommand('copy');a.remove();if(!ok)throw Error()}status('Jogos copiados.')}catch(_){status('Não foi possível copiar. Use Salvar jogos para baixar.')}});
+ on('sgSave',()=>{const u=URL.createObjectURL(new Blob([text()],{type:'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download='THOR-'+g.code+'-jogos-salvos.txt';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);status('Arquivo dos jogos preparado.')});
+ let confirm=false;
+ on('sgClear',()=>{if(!confirm){confirm=true;document.getElementById('sgClear').textContent='Confirmar limpeza';status('Remove somente os jogos de '+g.nome+'.');return}try{localStorage.setItem(GFC_SALVOS_NOME_KEY,JSON.stringify(listarJogosSalvosFechamento().filter(x=>x.gameCode!==g.code)));montarResultadoSalvos()}catch(_){status('Não foi possível limpar os jogos.')}});
 }
 async function carregarResultadoSalvos(numero){
-  const g=geradorGameAtual,pedido=++gfcSalvosPedido;
-  if(!g)return;
-  gfcSalvosErro='';
-  if(!gfcSalvosResultado)montarResultadoSalvos();
-  try{
-    const data=await fetchConcursoLoteria(g,numero||undefined);
-    if(pedido!==gfcSalvosPedido||g!==geradorGameAtual||!data||!data.concurso) return;
-    if(numero&&+data.concurso!==+numero)throw Error('Concurso indisponível');
-    const dezenas=(data.dezenas||[]).map(Number).filter(Number.isFinite);
-    if(!dezenas.length)throw Error('Sem dezenas');
-    gfcSalvosResultado={concurso:+data.concurso,dezenas,data:data.data||''};
-    montarResultadoSalvos();
-  }catch(_){
-    if(pedido!==gfcSalvosPedido)return;
-    gfcSalvosErro='Não foi possível carregar esse concurso.';
-    montarResultadoSalvos();
-  }
+ const g=sgGame,pedido=++gfcSalvosPedido;if(!g)return;gfcSalvosErro='';
+ try{const data=await fetchConcursoLoteria(g,numero||undefined);
+ if(pedido!==gfcSalvosPedido||g!==sgGame)return;
+ if(!data?.concurso||(numero&&Number(data.concurso)!==Number(numero)))throw Error();
+ const dezenas=(data.dezenas||[]).map(Number).filter(Number.isFinite);if(!dezenas.length)throw Error();
+ gfcSalvosResultado={concurso:+data.concurso,dezenas,data:data.data||''};montarResultadoSalvos();
+ }catch(_){if(pedido!==gfcSalvosPedido||g!==sgGame)return;gfcSalvosErro='Não foi possível carregar esse concurso. Tente novamente.';montarResultadoSalvos();}
+}
+function sgSelect(code){
+ const g=GERADOR_GAMES.find(x=>x.code===code);if(!g)return;
+ sgGame=g;gfcSalvosPedido++;sgOnlyWins=false;sgLimit=50;gfcSalvosErro='';
+ const cache=obterConcursoCache(g);gfcSalvosResultado=cache?.concurso?{concurso:+cache.concurso,dezenas:(cache.dezenas||[]).map(Number),data:cache.data||''}:null;
+ montarResultadoSalvos();carregarResultadoSalvos();
 }
 function mostrarJogosSalvosFechamento(){
-  gfcSalvosNomeAberto=null;gfcSalvosMenuAberto=false;
-  const g=geradorGameAtual;
-  gfcSalvosResultado=geradorUltimoResultado?.gameCode===g?.code?{
-    concurso:+geradorUltimoResultado.concurso,
-    dezenas:[...geradorUltimoResultado.dezenas].map(Number),
-    data:''
-  }:null;
-  gfcSalvosErro='';
-  montarResultadoSalvos();
-  const tela=document.getElementById('gfcJogosSalvosTela');
-  if(tela.style.display!=='flex'){
-    try{history.pushState({thorJogosSalvos:true},'',location.href)}catch(_){}
-    tela.style.display='flex';
-  }
-  carregarResultadoSalvos();
+ const tela=document.getElementById('gfcJogosSalvosTela');
+ if(tela.style.display!=='flex'){try{history.pushState({thorJogosSalvos:true},'',location.href)}catch(_){}tela.style.display='flex'}
+ sgSelect(geradorGameAtual?.code||GERADOR_GAMES[0].code);
 }
+
 let gfcJogosSalvosFechando=false;
 function fecharJogosSalvosFechamento(){
   const tela=document.getElementById('gfcJogosSalvosTela');
