@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v358-repetidas-conferir-20261029'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v359-selecionadas-sorteadas-20261029'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3950,6 +3950,7 @@ html body #overlayGeradorFiltro #geradorFiltroTabPanelJogos{color:#24221c!import
 html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-row{padding:9px!important;margin:7px 0!important;border:1.5px solid #282722!important;border-radius:12px!important;background:linear-gradient(115deg,#fff9df,#f6d970)!important;box-shadow:0 2px 3px #0002!important;color:#24221c!important}
 html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-ball{background:radial-gradient(circle at 30% 20%,#fff,#e0e5df 50%,#aeb9b3)!important;color:#141414!important;text-shadow:none!important;box-shadow:inset 0 1px 2px #fff7,0 3px 5px #0004!important;border:0!important}
 html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-ball.sg-acertou{background:radial-gradient(circle at 30% 20%,#a38bcf,#643b93 42%,#36234f)!important;color:#fff!important}
+html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-ball.gfc-sorteada{background:radial-gradient(circle at 30% 20%,#74797e,#1e2226 42%,#020304)!important;color:#fff!important}
 html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-ball.fixa-gerador{outline:2px solid #a27616;outline-offset:1px}
 </style><style id="jogosCartoesV347">
 html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-row{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:start!important;gap:7px!important;padding:8px!important}
@@ -4353,7 +4354,7 @@ filter:none!important;
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V358 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V359 · Base V240</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -8665,24 +8666,24 @@ function gfcEstadoMarcacao(g){
   const ctx=geradorUltimoJogosCtx;
   const resultado=geradorUltimoResultado;
   const conferindo=!!(ctx&&ctx.g.code===g.code&&resultado?.gameCode===g.code&&ctx.conferidoConcurso!==null&&Number(ctx.conferidoConcurso)===Number(resultado.concurso));
-  return {conferindo,resultadoSet:conferindo?resultado.dezenas:new Set(ctx?.g.code===g.code?(ctx.baseRepetidas||[]).map(Number):[])};
-}
-function gfcAtualizarStatusConferencia(g){
-  const status=document.getElementById('gfcStatusConferencia');
-  if(!status)return;
-  const ctx=geradorUltimoJogosCtx,{conferindo}=gfcEstadoMarcacao(g);
-  status.textContent=conferindo?'Conferido com o concurso '+geradorUltimoResultado.concurso+'.':ctx?.concursoBase?'Marcadas somente as repetidas do concurso '+ctx.concursoBase+'. Avance o concurso ou toque em Conferir jogos.':'Jogos ainda não conferidos. Toque em Conferir jogos.';
+  const selecionadasSet=new Set(ctx?.g.code===g.code?(ctx.baseRepetidas||[]).map(Number):[]);
+  return {conferindo,selecionadasSet,resultadoSet:conferindo?resultado.dezenas:selecionadasSet};
 }
 
 function atualizarConferenciaGeradorLeve(g, jogos){
   if(!geradorUltimoResultado || geradorUltimoResultado.gameCode !== g.code) return;
   const token = ++geradorConferenciaToken;
-  const {conferindo,resultadoSet} = gfcEstadoMarcacao(g);
-  gfcAtualizarStatusConferencia(g);
+  const {conferindo,resultadoSet,selecionadasSet} = gfcEstadoMarcacao(g);
   if(!conferindo){
     document.querySelectorAll('#geradorFiltroResultado .gerador-jogo-row').forEach(row=>{
-      row.querySelectorAll('.gerador-jogo-ball').forEach(ball=>ball.classList.toggle('sg-acertou',resultadoSet.has(Number(ball.dataset.num))));
-      const badge=row.querySelector('.gerador-hit-badge');if(badge)badge.innerHTML='—';
+      let selecionadas=0;
+      row.querySelectorAll('.gerador-jogo-ball').forEach(ball=>{
+        const selecionada=selecionadasSet.has(Number(ball.dataset.num));
+        if(selecionada)selecionadas++;
+        ball.classList.toggle('sg-acertou',selecionada);
+        ball.classList.remove('gfc-sorteada');
+      });
+      const badge=row.querySelector('.gerador-hit-badge');if(badge)badge.innerHTML='<span class="tp-single">'+selecionadas+' selecionadas</span>';
       const premio=row.querySelector('.gerador-premio-wrap');if(premio){premio.innerHTML='';premio.style.display='none'}
       row.style.background='';row.style.borderColor='';
     });
@@ -8729,7 +8730,9 @@ function atualizarConferenciaGeradorLeve(g, jogos){
       row.style.borderColor = faixa ? '#1F9D74' : '';
       row.querySelectorAll('.gerador-jogo-ball').forEach(ball=>{
         const acertou = resultadoSet.has(Number(ball.dataset.num));
-        ball.classList.toggle('sg-acertou',acertou);
+        const selecionada=selecionadasSet.has(Number(ball.dataset.num));
+        ball.classList.toggle('sg-acertou',selecionada);
+        ball.classList.toggle('gfc-sorteada',acertou&&!selecionada);
         ball.style.backgroundImage = acertou ? `linear-gradient(rgba(16,140,86,.62), rgba(6,90,58,.62)), url(${BALL_PHOTO_URL})` : `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url(${BALL_PHOTO_URL})`;
         ball.style.borderColor = acertou ? 'transparent' : 'var(--line,#E7DFF5)';
         ball.style.color = acertou ? '#fff' : 'var(--violet-deep)';
@@ -8767,7 +8770,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
   const out = document.getElementById('geradorFiltroResultado');
 
   // confere cada jogo contra o resultado oficial mostrado no card acima (se for da mesma loteria)
-  const {conferindo,resultadoSet} = gfcEstadoMarcacao(g);
+  const {conferindo,resultadoSet,selecionadasSet} = gfcEstadoMarcacao(g);
   let totalPremiados = 0;
   const distribuicaoAcertos = new Map();
 
@@ -8776,7 +8779,8 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     const faixa = conferindo ? faixaPremioGerador(g.code, hits) : null;
     if(conferindo) distribuicaoAcertos.set(hits, (distribuicaoAcertos.get(hits) || 0) + 1);
     if(faixa) totalPremiados++;
-    const badge = `<span class="gerador-hit-badge">${thorPremioCard347(g.code,hits,jogo.length)}</span>`;
+    const selecionadas=jogo.filter(n=>selecionadasSet.has(Number(n))).length;
+    const badge = `<span class="gerador-hit-badge">${conferindo?thorPremioCard347(g.code,hits,jogo.length):'<span class="tp-single">'+selecionadas+' selecionadas</span>'}</span>`;
     const premioTag = faixa
       ? `<div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:#fff;background:linear-gradient(135deg,#1F9D74,#15764F);padding:3px 8px;border-radius:20px;display:inline-block;margin-top:5px;">🏆 PREMIADO — ${faixa.label}</div>`
       : '';
@@ -8786,11 +8790,12 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
       <div class="tp-game-balls" style="display:flex;flex-wrap:wrap;gap:4px;flex:1;">
         ${jogo.map(n=>{
           const fixa = gfcFixasSelecionadas.has(n);
-          const acertou = resultadoSet.has(Number(n));
+          const acertou = selecionadasSet.has(Number(n));
+          const sorteada = conferindo && resultadoSet.has(Number(n)) && !acertou;
           const bg = acertou
             ? `linear-gradient(rgba(16,140,86,.62), rgba(6,90,58,.62)), url(${BALL_PHOTO_URL})`
             : `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url(${BALL_PHOTO_URL})`;
-          return `<span class="gerador-jogo-ball${fixa ? ' fixa-gerador' : ''}${acertou ? ' sg-acertou' : ''}" data-num="${n}" title="${fixa ? 'Dezena fixa' : ''}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background-image:${bg};background-size:cover;background-position:center;background-blend-mode:multiply;border:${fixa ? '2px solid #F59E0B' : ('1px solid '+(acertou ? 'transparent' : 'var(--line,#E7DFF5)'))};color:${acertou ? '#fff' : 'var(--violet-deep)'};font-family:'Baloo 2',sans-serif;font-size:10.5px;font-weight:${fixa ? '900' : '700'};text-shadow:${acertou ? '0 1px 2px rgba(0,0,0,.35)' : '0 1px 2px rgba(255,255,255,.9)'};">${n.toString().padStart(2,'0')}</span>`;
+          return `<span class="gerador-jogo-ball${fixa ? ' fixa-gerador' : ''}${acertou ? ' sg-acertou' : ''}${sorteada ? ' gfc-sorteada' : ''}" data-num="${n}" title="${fixa ? 'Dezena fixa' : ''}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background-image:${bg};background-size:cover;background-position:center;background-blend-mode:multiply;border:${fixa ? '2px solid #F59E0B' : ('1px solid '+(acertou ? 'transparent' : 'var(--line,#E7DFF5)'))};color:${acertou ? '#fff' : 'var(--violet-deep)'};font-family:'Baloo 2',sans-serif;font-size:10.5px;font-weight:${fixa ? '900' : '700'};text-shadow:${acertou ? '0 1px 2px rgba(0,0,0,.35)' : '0 1px 2px rgba(255,255,255,.9)'};">${n.toString().padStart(2,'0')}</span>`;
         }).join('')}
       </div>
       ${badge}
@@ -8806,8 +8811,6 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     : '';
 
   out.innerHTML = `
-    <button type="button" id="gfcConferirJogos" style="padding:9px 14px;margin:0 0 8px;border:2px solid #393425;border-radius:10px;background:linear-gradient(#fff6c7,#f3cd54);color:#27251d;font-size:14px;font-weight:800;cursor:pointer">✓ Conferir jogos</button>
-    <p id="gfcStatusConferencia" role="status" style="font-size:12px;color:#514b35;margin:0 0 10px"></p>
     <div id="geradorConferenciaResumo" style="background:#fff;border:1.5px solid #E7DFF5;border-radius:13px;padding:8px 10px;margin-bottom:8px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;">
         <strong style="font-family:'Baloo 2',sans-serif;font-size:12px;color:#A21CAF;">Conferidor de acertos — ${g.nome}</strong>
@@ -8823,13 +8826,6 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     ${listaJogosHtml}
   `;
 
-  gfcAtualizarStatusConferencia(g);
-  document.getElementById('gfcConferirJogos').addEventListener('click',()=>{
-    if(!geradorUltimoResultado||geradorUltimoResultado.gameCode!==g.code){document.getElementById('gfcStatusConferencia').textContent='Carregue o resultado para conferir.';return}
-    if(!geradorUltimoJogosCtx||geradorUltimoJogosCtx.g.code!==g.code)return;
-    geradorUltimoJogosCtx.conferidoConcurso=Number(geradorUltimoResultado.concurso);
-    atualizarConferenciaGeradorLeve(g,jogos);
-  });
   // atualiza o nome da aba com a quantidade de jogos e já leva o usuário pra ela
   const tabJogosBtn = document.getElementById('geradorFiltroTabJogos');
   // Jogos gerados aparecem no painel; a aba Meus jogos salvos lista apenas os salvos com nome.
