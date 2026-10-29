@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v353-combinacoes-douradas-20261029'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v357-cadastro-copiar-20261029'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -633,8 +633,10 @@ function montarTelaLogin(){
         <p style="text-align:center;color:#8B80A3;font-size:12.5px;margin:0 0 14px;">Use o código liberado após a confirmação do pagamento.</p>
         <input id="cadastroCodigo" placeholder="Código de liberação" autocomplete="off" autocapitalize="characters" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:10px;font-size:14.5px;text-transform:uppercase;">
         <input id="cadastroUsuario" placeholder="Crie seu usuário" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:10px;font-size:14.5px;">
-        <input id="cadastroSenha" type="password" placeholder="Crie sua senha" autocomplete="new-password" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:10px;font-size:14.5px;">
-        <input id="cadastroSenha2" type="password" placeholder="Confirme sua senha" autocomplete="new-password" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:6px;font-size:14.5px;">
+        <div class="cadastro-senha-linha"><input id="cadastroSenha" type="password" placeholder="Crie sua senha" autocomplete="new-password" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:10px;font-size:14.5px;"><button type="button" class="cadastro-ver-senha" data-cadastro-senha="cadastroSenha" aria-label="Mostrar senha" aria-pressed="false">👁️</button></div>
+        <div class="cadastro-senha-linha"><input id="cadastroSenha2" type="password" placeholder="Confirme sua senha" autocomplete="new-password" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #E7DFF5;margin-bottom:6px;font-size:14.5px;"><button type="button" class="cadastro-ver-senha" data-cadastro-senha="cadastroSenha2" aria-label="Mostrar senha" aria-pressed="false">👁️</button></div>
+        <button id="cadastroCopiarCredenciais" type="button">Copiar usuário e senha</button>
+        <div id="cadastroCopiaStatus" role="status" aria-live="polite"></div>
         <div id="cadastroErro" style="color:#B7791F;font-size:12.5px;min-height:18px;margin-bottom:8px;"></div>
         <button id="cadastroCriarBtn" type="button" style="width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#159447,#087735);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">CRIAR CADASTRO</button>
         <button id="cadastroVoltarBtn" type="button" style="width:100%;padding:11px;margin-top:9px;border:none;border-radius:10px;background:#EEE9F8;color:#5B21B6;font-weight:700;cursor:pointer;">VOLTAR</button>
@@ -735,6 +737,29 @@ function montarTelaLogin(){
     formCadastroEl.style.display='none';
     formLoginEl.style.display='block';
     document.getElementById('cadastroErro').textContent='';
+  });
+  formCadastroEl.querySelectorAll('[data-cadastro-senha]').forEach(botao=>{
+    botao.addEventListener('click',()=>{
+      const campo=document.getElementById(botao.dataset.cadastroSenha);
+      const mostrar=campo.type==='password';campo.type=mostrar?'text':'password';
+      botao.textContent=mostrar?'🙈':'👁️';botao.setAttribute('aria-pressed',String(mostrar));botao.setAttribute('aria-label',mostrar?'Ocultar senha':'Mostrar senha');
+    });
+  });
+  document.getElementById('cadastroCopiarCredenciais').addEventListener('click',async()=>{
+    const usuario=document.getElementById('cadastroUsuario').value.trim();
+    const senha=document.getElementById('cadastroSenha').value;
+    const status=document.getElementById('cadastroCopiaStatus');
+    if(!usuario||!senha){status.textContent='Preencha o usuário e a senha para copiar.';return}
+    const texto='Usuário: '+usuario+'\nSenha: '+senha;
+    try{
+      let copiou=false;
+      if(navigator.clipboard&&navigator.clipboard.writeText){try{await navigator.clipboard.writeText(texto);copiou=true}catch(e){}}
+      if(!copiou){
+        const campo=document.createElement('textarea');campo.value=texto;campo.readOnly=true;campo.style.cssText='position:fixed;left:-9999px;top:0';document.body.appendChild(campo);
+        try{campo.select();campo.setSelectionRange(0,campo.value.length);if(!document.execCommand('copy'))throw new Error('Falha ao copiar')}finally{campo.remove()}
+      }
+      status.textContent='Usuário e senha copiados. Cole onde deseja guardar.';
+    }catch(e){status.textContent='Não foi possível copiar. Tente novamente.'}
   });
   document.getElementById('cadastroCriarBtn').addEventListener('click', async()=>{
     const codigo = document.getElementById('cadastroCodigo').value.trim();
@@ -4044,7 +4069,14 @@ filter:none!important;
   filter:none!important;
   -webkit-text-stroke:0!important;
 }
-</style></head>
+</style><style id="cadastroCredenciaisV357">
+#formCadastroTeste .cadastro-senha-linha{position:relative;margin-bottom:10px}
+#formCadastroTeste .cadastro-senha-linha input{padding-right:50px!important;margin-bottom:0!important}
+#formCadastroTeste .cadastro-ver-senha{position:absolute;right:3px;top:3px;bottom:3px;width:42px;padding:0;border:0;border-radius:8px;background:#eee9f8;color:#422270;font-size:20px;cursor:pointer}
+#formCadastroTeste #cadastroCopiarCredenciais{width:100%;padding:12px;border:1px solid #b995df;border-radius:10px;background:linear-gradient(#7651c4,#532499);color:white;font-size:14px;font-weight:700;cursor:pointer}
+#formCadastroTeste #cadastroCopiaStatus{font-size:12px;color:#31523d;min-height:18px;margin:6px 0}
+</style>
+</head>
 <body>
 <div class="app">
 
@@ -4321,7 +4353,7 @@ filter:none!important;
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V353 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V357 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">

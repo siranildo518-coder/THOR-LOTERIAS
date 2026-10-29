@@ -21,8 +21,7 @@
     .nota{font-size:12px;color:#81798b;margin-top:10px;line-height:1.4}.tag{display:inline-block;background:#eee8f8;color:#5b21b6;border-radius:999px;padding:4px 9px;font-weight:700;margin-top:8px}
     .clientes{margin-top:22px;border-top:1px solid #ece7f2;padding-top:18px}.clientes-topo{display:flex;align-items:center;justify-content:space-between;gap:10px}.clientes h2{margin:0;color:var(--roxo);font-size:19px}.atualizar{height:38px;padding:0 13px;background:linear-gradient(#7950d7,#4d1c9c);box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:12px}.lista{display:grid;gap:9px;margin-top:13px}.cliente{border:1px solid #e5dfec;border-radius:13px;padding:11px;background:#fbfaff}.cliente-linha{display:flex;align-items:center;justify-content:space-between;gap:8px}.cliente strong{font-size:15px}.codigo{font:11px monospace;color:#81798b;margin-top:4px}.protegida{color:#6a6175;font-size:12px}.acoes{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.redefinir,.ver,.remover,.liberar{height:32px;padding:0 8px;border-radius:8px;box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065;font-size:10px}.redefinir{background:linear-gradient(#7c2be8,#5317ac)}.ver{background:linear-gradient(#2686dc,#14549a)}.remover{background:linear-gradient(#ee5353,#aa2028)}.liberar{background:linear-gradient(#f3a51f,#c66a00)}.navegador{background:linear-gradient(#18a86b,#08734a)}.vazio{color:#81798b;text-align:center;padding:14px}
     @media(max-width:380px){.linha{grid-template-columns:1fr}.card{padding:20px 16px}}
-  .copiar-credenciais{background:linear-gradient(#2686dc,#14549a);height:auto;min-height:36px;padding:8px;border-radius:8px;font-size:12px;line-height:1.25;box-shadow:inset 0 2px 2px #ffffff70,0 3px 0 #301065}.cliente-linha{flex-wrap:wrap}.cliente-linha>div:first-child{min-width:0;overflow-wrap:anywhere}.acoes{flex:1 1 100%;justify-content:flex-start}.protegida{margin:6px 0;font-size:14px;overflow-wrap:anywhere}
-</style>
+  </style>
 </head>
 <body>
   <main class="card">
@@ -153,16 +152,9 @@
         const senhaComentario=(comentario.match(/\(senha\s+([^\)]+)\)/i)||[])[1]||null;
         const nome=comentario.replace(/\s*\(senha.*$/i,'').trim();
         const cofre=carregarSenhas()[m[1]];
-        clientes.push({hash:m[1],nome:nome||'Cliente',usuario:(cofre&&cofre.usuario)||nome,senha:(cofre&&cofre.senha)||senhaComentario});
+        clientes.push({hash:m[1],nome:nome||'Cliente',senha:(cofre&&cofre.senha)||senhaComentario});
       }
       return clientes;
-    }
-
-    async function copiarCredenciais(usuario,senha){
-      const texto='Usuário: '+usuario+'\nSenha: '+senha;
-      if(navigator.clipboard&&navigator.clipboard.writeText){try{await navigator.clipboard.writeText(texto);return}catch(e){}}
-      const campo=document.createElement('textarea');campo.value=texto;campo.setAttribute('readonly','');campo.style.cssText='position:fixed;left:-9999px;top:0';document.body.append(campo);
-      try{campo.select();campo.setSelectionRange(0,campo.value.length);if(!document.execCommand('copy'))throw new Error('Falha ao copiar')}finally{campo.remove()}
     }
 
     async function carregarClientes(){
@@ -181,18 +173,13 @@
           const codigo=document.createElement('div');codigo.className='codigo';codigo.textContent='Código: '+cliente.hash;
           const acoes=document.createElement('div');acoes.className='acoes';
           const ver=document.createElement('button');ver.type='button';ver.className='ver';ver.textContent='VER SENHA';
-          let senhaVisivel=false,timerSenha;
-          const ocultarSenha=()=>{senhaVisivel=false;senha.textContent='Senha: ••••••';ver.textContent='VER SENHA';ver.setAttribute('aria-pressed','false')};
-          ver.setAttribute('aria-pressed','false');
-          ver.onclick=()=>{if(!cliente.senha){alert('A senha antiga não está disponível neste aparelho. Use Redefinir.');return}clearTimeout(timerSenha);if(senhaVisivel){ocultarSenha();return}senhaVisivel=true;senha.textContent='Senha: '+cliente.senha;ver.textContent='OCULTAR SENHA';ver.setAttribute('aria-pressed','true');timerSenha=setTimeout(ocultarSenha,10000)};
-          const copiar=document.createElement('button');copiar.type='button';copiar.className='copiar-credenciais';copiar.textContent='Copiar usuário e senha';
-          copiar.onclick=async()=>{if(!cliente.senha||!cliente.usuario){alert('Usuário ou senha indisponível neste aparelho. Use Redefinir para cadastrar uma nova senha.');return}try{await copiarCredenciais(cliente.usuario,cliente.senha);copiar.textContent='Copiado!';setTimeout(()=>copiar.textContent='Copiar usuário e senha',2200)}catch(e){alert('Não foi possível copiar. Tente novamente.')}};
+          ver.onclick=()=>{if(cliente.senha){senha.textContent='Senha: '+cliente.senha;setTimeout(()=>senha.textContent='Senha: ••••••',10000)}else alert('A senha antiga não pode ser recuperada. Use Redefinir.')};
           const redefinir=document.createElement('button');redefinir.type='button';redefinir.className='redefinir';redefinir.textContent='REDEFINIR';redefinir.onclick=()=>redefinirSenha(cliente);
           const remover=document.createElement('button');remover.type='button';remover.className='remover';remover.textContent='REMOVER';remover.onclick=()=>removerCliente(cliente);
           const liberar=document.createElement('button');liberar.type='button';liberar.className='liberar';liberar.textContent='LIBERAR APARELHO';liberar.onclick=()=>liberarAparelho(cliente);
           const navegador=document.createElement('button');navegador.type='button';navegador.className='navegador';navegador.textContent='ACESSO NAVEGADOR';navegador.onclick=()=>alternarAcessoNavegador(cliente,navegador);
           atualizarBotaoNavegador(cliente,navegador);
-          acoes.append(ver,copiar,redefinir,liberar,navegador,remover);dados.append(nome,senha,codigo);linha.append(dados,acoes);item.append(linha);area.append(item);
+          acoes.append(ver,redefinir,liberar,navegador,remover);dados.append(nome,senha,codigo);linha.append(dados,acoes);item.append(linha);area.append(item);
         });
       }catch(e){area.innerHTML='<div class="vazio">'+String(e.message||e)+'</div>'}
     }
