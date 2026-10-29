@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v350-quente-20261028'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v351-quente-20261028'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3957,7 +3957,12 @@ html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-hit-badge:has(.
 html body #gfcJogosSalvosTela .sg-game-top>strong:has(.tp-win){background:linear-gradient(120deg,#1f9d74,#15764f)!important;border:0!important;border-radius:30px!important;padding:6px 9px!important;box-shadow:none!important}
 html body .tp-single.tp-win{color:#fff!important;font-size:clamp(9px,2.5vw,15px)!important}
 html body #gfcJogosSalvosTela .sg-game-top{margin-bottom:9px}
-</style><style id="thorBootEscuroApp">html,body{background:#07101f!important}body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
+</style><style id="gruposSalvosV351">
+html body #gfcJogosSalvosTela .sg-named-groups{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0}
+html body #gfcJogosSalvosTela .sg-group-name{display:inline-flex;justify-content:center;align-items:center;width:auto;max-width:100%;min-height:44px;margin:0;padding:10px 16px;text-align:center;border:2px solid #393425;border-radius:10px;background:linear-gradient(#fff6c7,#f3cd54);color:#27251d;font-size:14px;box-shadow:inset 0 1px 2px #fff,0 3px 4px #0003}
+html body #gfcJogosSalvosTela .sg-group-name[aria-expanded=true]{background:linear-gradient(#d6ffdb,#6ed89b);border-color:#477e52;color:#173b27}
+</style>
+<style id="thorBootEscuroApp">html,body{background:#07101f!important}body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
 <body>
 <div class="app">
 
@@ -4234,7 +4239,7 @@ html body #gfcJogosSalvosTela .sg-game-top{margin-bottom:9px}
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V350 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V351 · Base V240</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -8750,15 +8755,15 @@ function montarResultadoSalvos(){
  <div class="sg-summary"><header><b>🏆 CONFERIDOR DE ACERTOS</b><b>${sgEscape(g.nome)}</b></header><div class="sg-scores">
  ${[...counts].sort((a,b)=>b[0]-a[0]).map(([hits,qtd],i)=>'<div class="sg-score '+(!i?'best':'')+'"><b>'+hits+' pontos</b><small>'+qtd+' jogo(s)</small></div>').join('')}
  ${!all.length?'<p>Nenhum jogo salvo para esta loteria.</p>':''}</div></div></section>
- <section class="sg-panel"><h2 class="sg-title-count">JOGOS SALVOS <span>${all.length} jogos salvos</span></h2><div class="sg-actions">
+ <section class="sg-panel"><h2 class="sg-title-count">JOGOS SALVOS <span>Jogos salvos</span></h2><div class="sg-actions">
  <button id="sgCopy" class="sg-blue" ${!all.length?'disabled':''}>Copiar jogos</button><button id="sgClear" class="sg-red" ${!all.length?'disabled':''}>🗑 Limpar</button><button id="sgSave" class="sg-blue" ${!all.length?'disabled':''}>▣ Salvar jogos</button><button id="sgWins" class="sg-green" aria-pressed="${sgOnlyWins}" ${!result||!all.length?'disabled':''}>${sgOnlyWins?'Todos os jogos':'🏆 Jogos premiados'}</button></div>
  <p id="sgStatus" role="status"></p>
- <div class="sg-named-groups">
- ${names.map((name,i)=>'<button type="button" class="sg-group-name" data-sg-name="'+i+'" aria-expanded="'+(sgOpenName===name)+'"><span>'+sgEscape(name)+'</span><small>'+all.filter(j=>j.nome===name).length+' jogos '+(sgOpenName===name?'▴':'▾')+'</small></button>'+
- (sgOpenName===name?'<div class="sg-group-games">'+visible.slice(0,sgLimit).map(j=>'<article class="sg-game"><div class="sg-game-top"><b>Jogo '+j.index+'</b><strong>'+thorPremioCard347(g.code,j.hits,j.numeros.length)+'</strong></div><div class="sg-balls">'+j.numeros.map(n=>ball(n,drawn.has(sgNormalize(n))?'hit':'miss')).join('')+'</div></article>').join('')+
- (!visible.length?'<p class="sg-muted">Nenhum jogo premiado neste grupo.</p>':'')+
- (visible.length>sgLimit?'<button class="sg-gold" id="sgMore">Mostrar mais jogos</button>':'')+'</div>':'')).join('')}
+ <div class="sg-named-groups" aria-label="Grupos de jogos salvos">
+ ${names.map((name,i)=>'<button type="button" class="sg-group-name" data-sg-name="'+i+'" aria-expanded="'+(sgOpenName===name)+'"><span>'+sgEscape(name)+'</span></button>').join('')}
  </div>
+ ${sgOpenName!==null?'<div class="sg-group-games">'+visible.slice(0,sgLimit).map(j=>'<article class="sg-game"><div class="sg-game-top"><b>Jogo '+j.index+'</b><strong>'+thorPremioCard347(g.code,j.hits,j.numeros.length)+'</strong></div><div class="sg-balls">'+j.numeros.map(n=>ball(n,drawn.has(sgNormalize(n))?'hit':'miss')).join('')+'</div></article>').join('')+
+ (!visible.length?'<p class="sg-muted">Nenhum jogo premiado neste grupo.</p>':'')+
+ (visible.length>sgLimit?'<button class="sg-gold" id="sgMore">Mostrar mais jogos</button>':'')+'</div>':''}
  ${!all.length?'<p class="sg-muted">Salve jogos nesta loteria para vê-los aqui.</p>':''}
  </section>`;
  p.querySelectorAll('[data-sg-name]').forEach(b=>b.onclick=()=>{const name=names[Number(b.dataset.sgName)];sgOpenName=sgOpenName===name?null:name;sgLimit=50;montarResultadoSalvos();});
