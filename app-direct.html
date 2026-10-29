@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v347-quente-20261028'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v348-quente-20261028'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3938,6 +3938,10 @@ html body .tp-label{font-size:10px!important;line-height:1.2!important;font-weig
 html body .tp-points{font-size:18px!important;line-height:1.1!important;font-weight:900!important;color:#171717}
 html body .tp-value{font-size:11px!important;line-height:1.2!important;font-weight:700!important;color:#38552b}
 html body #overlayGeradorFiltro #geradorResTentar{width:auto!important;height:auto!important;min-height:38px!important;padding:8px 12px!important;white-space:normal!important;font-size:13px!important}
+</style><style id="pontuacaoLinhaV348">
+html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-hit-badge,
+html body #gfcJogosSalvosTela .sg-game-top>strong{display:block!important;max-width:none!important;white-space:nowrap!important;padding:6px 8px!important;line-height:1.2!important}
+html body .tp-single{display:inline!important;white-space:nowrap!important;font-size:clamp(10px,2.8vw,16px)!important;font-weight:800!important;color:#171717!important}
 </style><style id="thorBootEscuroApp">html,body{background:#07101f!important}body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
 <body>
 <div class="app">
@@ -4215,7 +4219,7 @@ html body #overlayGeradorFiltro #geradorResTentar{width:auto!important;height:au
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V347 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V348 · Base V240</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -8605,8 +8609,7 @@ function atualizarConferenciaGeradorLeve(g, jogos){
 
 function thorPremioCard347(code,hits){
  const faixa=hits===null?null:faixaPremioGerador(code,hits);
- const valor=faixa?.label?.match(/R\$\s*[\d.,]+/)?.[0]||null;
- return '<span class="tp-label">'+(faixa?'🏆 Jogo premiado':hits===null?'Aguardando resultado':'Pontuação')+'</span><span class="tp-points">'+(hits===null?'—':hits+' pontos')+'</span>'+(faixa?'<span class="tp-value">'+(valor?'Faixa: '+valor:'Valor a confirmar')+'</span>':'');
+ return '<span class="tp-single">'+(hits===null?'—':hits+' pontos'+(faixa?' · Premiado':''))+'</span>';
 }
 
 function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcursos, numeroUltimo, depSize){
