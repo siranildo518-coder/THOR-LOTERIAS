@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v346-quente-20261028'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v347-quente-20261028'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -3926,6 +3926,18 @@ html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-row{paddin
 html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-ball{background:radial-gradient(circle at 30% 20%,#fff,#e0e5df 50%,#aeb9b3)!important;color:#141414!important;text-shadow:none!important;box-shadow:inset 0 1px 2px #fff7,0 3px 5px #0004!important;border:0!important}
 html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-ball.sg-acertou{background:radial-gradient(circle at 30% 20%,#a38bcf,#643b93 42%,#36234f)!important;color:#fff!important}
 html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-ball.fixa-gerador{outline:2px solid #a27616;outline-offset:1px}
+</style><style id="jogosCartoesV347">
+html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-row{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:start!important;gap:7px!important;padding:8px!important}
+html body #overlayGeradorFiltro #geradorFiltroResultado .tp-game-number{grid-column:1;grid-row:1;justify-self:start;font-size:15px!important;color:#ffe373!important;background:#171717;border-radius:8px;padding:4px 9px;width:auto!important}
+html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-hit-badge{grid-column:2;grid-row:1;margin:0!important;max-width:145px;text-align:center!important;display:flex!important;flex-direction:column;gap:3px;padding:6px 9px;border:1px solid #282722;border-radius:9px;background:linear-gradient(#fff4bd,#f5cd4b);box-shadow:0 2px 3px #0003;color:#171717!important}
+html body #overlayGeradorFiltro #geradorFiltroResultado .tp-game-balls{grid-column:1/-1;grid-row:2;display:grid!important;grid-template-columns:repeat(10,minmax(0,1fr))!important;gap:4px!important;width:100%;min-width:0}
+html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-ball{width:100%!important;height:auto!important;min-width:0!important;aspect-ratio:1;font-size:clamp(10px,2.7vw,18px)!important;font-weight:900!important}
+html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-premio-wrap{display:none!important}
+html body #gfcJogosSalvosTela .sg-game-top>strong{display:flex;flex-direction:column;gap:3px;max-width:145px;text-align:center;padding:6px 9px}
+html body .tp-label{font-size:10px!important;line-height:1.2!important;font-weight:800!important;color:#252219}
+html body .tp-points{font-size:18px!important;line-height:1.1!important;font-weight:900!important;color:#171717}
+html body .tp-value{font-size:11px!important;line-height:1.2!important;font-weight:700!important;color:#38552b}
+html body #overlayGeradorFiltro #geradorResTentar{width:auto!important;height:auto!important;min-height:38px!important;padding:8px 12px!important;white-space:normal!important;font-size:13px!important}
 </style><style id="thorBootEscuroApp">html,body{background:#07101f!important}body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
 <body>
 <div class="app">
@@ -4203,7 +4215,7 @@ html body #overlayGeradorFiltro #geradorFiltroResultado .gerador-jogo-ball.fixa-
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V346 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V347 · Base V240</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -8572,7 +8584,7 @@ function atualizarConferenciaGeradorLeve(g, jogos){
       const badge = row.querySelector('.gerador-hit-badge');
       if(badge){
         badge.style.color = faixa ? '#1F9D74' : 'var(--muted)';
-        badge.innerHTML = `${hits} acerto${hits===1?'':'s'}<br><span style="font-size:9px;font-weight:700;">${faixa ? faixa.label : 'não premiado'}</span>`;
+        badge.innerHTML = thorPremioCard347(g.code,hits);
       }
       const premioWrap = row.querySelector('.gerador-premio-wrap');
       if(premioWrap){
@@ -8590,6 +8602,13 @@ function atualizarConferenciaGeradorLeve(g, jogos){
   requestAnimationFrame(atualizarLote);
 }
 
+
+function thorPremioCard347(code,hits){
+ const faixa=hits===null?null:faixaPremioGerador(code,hits);
+ const valor=faixa?.label?.match(/R\$\s*[\d.,]+/)?.[0]||null;
+ return '<span class="tp-label">'+(faixa?'🏆 Jogo premiado':hits===null?'Aguardando resultado':'Pontuação')+'</span><strong class="tp-points">'+(hits===null?'—':hits+' pontos')+'</strong>'+(faixa?'<span class="tp-value">'+(valor?'Faixa: '+valor:'Valor a confirmar')+'</span>':'');
+}
+
 function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcursos, numeroUltimo, depSize){
   const out = document.getElementById('geradorFiltroResultado');
 
@@ -8604,16 +8623,14 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
     const faixa = conferindo ? faixaPremioGerador(g.code, hits) : null;
     if(conferindo) distribuicaoAcertos.set(hits, (distribuicaoAcertos.get(hits) || 0) + 1);
     if(faixa) totalPremiados++;
-    const badge = conferindo
-      ? `<span class="gerador-hit-badge" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:${faixa ? '#1F9D74' : 'var(--muted)'};margin-left:auto;flex:none;text-align:right;">${hits} acerto${hits===1?'':'s'}<br><span style="font-size:9px;font-weight:700;">${faixa ? faixa.label : 'não premiado'}</span></span>`
-      : `<span class="gerador-hit-badge" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:var(--muted);margin-left:auto;flex:none;text-align:right;">— acertos<br><span style="font-size:9px;font-weight:700;">aguardando resultado</span></span>`;
+    const badge = `<span class="gerador-hit-badge">${thorPremioCard347(g.code,hits)}</span>`;
     const premioTag = faixa
       ? `<div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:#fff;background:linear-gradient(135deg,#1F9D74,#15764F);padding:3px 8px;border-radius:20px;display:inline-block;margin-top:5px;">🏆 PREMIADO — ${faixa.label}</div>`
       : '';
     return `
     <div class="tend-row gerador-jogo-row" data-jogo-index="${i}" style="align-items:center;flex-wrap:wrap;${faixa ? 'background:rgba(31,157,116,.08);border-color:#1F9D74;' : ''}">
-      <div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:12px;color:var(--muted);width:26px;flex:none;">${i+1}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;flex:1;">
+      <div class="tp-game-number">Jogo ${i+1}</div>
+      <div class="tp-game-balls" style="display:flex;flex-wrap:wrap;gap:4px;flex:1;">
         ${jogo.map(n=>{
           const fixa = gfcFixasSelecionadas.has(n);
           const acertou = conferindo && resultadoSet.has(n);
@@ -8715,7 +8732,7 @@ function montarResultadoSalvos(){
  <section class="sg-panel"><h2>JOGOS SALVOS</h2><div class="sg-actions">
  <button id="sgCopy" class="sg-blue" ${!all.length?'disabled':''}>Copiar jogos</button><button id="sgClear" class="sg-red" ${!all.length?'disabled':''}>🗑 Limpar</button><button id="sgSave" class="sg-blue" ${!all.length?'disabled':''}>▣ Salvar jogos</button><button id="sgWins" class="sg-green" aria-pressed="${sgOnlyWins}" ${!result||!all.length?'disabled':''}>${sgOnlyWins?'Todos os jogos':'🏆 Jogos premiados'}</button></div>
  <p id="sgStatus" role="status"></p><p class="sg-count">${all.length} jogos salvos em ${sgEscape(g.nome)}.</p>
- ${visible.slice(0,sgLimit).map(j=>'<article class="sg-game"><div class="sg-game-top"><b>Jogo '+j.index+'</b><strong>'+ (j.hits===null?'—':j.hits)+'</strong></div><div class="sg-name">'+sgEscape(j.nome)+'</div><div class="sg-balls">'+j.numeros.map(n=>ball(n,drawn.has(sgNormalize(n))?'hit':'miss')).join('')+'</div></article>').join('')}
+ ${visible.slice(0,sgLimit).map(j=>'<article class="sg-game"><div class="sg-game-top"><b>Jogo '+j.index+'</b><strong>'+thorPremioCard347(g.code,j.hits)+'</strong></div><div class="sg-name">'+sgEscape(j.nome)+'</div><div class="sg-balls">'+j.numeros.map(n=>ball(n,drawn.has(sgNormalize(n))?'hit':'miss')).join('')+'</div></article>').join('')}
  ${!visible.length?'<p class="sg-muted">'+(all.length?'Nenhum jogo premiado neste concurso.':'Salve jogos nesta loteria para vê-los aqui.')+'</p>':''}
  ${visible.length>sgLimit?'<button class="sg-gold" id="sgMore">Mostrar mais jogos</button>':''}</section>`;
  p.querySelectorAll('[data-sg-game]').forEach(b=>b.onclick=()=>sgSelect(b.dataset.sgGame));
