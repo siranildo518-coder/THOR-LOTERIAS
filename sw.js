@@ -1,2 +1,2 @@
 // THOR LOTERIAS V351 — atualização de cache do Posicionamento
-importScripts('./sw-core-thor7.js?v=thor-v351-dourado-20261029');
+importScripts('./sw-core-thor7.js?v=thor-v352-compacto');
