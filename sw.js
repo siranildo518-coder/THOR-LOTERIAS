@@ -1,2 +1,2 @@
 // THOR LOTERIAS V337 — visual de Análise > Falhas
-importScripts('./sw-core-thor7.js?v=thor-v346-quente-20261028');
+importScripts('./sw-core-thor7.js?v=thor-v347-quente-20261028');
