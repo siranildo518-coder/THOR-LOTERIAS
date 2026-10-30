@@ -8256,6 +8256,16 @@ const FAIXAS_PREMIACAO_GERADOR = {
   DS:  [{h:6, label:'Sena'},        {h:5, label:'Quina'},      {h:4, label:'Quadra'},    {h:3, label:'Terno'}],
   S7:  [{h:7, label:'7 colunas'},   {h:6, label:'6 colunas'},  {h:5, label:'5 colunas'}, {h:4, label:'4 colunas'}, {h:3, label:'3 colunas — R$ 6,00'}],
 };
+function thorFaixaPremioPorTamanho(code,hits,quantidade){
+  // Exibição de acertos para jogos simples e múltiplos; não altera o cálculo dos acertos.
+  const faixa=faixaPremioGerador(code,hits);
+  if(code==='MS' && quantidade===6 && hits===3)return {h:3,label:'3 acertos'};
+  if(!faixa)return null;
+  if(code==='DIA' && quantidade>7 && hits!==7)return null;
+  if(code==='MS' && quantidade>6 && hits!==6)return null;
+  if(code==='LF' && quantidade>15 && hits<14)return null;
+  return faixa;
+}
 function faixaPremioGerador(code, hits){
   const faixas = FAIXAS_PREMIACAO_GERADOR[code];
   if(!faixas) return null;
@@ -8716,7 +8726,7 @@ function atualizarConferenciaGeradorLeve(g, jogos){
   for(let i=0;i<jogos.length;i++){
     let hits = 0;
     for(const n of jogos[i]) if(resultadoSet.has(n)) hits++;
-    const faixa = faixaPremioGerador(g.code, hits);
+    const faixa = thorFaixaPremioPorTamanho(g.code, hits, jogos[idx].length);
     hitsPorJogo[i] = hits;
     faixaPorJogo[i] = faixa;
     distribuicao.set(hits, (distribuicao.get(hits)||0)+1);
@@ -8745,7 +8755,7 @@ function atualizarConferenciaGeradorLeve(g, jogos){
       const hits = hitsPorJogo[idx] ?? 0;
       const faixa = faixaPorJogo[idx] || null;
       row.style.background = faixa ? 'rgba(31,157,116,.08)' : '';
-      row.style.borderColor = faixa ? '#1F9D74' : '';
+      row.style.borderColor = faixa ? '#139b59' : '';row.style.borderWidth = faixa ? '3px' : '';row.style.borderStyle = faixa ? 'solid' : '';row.style.boxShadow = faixa ? '0 0 0 2px rgba(19,155,89,.20)' : '';
       row.querySelectorAll('.gerador-jogo-ball').forEach(ball=>{
         const acertou = resultadoSet.has(Number(ball.dataset.num));
         const selecionada=selecionadasSet.has(Number(ball.dataset.num));
@@ -8779,8 +8789,8 @@ function atualizarConferenciaGeradorLeve(g, jogos){
 
 
 function thorPremioCard347(code,hits,quantidade){
- const faixa=hits===null?null:faixaPremioGerador(code,hits);
- const premiado=!!faixa && (code!=='LF'||quantidade===15||(quantidade>15&&hits===15));
+ const faixa=hits===null?null:thorFaixaPremioPorTamanho(code,hits,quantidade);
+ const premiado=!!faixa;
  return '<span class="tp-single'+(premiado?' tp-win':'')+'">'+(hits===null?'—':premiado?'🏆 PREMIADO — '+hits+' pontos':hits+' pontos')+'</span>';
 }
 
@@ -8794,7 +8804,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
 
   const listaJogosHtml = jogos.map((jogo,i)=>{
     const hits = conferindo ? jogo.filter(n=>resultadoSet.has(n)).length : null;
-    const faixa = conferindo ? faixaPremioGerador(g.code, hits) : null;
+    const faixa = conferindo ? thorFaixaPremioPorTamanho(g.code, hits, jogo.length) : null;
     if(conferindo) distribuicaoAcertos.set(hits, (distribuicaoAcertos.get(hits) || 0) + 1);
     if(faixa) totalPremiados++;
     const selecionadas=jogo.filter(n=>selecionadasSet.has(Number(n))).length;
@@ -8803,7 +8813,7 @@ function renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, totalConcur
       ? `<div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:10.5px;color:#fff;background:linear-gradient(135deg,#1F9D74,#15764F);padding:3px 8px;border-radius:20px;display:inline-block;margin-top:5px;">🏆 PREMIADO — ${faixa.label}</div>`
       : '';
     return `
-    <div class="tend-row gerador-jogo-row" data-jogo-index="${i}" style="align-items:center;flex-wrap:wrap;${faixa ? 'background:rgba(31,157,116,.08);border-color:#1F9D74;' : ''}">
+    <div class="tend-row gerador-jogo-row" data-jogo-index="${i}" style="align-items:center;flex-wrap:wrap;${faixa ? 'background:rgba(31,157,116,.08);border:3px solid #139b59;box-shadow:0 0 0 2px rgba(19,155,89,.20);' : ''}">
       <div class="tp-game-number">Jogo ${i+1}</div>
       <div class="tp-game-balls" style="display:flex;flex-wrap:wrap;gap:4px;flex:1;">
         ${jogo.map(n=>{
