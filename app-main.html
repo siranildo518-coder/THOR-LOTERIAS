@@ -8261,9 +8261,10 @@ function thorFaixaPremioPorTamanho(code,hits,quantidade){
   const faixa=faixaPremioGerador(code,hits);
   if(code==='MS' && quantidade===6 && hits===3)return {h:3,label:'3 acertos'};
   if(!faixa)return null;
-  if(code==='DIA' && quantidade>7 && hits!==7)return null;
-  if(code==='MS' && quantidade>6 && hits!==6)return null;
-  if(code==='LF' && quantidade>15 && hits<14)return null;
+  // Jogos ampliados: somente a pontuação máxima recebe "Jogo premiado".
+  const maximos={LF:15,MS:6,QN:5,DIA:7,LM:20,DS:6,TM:7,S7:7};
+  const minimoSimples={LF:15,MS:6,QN:5,DIA:7,LM:50,DS:6,TM:10,S7:7};
+  if(quantidade>(minimoSimples[code]||Infinity) && hits!==maximos[code])return null;
   return faixa;
 }
 function faixaPremioGerador(code, hits){
