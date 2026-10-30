@@ -8456,7 +8456,10 @@ function renderUltimoResultadoGerador(g, data){
   // Anterior/Próximo pra um concurso diferente)
   geradorUltimoResultado = { gameCode: g.code, concurso: data.concurso, dezenas: new Set(nums) };
   if(geradorUltimoJogosCtx && geradorUltimoJogosCtx.g.code === g.code){
-    geradorUltimoJogosCtx.conferidoConcurso = Number(data.concurso)>Number(geradorUltimoJogosCtx.concursoBase||geradorUltimoJogosCtx.numeroUltimo) ? Number(data.concurso) : null;
+    // Confere os jogos em qualquer concurso diferente do usado para gerar os palpites.
+    // Ao voltar ao concurso-base, mostra novamente a quantidade de repetidas.
+    const base=Number(geradorUltimoJogosCtx.concursoBase||geradorUltimoJogosCtx.numeroUltimo||0);
+    geradorUltimoJogosCtx.conferidoConcurso = Number(data.concurso)!==base ? Number(data.concurso) : null;
     atualizarConferenciaGeradorLeve(geradorUltimoJogosCtx.g, geradorUltimoJogosCtx.jogos);
   }
 
