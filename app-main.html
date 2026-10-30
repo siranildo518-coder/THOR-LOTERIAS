@@ -4077,7 +4077,12 @@ filter:none!important;
 #formCadastroTeste #cadastroCopiarCredenciais{width:100%;padding:12px;border:1px solid #b995df;border-radius:10px;background:linear-gradient(#7651c4,#532499);color:white;font-size:14px;font-weight:700;cursor:pointer}
 #formCadastroTeste #cadastroCopiaStatus{font-size:12px;color:#31523d;min-height:18px;margin:6px 0}
 </style>
-</head>
+<style id="thor-gfc-repetidas-ate-14-visivel">
+/* Mostra todas as opções 6–14 sem cortar as últimas no celular */
+#gfcMultiInline:has(+ *) #gfcMultiOptions{max-width:100%}
+#gfcMultiInline #gfcMultiOptions:has(.gfc-multi-option:nth-child(9)){display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;overflow:visible!important;width:100%!important;max-width:100%!important}
+#gfcMultiInline #gfcMultiOptions:has(.gfc-multi-option:nth-child(9)) .gfc-multi-option{min-width:0!important;width:100%!important;margin:0!important;padding:8px 1px!important;font-size:12px!important;box-sizing:border-box!important}
+</style></head>
 <body>
 <div class="app">
 
