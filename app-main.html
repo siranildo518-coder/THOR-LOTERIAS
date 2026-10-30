@@ -581,6 +581,7 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
     }
     localStorage.setItem('tl_cadastro_hash_atual',hash);
     localStorage.setItem('tl_codigo_cadastro_usado_'+liberacao.codigoHash,'1');
+    localStorage.setItem('thor_codigo_conta_'+hash,liberacao.codigoHash);
   }catch(e){}
   return {ok:true,hash,usuario};
 }
@@ -17108,7 +17109,40 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   },1600);
  },true);
 })();</script>
-</body>
+<script>
+// THOR CONTROLE DE CODIGOS - TESTE. Verifica revogacao da conta a cada 20 segundos.
+(function(){
+  var checking=false, lastGood=0;
+  async function check(){
+    if(checking||localStorage.getItem('tl_login_ok_v1')!=='1')return;
+    var conta=localStorage.getItem('tl_hash_atual');
+    var codigo=conta&&localStorage.getItem('thor_codigo_conta_'+conta);
+    if(!codigo)return; // Contas anteriores nao vinculadas nao sao afetadas.
+    checking=true;
+    try{
+      var url='https://api.github.com/repos/siranildo518-coder/THOR-LOTERIAS/contents/cadastros-liberados.json?ref=main&_='+Date.now();
+      var response=await fetch(url,{cache:'no-store'});
+      if(!response.ok)throw Error('HTTP '+response.status);
+      var data=await response.json();
+      if(data.encoding==='base64')data=JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\s/g,'')))));
+      var item=(data.liberacoes||[]).find(function(x){return x.hash===codigo;});
+      // Expiracao limita o resgate do codigo, nao o acesso da conta ja criada.
+      if(!item||item.ativo===false){
+        localStorage.removeItem('tl_login_ok_v1');
+        localStorage.removeItem('tl_hash_atual');
+        alert('Seu codigo de acesso foi bloqueado. Entre em contato com o administrador.');
+        location.reload();
+      }else lastGood=Date.now();
+    }catch(err){console.warn('THOR: consulta de bloqueio indisponivel',err);}
+    finally{checking=false;}
+  }
+  window.addEventListener('online',check);
+  window.addEventListener('focus',check);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)check();});
+  setInterval(check,20000);
+  setTimeout(check,2500);
+})();
+</script></body>
 </html>
 
 <style id="frequencia-dezena-barra-fina-quadrada-final">
