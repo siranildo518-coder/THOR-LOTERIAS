@@ -8355,12 +8355,23 @@ function abrirGeradorFiltro(code){
 // Fonte padrão única: reaproveita exatamente a leitura do último resultado usada em Combinações.
 async function buscarUltimoComoCombinacoes(g){
   const pronto = obterConcursoCache(g);
+  // Consulta as fontes oficiais/espelhos sem bloquear a tela por uma base local indisponível.
   try{
-    const data = await fetchConcursoLoteria(g);
+    const data = await fetchConcursoLoteriaRemoto(g);
+    if(data && data.concurso) return data;
+  }catch(_){}
+  // Fallback: dados já conhecidos no aparelho ou base THOR, sem apagar o resultado visível.
+  try{
+    const data = await thorHomeResultadoAtual(g);
     if(data && data.concurso) return data;
   }catch(_){}
   if(pronto && pronto.concurso) return pronto;
-  throw new Error('sem resultado atualizado');
+  try{
+    const salvo=JSON.parse(localStorage.getItem('thor_home_resultado_'+g.slug)||'null');
+    const data=thorNormalizarHome(g,salvo);
+    if(data&&data.concurso)return data;
+  }catch(_){}
+  throw new Error('Nenhuma fonte de resultados disponível');
 }
 
 // ---------- card com o resultado oficial da loteria escolhida, logo abaixo do botão GERAR ----------
@@ -8384,7 +8395,18 @@ async function carregarUltimoResultadoGerador(g, concurso){
   }catch(e){
     if(!geradorGameAtual || geradorGameAtual.code !== g.code) return;
     console.error('carregarUltimoResultadoGerador falhou:', e);
-    box.innerHTML = `<div class="res-error">Não foi possível buscar o resultado agora.<br><button class="res-nav-btn" id="geradorResTentar" style="margin-top:8px;">Tentar novamente</button></div>`;
+    const ultimoVisivel=geradorUltimoResultado?.gameCode===g.code ? obterConcursoCache(g,geradorUltimoResultado.concurso) : null;
+    if(ultimoVisivel){
+      renderUltimoResultadoGerador(g,ultimoVisivel);
+      const aviso=document.createElement('div');aviso.className='res-error';
+      aviso.style.cssText='font-size:11px;text-align:center;margin-top:5px';
+      aviso.textContent='Sem conexão com a fonte agora. Exibindo último resultado conhecido.';
+      box.appendChild(aviso);
+    }else{
+      box.innerHTML = `<div class="res-error">Não foi possível buscar o resultado agora.<br><button class="res-nav-btn" id="geradorResTentar" style="margin-top:8px;padding:8px 18px;min-width:155px;width:auto;white-space:nowrap;font-size:13px;line-height:1.2;">Tentar novamente</button></div>`;
+      const btn = document.getElementById('geradorResTentar');
+      if(btn) btn.addEventListener('click', ()=>carregarUltimoResultadoGerador(g, concurso));
+    }
     const btn = document.getElementById('geradorResTentar');
     if(btn) btn.addEventListener('click', ()=>carregarUltimoResultadoGerador(g, concurso));
   }
