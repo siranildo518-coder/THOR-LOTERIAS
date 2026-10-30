@@ -8473,7 +8473,7 @@ function renderUltimoResultadoGerador(g, data){
   // Anterior/Próximo pra um concurso diferente)
   geradorUltimoResultado = { gameCode: g.code, concurso: data.concurso, dezenas: new Set(nums) };
   if(geradorUltimoJogosCtx && geradorUltimoJogosCtx.g.code === g.code){
-    geradorUltimoJogosCtx.conferidoConcurso = Number(data.concurso)>Number(geradorUltimoJogosCtx.numeroUltimo) ? Number(data.concurso) : null;
+    geradorUltimoJogosCtx.conferidoConcurso = Number(data.concurso)>Number(geradorUltimoJogosCtx.concursoBase||geradorUltimoJogosCtx.numeroUltimo) ? Number(data.concurso) : null;
     atualizarConferenciaGeradorLeve(geradorUltimoJogosCtx.g, geradorUltimoJogosCtx.jogos);
   }
 
@@ -8696,7 +8696,7 @@ document.getElementById('geradorFiltroGerarBtn').addEventListener('click', async
     }
 
     geradorUltimoJogosCtx = { g, jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo, baseRepetidas:numsAnteriorBase, concursoBase:ultimo.concurso, conferidoConcurso:null };
-    salvarGeradorEstado(g.code, { jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo, baseRepetidas:numsAnteriorBase, concursoBase:anterior.concurso });
+    salvarGeradorEstado(g.code, { jogos, maisAtrasadas, maisSairam, totalConcursos: validos.length, numeroUltimo, depSize: dezenasPorJogo, baseRepetidas:numsAnteriorBase, concursoBase:ultimo.concurso });
     renderGeradorResultado(g, jogos, maisAtrasadas, maisSairam, validos.length, numeroUltimo, dezenasPorJogo);
   }catch(e){
     console.error('gerador multi-loteria falhou:', e);
@@ -8748,7 +8748,7 @@ function atualizarConferenciaGeradorLeve(g, jogos){
   for(let i=0;i<jogos.length;i++){
     let hits = 0;
     for(const n of jogos[i]) if(resultadoSet.has(n)) hits++;
-    const faixa = thorFaixaPremioPorTamanho(g.code, hits, jogos[idx].length);
+    const faixa = thorFaixaPremioPorTamanho(g.code, hits, jogos[i].length);
     hitsPorJogo[i] = hits;
     faixaPorJogo[i] = faixa;
     distribuicao.set(hits, (distribuicao.get(hits)||0)+1);
