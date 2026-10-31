@@ -1,102 +1,102 @@
 {
-  "atualizadoEm": "2026-10-30T21:35:10.630003+00:00",
+  "atualizadoEm": "2026-10-31T01:02:05.985171+00:00",
   "fonte": "CAIXA; fontes complementares indicadas por resultado quando API atrasada",
   "resultados": {
     "megasena": {
-      "concurso": 3078,
-      "data": "29/10/2026",
+      "concurso": 3079,
+      "data": "30/10/2026",
       "dezenas": [
         5,
-        7,
-        12,
-        29,
-        34,
-        36
+        9,
+        16,
+        40,
+        41,
+        59
       ]
     },
     "lotofacil": {
-      "concurso": 3817,
-      "data": "29/10/2026",
+      "concurso": 3818,
+      "data": "30/10/2026",
       "dezenas": [
         2,
+        3,
+        4,
+        5,
         6,
-        8,
-        10,
-        11,
         12,
-        13,
+        14,
         15,
         16,
-        18,
+        17,
         19,
+        20,
         22,
         23,
-        24,
-        25
+        24
       ]
     },
     "quina": {
-      "concurso": 7155,
-      "data": "29/10/2026",
+      "concurso": 7156,
+      "data": "30/10/2026",
       "dezenas": [
-        14,
-        29,
-        33,
-        53,
-        72
+        12,
+        16,
+        59,
+        60,
+        71
       ]
     },
     "diadesorte": {
-      "concurso": 1335,
-      "data": "29/10/2026",
+      "concurso": 1336,
+      "data": "30/10/2026",
       "dezenas": [
-        1,
-        11,
-        15,
-        16,
-        18,
-        19,
-        24
+        3,
+        9,
+        17,
+        21,
+        23,
+        25,
+        27
       ],
-      "mesSorte": "Dezembro"
+      "mesSorte": "Janeiro"
     },
     "lotomania": {
-      "concurso": 2993,
-      "data": "28/10/2026",
+      "concurso": 2994,
+      "data": "30/10/2026",
       "dezenas": [
-        0,
+        3,
         4,
-        9,
-        15,
-        16,
-        21,
-        26,
-        40,
-        46,
-        53,
-        60,
-        71,
-        72,
-        76,
-        82,
-        86,
+        5,
+        7,
+        13,
+        14,
+        18,
+        22,
+        32,
+        34,
+        43,
+        50,
+        52,
+        58,
+        73,
+        75,
+        84,
+        85,
         87,
-        93,
-        96,
-        98
+        90
       ]
     },
     "supersete": {
-      "concurso": 916,
-      "data": "28/10/2026",
+      "concurso": 917,
+      "data": "30/10/2026",
       "dezenas": [
-        0,
-        8,
+        1,
         9,
-        0,
         2,
-        5,
-        1
+        9,
+        4,
+        6,
+        5
       ]
     },
     "timemania": {
@@ -114,23 +114,23 @@
       "timeCoracao": "INTER LIMEIRA    /SP"
     },
     "duplasena": {
-      "concurso": 3026,
-      "data": "28/10/2026",
+      "concurso": 3027,
+      "data": "30/10/2026",
       "dezenas": [
         5,
+        10,
         22,
-        30,
+        27,
         31,
-        42,
-        49
+        33
       ],
       "dezenasSegundoSorteio": [
-        35,
+        1,
+        4,
+        24,
+        36,
         38,
-        39,
-        43,
-        47,
-        49
+        50
       ]
     }
   }
