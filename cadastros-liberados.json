@@ -2643,6 +2643,13 @@
       "criadoEm": "2026-10-31T14:01:17.066Z",
       "expiraEm": "2026-11-01T14:01:17.066Z",
       "ativo": true
+    },
+    {
+      "hash": "8b43dce9e728eb005a5bc8d6badc6a25ddfd941b1d2b6d8aeeb6871b349e7f18",
+      "compatHash": "yiel9w",
+      "criadoEm": "2026-11-01T20:04:32.909Z",
+      "expiraEm": "2026-11-02T20:04:32.909Z",
+      "ativo": true
     }
   ]
 }
