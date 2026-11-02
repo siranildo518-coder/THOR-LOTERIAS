@@ -4535,7 +4535,7 @@ filter:none!important;
 <button type="button" class="home-feature-card" id="btnRastreadorTendenciaHome" onclick="if(window.thorAbrirRastreador){window.thorAbrirRastreador();return false}" style="--fc:#08b7cf;order:1"><span class="hfc-icon">↗</span><span><strong>Rastreador de Tendência</strong></span></button>
 <button type="button" class="home-feature-card" id="btnLinhasColunasProHome" style="--fc:#16a085;order:2"><span class="hfc-icon">▦</span><span><strong>Linhas e Colunas Pro</strong></span></button>
 <button type="button" class="home-feature-card" id="btnDesdobradorProHome" style="--fc:#087cff;order:1"><span class="hfc-icon">⚙</span><span><strong>Desdobrador Pro</strong></span></button>
-<button type="button" class="home-feature-card" id="btnFalhasIntervaloHome" style="--fc:#c48a24;order:3" onclick="window.location.href='./falhas-por-intervalo.html'" title="Abrir Falhas por Intervalo"><span class="hfc-icon">▥</span><span><strong>Falhas por Intervalo</strong></span></button>
+<button type="button" class="home-feature-card" id="btnFalhasIntervaloHome" style="--fc:#c48a24;order:3" onclick="thorAbrirFalhasIntervalo(event)" title="Abrir Falhas por Intervalo"><span class="hfc-icon">▥</span><span><strong>Falhas por Intervalo</strong></span></button>
 </div>
   <div class="home-premium-card" id="homePremiumCardTendencia" style="cursor:pointer;">
     <span class="home-premium-tag">TENDÊNCIA</span>
@@ -17109,6 +17109,29 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   },1600);
  },true);
 })();</script>
+
+<script>
+/* Navegação sem recarregar a Home: Falhas por Intervalo */
+(function(){
+  var painel=null,frame=null,fechando=false;
+  function fechar(){if(!painel||painel.style.display==='none')return;fechando=true; painel.style.display='none'; if(frame)frame.src='about:blank';document.documentElement.style.overflow='';fechando=false;}
+  window.thorAbrirFalhasIntervalo=function(ev){
+    if(ev)ev.preventDefault();
+    if(!painel){
+      painel=document.createElement('section');painel.id='thorFalhasIntervaloOverlay';
+      painel.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#f7f9fc;display:none';
+      var btn=document.createElement('button');btn.type='button';btn.textContent='‹ Voltar';btn.setAttribute('aria-label','Voltar para tela inicial');btn.style.cssText='position:absolute;top:env(safe-area-inset-top,0px);left:8px;z-index:2;background:#151515;color:#fff;border:1px solid #d6a536;border-radius:8px;padding:8px 13px;font-weight:bold';
+      btn.onclick=function(){if(history.state&&history.state.thorFalhasIntervaloOverlay)history.back();else fechar()};
+      frame=document.createElement('iframe');frame.title='Falhas por Intervalo';frame.style.cssText='width:100%;height:100%;border:0;background:#f7f9fc';
+      painel.appendChild(frame);painel.appendChild(btn);document.body.appendChild(painel);
+    }
+    painel.style.display='block';document.documentElement.style.overflow='hidden';
+    history.pushState(Object.assign({},history.state,{thorFalhasIntervaloOverlay:true}),'',location.href);
+    frame.src='./falhas-por-intervalo.html';
+  };
+  window.addEventListener('popstate',function(){if(painel&&painel.style.display!=='none'&&!history.state?.thorFalhasIntervaloOverlay)fechar()});
+})();
+</script>
 </body>
 </html>
 
