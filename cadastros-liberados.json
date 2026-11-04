@@ -2776,20 +2776,6 @@
       "criadoEm": "2026-11-04T14:36:15.655Z",
       "expiraEm": "2026-11-05T14:36:15.656Z",
       "ativo": true
-    },
-    {
-      "hash": "6079d0b4793977108fb62fdeb83bee910c4dea8381d2e8af28a9b6f517bd2cc1",
-      "compatHash": "1ba8440",
-      "criadoEm": "2026-11-04T18:29:07.796Z",
-      "expiraEm": "2026-11-05T18:29:07.796Z",
-      "ativo": true
-    },
-    {
-      "hash": "431cd7aca250dfb41eaeeef936d8218c4390e8e24289502c9fced1b623082c13",
-      "compatHash": "1ey3nyw",
-      "criadoEm": "2026-11-04T18:41:36.725Z",
-      "expiraEm": "2026-11-05T18:41:36.725Z",
-      "ativo": true
     }
   ]
 }
