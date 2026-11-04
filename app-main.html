@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v367-combinacoes-atualizacao'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v368-combinacoes-rolagem-interna'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -4083,20 +4083,29 @@ filter:none!important;
 #gfcMultiInline #gfcMultiOptions:has(.gfc-multi-option:nth-child(9)){display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;overflow:visible!important;width:100%!important;max-width:100%!important}
 #gfcMultiInline #gfcMultiOptions:has(.gfc-multi-option:nth-child(9)) .gfc-multi-option{min-width:0!important;width:100%!important;margin:0!important;padding:8px 1px!important;font-size:12px!important;box-sizing:border-box!important}
 </style>
-<style id="thor-combinacoes-rolagem-v366">
-/* Apenas o banner permanece fixo; cartões e jogos usam a rolagem da página. */
+<style id="thor-combinacoes-rolagem-v368">
+/* Banner preservado; seleção e resultados rolam dentro da área disponível. */
 body.thor-combinacoes-metal #appHeader#appHeader{
  position:fixed!important;top:0!important;left:50%!important;right:auto!important;
  transform:translateX(-50%)!important;width:100%!important;max-width:480px!important;
  z-index:50!important;
 }
-body.thor-combinacoes-metal #thorCombinacoesMetal{
- padding-top:calc(min(33.333333vw,112px) + 12px)!important;
- overflow:visible!important;
+body.thor-combinacoes-metal #thorCombinacoesMetal,
+body.thor-combinacoes-metal #resultsSection{
+ position:fixed!important;
+ top:min(33.333333vw,112px)!important;bottom:0!important;
+ left:0!important;right:0!important;width:100%!important;max-width:480px!important;
+ height:auto!important;min-height:0!important;max-height:none!important;
+ margin:0 auto!important;box-sizing:border-box!important;
+ overflow-y:auto!important;overflow-x:hidden!important;
+ -webkit-overflow-scrolling:touch;touch-action:pan-y;
+ overscroll-behavior-y:contain;z-index:20;
+ padding:12px 12px calc(96px + env(safe-area-inset-bottom,0px))!important;
+ scroll-padding-bottom:96px;
 }
-/* A Home nunca deixa o banner ou o conteúdo de Combinações aparecerem. */
 body:has(#overlayListaResultados.show) #appHeader,
-body:has(#overlayListaResultados.show) #thorCombinacoesMetal{
+body:has(#overlayListaResultados.show) #thorCombinacoesMetal,
+body:has(#overlayListaResultados.show) #resultsSection{
  display:none!important;
 }
 </style>
@@ -4377,7 +4386,7 @@ body:has(#overlayListaResultados.show) #thorCombinacoesMetal{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V367 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V368 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -12016,7 +12025,7 @@ function resetScroll(){
   // as telas em tela cheia (home, resultado) e o menu lateral rolam por dentro de si
   // mesmas, então também precisam ser resetadas — senão reabrem no ponto onde
   // ficaram da última vez, dando a impressão de ter ido pra outro canto
-  ['overlayResultado','drawer'].forEach(id=>{
+  ['overlayResultado','drawer','thorCombinacoesMetal','resultsSection'].forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.scrollTop = 0;
   });
@@ -14311,7 +14320,7 @@ refreshUI();
     if(drawerOv) drawerOv.classList.remove('show');
 
     // Restaura também o visual da aba ao usar Voltar/Avançar do navegador.
-    document.body.classList.toggle('thor-combinacoes-metal', st.base === 'selecao');
+    document.body.classList.toggle('thor-combinacoes-metal', st.base === 'selecao' || st.base === 'resultados');
 
     // Restaura a tela-base exata.
     if(st.base === 'selecao'){
