@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-11-03T20:39:24.556006+00:00",
+  "atualizadoEm": "2026-11-04T00:55:36.471422+00:00",
   "fonte": "CAIXA; fontes complementares indicadas por resultado quando API atrasada",
   "resultados": {
     "megasena": {
@@ -15,48 +15,48 @@
       ]
     },
     "lotofacil": {
-      "concurso": 3819,
-      "data": "01/11/2026",
+      "concurso": 3820,
+      "data": "03/11/2026",
       "dezenas": [
-        1,
+        2,
+        3,
         5,
         6,
-        7,
-        8,
-        9,
         11,
         12,
         13,
         14,
         15,
         16,
+        21,
         22,
+        23,
         24,
         25
       ]
     },
     "quina": {
-      "concurso": 7157,
-      "data": "01/11/2026",
+      "concurso": 7158,
+      "data": "03/11/2026",
       "dezenas": [
-        9,
-        27,
-        58,
-        61,
-        78
+        23,
+        25,
+        44,
+        51,
+        68
       ]
     },
     "diadesorte": {
-      "concurso": 1337,
-      "data": "01/11/2026",
+      "concurso": 1338,
+      "data": "03/11/2026",
       "dezenas": [
-        4,
-        6,
+        3,
+        5,
+        10,
         11,
         19,
-        21,
-        23,
-        24
+        22,
+        23
       ],
       "mesSorte": "Novembro"
     },
@@ -100,18 +100,18 @@
       ]
     },
     "timemania": {
-      "concurso": 2462,
-      "data": "01/11/2026",
+      "concurso": 2463,
+      "data": "03/11/2026",
       "dezenas": [
-        2,
-        22,
-        31,
-        44,
+        5,
+        29,
+        37,
+        41,
         45,
-        59,
-        73
+        51,
+        71
       ],
-      "timeCoracao": "SPORT            /PE"
+      "timeCoracao": "AMERICA          /RN"
     },
     "duplasena": {
       "concurso": 3027,
