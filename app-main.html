@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v361-salvar-jogos-20261029'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v366-combinacoes-rolagem-voltar'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -4082,7 +4082,25 @@ filter:none!important;
 #gfcMultiInline:has(+ *) #gfcMultiOptions{max-width:100%}
 #gfcMultiInline #gfcMultiOptions:has(.gfc-multi-option:nth-child(9)){display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;overflow:visible!important;width:100%!important;max-width:100%!important}
 #gfcMultiInline #gfcMultiOptions:has(.gfc-multi-option:nth-child(9)) .gfc-multi-option{min-width:0!important;width:100%!important;margin:0!important;padding:8px 1px!important;font-size:12px!important;box-sizing:border-box!important}
-</style></head>
+</style>
+<style id="thor-combinacoes-rolagem-v366">
+/* Apenas o banner permanece fixo; cartões e jogos usam a rolagem da página. */
+body.thor-combinacoes-metal #appHeader#appHeader{
+ position:fixed!important;top:0!important;left:50%!important;right:auto!important;
+ transform:translateX(-50%)!important;width:100%!important;max-width:480px!important;
+ z-index:50!important;
+}
+body.thor-combinacoes-metal #thorCombinacoesMetal{
+ padding-top:calc(min(33.333333vw,112px) + 12px)!important;
+ overflow:visible!important;
+}
+/* A Home nunca deixa o banner ou o conteúdo de Combinações aparecerem. */
+body:has(#overlayListaResultados.show) #appHeader,
+body:has(#overlayListaResultados.show) #thorCombinacoesMetal{
+ display:none!important;
+}
+</style>
+</head>
 <body>
 <div class="app">
 
@@ -14291,6 +14309,9 @@ refreshUI();
     });
     const drawerOv = document.getElementById('drawerOverlay');
     if(drawerOv) drawerOv.classList.remove('show');
+
+    // Restaura também o visual da aba ao usar Voltar/Avançar do navegador.
+    document.body.classList.toggle('thor-combinacoes-metal', st.base === 'selecao');
 
     // Restaura a tela-base exata.
     if(st.base === 'selecao'){
