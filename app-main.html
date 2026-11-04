@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v369-cadastro-navegador-salvo'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v370-confirmar-salvar-acesso'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -768,6 +768,43 @@ function montarTelaLogin(){
       status.textContent='Usuário e senha copiados. Cole onde deseja guardar.';
     }catch(e){status.textContent='Não foi possível copiar. Tente novamente.'}
   });
+  function mostrarSalvarCadastro(hash,usuario){
+    formLoginEl.style.display='none';
+    formCadastroEl.style.display='none';
+    let painel=document.getElementById('cadastroSalvarAcesso');
+    if(painel)painel.remove();
+    painel=document.createElement('div');
+    painel.id='cadastroSalvarAcesso';
+    painel.setAttribute('role','dialog');
+    painel.setAttribute('aria-modal','true');
+    painel.setAttribute('aria-labelledby','cadastroSalvarTitulo');
+    painel.innerHTML=`
+      <h2 id="cadastroSalvarTitulo" style="margin:0 0 12px;text-align:center;color:#4C1D95;font-size:21px;">Salvar usuário e senha</h2>
+      <p style="margin:0 0 10px;text-align:center;color:#333;font-size:14px;">Cadastro criado com sucesso.</p>
+      <p id="cadastroSalvarUsuario" style="margin:0 0 12px;text-align:center;font-weight:700;color:#333;overflow-wrap:anywhere;"></p>
+      <p style="margin:0 0 16px;color:#555;font-size:14px;line-height:1.5;">Toque em Salvar para entrar automaticamente nas próximas vezes, mesmo depois de fechar e abrir este navegador.</p>
+      <div id="cadastroSalvarErro" role="status" aria-live="polite" style="color:#a32618;font-size:13px;margin-bottom:10px;"></div>
+      <button id="cadastroSalvarBtn" type="button" style="width:100%;padding:14px;border:1px solid #075e30;border-radius:10px;background:linear-gradient(#25ad61,#087735);color:#fff;font-size:16px;font-weight:800;cursor:pointer;">SALVAR</button>`;
+    formCadastroEl.parentNode.appendChild(painel);
+    document.getElementById('cadastroSalvarUsuario').textContent='Usuário: '+usuario;
+    const salvar=document.getElementById('cadastroSalvarBtn');
+    salvar.addEventListener('click',()=>{
+      if(salvar.disabled)return;
+      salvar.disabled=true;
+      if(!salvarSessaoLogin(hash,usuario)){
+        document.getElementById('cadastroSalvarErro').textContent='Não foi possível salvar. Permita o armazenamento deste site e toque em Salvar novamente.';
+        salvar.disabled=false;
+        return;
+      }
+      overlay.remove();
+      const guard=document.getElementById('thorLoginStartupGuard');
+      if(guard)guard.remove();
+      if(typeof atualizarPerfilMenuLateral==='function')atualizarPerfilMenuLateral();
+      iniciarPresencaOnline();
+    });
+    salvar.focus();
+  }
+
   document.getElementById('cadastroCriarBtn').addEventListener('click', async()=>{
     const codigo = document.getElementById('cadastroCodigo').value.trim();
     const usuario = document.getElementById('cadastroUsuario').value.trim();
@@ -782,18 +819,7 @@ function montarTelaLogin(){
     const resultado = await criarCadastroTesteLiberado(codigo,usuario,senha);
     btn.disabled=false;
     if(resultado.ok){
-      if(!salvarSessaoLogin(resultado.hash,usuario)){
-        formCadastroEl.style.display='none';
-        formLoginEl.style.display='block';
-        document.getElementById('loginUsuario').value=usuario;
-        document.getElementById('loginErro').textContent='Cadastro criado. Permita o armazenamento deste site e toque em Entrar para salvar seu acesso.';
-        return;
-      }
-      overlay.remove();
-      const guard = document.getElementById('thorLoginStartupGuard');
-      if(guard) guard.remove();
-      if(typeof atualizarPerfilMenuLateral==='function') atualizarPerfilMenuLateral();
-      iniciarPresencaOnline();
+      mostrarSalvarCadastro(resultado.hash,usuario);
       return;
     }
     const mensagens={
@@ -4394,7 +4420,7 @@ body:has(#overlayListaResultados.show) #resultsSection{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V369 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V370 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
