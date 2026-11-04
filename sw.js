@@ -1,2 +1,2 @@
 // THOR V361 — cadastro: mostrar senha e copiar credenciais
-importScripts('./sw-core-thor7.js?v=thor-v366-combinacoes-rolagem-voltar');
+importScripts('./sw-core-thor7.js?v=thor-v367-combinacoes-atualizacao');
