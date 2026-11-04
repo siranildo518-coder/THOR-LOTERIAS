@@ -4082,7 +4082,25 @@ filter:none!important;
 #gfcMultiInline:has(+ *) #gfcMultiOptions{max-width:100%}
 #gfcMultiInline #gfcMultiOptions:has(.gfc-multi-option:nth-child(9)){display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;overflow:visible!important;width:100%!important;max-width:100%!important}
 #gfcMultiInline #gfcMultiOptions:has(.gfc-multi-option:nth-child(9)) .gfc-multi-option{min-width:0!important;width:100%!important;margin:0!important;padding:8px 1px!important;font-size:12px!important;box-sizing:border-box!important}
-</style></head>
+</style>
+<style id="thor-combinacoes-rolagem-banner-20261104">
+/* Apenas Combinações: banner original fixo, todo o restante rola por baixo. */
+body.thor-combinacoes-metal #appHeader#appHeader {
+ position:fixed!important;
+ top:0!important;
+ left:50%!important;
+ right:auto!important;
+ transform:translateX(-50%)!important;
+ width:100%!important;
+ max-width:480px!important;
+ z-index:1000!important;
+}
+body.thor-combinacoes-metal #thorCombinacoesMetal {
+ padding-top:min(33.3333vw,112px)!important;
+ overflow:visible!important;
+}
+</style>
+</head>
 <body>
 <div class="app">
 
