@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v369-cadastro-navegador-salvo'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v371-resultados-sem-cache'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -4394,7 +4394,7 @@ body:has(#overlayListaResultados.show) #resultsSection{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V369 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V371 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -6891,11 +6891,26 @@ async function thorResultadosRapidos(){
  thorBaseResultadosPromise=(async()=>{
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),3000);
   try{
-   const r=await fetch('./resultados-atualizados.json?_thor='+Date.now(),{cache:'no-store',signal:controller.signal});
-   if(!r.ok)throw new Error('Base indisponível');
-   const j=await r.json(),age=Date.now()-Date.parse(j.atualizadoEm);
-   if(!Number.isFinite(age)||age< -60000||age>24*60*60000)throw new Error('Base precisa atualizar');
-   return j.resultados||{};
+   const urls=[
+    './resultados-atualizados.json?_thor='+Date.now(),
+    'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/resultados-atualizados.json?_thor='+Date.now()
+   ];
+   const fontes=await Promise.allSettled(urls.map(async url=>{
+    const r=await fetch(url,{cache:'no-store',signal:controller.signal});
+    if(!r.ok)throw new Error('Base indisponível');
+    const j=await r.json(),age=Date.now()-Date.parse(j.atualizadoEm);
+    if(!Number.isFinite(age)||age< -60000||age>24*60*60000)throw new Error('Base precisa atualizar');
+    return j.resultados||{};
+   }));
+   const resultados={};let ok=false;
+   fontes.forEach(f=>{if(f.status!=='fulfilled')return;ok=true;
+    Object.entries(f.value).forEach(([slug,d])=>{
+     if(d&&Number(d.concurso)>0&&Array.isArray(d.dezenas)&&d.dezenas.length&&
+        (!resultados[slug]||Number(d.concurso)>Number(resultados[slug].concurso)))resultados[slug]=d;
+    });
+   });
+   if(!ok)throw new Error('Base indisponível');
+   return resultados;
   }finally{clearTimeout(timer)}
  })();
  try{return await thorBaseResultadosPromise}catch(e){thorBaseResultadosPromise=null;throw e}
@@ -11453,7 +11468,7 @@ async function thorRenovarResultado(g,base){
    thorHomeFonte('https://servicebus3.caixa.gov.br/portaldeloterias/api/'+g.altSlug+'?_thor='+Date.now()),
    thorHomeFonte('https://loteriascaixa-api.herokuapp.com/api/'+g.altSlug+'/latest')
   ];
-  if(best?.concurso)for(const host of ['https://servicebus3.caixa.gov.br/portaldeloterias','https://servicebus2.caixa.gov.br/portaldeloterias'])requests.push(thorHomeFonte(host+'/api/'+g.altSlug+'/'+(best.concurso+1)));
+  if(best?.concurso)for(const host of ['https://servicebus3.caixa.gov.br/portaldeloterias','https://servicebus2.caixa.gov.br/portaldeloterias'])requests.push(thorHomeFonte(host+'/api/'+g.altSlug+'/'+(best.concurso+1)+'?_thor='+Date.now()));
   await Promise.allSettled(requests.map(async p=>{
    const x=thorNormalizarHome(g,await p);
    if(x&&(!best||x.concurso>=best.concurso)){best=x;thorSalvarResultadoCompartilhado(g,x)}
@@ -11467,7 +11482,7 @@ async function thorRenovarResultado(g,base){
 let thorAutoTodasEmCurso=false,thorAutoTodasHora=0;
 async function thorAutoAtualizarTodas(force=false){
  if(thorAutoTodasEmCurso||navigator.onLine===false)return;
- if(!force&&Date.now()-thorAutoTodasHora<120000)return;
+ if(!force&&Date.now()-thorAutoTodasHora<45000)return;
  thorAutoTodasEmCurso=true;thorAutoTodasHora=Date.now();
  try{
   const base=await thorResultadosRapidos().catch(()=>({}));
@@ -11480,7 +11495,7 @@ async function thorAutoAtualizarTodas(force=false){
  }finally{thorAutoTodasEmCurso=false}
 }
 setTimeout(()=>thorAutoAtualizarTodas(true),400);
-setInterval(()=>{if(document.visibilityState==='visible')thorAutoAtualizarTodas()},180000);
+setInterval(()=>{if(document.visibilityState==='visible')thorAutoAtualizarTodas()},60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)thorAutoAtualizarTodas(true)});
 window.addEventListener('online',()=>thorAutoAtualizarTodas(true));
 window.addEventListener('pageshow',()=>thorAutoAtualizarTodas());

@@ -6,7 +6,7 @@ on:
       - '.github/workflows/atualizar-resultados.yml'
       - '.github/scripts/atualizar-historico.py'
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '2-59/5 * * * *'
 permissions:
   contents: write
 concurrency:
@@ -45,7 +45,7 @@ jobs:
               atual=max(int((d or {}).get("numero") or 0), int(out.get(slug,{}).get("concurso",0)))
               for proximo in range(atual+1, atual+4):
                   try:
-                      req=urllib.request.Request(f"https://servicebus3.caixa.gov.br/portaldeloterias/api/{slug}/{proximo}",headers={"Accept":"application/json","User-Agent":"Mozilla/5.0","Cache-Control":"no-cache"})
+                      req=urllib.request.Request(f"https://servicebus3.caixa.gov.br/portaldeloterias/api/{slug}/{proximo}?_thor={int(time.time()*1000)}",headers={"Accept":"application/json","User-Agent":"Mozilla/5.0","Cache-Control":"no-cache"})
                       try:
                           with urllib.request.urlopen(req,timeout=15) as r: candidato=json.load(r)
                       except Exception:

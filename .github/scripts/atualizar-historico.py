@@ -11,7 +11,7 @@ SLUGS = ['megasena', 'lotofacil', 'quina', 'diadesorte', 'lotomania', 'supersete
 def fetch(slug, number=None):
     url = 'https://servicebus3.caixa.gov.br/portaldeloterias/api/' + slug
     if number is not None:
-        url += '/' + str(number)
+        url += '/' + str(number) + '?_thor=' + str(int(time.time() * 1000))
     else:
         url += '?_=' + str(int(time.time() * 1000))
     req = urllib.request.Request(url, headers={'Accept': 'application/json', 'Cache-Control': 'no-cache', 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://loterias.caixa.gov.br/'})
@@ -39,11 +39,18 @@ try:
 except (OSError, ValueError):
     base = {'loterias': {}}
 out = dict(base.get('loterias', {}))
+try:
+    collected = json.loads(pathlib.Path('resultados-atualizados.json').read_text()).get('resultados', {})
+except (OSError, ValueError):
+    collected = {}
 with concurrent.futures.ThreadPoolExecutor(max_workers=12) as pool:
     latest = dict(zip(SLUGS, pool.map(fetch, SLUGS)))
     pending = {}
     for slug in SLUGS:
         existing = {int(d['concurso']): d for d in out.get(slug, [])}
+        seed = collected.get(slug)
+        if seed and (not latest[slug] or seed['concurso'] > latest[slug]['concurso']):
+            latest[slug] = seed
         if latest[slug]:
             last = latest[slug]['concurso']
             existing[last] = latest[slug]

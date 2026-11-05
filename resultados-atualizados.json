@@ -1,103 +1,104 @@
 {
-  "atualizadoEm": "2026-11-04T21:29:31.033737+00:00",
-  "fonte": "CAIXA; fontes complementares indicadas por resultado quando API atrasada",
+  "atualizadoEm": "2026-11-05T01:00:19.271Z",
+  "fonte": "CAIXA; fonte complementar indicada no Super Sete enquanto a API está atrasada",
   "resultados": {
     "megasena": {
-      "concurso": 3080,
-      "data": "01/11/2026",
+      "concurso": 3081,
+      "data": "04/11/2026",
       "dezenas": [
-        13,
+        10,
         17,
-        28,
-        29,
-        39,
-        58
+        42,
+        43,
+        57,
+        59
       ]
     },
     "lotofacil": {
-      "concurso": 3820,
-      "data": "03/11/2026",
+      "concurso": 3821,
+      "data": "04/11/2026",
       "dezenas": [
-        2,
-        3,
+        1,
         5,
         6,
-        11,
+        9,
+        10,
         12,
-        13,
         14,
-        15,
-        16,
+        17,
+        18,
+        19,
+        20,
         21,
         22,
         23,
-        24,
         25
       ]
     },
     "quina": {
-      "concurso": 7158,
-      "data": "03/11/2026",
+      "concurso": 7159,
+      "data": "04/11/2026",
       "dezenas": [
-        23,
-        25,
-        44,
+        20,
+        43,
         51,
-        68
+        62,
+        69
       ]
     },
     "diadesorte": {
-      "concurso": 1338,
-      "data": "03/11/2026",
+      "concurso": 1339,
+      "data": "04/11/2026",
       "dezenas": [
-        3,
-        5,
-        10,
-        11,
-        19,
-        22,
-        23
+        8,
+        13,
+        15,
+        24,
+        25,
+        26,
+        31
       ],
-      "mesSorte": "Novembro"
+      "mesSorte": "Dezembro"
     },
     "lotomania": {
-      "concurso": 2994,
-      "data": "30/10/2026",
+      "concurso": 2995,
+      "data": "04/11/2026",
       "dezenas": [
-        3,
         4,
-        5,
-        7,
-        13,
-        14,
-        18,
-        22,
-        32,
-        34,
-        43,
-        50,
-        52,
+        12,
+        19,
+        20,
+        23,
+        26,
+        31,
+        33,
+        40,
+        49,
+        51,
         58,
-        73,
+        61,
+        66,
+        68,
+        74,
         75,
-        84,
+        83,
         85,
-        87,
-        90
+        92
       ]
     },
     "supersete": {
-      "concurso": 917,
-      "data": "30/10/2026",
+      "concurso": 918,
+      "data": "04/11/2026",
       "dezenas": [
-        1,
-        9,
-        2,
-        9,
-        4,
+        0,
+        5,
+        0,
         6,
-        5
-      ]
+        1,
+        4,
+        1
+      ],
+      "fonte": "https://www.opovo.com.br/noticias/economia/loteria/2026/11/04/resultado-da-super-sete-918-de-hoje-4-11-26-premio-e-de-rs-100-mil.html"
     },
     "timemania": {
       "concurso": 2463,
@@ -114,22 +115,22 @@
       "timeCoracao": "AMERICA          /RN"
     },
     "duplasena": {
-      "concurso": 3027,
-      "data": "30/10/2026",
+      "concurso": 3028,
+      "data": "04/11/2026",
       "dezenas": [
-        5,
-        10,
-        22,
-        27,
-        31,
-        33
+        2,
+        4,
+        30,
+        39,
+        42,
+        49
       ],
       "dezenasSegundoSorteio": [
-        1,
-        4,
-        24,
-        36,
-        38,
+        8,
+        9,
+        10,
+        18,
+        27,
         50
       ]
     }
