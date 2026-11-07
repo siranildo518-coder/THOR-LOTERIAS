@@ -6882,7 +6882,7 @@ async function thorResultadosRapidos(){
     const r=await fetch(url,{cache:'no-store',signal:controller.signal});
     if(!r.ok)throw new Error('Base indisponível');
     const j=await r.json(),age=Date.now()-Date.parse(j.atualizadoEm);
-    if(!Number.isFinite(age)||age< -60000||age>24*60*60000)throw new Error('Base precisa atualizar');
+    if(!Number.isFinite(age)||age< -60000)throw new Error('Base precisa atualizar');
     return j.resultados||{};
    }));
    const resultados={};let ok=false;
