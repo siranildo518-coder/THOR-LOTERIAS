@@ -22,10 +22,23 @@
       var controller = new AbortController();
       var timeout = setTimeout(function () {controller.abort();}, 12000);
       try {
-        var response = await fetch('./historico-loterias.json', {cache:'no-store',signal:controller.signal});
-        if (!response.ok) throw Error('Histórico indisponível');
-        var data = await response.json();
-        if (!data || !data.loterias) throw Error('Histórico incompleto');
+        async function read(path) {
+          var response = await fetch('./'+path+'?_thor='+Date.now(), {cache:'no-store',signal:controller.signal});
+          if (!response.ok) throw Error('Base indisponível');
+          return response.json();
+        }
+        var sources = await Promise.allSettled([read('historico-loterias.json'), read('resultados-atualizados.json')]);
+        var history = sources[0].value?.loterias;
+        var latest = sources[1].value?.resultados;
+        if (!history && !latest) throw Error('Base indisponível');
+        var saved = memory;
+        if (!saved) {
+          try {saved = JSON.parse(localStorage.getItem('thor_historico_oficial_v179'));} catch (_) {}
+        }
+        var data = {loterias:{}};
+        Object.keys(sizes).forEach(function(slug) {
+          data.loterias[slug] = valid(slug, [latest?.[slug], ...(history?.[slug] || []), ...(saved?.loterias?.[slug] || [])]).slice(0,100);
+        });
         memory = data;
         loadedAt = Date.now();
         try {localStorage.setItem('thor_historico_oficial_v179', JSON.stringify(data));} catch (_) {}
@@ -44,6 +57,12 @@
     try {return await pending;} finally {pending = null;}
   }
   window.ThorHistorico = {
+    obter: async function(slug, numero) {
+      if (!sizes[slug]) return null;
+      var data = await database();
+      var rows = valid(slug, data.loterias[slug]);
+      return numero ? rows.find(r => r.concurso === Number(numero)) : rows[0];
+    },
     carregar: async function (slug, quantity) {
       if (!sizes[slug]) throw Error('Loteria inválida');
       var data = await database();
