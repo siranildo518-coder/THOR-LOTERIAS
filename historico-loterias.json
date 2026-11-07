@@ -1,6 +1,6 @@
 {
-  "atualizadoEm": "2026-11-07T01:06:26.721111+00:00",
-  "fonte": "API oficial Loterias CAIXA",
+  "atualizadoEm": "2026-11-07T01:28:02.068Z",
+  "fonte": "CAIXA e fontes complementares identificadas por modalidade",
   "loterias": {
     "megasena": [
       {
@@ -4413,6 +4413,22 @@
     ],
     "diadesorte": [
       {
+        "concurso": 1341,
+        "data": "06/11/2026",
+        "dezenas": [
+          5,
+          14,
+          17,
+          20,
+          22,
+          25,
+          29
+        ],
+        "mesSorte": "Maio",
+        "fonte": "Loterias Mobile — captura enviada pelo usuário em 06/11/2026 às 22h27 (Brasília)",
+        "status": "Aguardando rateio"
+      },
+      {
         "concurso": 1340,
         "data": "05/11/2026",
         "dezenas": [
@@ -5697,19 +5713,6 @@
           14,
           28,
           29
-        ]
-      },
-      {
-        "concurso": 1241,
-        "data": "09/07/2026",
-        "dezenas": [
-          4,
-          6,
-          9,
-          27,
-          28,
-          30,
-          31
         ]
       }
     ],
