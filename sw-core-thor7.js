@@ -111,7 +111,7 @@ self.addEventListener('fetch',event=>{
   // HTML e navegação: rede primeiro para entregar correções a todos os clientes.
   // Cache somente em falha de conexão, sem apagar dados pessoais/localStorage.
   const documento=u.pathname.split('/').pop()||'index.html';
-  if(req.mode==='navigate'||['index.html','index-core-thor7.html','app-main.html','app-direct.html','linhas-colunas-pro-v315.html'].includes(documento)){
+  if(req.mode==='navigate'||['index.html','index-core-thor7.html','app-main.html','app-direct.html','linhas-colunas-pro-v315.html','thor-historico-loterias.js','falhas-por-intervalo.html','rastreador-tendencia-v270.html','desdobrador-pro-v283.html'].includes(documento)){
     event.respondWith((async()=>{
       const chave=chaveCache(req);
       try{
