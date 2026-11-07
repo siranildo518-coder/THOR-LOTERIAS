@@ -1,50 +1,53 @@
 {
-  "atualizadoEm": "2026-11-06T21:30:22.700901+00:00",
-  "fonte": "CAIXA; fonte complementar indicada no Super Sete enquanto a API está atrasada",
+  "atualizadoEm": "2026-11-07T00:39:42+00:00",
+  "fonte": "CAIXA e fontes complementares identificadas por modalidade",
   "resultados": {
     "megasena": {
-      "concurso": 3081,
-      "data": "04/11/2026",
+      "concurso": 3082,
+      "data": "06/11/2026",
       "dezenas": [
-        10,
-        17,
-        42,
-        43,
-        57,
-        59
-      ]
+        4,
+        16,
+        23,
+        24,
+        38,
+        44
+      ],
+      "fonte": "UOL, sorteio de 06/11/2026"
     },
     "lotofacil": {
-      "concurso": 3822,
-      "data": "05/11/2026",
+      "concurso": 3823,
+      "data": "06/11/2026",
       "dezenas": [
-        1,
-        2,
+        3,
         6,
         7,
-        9,
+        8,
         10,
-        12,
-        13,
+        11,
         15,
+        16,
         17,
         18,
         20,
         21,
-        24,
-        25
-      ]
+        22,
+        23,
+        24
+      ],
+      "fonte": "UOL, sorteio de 06/11/2026"
     },
     "quina": {
-      "concurso": 7160,
-      "data": "05/11/2026",
+      "concurso": 7161,
+      "data": "06/11/2026",
       "dezenas": [
-        5,
-        18,
-        29,
-        33,
-        63
-      ]
+        48,
+        53,
+        68,
+        71,
+        79
+      ],
+      "fonte": "UOL, sorteio de 06/11/2026"
     },
     "diadesorte": {
       "concurso": 1340,
@@ -61,30 +64,31 @@
       "mesSorte": "Dezembro"
     },
     "lotomania": {
-      "concurso": 2995,
-      "data": "04/11/2026",
+      "concurso": 2996,
+      "data": "06/11/2026",
       "dezenas": [
-        4,
-        12,
-        19,
-        20,
-        23,
-        26,
-        31,
-        33,
+        11,
+        13,
+        16,
+        25,
+        29,
+        34,
+        35,
+        36,
+        39,
         40,
         49,
-        51,
-        58,
-        61,
+        63,
         66,
-        68,
-        74,
-        75,
+        76,
+        77,
         83,
-        85,
-        92
-      ]
+        90,
+        92,
+        93,
+        95
+      ],
+      "fonte": "UOL, sorteio de 06/11/2026"
     },
     "supersete": {
       "concurso": 918,
@@ -114,24 +118,25 @@
       "timeCoracao": "CONFIANCA SAF    /SE"
     },
     "duplasena": {
-      "concurso": 3028,
-      "data": "04/11/2026",
+      "concurso": 3029,
+      "data": "06/11/2026",
       "dezenas": [
-        2,
-        4,
-        30,
-        39,
-        42,
-        49
+        10,
+        19,
+        20,
+        33,
+        35,
+        46
       ],
       "dezenasSegundoSorteio": [
-        8,
-        9,
         10,
-        18,
-        27,
-        50
-      ]
+        12,
+        22,
+        25,
+        38,
+        41
+      ],
+      "fonte": "UOL, sorteio de 06/11/2026"
     }
   }
 }
