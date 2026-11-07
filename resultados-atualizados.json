@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-11-07T00:39:42+00:00",
+  "atualizadoEm": "2026-11-07T01:06:22.945644+00:00",
   "fonte": "CAIXA e fontes complementares identificadas por modalidade",
   "resultados": {
     "megasena": {
@@ -91,16 +91,16 @@
       "fonte": "UOL, sorteio de 06/11/2026"
     },
     "supersete": {
-      "concurso": 918,
-      "data": "04/11/2026",
+      "concurso": 919,
+      "data": "06/11/2026",
       "dezenas": [
-        0,
-        5,
-        0,
-        6,
+        3,
         1,
+        9,
+        5,
         4,
-        1
+        2,
+        2
       ]
     },
     "timemania": {
