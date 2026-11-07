@@ -1,6 +1,6 @@
 {
-  "atualizadoEm": "2026-11-07T01:28:02.068Z",
-  "fonte": "CAIXA e fontes complementares identificadas por modalidade",
+  "atualizadoEm": "2026-11-07T07:03:27.494273+00:00",
+  "fonte": "API oficial Loterias CAIXA",
   "loterias": {
     "megasena": [
       {
@@ -13,8 +13,7 @@
           24,
           38,
           44
-        ],
-        "fonte": "UOL, sorteio de 06/11/2026"
+        ]
       },
       {
         "concurso": 3081,
@@ -1225,8 +1224,7 @@
           22,
           23,
           24
-        ],
-        "fonte": "UOL, sorteio de 06/11/2026"
+        ]
       },
       {
         "concurso": 3822,
@@ -3318,8 +3316,7 @@
           68,
           71,
           79
-        ],
-        "fonte": "UOL, sorteio de 06/11/2026"
+        ]
       },
       {
         "concurso": 7160,
@@ -4423,10 +4420,7 @@
           22,
           25,
           29
-        ],
-        "mesSorte": "Maio",
-        "fonte": "Loterias Mobile — captura enviada pelo usuário em 06/11/2026 às 22h27 (Brasília)",
-        "status": "Aguardando rateio"
+        ]
       },
       {
         "concurso": 1340,
@@ -5741,8 +5735,7 @@
           92,
           93,
           95
-        ],
-        "fonte": "UOL, sorteio de 06/11/2026"
+        ]
       },
       {
         "concurso": 2995,
@@ -10942,8 +10935,7 @@
           25,
           38,
           41
-        ],
-        "fonte": "UOL, sorteio de 06/11/2026"
+        ]
       },
       {
         "concurso": 3028,
