@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-11-07T00:57:51.105248+00:00",
+  "atualizadoEm": "2026-11-07T01:06:26.721111+00:00",
   "fonte": "API oficial Loterias CAIXA",
   "loterias": {
     "megasena": [
@@ -8318,6 +8318,19 @@
     ],
     "supersete": [
       {
+        "concurso": 919,
+        "data": "06/11/2026",
+        "dezenas": [
+          3,
+          1,
+          9,
+          5,
+          4,
+          2,
+          2
+        ]
+      },
+      {
         "concurso": 918,
         "data": "04/11/2026",
         "dezenas": [
@@ -9602,19 +9615,6 @@
           8,
           5,
           5
-        ]
-      },
-      {
-        "concurso": 819,
-        "data": "06/03/2026",
-        "dezenas": [
-          7,
-          9,
-          8,
-          2,
-          3,
-          0,
-          8
         ]
       }
     ],
