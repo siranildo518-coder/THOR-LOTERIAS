@@ -1,2 +1,2 @@
 // THOR V361 — cadastro: mostrar senha e copiar credenciais
-importScripts('./sw-core-thor7.js?v=thor-v371-resultados-sem-cache');
+importScripts('./sw-core-thor7.js?v=thor-resultados-integrados-1');
