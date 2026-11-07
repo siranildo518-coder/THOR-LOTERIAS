@@ -26,7 +26,50 @@ jobs:
           except: base={"resultados":{}}
           jogos=["megasena","lotofacil","quina","diadesorte","lotomania","supersete","timemania","duplasena"]
           out=dict(base.get("resultados",{}))
+          def buscar_dia_de_sorte(anterior):
+              meses = "Janeiro Fevereiro Março Abril Maio Junho Julho Agosto Setembro Outubro Novembro Dezembro".split()
+              proximo = anterior + 1
+              fontes = []
+              for host in ("servicebus2", "servicebus3"):
+                  raiz = f"https://{host}.caixa.gov.br/portaldeloterias/api/diadesorte"
+                  fontes.extend([(raiz, None), (f"{raiz}/{proximo}", proximo)])
+              espelho = "https://loteriascaixa-api.herokuapp.com/api/diadesorte"
+              fontes.extend([(f"{espelho}/latest", None), (f"{espelho}/{proximo}", proximo)])
+
+              def ler(fonte):
+                  url, esperado = fonte
+                  req = urllib.request.Request(f"{url}?_thor={time.time_ns()}", headers={"Accept":"application/json", "Cache-Control":"no-cache", "User-Agent":"Mozilla/5.0"})
+                  with urllib.request.urlopen(req, timeout=10) as resposta:
+                      dado = json.load(resposta)
+                  numero = int(dado.get("numero") or dado.get("concurso") or 0)
+                  if numero < anterior or (esperado is not None and numero != esperado):
+                      return None
+                  dezenas = sorted(int(x) for x in (dado.get("listaDezenas") or dado.get("dezenas") or []))
+                  mes = str(dado.get("nomeTimeCoracaoMesSorte") or dado.get("mesSorte") or "").strip().capitalize()
+                  data = dado.get("dataApuracao") or dado.get("data") or ""
+                  datetime.datetime.strptime(data, "%d/%m/%Y")
+                  if len(dezenas) != 7 or len(set(dezenas)) != 7 or not all(1 <= x <= 31 for x in dezenas) or mes not in meses:
+                      return None
+                  item = {"concurso":numero, "data":data, "dezenas":dezenas, "mesSorte":mes}
+                  if url.startswith(espelho):
+                      item["fonte"] = "API Loterias CAIXA (guto-alves)"
+                  return item
+
+              melhor = None
+              with concurrent.futures.ThreadPoolExecutor(max_workers=len(fontes)) as pool:
+                  tarefas = [pool.submit(ler, fonte) for fonte in fontes]
+                  for fonte, tarefa in zip(fontes, tarefas):
+                      try:
+                          item = tarefa.result()
+                          if item and (not melhor or item["concurso"] > melhor["concurso"]):
+                              melhor = item
+                      except (OSError, ValueError, TypeError, KeyError) as erro:
+                          print("Dia de Sorte:", fonte[0], erro)
+              print("Dia de Sorte: último concurso completo recebido:", melhor and melhor["concurso"])
+              return melhor
           def consultar(slug):
+              if slug == "diadesorte":
+                  return buscar_dia_de_sorte(int(out.get(slug, {}).get("concurso", 0)))
               url=f"https://servicebus3.caixa.gov.br/portaldeloterias/api/{slug}?_={int(time.time()*1000)}"
               req=urllib.request.Request(url,headers={"Accept":"application/json","Origin":"https://loterias.caixa.gov.br","Referer":"https://loterias.caixa.gov.br/","User-Agent":"Mozilla/5.0"})
               d=None
