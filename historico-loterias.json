@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-11-08T14:33:21.977092+00:00",
+  "atualizadoEm": "2026-11-08T19:03:45.394648+00:00",
   "fonte": "API oficial Loterias CAIXA",
   "loterias": {
     "megasena": [
@@ -4420,8 +4420,7 @@
           21,
           22,
           28
-        ],
-        "mesSorte": "Janeiro"
+        ]
       },
       {
         "concurso": 1341,
