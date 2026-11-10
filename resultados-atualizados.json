@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-11-08T14:33:17.769660+00:00",
+  "atualizadoEm": "2026-11-10T02:40:56.527723+00:00",
   "fonte": "CAIXA e fontes complementares identificadas por modalidade",
   "resultados": {
     "megasena": {
@@ -15,88 +15,88 @@
       ]
     },
     "lotofacil": {
-      "concurso": 3824,
-      "data": "08/11/2026",
+      "concurso": 3825,
+      "data": "09/11/2026",
       "dezenas": [
         1,
-        2,
         3,
+        4,
+        5,
+        6,
         7,
-        11,
-        12,
-        13,
+        8,
+        9,
+        10,
         14,
         15,
         17,
-        18,
         19,
-        22,
-        24,
-        25
+        20,
+        23
       ]
     },
     "quina": {
-      "concurso": 7162,
-      "data": "08/11/2026",
+      "concurso": 7163,
+      "data": "09/11/2026",
       "dezenas": [
-        9,
-        29,
-        46,
-        57,
-        66
+        30,
+        47,
+        50,
+        55,
+        61
       ]
     },
     "diadesorte": {
-      "concurso": 1342,
-      "data": "08/11/2026",
+      "concurso": 1343,
+      "data": "09/11/2026",
       "dezenas": [
-        6,
+        2,
         7,
-        15,
-        17,
-        21,
-        22,
-        28
+        10,
+        18,
+        19,
+        20,
+        25
       ],
-      "mesSorte": "Janeiro"
+      "mesSorte": "Outubro"
     },
     "lotomania": {
-      "concurso": 2996,
-      "data": "06/11/2026",
+      "concurso": 2997,
+      "data": "09/11/2026",
       "dezenas": [
+        3,
+        9,
+        10,
         11,
         13,
-        16,
-        25,
-        29,
+        17,
+        21,
+        30,
         34,
         35,
-        36,
         39,
-        40,
-        49,
-        63,
-        66,
+        45,
+        70,
+        73,
         76,
-        77,
-        83,
-        90,
-        92,
-        93,
-        95
+        78,
+        79,
+        81,
+        82,
+        98
       ]
     },
     "supersete": {
-      "concurso": 919,
-      "data": "06/11/2026",
+      "concurso": 920,
+      "data": "09/11/2026",
       "dezenas": [
-        3,
-        1,
-        9,
         5,
-        4,
+        8,
+        1,
+        3,
+        8,
         2,
-        2
+        0
       ]
     },
     "timemania": {
@@ -114,23 +114,23 @@
       "timeCoracao": "SAO JOSE         /RS"
     },
     "duplasena": {
-      "concurso": 3029,
-      "data": "06/11/2026",
+      "concurso": 3030,
+      "data": "09/11/2026",
       "dezenas": [
-        10,
-        19,
-        20,
-        33,
-        35,
-        46
+        7,
+        8,
+        18,
+        24,
+        31,
+        37
       ],
       "dezenasSegundoSorteio": [
-        10,
-        12,
-        22,
-        25,
-        38,
-        41
+        15,
+        16,
+        17,
+        21,
+        29,
+        30
       ]
     }
   }
