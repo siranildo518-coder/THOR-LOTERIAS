@@ -1,64 +1,64 @@
 {
-  "atualizadoEm": "2026-11-10T02:40:56.527723+00:00",
+  "atualizadoEm": "2026-11-11T02:47:46.263754+00:00",
   "fonte": "CAIXA e fontes complementares identificadas por modalidade",
   "resultados": {
     "megasena": {
-      "concurso": 3083,
-      "data": "08/11/2026",
+      "concurso": 3084,
+      "data": "10/11/2026",
       "dezenas": [
+        6,
+        14,
         22,
-        25,
-        29,
-        37,
-        46,
-        54
+        30,
+        31,
+        37
       ]
     },
     "lotofacil": {
-      "concurso": 3825,
-      "data": "09/11/2026",
+      "concurso": 3826,
+      "data": "10/11/2026",
       "dezenas": [
         1,
+        2,
         3,
-        4,
         5,
-        6,
-        7,
         8,
         9,
-        10,
-        14,
+        12,
+        13,
         15,
-        17,
+        18,
         19,
-        20,
-        23
+        21,
+        22,
+        24,
+        25
       ]
     },
     "quina": {
-      "concurso": 7163,
-      "data": "09/11/2026",
+      "concurso": 7164,
+      "data": "10/11/2026",
       "dezenas": [
+        26,
         30,
-        47,
         50,
-        55,
-        61
+        62,
+        65
       ]
     },
     "diadesorte": {
-      "concurso": 1343,
-      "data": "09/11/2026",
+      "concurso": 1344,
+      "data": "10/11/2026",
       "dezenas": [
-        2,
-        7,
-        10,
-        18,
-        19,
-        20,
-        25
+        1,
+        4,
+        8,
+        12,
+        23,
+        25,
+        26
       ],
-      "mesSorte": "Outubro"
+      "mesSorte": "Março"
     },
     "lotomania": {
       "concurso": 2997,
@@ -100,18 +100,18 @@
       ]
     },
     "timemania": {
-      "concurso": 2465,
-      "data": "08/11/2026",
+      "concurso": 2466,
+      "data": "10/11/2026",
       "dezenas": [
-        4,
         16,
-        19,
-        23,
-        64,
-        69,
-        79
+        17,
+        48,
+        49,
+        53,
+        56,
+        64
       ],
-      "timeCoracao": "SAO JOSE         /RS"
+      "timeCoracao": "GUARANI          /SP"
     },
     "duplasena": {
       "concurso": 3030,
