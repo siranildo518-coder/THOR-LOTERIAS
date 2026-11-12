@@ -26,7 +26,7 @@ h1:before,h1:after{content:'☘';color:#5bdf48;margin:0 5px;text-shadow:0 0 5px 
 .controls select,.controls button{min-height:28px;padding:4px 3px;font-size:clamp(8px,2.35vw,11px);border:1px solid #e7b936;border-radius:5px;background:linear-gradient(#16482e,#061b12);box-shadow:inset 0 1px 2px #6d9b70;white-space:nowrap;min-width:0}
 .controls select{flex:1.1;max-width:none;width:0}
 #btncolors{flex:1.15}#btngreen{flex:1}#minus,#plus{flex:0 0 25px;font-size:17px}.controls button.active{background:linear-gradient(#ffe567,#dba716);color:#111;box-shadow:inset 0 1px 3px #fff}
-#download{flex:0 0 auto;background:linear-gradient(#147d35,#034c1b);padding:4px 6px;font-size:10px}
+
 .status{font-size:9px;padding-top:3px;color:#f2eac8}
 .cell.green,.cell.white{font-weight:750}
 </style><style id="tabelasMovimentacoesTelaCheia">
@@ -38,20 +38,20 @@ header h1:after{margin-top:5px!important}
 .viewport{width:100vw!important;height:auto!important;min-height:0!important;flex:1 1 auto!important;margin:0!important;padding:0!important}
 .sheet{width:100vw!important;min-width:100vw!important;margin:0!important}
 .grid{margin:0!important}
-</style></head><body><header><h1>TABELAS DE MOVIMENTAÇÃO DE CORES</h1><div class="controls"><select id="lottery" aria-label="Selecionar loteria"></select><button id="btncolors" class="active">Tabela de cores</button><button id="btngreen">Tabela verde</button><button id="minus" class="zoom">−</button><button id="plus" class="zoom">+</button><button id="download" title="Salvar imagem PNG da tabela">⬇ Baixar</button></div><div class="status" id="status">Lotofácil • 60 concursos • zoom 100%</div></header><main class="viewport" id="viewport"><div class="sheet" id="sheet"></div></main><script>
+</style></head><body><header><h1>TABELAS DE MOVIMENTAÇÃO DE CORES</h1><div class="controls"><select id="lottery" aria-label="Selecionar loteria"></select><button id="btncolors" class="active">Tabela de cores</button><button id="btngreen">Tabela verde</button><button id="minus" class="zoom">−</button><button id="plus" class="zoom">+</button></div><div class="status" id="status">Lotofácil • 60 concursos • zoom 100%</div></header><main class="viewport" id="viewport"><div class="sheet" id="sheet"></div></main><script>
 const HIST={"3770":[1,2,4,7,8,12,13,15,16,17,18,19,23,24,25],"3771":[2,3,4,5,9,10,11,12,15,16,17,18,21,23,25],"3772":[3,5,6,7,8,9,11,12,14,15,18,20,21,23,25],"3773":[3,4,7,9,11,13,14,15,17,18,20,21,22,24,25],"3774":[1,3,4,5,6,7,9,12,14,15,16,18,19,23,24],"3775":[1,4,5,6,8,10,11,12,13,15,17,18,19,23,25],"3776":[3,5,7,8,10,14,16,17,18,19,20,21,23,24,25],"3777":[3,5,7,8,9,10,12,13,15,19,20,21,22,24,25],"3778":[1,2,3,5,6,8,9,10,13,14,16,17,18,20,22],"3779":[3,4,5,7,8,10,11,13,14,16,17,19,23,24,25],"3780":[1,2,3,4,5,6,7,12,15,16,17,19,21,22,23],"3781":[3,5,6,7,8,9,11,12,13,16,19,21,22,24,25],"3782":[3,4,5,7,8,11,15,16,17,18,19,20,22,23,25],"3783":[1,3,4,5,6,12,14,15,16,17,19,22,23,24,25],"3784":[1,2,8,10,11,12,15,16,18,19,20,21,22,24,25],"3785":[1,4,7,8,11,12,14,15,17,18,19,22,23,24,25],"3786":[1,3,6,7,8,9,12,13,14,16,18,21,23,24,25],"3787":[3,4,6,8,10,11,12,13,15,17,19,20,22,23,24],"3788":[1,4,5,7,8,9,12,16,17,18,20,21,22,23,24],"3789":[6,7,8,9,11,12,13,14,15,16,17,18,19,23,25],"3790":[1,3,4,5,6,7,9,11,14,15,16,17,20,21,25],"3791":[1,2,4,6,8,9,11,12,13,14,15,16,19,24,25],"3792":[2,4,6,7,8,10,11,12,14,15,16,20,23,24,25],"3793":[1,3,7,8,10,11,13,14,15,17,19,20,21,24,25],"3794":[1,3,4,5,6,8,10,12,13,15,18,19,21,23,24],"3795":[1,3,4,5,6,8,10,11,12,13,14,18,19,22,24],"3796":[3,4,5,6,7,9,10,11,12,15,16,19,20,21,24],"3797":[1,2,3,6,7,8,9,10,13,14,16,18,19,20,23],"3798":[1,2,4,5,6,7,8,9,10,11,14,18,19,20,23],"3799":[1,3,4,5,7,8,10,12,13,18,19,20,23,24,25],"3800":[1,2,3,4,5,7,8,9,10,12,13,14,15,19,21],"3801":[3,4,7,8,9,11,12,13,15,17,19,20,21,23,24],"3802":[2,3,5,6,9,10,11,12,14,15,19,20,21,23,24],"3803":[3,6,7,8,9,11,12,13,15,16,19,20,21,22,23],"3804":[1,2,6,7,8,12,14,15,16,17,18,19,21,24,25],"3805":[3,5,6,7,8,10,11,13,14,15,19,22,23,24,25],"3806":[4,5,6,7,8,9,11,13,16,19,20,21,23,24,25],"3807":[1,3,4,7,10,11,13,16,17,19,20,22,23,24,25],"3808":[1,4,7,10,12,13,14,15,17,18,19,20,21,22,24],"3809":[1,3,4,5,6,8,9,11,17,18,19,20,21,23,25],"3810":[1,5,6,7,10,11,14,15,16,17,18,19,20,23,24],"3811":[1,3,5,7,8,9,10,11,12,15,16,18,19,23,25],"3812":[3,4,5,7,8,11,13,16,17,19,20,21,23,24,25],"3813":[4,5,6,8,10,12,13,14,15,16,17,20,22,23,25],"3814":[1,4,6,8,9,12,13,15,16,17,18,21,22,24,25],"3815":[3,5,6,9,10,11,12,13,14,15,16,17,19,23,25],"3816":[1,2,3,4,6,8,13,14,16,17,18,20,22,24,25],"3817":[2,6,8,10,11,12,13,15,16,18,19,22,23,24,25],"3818":[2,3,4,5,6,12,14,15,16,17,19,20,22,23,24],"3819":[1,5,6,7,8,9,11,12,13,14,15,16,22,24,25],"3820":[2,3,5,6,11,12,13,14,15,16,21,22,23,24,25],"3821":[1,5,6,9,10,12,14,17,18,19,20,21,22,23,25],"3822":[1,2,6,7,9,10,12,13,15,17,18,20,21,24,25],"3823":[3,6,7,8,10,11,15,16,17,18,20,21,22,23,24],"3824":[1,2,3,7,11,12,13,14,15,17,18,19,22,24,25],"3825":[1,3,4,5,6,7,8,9,10,14,15,17,19,20,23],"3826":[1,2,3,5,8,9,12,13,15,18,19,21,22,24,25],"3827":[1,2,4,5,6,10,11,13,15,16,18,20,21,22,23]};
 const CONFIG={lotofacil:{name:'Lotofácil',api:'lotofacil',total:25},megasena:{name:'Mega-Sena',api:'megasena',total:60},quina:{name:'Quina',api:'quina',total:80},lotomania:{name:'Lotomania',api:'lotomania',total:100,zero:true},diadesorte:{name:'Dia de Sorte',api:'diadesorte',total:31},duplasena:{name:'Dupla Sena',api:'duplasena',total:50},timemania:{name:'Timemania',api:'timemania',total:80},supersete:{name:'Super Sete',api:'supersete',total:70,special:true},maismilionaria:{name:'+Milionária',api:'maismilionaria',total:50}};
-let lot='lotofacil',mode='colors',scale=1,rows=60,start=3770,visibleCount=20,extraBlank=60,loadingOlder=false;const data={lotofacil:{...HIST}};const $=id=>document.getElementById(id);const pad=n=>String(n).padStart(2,'0');const select=$('lottery');Object.entries(CONFIG).forEach(([key,c])=>{const o=document.createElement('option');o.value=key;o.textContent=c.name;select.append(o)});
+let lot='lotofacil',mode='colors',scale=1,rows=60,start=3770,extraBlank=3,loadingOlder=false;const data={lotofacil:{...HIST}};const $=id=>document.getElementById(id);const pad=n=>String(n).padStart(2,'0');const select=$('lottery');Object.entries(CONFIG).forEach(([key,c])=>{const o=document.createElement('option');o.value=key;o.textContent=c.name;select.append(o)});
 function color(n){const k=n%10;return ['white','red','yellow','green2','brown','blue','purple','black','gray','gold'][k]}
 function dims(){const total=CONFIG[lot].total;const avail=Math.max(1,window.innerWidth);const base=lot==='lotofacil'?(avail-56)/25:Math.max(14,(avail-56)/25);const cell=Math.max(7,base*scale),edge=28*scale;return {cell,edge,total}}
-function render(preserveAnchor=false){const cfg=CONFIG[lot],{cell,edge,total}=dims();const viewport=$('viewport'),oldTop=viewport.scrollTop,oldHeight=viewport.scrollHeight;const grid=document.createElement('div');grid.className='grid';grid.style.setProperty('--cell',cell+'px');grid.style.setProperty('--edge',edge+'px');grid.style.setProperty('--total',total);grid.style.setProperty('--font',Math.max(5.5,Math.min(12,cell*.37))+'px');grid.style.setProperty('--edgefont',Math.max(6,Math.min(10,edge*.29))+'px');const frag=document.createDocumentFragment();const table=data[lot]||{};const real=Object.keys(table).map(Number).filter(Number.isInteger).sort((a,b)=>a-b);const first=real.length?Math.max(real[0],real[real.length-1]-visibleCount+1):1;const last=real.length?real[real.length-1]:0;const end=last+extraBlank;const contests=Array.from({length:Math.max(0,end-first+1)},(_,i)=>first+i);for(const contest of contests){const nums=table[contest];const edgeRed=contest%10===0;let left=document.createElement('div');left.className='edge'+(edgeRed?' red':'');left.textContent=(mode==='green'?'C':'')+contest;frag.append(left);const set=nums?new Set(nums):null;for(let n=1;n<=total;n++){const cellEl=document.createElement('div');const hit=set?.has(n)??false;cellEl.className='cell '+(mode==='green'?(hit?'green':'white'):(hit?color(n):'empty'));cellEl.textContent=nums&&(mode==='green'||hit)?(cfg.zero&&n===100?'00':pad(n)):'';frag.append(cellEl)}let right=document.createElement('div');right.className='edge'+(edgeRed?' red':'');right.textContent=(mode==='green'?'C':'')+contest;frag.append(right)}grid.append(frag);$('sheet').replaceChildren(grid);viewport.scrollTop=preserveAnchor?oldTop+Math.max(0,viewport.scrollHeight-oldHeight):oldTop;$('status').textContent=cfg.name+' • último resultado carregado: '+(last||'nenhum')+' • zoom '+Math.round(scale*100)+'%';}
-function resetRange(){visibleCount=20;render();requestAnimationFrame(()=>{const v=$('viewport');v.scrollTop=0;});}
-async function loadOlder(){if(loadingOlder)return;const table=data[lot]||{},real=Object.keys(table).map(Number).filter(Number.isInteger).sort((a,b)=>a-b);if(!real.length)return;const first=Math.max(real[0],real[real.length-1]-visibleCount+1);if(first<=1)return;loadingOlder=true;const key=lot,from=Math.max(1,first-20),targets=[];data[key]??={};for(let n=first-1;n>=from;n--)if(!data[key][n])targets.push(n);$('status').textContent='Carregando concursos anteriores…';try{let idx=0;async function worker(){while(idx<targets.length){const n=targets[idx++],item=await requestContest(key,n);if(item){data[key][item.n]=item.values;}}}await Promise.all(Array.from({length:Math.min(5,targets.length)},()=>worker()));saveLottery(key);if(lot===key){visibleCount+=20;render(true);}}finally{loadingOlder=false;}}
+function render(preserveAnchor=false){const cfg=CONFIG[lot],{cell,edge,total}=dims();const viewport=$('viewport'),oldTop=viewport.scrollTop,oldHeight=viewport.scrollHeight;const grid=document.createElement('div');grid.className='grid';grid.style.setProperty('--cell',cell+'px');grid.style.setProperty('--edge',edge+'px');grid.style.setProperty('--total',total);grid.style.setProperty('--font',Math.max(5.5,Math.min(12,cell*.37))+'px');grid.style.setProperty('--edgefont',Math.max(6,Math.min(10,edge*.29))+'px');const frag=document.createDocumentFragment();const table=data[lot]||{};const real=Object.keys(table).map(Number).filter(Number.isInteger).sort((a,b)=>a-b);const first=real.length?real[0]:1;const last=real.length?real[real.length-1]:0;const end=last+extraBlank;const contests=Array.from({length:Math.max(0,end-first+1)},(_,i)=>first+i);for(const contest of contests){const nums=table[contest];const edgeRed=contest%10===0;let left=document.createElement('div');left.className='edge'+(edgeRed?' red':'');left.textContent=(mode==='green'?'C':'')+contest;frag.append(left);const set=nums?new Set(nums):null;for(let n=1;n<=total;n++){const cellEl=document.createElement('div');const hit=set?.has(n)??false;cellEl.className='cell '+(mode==='green'?(hit?'green':'white'):(hit?color(n):'empty'));cellEl.textContent=nums&&(mode==='green'||hit)?(cfg.zero&&n===100?'00':pad(n)):'';frag.append(cellEl)}let right=document.createElement('div');right.className='edge'+(edgeRed?' red':'');right.textContent=(mode==='green'?'C':'')+contest;frag.append(right)}grid.append(frag);$('sheet').replaceChildren(grid);viewport.scrollTop=preserveAnchor?oldTop+Math.max(0,viewport.scrollHeight-oldHeight):oldTop;$('status').textContent=cfg.name+' • último resultado carregado: '+(last||'nenhum')+' • zoom '+Math.round(scale*100)+'%';}
+function resetRange(){render();requestAnimationFrame(()=>{$('viewport').scrollTop=0;});}
+async function loadOlder(){if(loadingOlder)return;const table=data[lot]||{},real=Object.keys(table).map(Number).filter(Number.isInteger).sort((a,b)=>a-b);if(!real.length||real[0]<=1)return;loadingOlder=true;const key=lot,first=real[0],from=Math.max(1,first-20),targets=[];data[key]??={};for(let n=first-1;n>=from;n--)if(!data[key][n])targets.push(n);$('status').textContent='Carregando concursos anteriores…';try{let idx=0;async function worker(){while(idx<targets.length){const n=targets[idx++],item=await requestContest(key,n);if(item)data[key][item.n]=item.values;}}await Promise.all(Array.from({length:Math.min(5,targets.length)},()=>worker()));saveLottery(key);if(lot===key)render(true);}finally{loadingOlder=false;}}
 function setMode(m){mode=m;$('btncolors').classList.toggle('active',m==='colors');$('btngreen').classList.toggle('active',m==='green');render()}
 $('btncolors').onclick=()=>setMode('colors');$('btngreen').onclick=()=>setMode('green');$('minus').onclick=()=>{scale=Math.max(.55,+(scale-.15).toFixed(2));render()};$('plus').onclick=()=>{scale=Math.min(3,+(scale+.15).toFixed(2));render()};select.onchange=()=>{lot=select.value;scale=1;resetRange();refresh()};
 function parseResult(obj){const n=Number(obj.numero??obj.concurso??obj.numeroConcurso);let ds=obj.listaDezenas??obj.dezenas??obj.resultado??[];if(typeof ds==='string')ds=ds.split(/[^0-9]+/).filter(Boolean);if(!Array.isArray(ds))ds=[];if(lot==='supersete'&&Array.isArray(obj.dezenas))ds=obj.dezenas.map((x,i)=>i*10+Number(x)+1);const values=ds.map(Number).filter(v=>Number.isInteger(v)).map(v=>CONFIG[lot].zero&&v===0?100:v).filter(v=>v>=1&&v<=CONFIG[lot].total);return {n,values}}
 let loading=false;
-const HIST_LIMIT=20;
+const HIST_LIMIT=60;
 function saveLottery(key){try{localStorage.setItem('tabelas_'+key,JSON.stringify(data[key]||{}))}catch(e){}}
 async function requestContest(key,number){
  const api=CONFIG[key].api;
@@ -105,70 +105,39 @@ async function refresh(){
 }
 for(const key of Object.keys(CONFIG)){try{const stored=JSON.parse(localStorage.getItem('tabelas_'+key)||'null');if(stored&&typeof stored==='object')data[key]={...(data[key]||{}),...stored}}catch(e){}}
 
-// Exporta a tabela selecionada com dois concursos futuros em branco após o último resultado.
-function baixarTabela(){
- const cfg=CONFIG[lot],table=data[lot]||{};
- const ids=Object.keys(table).map(Number).filter(Number.isInteger).sort((a,b)=>a-b);
- if(!ids.length){alert('Ainda não há resultados carregados para baixar.');return;}
- const visible=ids.filter(n=>n>=Math.max(ids[0],ids[ids.length-1]-59));
- const unit=32,edge=75,rowH=30,w=edge*2+cfg.total*unit,h=52+(visible.length+2)*rowH;
- const canvas=document.createElement('canvas');canvas.width=w*2;canvas.height=h*2;
- const ctx=canvas.getContext('2d');ctx.scale(2,2);
- ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
- ctx.fillStyle='#064221';ctx.fillRect(0,0,w,52);
- ctx.fillStyle='#ffe16d';ctx.font='bold 19px Arial';ctx.textAlign='center';ctx.textBaseline='middle';
- ctx.fillText(cfg.name+' — '+(mode==='green'?'Tabela verde':'Tabela de cores'),w/2,26);
- const colors={red:'#f50000',yellow:'#ffff00',green2:'#00a45c',brown:'#af571c',blue:'#00a6df',purple:'#c800e5',black:'#050505',gray:'#9a9a9a',gold:'#ffbf16',white:'#f4f4f4'};
- const exportRows=[...visible,ids[ids.length-1]+1,ids[ids.length-1]+2];
- exportRows.forEach((contest,i)=>{
-  const y=52+i*rowH,isFuture=i>=visible.length,hit=new Set(isFuture?[]:(table[contest]||[])),red=contest%10===0;
-  for(let col=-1;col<=cfg.total;col++){
-   const x=col===-1?0:col===cfg.total?edge+cfg.total*unit:edge+col*unit;
-   const cw=(col===-1||col===cfg.total)?edge:unit;
-   const n=col+1,isEdge=col===-1||col===cfg.total,active=hit.has(n);
-   let bg=isEdge?(red?'#f00000':'#ffffff'):mode==='green'?(active?'#2c9445':'#f4f4f4'):(active?colors[color(n)]:'#f2f2f2');
-   ctx.fillStyle=bg;ctx.fillRect(x,y,cw,rowH);
-   ctx.strokeStyle='#555';ctx.lineWidth=.7;ctx.strokeRect(x+.35,y+.35,cw-.7,rowH-.7);
-   let value=isEdge?(mode==='green'?'C':'')+contest:(!isFuture&&(mode==='green'||active))?(cfg.zero&&n===100?'00':pad(n)):'';
-   if(value){ctx.fillStyle=active&&mode==='colors'&&['red','green2','brown','purple','black'].includes(color(n))?'#fff':'#111';ctx.font=(mode==='green'?'bold ':'600 ')+(isEdge?'15px':'14px')+' Arial';ctx.fillText(value,x+cw/2,y+rowH/2)}
-  }
- });
- const nomeArquivo='Tabela_'+cfg.name.replace(/[^a-z0-9]/gi,'_')+'_'+(mode==='green'?'Verde':'Cores')+'.png';
- const salvarArquivo=blob=>{
-  if(!blob){alert('Não foi possível gerar a imagem.');return;}
-  const url=URL.createObjectURL(blob);
-  const link=document.createElement('a');link.href=url;link.download=nomeArquivo;link.rel='noopener';
-  document.body.appendChild(link);link.click();link.remove();
-  $('status').textContent='Download solicitado: '+nomeArquivo;
-  setTimeout(()=>URL.revokeObjectURL(url),60000);
- };
- const compartilharOuBaixar=blob=>{
-  if(!blob){alert('Não foi possível gerar a imagem.');return;}
-  if(navigator.share&&navigator.canShare&&typeof File==='function'){
-   try{
-    const arquivo=new File([blob],nomeArquivo,{type:'image/png'});
-    if(navigator.canShare({files:[arquivo]})){
-     navigator.share({files:[arquivo],title:'Tabela de movimentação de cores'}).then(()=>{
-      $('status').textContent='Imagem pronta para salvar';
-     }).catch(erro=>{
-      if(erro&&erro.name==='AbortError')return;
-      salvarArquivo(blob);
-     });
-     return;
-    }
-   }catch(_){}
-  }
-  salvarArquivo(blob);
- };
- if(typeof canvas.toBlob==='function')canvas.toBlob(compartilharOuBaixar,'image/png');
- else{
-  try{
-   const data=canvas.toDataURL('image/png'),raw=atob(data.split(',')[1]),bytes=new Uint8Array(raw.length);
-   for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
-   compartilharOuBaixar(new Blob([bytes],{type:'image/png'}));
-  }catch(_){alert('Não foi possível gerar a imagem.');}
+
+
+// Recebe o último resultado compartilhado pelo próprio Tor Loterias.
+const HOME_SLUG_POR_TABELA={megasena:'mega-sena',lotofacil:'lotofacil',quina:'quina',lotomania:'lotomania',diadesorte:'dia-de-sorte',duplasena:'dupla-sena',timemania:'timemania',supersete:'super-sete'};
+const TABELA_POR_HOME_SLUG=Object.fromEntries(Object.entries(HOME_SLUG_POR_TABELA).map(([key,slug])=>[slug,key]));
+function importarResultadoTor(key,obj){
+ if(!key||!obj||typeof obj!=='object')return;
+ const n=Number(obj.concurso??obj.numero??obj.numeroConcurso);
+ let ds=obj.dezenas??obj.listaDezenas??obj.resultado??[];
+ if(typeof ds==='string')ds=ds.split(/[^0-9]+/).filter(Boolean);
+ if(!Array.isArray(ds))return;
+ if(key==='supersete')ds=ds.map((v,i)=>i*10+Number(v)+1);
+ const cfg=CONFIG[key];if(!cfg)return;
+ const values=ds.map(Number).filter(Number.isInteger).map(v=>cfg.zero&&v===0?100:v).filter(v=>v>=1&&v<=cfg.total);
+ const minimum=key==='supersete'?7:key==='maismilionaria'?6:5;
+ if(!Number.isInteger(n)||n<1||values.length<minimum)return;
+ data[key]??={};data[key][n]=values;saveLottery(key);
+ if(lot===key)render();
+}
+function importarCacheTor(){
+ for(const [key,slug] of Object.entries(HOME_SLUG_POR_TABELA)){
+  try{importarResultadoTor(key,JSON.parse(localStorage.getItem('thor_home_resultado_'+slug)||'null'))}catch(_){}
  }
 }
-$('download').onclick=baixarTabela;
-$('viewport').addEventListener('scroll',()=>{const v=$('viewport');if(v.scrollTop<160)loadOlder();if(v.scrollTop+v.clientHeight>v.scrollHeight-400){extraBlank+=80;render();}});resetRange();setTimeout(()=>{if(!loading)refresh()},700);window.addEventListener('resize',render);setInterval(()=>{if(!document.hidden&&!loading)refresh()},300000);
+importarCacheTor();
+if(typeof BroadcastChannel==='function'){
+ try{const canalTor=new BroadcastChannel('thor-resultados-atualizados');canalTor.onmessage=e=>{const msg=e.data||{},key=TABELA_POR_HOME_SLUG[msg.slug];if(key)importarResultadoTor(key,msg.resultado);};}catch(_){}
+}
+window.addEventListener('storage',e=>{
+ if(!e.key||!e.key.startsWith('thor_home_resultado_'))return;
+ const slug=e.key.slice('thor_home_resultado_'.length),key=TABELA_POR_HOME_SLUG[slug];
+ if(key){try{importarResultadoTor(key,JSON.parse(e.newValue||'null'))}catch(_){}}
+});
+
+$('viewport').addEventListener('scroll',()=>{if($('viewport').scrollTop<120)loadOlder()});resetRange();setTimeout(()=>{if(!loading)refresh()},700);window.addEventListener('resize',render);setInterval(()=>{if(!document.hidden&&!loading)refresh()},300000);
 </script></body></html>
