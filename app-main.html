@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v382-tabelas-proximos-concursos'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v383-tabelas-sincronizadas'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -4394,7 +4394,7 @@ body:has(#overlayListaResultados.show) #resultsSection{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V382 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V383 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -11466,6 +11466,7 @@ async function thorHomeFonte(url){
  try{const r=await fetch(url,{cache:'no-store',signal:ctl.signal});if(!r.ok)throw Error('Fonte indisponível');return await r.json()}finally{clearTimeout(timer)}
 }
 
+const THOR_RESULTADOS_CHANNEL=typeof BroadcastChannel==='function'?new BroadcastChannel('thor-resultados-atualizados'):null;
 const THOR_RESULTADOS_ATUAIS=new Map(),THOR_REDE_ATUAIS=new Map(),THOR_REDE_HORA=new Map();
 function thorSalvarResultadoCompartilhado(g,data){
  const prev=THOR_RESULTADOS_ATUAIS.get(g.code);
@@ -11475,6 +11476,7 @@ function thorSalvarResultadoCompartilhado(g,data){
  const anterior=concursoMaisRecentePorJogo[g.slug]||prev?.concurso;
  concursoMaisRecentePorJogo[g.slug]=data.concurso;
  try{localStorage.setItem('thor_home_resultado_'+g.slug,JSON.stringify(data))}catch(_){}
+ try{THOR_RESULTADOS_CHANNEL?.postMessage({slug:g.slug,resultado:data})}catch(_){}
  if(typeof homeCache!=='undefined'){
   const antigo=homeCache[g.slug];homeCache[g.slug]=data;
   if(antigo&&JSON.stringify(antigo)!==JSON.stringify(data)&&homeGameAtual.code===g.code)carregarHomeHero(g,true);
