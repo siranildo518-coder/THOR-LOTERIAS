@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v379-tabelas-movimentacoes'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v380-tabelas-em-tela-cheia'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -4394,7 +4394,7 @@ body:has(#overlayListaResultados.show) #resultsSection{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V379 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V380 · Base V240</span></footer>
 </div>
 
   <div class="contatos-conteudo">
@@ -4499,7 +4499,7 @@ body:has(#overlayListaResultados.show) #resultsSection{
 <button class="hs-item thor-tabelas-movimentacoes" id="homeSideTabelas" type="button" aria-label="Tabelas e movimentações"><span>▦</span>Tabelas e movimentações</button>
 <button class="hs-item" data-home-target="btnJogosSalvosAtalho2"><span>★</span>Jogos</button>
 </aside>
-<script id="thorAbrirTabelasMovimentacoesV1">
+<script id="thorAbrirTabelasMovimentacoesV2">
 (function(){
  var tela=null;
  function fechar(){if(tela){tela.remove();tela=null;}}
@@ -4507,20 +4507,14 @@ body:has(#overlayListaResultados.show) #resultsSection{
   if(tela)return;
   tela=document.createElement('section');
   tela.id='thorTabelasMovimentacoesTela';
-  tela.style.cssText='position:fixed;inset:0;z-index:2147483001;background:#f4f4f4;display:flex;flex-direction:column';
-  var barra=document.createElement('div');
-  barra.style.cssText='height:40px;flex:0 0 40px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;background:#07101f;color:#fff;font:700 13px Arial';
-  var titulo=document.createElement('span');
-  titulo.textContent='Tabelas e movimentações';
-  var sair=document.createElement('button');
-  sair.type='button';sair.textContent='✕';sair.setAttribute('aria-label','Fechar tabelas');
-  sair.style.cssText='width:32px;height:30px;border:1px solid #d2a739;border-radius:7px;background:#182437;color:#fff;font-size:17px';
-  sair.addEventListener('click',function(){history.back();setTimeout(fechar,200)});
+  tela.style.cssText='position:fixed;inset:0;z-index:2147483001;background:#f4f4f4';
   var quadro=document.createElement('iframe');
   quadro.title='Tabelas e movimentações';
-  quadro.src='./tabelas-movimentacoes.html?v=378';
-  quadro.style.cssText='flex:1;width:100%;min-height:0;border:0;background:#eee';
-  barra.append(titulo,sair);tela.append(barra,quadro);document.body.appendChild(tela);
+  quadro.setAttribute('allow','web-share; downloads');
+  quadro.src='./tabelas-movimentacoes.html?v=380';
+  quadro.style.cssText='position:absolute;inset:0;width:100vw;height:100dvh;border:0;background:#eee';
+  tela.appendChild(quadro);
+  document.body.appendChild(tela);
   try{history.pushState({thorTabelasMovimentacoes:true},'',location.href)}catch(_){}
  }
  document.addEventListener('click',function(e){
