@@ -666,9 +666,19 @@ async function analyzePatterns(){
   const dominantByName=new Map();
   items.forEach(x=>{const old=dominantByName.get(x.name);if(!old||x.p>old.p)dominantByName.set(x.name,x)});
   const dominant=[...dominantByName.values()];
-  const delayed=[...dominant].sort((a,b)=>b.delay-a.delay||b.p-a.p).slice(0,18);
-  const bestComing=[...dominant].sort((a,b)=>b.p-a.p||b.delay-a.delay).slice(0,3);
-  const bestFailing=[...dominant].sort((a,b)=>a.p-b.p||b.delay-a.delay).slice(0,3);
+  const regraDeHoje=w===10&&new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())==='2026-11-11';
+  const candidatosHoje=items.filter(x=>x.occurrences===6||(x.occurrences>=7&&x.occurrences<=9));
+  const delayed=[...(regraDeHoje?candidatosHoje:dominant)].sort((a,b)=>b.delay-a.delay||b.p-a.p).slice(0,18);
+  const selecionarPorOcorrencia=(candidatos,ascendente)=>{
+   const porFamilia=new Map();
+   candidatos.forEach(item=>{
+    const atual=porFamilia.get(item.name);
+    if(!atual||(ascendente?item.p<atual.p:item.p>atual.p)||(item.p===atual.p&&item.delay>atual.delay))porFamilia.set(item.name,item);
+   });
+   return [...porFamilia.values()].sort((a,b)=>ascendente?a.p-b.p||b.delay-a.delay:b.p-a.p||b.delay-a.delay).slice(0,3);
+  };
+  const bestComing=regraDeHoje?selecionarPorOcorrencia(items.filter(x=>x.occurrences===6),false):[...dominant].sort((a,b)=>b.p-a.p||b.delay-a.delay).slice(0,3);
+  const bestFailing=regraDeHoje?selecionarPorOcorrencia(items.filter(x=>x.occurrences>=7&&x.occurrences<=9),true):[...dominant].sort((a,b)=>a.p-b.p||b.delay-a.delay).slice(0,3);
   const pct=v=>(100*v).toFixed(1).replace('.',',')+'%',balls=(ns,intent)=>ns.length?ns.map(n=>'<b data-pattern-number="'+n+'" data-intent="'+intent+'">'+pad(n)+'</b>').join(''):'Nenhuma indicação forte';
   const card=x=>'<article class="pattern-item"><strong>'+x.name+' · '+x.count+' dezena'+(x.count===1?'':'s')+' para sair</strong><p>Atraso: '+(x.unseen?'pelo menos ':'')+x.delay+' concursos · ocorreu '+x.occurrences+'/'+w+' vezes</p><div class="pattern-rates"><span>Ocorrer: '+pct(x.p)+'</span><span>Não ocorrer: '+pct(1-x.p)+'</span></div><p>'+(x.count===0?'Para fixar: nenhuma (padrão de falha)':'Para sair ('+x.coming.length+'):')+'</p><div class="pattern-balls">'+balls(x.coming,'coming')+'</div><p>Para falhar ('+x.failing.length+'):</p><div class="pattern-balls">'+balls(x.failing,'failing')+'</div></article>';
   const patternFamilies=new Map();
