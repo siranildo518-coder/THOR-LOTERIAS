@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-11-15T16:40:10.036381+00:00",
+  "atualizadoEm": "2026-11-16T07:58:30.347336+00:00",
   "fonte": "API oficial Loterias CAIXA",
   "loterias": {
     "megasena": [
@@ -4420,7 +4420,9 @@
           18,
           23,
           25
-        ]
+        ],
+        "mesSorte": "Fevereiro",
+        "fonte": "API Loterias CAIXA (guto-alves)"
       },
       {
         "concurso": 1347,
@@ -9626,7 +9628,8 @@
           38,
           47,
           61
-        ]
+        ],
+        "timeCoracao": "REMO             /PA"
       },
       {
         "concurso": 2467,
