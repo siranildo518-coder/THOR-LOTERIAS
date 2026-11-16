@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-11-16T07:58:28.329788+00:00",
+  "atualizadoEm": "2026-11-16T18:06:21.670527+00:00",
   "fonte": "CAIXA e fontes complementares identificadas por modalidade",
   "resultados": {
     "megasena": {
@@ -58,8 +58,7 @@
         23,
         25
       ],
-      "mesSorte": "Fevereiro",
-      "fonte": "API Loterias CAIXA (guto-alves)"
+      "mesSorte": "Fevereiro"
     },
     "lotomania": {
       "concurso": 2999,
