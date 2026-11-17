@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
 // THOR 7 V3.75 - calculadora de probabilidade e cache sincronizados
-const CACHE_NAME='thor-loterias-v372-resultados-integrados';
+const CACHE_NAME='thor-loterias-v386-desdobrador-pro';
 const CORE=['./quentes-falhas-topo-v324.png','./falhas-banner-20261027.png','./combinacoes-topo-v229.png','./','./index.html','./index-core-thor7.html','./app-main.html','./app-direct.html','./manifest.json','./icon-192.png','./thor-home-topo-v316.jpg','./cadastros-liberados.json'];
 const PALPITES_CARD='<button class="home-feature-card" style="--fc:#d41948" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">◎</span><span><strong>Palpites</strong><small>Sugestões inteligentes</small></span></button>';
 const CALC_CARD='<button class="home-feature-card" style="--fc:#e98a00" data-home-target="btnSimularAtalho"><span class="hfc-icon">▤</span><span><strong>Calculadora</strong><small>Probabilidades e estimativas</small></span></button>';
@@ -111,7 +111,7 @@ self.addEventListener('fetch',event=>{
   // HTML e navegação: rede primeiro para entregar correções a todos os clientes.
   // Cache somente em falha de conexão, sem apagar dados pessoais/localStorage.
   const documento=u.pathname.split('/').pop()||'index.html';
-  if(req.mode==='navigate'||['index.html','index-core-thor7.html','app-main.html','app-direct.html','linhas-colunas-pro-v315.html','thor-historico-loterias.js','falhas-por-intervalo.html','rastreador-tendencia-v270.html','desdobrador-pro-v283.html'].includes(documento)){
+  if(req.mode==='navigate'||['index.html','index-core-thor7.html','app-main.html','app-direct.html','linhas-colunas-pro-v315.html','thor-historico-loterias.js','falhas-por-intervalo.html','rastreador-tendencia-v270.html','desdobrador-pro-v283.html','desdobrador-pro-v386.html'].includes(documento)){
     event.respondWith((async()=>{
       const chave=chaveCache(req);
       try{
