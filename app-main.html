@@ -4497,7 +4497,6 @@ body:has(#overlayListaResultados.show) #resultsSection{
 <button class="hs-item" data-home-target="btnSimularAtalho"><span>▤</span>Calculadora</button>
 <button class="hs-item thor-comeco-final" id="thorMenuComecoFinal" type="button" aria-label="Começo e Final"></button>
 <button class="hs-item thor-tabelas-movimentacoes" id="homeSideTabelas" type="button" aria-label="Tabelas"><span>▦</span>Tabelas</button>
-<button class="hs-item thor-loterias-turbo" id="homeSideLoteriasTurbo" type="button" aria-label="Loterias Turbo"><span>⚡</span>Loterias Turbo</button>
 <button class="hs-item" data-home-target="btnJogosSalvosAtalho2"><span>★</span>Jogos</button>
 </aside>
 <script id="thorAbrirTabelasMovimentacoesV2">
@@ -4525,20 +4524,12 @@ body:has(#overlayListaResultados.show) #resultsSection{
   if(typeof closeDrawer==='function')closeDrawer();
   abrir();
  },true);
- document.addEventListener('click',function(e){
-  var botao=e.target.closest&&e.target.closest('#homeSideLoteriasTurbo');
-  if(!botao)return;
-  e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
-  if(typeof closeDrawer==='function')closeDrawer();
-  location.href='https://siranildo518-coder.github.io/Thor-Teste/thor-turbo/THOR_TURBO.html';
- },true);
  window.addEventListener('popstate',fechar);
 })();
 </script>
 <style id="thorMenuComecoFinalCss">
   #homeSideNav .thor-comeco-final{order:999!important}
   #homeSideNav .thor-tabelas-movimentacoes{order:1000!important}
-  #homeSideNav .thor-loterias-turbo{order:1001!important}
   #homeSideNav .thor-comeco-final::after{content:'COMEÇO E FINAL';font-size:7px;font-weight:800;line-height:1.02;text-align:center;white-space:normal}
   #thorComecoFinalBranco{display:none;position:fixed;inset:0;z-index:2147483000;background:#fff;overflow:hidden}
   #thorComecoFinalBranco.ativo{display:block}
