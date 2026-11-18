@@ -16980,6 +16980,10 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
   document.addEventListener('pointerup',function(e){if(e.pointerType==='touch')acionar(e)},true);
   document.addEventListener('click',acionar,true);
   window.addEventListener('popstate',fechar);
+  // Aquece o gerador quando a Home estiver ociosa, para abrir Escolha pra mim sem espera.
+  function aquecerEscolha(){try{preparar('./gerador.html?v=thor-v315-antes-nome-salvar')}catch(_){}}
+  if('requestIdleCallback'in window)requestIdleCallback(aquecerEscolha,{timeout:5000});
+  else window.addEventListener('load',function(){setTimeout(aquecerEscolha,1800)},{once:true});
   // V315: telas secundárias são preparadas ao tocar, liberando a abertura da Home.
 })();
 </script>
