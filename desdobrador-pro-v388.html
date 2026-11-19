@@ -592,8 +592,8 @@ function moveContest(delta){if(confNumber===null)return;if(delta>0&&confLatest!=
 /* V27: mesma fonte de resultados publicada pelo THOR Loterias.
    Compara concurso remoto do GitHub com o retorno direto da CAIXA.
    Em consultas históricas usa somente a API por número. */
-/* Resultados atualizados em 01/11/2026 (reserva embutida no arquivo).
-   Só é usada se for mais nova (ou igual) ao que GitHub/CAIXA devolverem; fonte online igual ou mais nova sempre tem prioridade. */
+/* Reserva sincronizada com resultados-atualizados.json em 18/11/2026.
+   O arquivo atualizado e as APIs online continuam sendo consultados antes desta reserva. */
 const THOR_SNAPSHOT={
   "megasena": {
     "numero": 3087,
