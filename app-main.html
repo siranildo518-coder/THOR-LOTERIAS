@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v388-desdobrador-pro'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v389-loterias-turbo'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -4589,7 +4589,7 @@ body:has(#overlayListaResultados.show) #resultsSection{
 
 <div class="home-feature-grid" id="homeFeatureGrid">
 <button class="home-feature-card" style="--fc:#7b20d8" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">▥</span><span><strong>Análise</strong><small>Estatísticas e frequências</small></span></button>
-<button class="home-feature-card" id="btnLoteriasTurboBreve" style="--fc:#087cff" type="button"><span class="hfc-icon">⚡</span><span><strong>Loterias Turbo</strong><small>Em breve</small></span></button>
+<button class="home-feature-card" id="btnLoteriasTurboBreve" style="--fc:#087cff" type="button"><span class="hfc-icon">⚡</span><span><strong>Loterias Turbo</strong><small>Abrir aplicativo</small></span></button>
 <button class="home-feature-card" style="--fc:#00a66a" data-home-target="btnJogosSalvosAtalho2"><span class="hfc-icon">▶</span><span><strong>Jogos</strong><small>Gerencie seus jogos e resultados</small></span></button>
 <button class="home-feature-card" style="--fc:#e98a00" data-home-target="btnSimularAtalho"><span class="hfc-icon">▤</span><span><strong>Calculadora</strong><small>Probabilidades e estimativas</small></span></button>
 <button class="home-feature-card" id="btnEscolhaPraMim" style="--fc:#18a96b" type="button"><span class="hfc-icon">★</span><span><strong>Escolha pra mim</strong><small>Sugestão automática</small></span></button>
@@ -17196,7 +17196,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   },1600);
  },true);
 })();</script>
-</body>
+<script id="thorLoteriasTurboV389">document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#btnLoteriasTurboBreve');if(!b)return;e.preventDefault();e.stopImmediatePropagation();location.href='./THOR_TURBO_V104_SEM_FRASE_RODAPE.html?v=thor-v389-loterias-turbo';},true);</script></body>
 </html>
 
 <style id="frequencia-dezena-barra-fina-quadrada-final">
