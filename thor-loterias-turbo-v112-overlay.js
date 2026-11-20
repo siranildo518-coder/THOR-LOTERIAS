@@ -33,7 +33,7 @@
     layer.style.visibility='hidden';
     layer.style.pointerEvents='none';
   });
-  function warm(){if(!frame||!frame.src)load();}
+  function warm(){if(!frame||!frame.src)load();} // Precarrega enquanto a tela inicial permanece visível.
   if('requestIdleCallback' in window)requestIdleCallback(warm,{timeout:1800});
   else setTimeout(warm,1200);
 })();
