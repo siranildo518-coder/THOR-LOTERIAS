@@ -1,3 +1,3 @@
 // THOR V385 — cadastro: mostrar senha e copiar credenciais
-importScripts('./sw-core-thor7.js?v=thor-v394-turbo-no-black-r1');
+importScripts('./sw-core-thor7.js?v=thor-v395-salvos-scroll-r1');
 
