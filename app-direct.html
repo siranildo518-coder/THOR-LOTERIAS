@@ -17,7 +17,6 @@ function open(e){
  box.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#edf1f5;display:flex;flex-direction:column;padding:0!important;margin:0!important;width:100%;max-width:none;box-sizing:border-box;overflow:hidden';
  var frame=document.createElement('iframe');frame.title='Linhas e Colunas Pro';frame.src=url;
  frame.style.cssText='display:block;border:0;padding:0;margin:0;width:100%;height:100%;flex:1;min-height:0';
- box.style.visibility='hidden';frame.addEventListener('load',function(){box.style.visibility='visible'});
  box.appendChild(frame);document.body.appendChild(box);
  history.pushState({thorLinhasColunasPro:true},'',location.href);
 }
@@ -273,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v403-abertura-instantanea'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v402-home-direto'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -4395,7 +4394,7 @@ body:has(#overlayListaResultados.show) #resultsSection{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V403 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V402 · Base V240</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
@@ -16939,7 +16938,7 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
     t=document.createElement('div');
     t.style.cssText='display:none;position:fixed;inset:0;z-index:2147483000;background:#07101f';
     var frame=document.createElement('iframe');
-    frame.title=chave.includes('gerador')?'Gerador de Palpites':chave.includes('THOR_TURBO')?'Loterias Turbo':'Falhas Pro';
+    frame.title=chave.includes('gerador')?'Gerador de Palpites':'Falhas Pro';
     frame.style.cssText='display:block;width:100%;height:100%;border:0;background:transparent';
     frame.addEventListener('load',function(){t.dataset.pronto='1';if(ativa===t)t.style.display='block'});
     t.appendChild(frame);document.body.appendChild(t);telas.set(chave,t);
@@ -16955,12 +16954,12 @@ document.getElementById('homeSideMenu')?.addEventListener('click',()=>document.g
     try{history.pushState({thorTelaSobreHome:true},'',location.href)}catch(_){}
   }
   function acionar(e){
-    var b=e.target.closest&&e.target.closest('#btnEscolhaPraMim,#menuGeradorPalpites,#btnFalhasProHome,#btnLoteriasTurboBreve');
+    var b=e.target.closest&&e.target.closest('#btnEscolhaPraMim,#menuGeradorPalpites,#btnFalhasProHome');
     if(!b)return;
     if(e.type==='click'&&Date.now()-ultimoToque<650){e.preventDefault();e.stopImmediatePropagation();return}
     if(e.type==='pointerup'&&e.pointerType==='touch')ultimoToque=Date.now();
     e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
-    var destino=b.id==='btnFalhasProHome'?'./falhas-pro.html?v=318-testar':b.id==='btnLoteriasTurboBreve'?'./THOR_TURBO_V104_SEM_FRASE_RODAPE.html?v=thor-v403-turbo-preparado':'./gerador.html?v=thor-v315-antes-nome-salvar';abrir(destino);
+    abrir(b.id==='btnFalhasProHome'?'./falhas-pro.html?v=318-testar':'./gerador.html?v=thor-v315-antes-nome-salvar');
   }
   document.addEventListener('pointerup',function(e){if(e.pointerType==='touch')acionar(e)},true);
   document.addEventListener('click',acionar,true);
@@ -17646,17 +17645,18 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
 <style id="thorAtalhosDescerV184">#overlayListaResultados #homeSideNav #homeSideMenu{margin-top:1cm!important}</style>
 <script id="thorAbrirRastreadorV283">
 (function(){
- let tela,frame,pronto=false,abrirSolicitado=false;
+ let tela,frame,pronto=false;
  function preparar(){
   if(tela)return;
   tela=document.createElement('section');tela.id='thorRastreadorIntegrado';tela.hidden=true;
   tela.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#f5f6fa;width:100%;height:100%;max-width:none;margin:0;padding:0;border:0;box-sizing:border-box';
+  const aviso=document.createElement('div');aviso.textContent='Abrindo rastreador…';aviso.style.cssText='padding:30px;text-align:center;color:#4e276d;font:700 15px Arial';
   frame=document.createElement('iframe');frame.title='Rastreador de tendência';frame.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;background:#f5f6fa;visibility:hidden';
-  frame.addEventListener('load',()=>{pronto=true;frame.style.visibility='visible';if(abrirSolicitado){tela.hidden=false;tela.style.setProperty('display','block','important');}});
-  tela.appendChild(frame);document.body.appendChild(tela);
+  frame.addEventListener('load',()=>{pronto=true;aviso.hidden=true;frame.style.visibility='visible'});
+  tela.append(aviso,frame);document.body.appendChild(tela);
   frame.src='./rastreador-tendencia-v270.html?v=314';
  }
- function abrir(){preparar();if(!tela.hidden||abrirSolicitado)return;try{history.pushState({thorRastreadorIntegrado:true},'')}catch(_){}if(pronto){tela.hidden=false;tela.style.setProperty('display','block','important')}else abrirSolicitado=true;}
+ function abrir(){preparar();if(!tela.hidden)return;try{history.pushState({thorRastreadorIntegrado:true},'')}catch(_){}tela.hidden=false;tela.style.setProperty('display','block','important');}
  window.thorAbrirRastreador=abrir;
  window.addEventListener('pointerup',function(e){if(e.pointerType!=='touch')return;const b=e.target.closest&&e.target.closest('#btnRastreadorTendenciaHome');if(!b)return;e.preventDefault();e.stopImmediatePropagation();abrir()},true);
  window.addEventListener('click',function(e){const b=e.target.closest&&e.target.closest('#btnRastreadorTendenciaHome');if(!b)return;e.preventDefault();e.stopImmediatePropagation();abrir()},true);
@@ -17670,10 +17670,10 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
 })();
 </script><script id="thorDesdobradorIntegradoV283">
 (function(){
- let tela,frame,pronto=false,abrirSolicitado=false;
- function preparar(){if(tela)return;tela=document.createElement('section');tela.id='thorDesdobradorIntegrado';tela.hidden=true;tela.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#031227;width:100%;max-width:none;height:100%;margin:0;padding:0;border:0;box-sizing:border-box';frame=document.createElement('iframe');frame.title='Desdobrador Pro';frame.style.cssText='position:absolute;inset:0;width:100%;max-width:none;height:100%;margin:0;padding:0;border:0;display:block;background:#031227';frame.addEventListener('load',function(){pronto=true;if(abrirSolicitado)tela.hidden=false});tela.appendChild(frame);document.body.appendChild(tela);frame.src='./desdobrador-pro-v388.html?v=thor-v388-desdobrador-pro';}
- function fechar(){if(tela)tela.hidden=true;abrirSolicitado=false;if(typeof goHome==='function')goHome()}
- function abrir(){preparar();if(!tela.hidden||abrirSolicitado)return;history.pushState({thorDesdobradorIntegrado:true},'');if(pronto)tela.hidden=false;else abrirSolicitado=true;}
+ let tela,frame;
+ function preparar(){if(tela)return;tela=document.createElement('section');tela.id='thorDesdobradorIntegrado';tela.hidden=true;tela.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#031227;width:100%;max-width:none;height:100%;margin:0;padding:0;border:0;box-sizing:border-box';frame=document.createElement('iframe');frame.title='Desdobrador Pro';frame.style.cssText='position:absolute;inset:0;width:100%;max-width:none;height:100%;margin:0;padding:0;border:0;display:block;background:#031227';tela.appendChild(frame);document.body.appendChild(tela);frame.src='./desdobrador-pro-v388.html?v=thor-v388-desdobrador-pro';}
+ function fechar(){if(tela)tela.hidden=true;if(typeof goHome==='function')goHome()}
+ function abrir(){preparar();if(!tela.hidden)return;history.pushState({thorDesdobradorIntegrado:true},'');tela.hidden=false;}
  window.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#btnDesdobradorProHome');if(!b)return;e.preventDefault();e.stopImmediatePropagation();abrir()},true);
  // V284: o histórico do iframe também dispara popstate na janela principal.
  // Mantém o desdobrador aberto enquanto o retorno pertence às telas internas.
@@ -17698,14 +17698,13 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
 
 <script id="thorFalhasIntervaloSemPiscar">
 (function(){
- let tela=null,frame=null,pronto=false,abrirSolicitado=false;
+ let tela=null,frame=null;
  function preparar(){
   if(tela)return;
   tela=document.createElement('section');tela.id='thorFalhasIntervaloSemPiscarTela';tela.hidden=true;
   tela.style.cssText='position:fixed;inset:0;width:100%;height:100%;z-index:2147483001;background:#101010;margin:0;padding:0;border:0';
   frame=document.createElement('iframe');frame.title='Falhas por Intervalo';
   frame.style.cssText='display:block;width:100%;height:100%;border:0;background:#101010';
-  frame.addEventListener('load',function(){pronto=true;if(abrirSolicitado)tela.hidden=false});
   tela.appendChild(frame);document.body.appendChild(tela);
   frame.src='./falhas-por-intervalo.html';
  }
@@ -17713,7 +17712,7 @@ renderAtraso = function(linhas, numeroUltimo, concursosAnalisados){
   if(e)e.preventDefault();preparar();
   if(!tela.hidden)return;
   history.pushState(Object.assign({},history.state,{thorFalhasIntervalo:true}),'',location.href);
-  if(pronto)tela.hidden=false;else abrirSolicitado=true;
+  tela.hidden=false;
  };
  window.addEventListener('popstate',function(e){
   if(!tela||tela.hidden)return;
