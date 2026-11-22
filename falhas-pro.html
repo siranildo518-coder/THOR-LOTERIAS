@@ -532,7 +532,7 @@ body{position:static!important}
 .lots{position:relative!important;top:auto!important;flex:0 0 auto!important;z-index:1000!important;background:#e8f6fc!important;padding-top:5px!important}
 .wrap{flex:1 1 auto!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;padding-bottom:50vh!important}
 </style>
-<footer style="text-align:center;padding:8px;font-size:9px;color:#51769b">THOR FALHAS PRO · V318</footer><script>loadCalc();</script>
+<footer style="text-align:center;padding:8px;font-size:9px;color:#51769b">THOR FALHAS PRO · V318</footer><script>requestAnimationFrame(function(){setTimeout(function(){loadCalc();},180);});</script>
 <script id="thorFalhasProPlayV211">
 function thorFalhasProPlay(){
  const nums=Array.from(document.querySelectorAll('#prediction .ball.r'),b=>Number(b.dataset.n));
