@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v400-rastreador-tendencia'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v401-home-botoes-diretos'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -17196,7 +17196,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   },1600);
  },true);
 })();</script>
-<script id="thorLoteriasTurboV389">document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#btnLoteriasTurboBreve');if(!b)return;e.preventDefault();e.stopImmediatePropagation();location.href='./THOR_TURBO_V104_SEM_FRASE_RODAPE.html?v=thor-v389-loterias-turbo';},true);</script><script id="thorFalhasProPreloadV399">(function(){var started=false;function warm(){if(started)return;started=true;fetch('./falhas-pro.html?v=thor7-v399-falhas-pro-instant',{credentials:'same-origin'}).catch(function(){});}if('requestIdleCallback'in window)requestIdleCallback(warm,{timeout:1800});else setTimeout(warm,750);})();</script></body>
+<script id="thorLoteriasTurboV389">document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#btnLoteriasTurboBreve');if(!b)return;e.preventDefault();e.stopImmediatePropagation();location.href='./THOR_TURBO_V104_SEM_FRASE_RODAPE.html?v=thor-v389-loterias-turbo';},true);</script><script id="thorFalhasProPreloadV399">(function(){var started=false;function warm(){if(started)return;started=true;fetch('./falhas-pro.html?v=thor7-v399-falhas-pro-instant',{credentials:'same-origin'}).catch(function(){});}if('requestIdleCallback'in window)requestIdleCallback(warm,{timeout:1800});else setTimeout(warm,750);})();</script><style id="thorHomeButtonsDirectV401">
+#overlayListaResultados button,#homeSideNav button,#overlayListaResultados .home-feature-card,#overlayListaResultados .home-tab{touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important;transition:none!important;animation:none!important}
+#overlayListaResultados button:active,#homeSideNav button:active,#overlayListaResultados .home-feature-card:active,#overlayListaResultados .home-tab:active{transform:none!important;filter:none!important;transition:none!important;animation:none!important}
+#homeSideNav .hs-item:active,#homeSideNav .hs-menu:active{transform:none!important;box-shadow:none!important}
+</style></body>
 </html>
 
 <style id="frequencia-dezena-barra-fina-quadrada-final">
