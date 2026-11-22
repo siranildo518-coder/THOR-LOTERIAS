@@ -17,6 +17,7 @@ function open(e){
  box.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#edf1f5;display:flex;flex-direction:column;padding:0!important;margin:0!important;width:100%;max-width:none;box-sizing:border-box;overflow:hidden';
  var frame=document.createElement('iframe');frame.title='Linhas e Colunas Pro';frame.src=url;
  frame.style.cssText='display:block;border:0;padding:0;margin:0;width:100%;height:100%;flex:1;min-height:0';
+ box.style.visibility='hidden';frame.addEventListener('load',function(){box.style.visibility='visible'});
  box.appendChild(frame);document.body.appendChild(box);
  history.pushState({thorLinhasColunasPro:true},'',location.href);
 }
