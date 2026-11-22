@@ -272,7 +272,7 @@ const CONTAS_EXTRAS_KEY = 'tl_contas_extras_v1'; // contas criadas pelo próprio
 // O app consulta o último commit que alterou o index.html deste repositório.
 // Se o SHA remoto mudar desde a última versão vista neste aparelho,
 // o botão "Atualizar" do menu lateral fica destacado automaticamente.
-const APP_VERSAO_ATUAL = 'thor7-v404-analise-premium'; // força atualização imediata do service worker
+const APP_VERSAO_ATUAL = 'thor7-v405-analise-correcoes'; // força atualização imediata do service worker
 const APP_VERSAO_VISTA_KEY = 'tl_versao_vista'; // mantido por compatibilidade
 const GITHUB_REPO = 'siranildo518-coder/THOR-LOTERIAS';
 const GITHUB_ARQUIVOS = ['index.html','app-main.html'];
@@ -4274,7 +4274,77 @@ body:has(#overlayListaResultados.show) #resultsSection{
 }
 #overlayTendencia #tendConteudo .thor-rep-barra{background:#d6d9df!important}
 #overlayTendencia #tendConteudo .thor-rep-barra i{background:linear-gradient(90deg,#daba64,#967122)!important}
-</style><link rel="stylesheet" href="./tendencia-alta-queda-v389.css"><style id="thorBootEscuroApp">html,body{background:#07101f!important}body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style></head>
+</style><link rel="stylesheet" href="./tendencia-alta-queda-v389.css"><style id="thorBootEscuroApp">html,body{background:#07101f!important}body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorInicioSemFlash">html,body{background:#07101f!important}#overlayListaResultados{background:#07101f!important}</style><style id="thorHomeTopo118">#overlayListaResultados .home-header{padding:0!important;background:#03142b!important;border:0!important;box-shadow:none!important;overflow:hidden!important;visibility:visible!important}#thorHomeTopoImg{display:block!important;width:100%!important;height:auto!important;margin:0!important;border:0!important}</style><style id="thorHomeResultadoVisivel">#overlayListaResultados #homeHero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}#overlayListaResultados #homeHero .home-hero{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important}</style><style id="thorAnalisePremiumCorrectionV405">
+/* Ajustes conforme a referência aprovada: controles compactos, texto nítido e título visível. */
+#overlayTendencia,#overlayTendencia *{text-shadow:none!important}
+#overlayTendencia button{
+  box-shadow:none!important;text-shadow:none!important;filter:none!important;
+  transform:none!important;transition:none!important;
+}
+#overlayTendencia>header.top{
+  min-height:92px!important;padding:14px 16px 12px!important;
+  display:flex!important;align-items:center!important;gap:12px!important;
+}
+#overlayTendencia>header.top h1#tendenciaTitulo{
+  display:block!important;visibility:visible!important;opacity:1!important;
+  position:relative!important;z-index:1!important;flex:1 1 auto!important;
+  width:auto!important;height:auto!important;overflow:visible!important;
+  margin:0!important;color:#fff!important;font-size:clamp(24px,7vw,32px)!important;
+  line-height:1.05!important;font-weight:900!important;font-style:italic!important;
+}
+#overlayTendencia #tendenciaTitulo:empty:before{
+  content:"Estatísticas";display:block;color:#fff;font-size:clamp(24px,7vw,32px);
+}
+#overlayTendencia #tendenciaTitulo:after{
+  content:"NÚMEROS REVELAM TENDÊNCIAS";display:block;margin-top:4px;
+  color:#e9d9aa;font-size:9px;line-height:1.1;letter-spacing:1px;font-style:normal;
+}
+#overlayTendencia #tendenciaVoltar{
+  display:inline-flex!important;visibility:visible!important;opacity:1!important;
+  align-items:center;justify-content:center;width:42px;height:42px;flex:0 0 42px;
+}
+#overlayTendencia #tendGameTabs{
+  gap:5px!important;padding:8px 10px 9px!important;
+}
+#overlayTendencia #tendGameTabs .home-tab{
+  min-height:35px!important;height:35px!important;padding:3px 2px!important;
+  border-width:1px!important;font-size:clamp(8px,2.45vw,10px)!important;
+  line-height:1!important;box-shadow:none!important;
+}
+#overlayTendencia #tendSubtabRow{
+  grid-auto-rows:minmax(38px,auto)!important;gap:5px!important;padding:7px!important;
+}
+#overlayTendencia #tendSubtabRow .subtab-btn{
+  min-height:38px!important;height:38px!important;padding:3px 2px!important;
+  border-width:1px!important;font-size:clamp(8px,2.45vw,10px)!important;
+  line-height:1.05!important;box-shadow:none!important;
+}
+#overlayTendencia #tendSubtabRow .subtab-btn.active,
+#overlayTendencia #tendGameTabs .home-tab.active{
+  box-shadow:none!important;
+}
+#overlayTendencia #tendUltimoResultado .result-ball-sm{
+  color:#211606!important;font-size:13px!important;font-weight:900!important;
+  text-shadow:none!important;box-shadow:none!important;
+  background:linear-gradient(145deg,#ffe991 0%,#f4c84e 52%,#d89a22 100%)!important;
+  border:1px solid #bd8b23!important;
+}
+#overlayTendencia #tendUltimoResultado .res-concurso-num{
+  color:#18191e!important;font-size:18px!important;font-weight:900!important;
+}
+#overlayTendencia #tendConteudo .stat-note-dark,
+#overlayTendencia #tendConteudo .stat-line,
+#overlayTendencia #tendConteudo .thor-rep-dado{
+  color:#262631!important;
+}
+#overlayTendencia #tendConteudo .thor-rep-dado strong{
+  color:#511078!important;font-weight:900!important;
+}
+#overlayTendencia #tendConteudo .thor-rep-box,
+#overlayTendencia #tendConteudo .stat-card{
+  box-shadow:none!important;
+}
+</style></head>
 <body>
 <div class="app">
 
@@ -4551,7 +4621,7 @@ body:has(#overlayListaResultados.show) #resultsSection{
   <button class="drawer-item" id="menuAtualizar"><span class="ic" id="menuAtualizarIcone">🔄</span> Atualizar</button>
   <div id="drawerHrSairLogin" style="margin-top:auto;height:0;border:0"></div>
   <button class="drawer-item" id="menuSairLogin"><span class="ic">🔒</span> Sair / trocar usuário</button>
-  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V404 · Base V240</span></footer>
+  <footer id="thorDrawerCreditos" style="margin-top:auto;flex-shrink:0;padding:16px 14px calc(40px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#374151;background:#fff;border-top:1px solid #e5e7eb">Criado por Irenildo Quixabeira da Silva (THOR)<br><span style="font-size:10px">Versão V405 · Base V240</span></footer>
 </div>
 <div class="overlay" id="overlayGfcFixas">
   <div class="modal" style="max-width:360px;">
