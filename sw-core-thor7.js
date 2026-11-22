@@ -1,6 +1,6 @@
 // THOR LOTERIAS - Service Worker
 // THOR 7 V3.75 - calculadora de probabilidade e cache sincronizados
-const CACHE_NAME='thor-loterias-v403-abertura-instantanea-r1';
+const CACHE_NAME='thor-loterias-v402-home-direto-r1';
 const CORE=['./quentes-falhas-topo-v324.png','./falhas-banner-20261027.png','./combinacoes-topo-v229.png','./','./index.html','./index-core-thor7.html','./app-main.html','./tendencia-alta-queda-v389.css','./app-direct.html','./manifest.json','./icon-192.png','./thor-home-topo-v316.jpg','./cadastros-liberados.json'];
 const PALPITES_CARD='<button class="home-feature-card" style="--fc:#d41948" data-home-target="btnTendenciaAtalho"><span class="hfc-icon">◎</span><span><strong>Palpites</strong><small>Sugestões inteligentes</small></span></button>';
 const CALC_CARD='<button class="home-feature-card" style="--fc:#e98a00" data-home-target="btnSimularAtalho"><span class="hfc-icon">▤</span><span><strong>Calculadora</strong><small>Probabilidades e estimativas</small></span></button>';
@@ -116,25 +116,22 @@ self.addEventListener('fetch',event=>{
     return;
   }
 
-  // Navegações usam a cópia local imediatamente; a rede atualiza o próximo acesso.
-  // Isso evita a tela vazia enquanto o servidor responde, mantendo os dados pessoais.
+  // HTML e navegação: rede primeiro para entregar correções a todos os clientes.
+  // Cache somente em falha de conexão, sem apagar dados pessoais/localStorage.
   const documento=u.pathname.split('/').pop()||'index.html';
   if(req.mode==='navigate'||['index.html','index-core-thor7.html','app-main.html','app-direct.html','linhas-colunas-pro-v315.html','thor-historico-loterias.js','falhas-por-intervalo.html','rastreador-tendencia-v270.html','desdobrador-pro-v283.html','desdobrador-pro-v388.html'].includes(documento)){
-    const cachePromise=caches.open(CACHE_NAME);
-    const savedPromise=cachePromise.then(cache=>cache.match(chaveCache(req)));
-    const refreshPromise=savedPromise.then(saved=>saved?atualizarEmSegundoPlano(req,chaveCache(req)):null);
-    event.waitUntil(refreshPromise.catch(()=>{}));
     event.respondWith((async()=>{
-      const saved=await savedPromise;
-      if(saved)return saved;
+      const chave=chaveCache(req);
       try{
-        const fresh=await respostaAtualizada(new Request(req.url,{cache:'no-store',credentials:req.credentials,headers:req.headers}));
-        if(fresh&&fresh.ok)await (await cachePromise).put(chaveCache(req),fresh.clone());
+        const fresh=await fetch(req,{cache:'no-store'});
+        if(!fresh||!fresh.ok)throw Error('HTTP '+(fresh&&fresh.status));
+        await (await caches.open(CACHE_NAME)).put(chave,fresh.clone());
         return fresh;
       }catch(_){return await offlineFallback(req)||Response.error();}
     })());
     return;
   }
+
   // Interface salva abre imediatamente; resultados e permissões continuam na rede.
   const shellRapido=['index.html','index-core-thor7.html','app-main.html','app-direct.html','falhas-pro.html','resultados-auto-thor4.js'];
   const nomeArquivo=u.pathname.split('/').pop()||'index.html';
