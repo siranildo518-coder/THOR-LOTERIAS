@@ -1,3 +1,3 @@
-// THOR V385 — cadastro: mostrar senha e copiar credenciais
-importScripts('./sw-core-thor7.js?v=thor-v396-scroll-defer-r1');
+// THOR V397 — cadastro: mostrar senha e copiar credenciais
+importScripts('./sw-core-thor7.js?v=thor-v397-home-rastreador-r1');
 
