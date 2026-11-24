@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-11-24T06:06:04.504500+00:00",
+  "atualizadoEm": "2026-11-24T17:35:28.845380+00:00",
   "fonte": "API oficial Loterias CAIXA",
   "loterias": {
     "megasena": [
@@ -4420,7 +4420,8 @@
           23,
           25,
           30
-        ]
+        ],
+        "mesSorte": "Fevereiro"
       },
       {
         "concurso": 1353,
@@ -9628,7 +9629,8 @@
           43,
           67,
           70
-        ]
+        ],
+        "timeCoracao": "SANTOS           /SP"
       },
       {
         "concurso": 2470,
