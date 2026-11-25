@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-11-25T01:34:28.218165+00:00",
+  "atualizadoEm": "2026-11-25T10:26:37.413168+00:00",
   "fonte": "API oficial Loterias CAIXA",
   "loterias": {
     "megasena": [
@@ -4420,7 +4420,9 @@
           22,
           27,
           28
-        ]
+        ],
+        "mesSorte": "Janeiro",
+        "fonte": "API Loterias CAIXA (guto-alves)"
       },
       {
         "concurso": 1354,
@@ -9629,7 +9631,8 @@
           65,
           67,
           79
-        ]
+        ],
+        "timeCoracao": "CASCAVEL         /PR"
       },
       {
         "concurso": 2471,
