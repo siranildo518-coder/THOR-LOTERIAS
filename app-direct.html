@@ -578,14 +578,24 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
     const usuarioRef=dbFirestore.collection('usuarios_login').doc(hash);
     const usoRef=dbFirestore.collection('contas_ativadas').doc('cadastro_teste_'+liberacao.codigoHash);
 
+    let contaJaExiste=false;
+    let usuarioJaExiste=false;
     try{
-      const contaSnap=await contaRef.get();
-      if(contaSnap.exists)return {ok:false,motivo:'usuario_existente'};
+      contaJaExiste=(await contaRef.get()).exists;
     }catch(e){
-      console.warn('Não foi possível conferir duplicidade em contas_ativadas:',e);
+      console.warn('Não foi possível conferir contas_ativadas:',e);
     }
-
     try{
+      usuarioJaExiste=(await usuarioRef.get()).exists;
+    }catch(e){
+      console.warn('Não foi possível conferir usuarios_login:',e);
+    }
+    if(contaJaExiste&&usuarioJaExiste)return {ok:false,motivo:'usuario_existente'};
+    // Se uma tentativa anterior deixou só um registro remoto, complete o outro
+    // sem trocar a vinculação do aparelho que já foi salva.
+    if(contaJaExiste||usuarioJaExiste)cadastroRemotoSalvo=true;
+
+    if(!contaJaExiste)try{
       await contaRef.set({
         usuario,
         deviceId:obterDeviceId(),
@@ -601,7 +611,7 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
       console.warn('Falha ao salvar a trava da conta:',e);
     }
 
-    try{
+    if(!usuarioJaExiste)try{
       await usuarioRef.set({
         usuario,
         ativo:true,
