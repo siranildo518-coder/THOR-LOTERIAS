@@ -336,45 +336,60 @@ function contaExtraHash(item){
 }
 
 async function credencialValida(hash){
-  if(CREDENCIAIS_VALIDAS.includes(hash) || carregarContasExtras().some(item=> contaExtraHash(item) === hash)){
+  if(CREDENCIAIS_VALIDAS.includes(hash) || carregarContasExtras().some(item=>contaExtraHash(item)===hash)){
     return true;
   }
-  // Usuários criados pelo gerenciador ficam numa base pequena e sem cache.
-  // Isso evita depender de republicar/carregar novamente todo o app-main.html.
   try{
-    const urlsUsuarios = [
+    const urlsUsuarios=[
       'https://raw.githubusercontent.com/siranildo518-coder/THOR-LOTERIAS/main/usuarios-gerenciador.json?_='+Date.now(),
       './usuarios-gerenciador.json?_='+Date.now()
     ];
     for(const url of urlsUsuarios){
       try{
-        const resp = await fetch(url,{cache:'no-store'});
-        if(!resp.ok) continue;
-        const dados = await resp.json();
-        const usuarios = Array.isArray(dados && dados.usuarios) ? dados.usuarios : [];
-        const conta = usuarios.find(u=>u && u.hash===hash);
-        if(conta) return conta.ativo !== false && conta.bloqueado !== true;
+        const resp=await fetch(url,{cache:'no-store'});
+        if(!resp.ok)continue;
+        const dados=await resp.json();
+        const usuarios=Array.isArray(dados&&dados.usuarios)?dados.usuarios:[];
+        const conta=usuarios.find(u=>u&&u.hash===hash);
+        if(conta)return conta.ativo!==false&&conta.bloqueado!==true;
       }catch(_e){}
     }
   }catch(_e){}
+
   try{
     await carregarFirebase();
-    // Fonte oficial do gerenciador: todo usuário criado passa a existir aqui
-    // imediatamente, sem depender do cache/versão do HTML no celular do cliente.
-    const cadastro = await dbFirestore.collection('usuarios_login').doc(hash).get();
-    if(cadastro.exists){
-      const dadosCadastro = cadastro.data() || {};
-      return dadosCadastro.ativo !== false && dadosCadastro.bloqueado !== true;
-    }
-    // Compatibilidade com clientes antigos já registrados pela trava.
-    const snap = await dbFirestore.collection('contas_ativadas').doc(hash).get();
-    if(!snap.exists) return false;
-    const dados = snap.data() || {};
-    return dados.ativo !== false && dados.bloqueado !== true;
   }catch(e){
-    console.error('Falha ao validar a credencial:', e);
-    return false;
+    console.error('Falha ao carregar Firebase para validar o cadastro:',e);
+    return null;
   }
+
+  let usuariosConsultados=false;
+  let contasConsultadas=false;
+  // Consulta as fontes separadamente para que uma falha na coleção nova
+  // não impeça a verificação da conta que contém a trava de aparelho.
+  try{
+    const cadastro=await dbFirestore.collection('usuarios_login').doc(hash).get();
+    usuariosConsultados=true;
+    if(cadastro.exists){
+      const dadosCadastro=cadastro.data()||{};
+      return dadosCadastro.ativo!==false&&dadosCadastro.bloqueado!==true;
+    }
+  }catch(e){
+    console.warn('Falha ao consultar usuarios_login; tentando contas_ativadas:',e);
+  }
+
+  try{
+    const conta=await dbFirestore.collection('contas_ativadas').doc(hash).get();
+    contasConsultadas=true;
+    if(conta.exists){
+      const dados=conta.data()||{};
+      return dados.ativo!==false&&dados.bloqueado!==true;
+    }
+  }catch(e){
+    console.error('Falha ao consultar contas_ativadas:',e);
+  }
+
+  return usuariosConsultados&&contasConsultadas?false:null;
 }
 
 // reduz a foto pra um tamanho leve antes de guardar no localStorage (evita estourar o limite de espaço)
@@ -699,6 +714,11 @@ function montarTelaLogin(){
     const ELZIANE_HASH = '1165s8q';
     const GISELE_HASH = 'oybgb0';
     const credencialOk = cadastroLocalOk || (hash === ELZIANE_HASH || hash === GISELE_HASH || hash === '1j6mnaf' /* Grêmio 2020 */) || await credencialValida(hash);
+    if(credencialOk === null){
+      erroEl.style.color = '#B7791F';
+      erroEl.textContent = 'Não foi possível consultar a conta. Confira a conexão e tente novamente.';
+      return;
+    }
     if(credencialOk){
       const btn = document.getElementById('loginBtn');
       erroEl.style.color = '#8B80A3';
