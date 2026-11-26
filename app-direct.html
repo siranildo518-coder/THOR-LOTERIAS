@@ -570,30 +570,73 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
   const hash=hashLogin(`${usuario}|${senha}`);
   let cadastroRemotoSalvo=false;
 
-  // Cadastro resiliente: a conta é salva na base GitHub pelo fluxo do gerenciador/login,
-  // e o Firebase passa a ser sincronização adicional. Falha de permissão do Firestore
-  // não pode mais impedir um cliente com código válido de concluir o cadastro.
+  // Grava cada fonte independentemente: a coleção da trava é a principal
+  // para identificar um login em outro aparelho; usuarios_login é um espelho.
   try{
     await carregarFirebase();
     const contaRef=dbFirestore.collection('contas_ativadas').doc(hash);
+    const usuarioRef=dbFirestore.collection('usuarios_login').doc(hash);
     const usoRef=dbFirestore.collection('contas_ativadas').doc('cadastro_teste_'+liberacao.codigoHash);
+
     try{
       const contaSnap=await contaRef.get();
       if(contaSnap.exists)return {ok:false,motivo:'usuario_existente'};
-    }catch(_e){}
-    try{
-      await contaRef.set({usuario,deviceId:obterDeviceId(),clientId:obterClientId(),ativo:true,bloqueado:false,redefinirAparelho:false,criadoVia:'cadastro_teste',ativadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-      await dbFirestore.collection('usuarios_login').doc(hash).set({usuario,ativo:true,bloqueado:false,criadoVia:'cadastro_teste',criadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-      cadastroRemotoSalvo=true;
-      try{await usoRef.set({consumido:true,contaHash:hash,consumidoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}catch(_e){}
-      if(contextoCadastro==='navegador'){
-        try{await dbFirestore.collection('acesso_navegador').doc(hash).set({liberado:true,criadoVia:'cadastro_navegador'},{merge:true});}catch(_e){}
-      }
     }catch(e){
-      console.warn('Firebase indisponível no cadastro; credencial válida seguirá pelo modo compatível.',e);
+      console.warn('Não foi possível conferir duplicidade em contas_ativadas:',e);
+    }
+
+    try{
+      await contaRef.set({
+        usuario,
+        deviceId:obterDeviceId(),
+        clientId:obterClientId(),
+        ativo:true,
+        bloqueado:false,
+        redefinirAparelho:false,
+        criadoVia:'cadastro_teste',
+        ativadoEm:firebase.firestore.FieldValue.serverTimestamp()
+      },{merge:true});
+      cadastroRemotoSalvo=true;
+    }catch(e){
+      console.warn('Falha ao salvar a trava da conta:',e);
+    }
+
+    try{
+      await usuarioRef.set({
+        usuario,
+        ativo:true,
+        bloqueado:false,
+        criadoVia:'cadastro_teste',
+        criadoEm:firebase.firestore.FieldValue.serverTimestamp()
+      },{merge:true});
+      cadastroRemotoSalvo=true;
+    }catch(e){
+      console.warn('Falha ao salvar o espelho de login:',e);
+    }
+
+    if(cadastroRemotoSalvo){
+      try{
+        await usoRef.set({
+          consumido:true,
+          contaHash:hash,
+          consumidoEm:firebase.firestore.FieldValue.serverTimestamp()
+        },{merge:true});
+      }catch(e){
+        console.warn('Conta salva, mas não foi possível marcar o código como consumido:',e);
+      }
+      if(contextoCadastro==='navegador'){
+        try{
+          await dbFirestore.collection('acesso_navegador').doc(hash).set(
+            {liberado:true,criadoVia:'cadastro_navegador'},
+            {merge:true}
+          );
+        }catch(e){
+          console.warn('Conta salva, mas não foi possível registrar o acesso pelo navegador:',e);
+        }
+      }
     }
   }catch(e){
-    console.warn('Firebase não carregou; credencial válida seguirá pelo modo compatível.',e);
+    console.warn('Firebase não carregou durante o cadastro:',e);
   }
 
   if(!cadastroRemotoSalvo)return {ok:false,motivo:'falha_persistencia'};
