@@ -74,9 +74,26 @@ function carregarFirebase(){
   if(_promessaFirebase) return _promessaFirebase;
   _promessaFirebase = (async ()=>{
     await carregarScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+    await carregarScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js');
     await carregarScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js');
-    firebase.initializeApp(firebaseConfig);
-    dbFirestore = firebase.firestore();
+    if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+
+    // As regras do Firestore exigem uma sessão autenticada. O cadastro e o login
+    // usam o mesmo Firebase anônimo já usado pelo recurso de presença do app.
+    const auth=firebase.auth();
+    const usuarioAtual=await new Promise((resolve,reject)=>{
+      let cancelar=()=>{};
+      cancelar=auth.onAuthStateChanged(usuario=>{
+        cancelar();
+        resolve(usuario);
+      },erro=>{
+        cancelar();
+        reject(erro);
+      });
+    });
+    if(!usuarioAtual)await auth.signInAnonymously();
+    if(!auth.currentUser)throw new Error('Autenticação anônima não foi concluída.');
+    dbFirestore=firebase.firestore();
   })();
   return _promessaFirebase;
 }
