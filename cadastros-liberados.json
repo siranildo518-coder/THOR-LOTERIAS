@@ -3098,6 +3098,13 @@
       "criadoEm": "2026-11-26T21:46:02.861Z",
       "expiraEm": "2026-11-27T21:46:02.861Z",
       "ativo": true
+    },
+    {
+      "hash": "41a6374b44edf439358ac553dd73a63199120cf4179471ed7d7f3d5e7c5dee72",
+      "compatHash": "cle74v",
+      "criadoEm": "2026-11-26T21:53:47.173Z",
+      "expiraEm": "2026-11-27T21:53:47.173Z",
+      "ativo": true
     }
   ]
 }
