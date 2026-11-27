@@ -586,6 +586,7 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
 
   const hash=hashLogin(`${usuario}|${senha}`);
   let cadastroRemotoSalvo=false;
+  let diagnosticoFirestore='';
 
   // Grava cada fonte independentemente: a coleção da trava é a principal
   // para identificar um login em outro aparelho; usuarios_login é um espelho.
@@ -625,6 +626,7 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
       },{merge:true});
       cadastroRemotoSalvo=true;
     }catch(e){
+      diagnosticoFirestore='contas_ativadas ('+(e.code||'erro')+')';
       console.warn('Falha ao salvar a trava da conta:',e);
     }
 
@@ -638,6 +640,7 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
       },{merge:true});
       cadastroRemotoSalvo=true;
     }catch(e){
+      if(!diagnosticoFirestore)diagnosticoFirestore='usuarios_login ('+(e.code||'erro')+')';
       console.warn('Falha ao salvar o espelho de login:',e);
     }
 
@@ -663,10 +666,11 @@ async function criarCadastroTesteLiberado(codigo, usuario, senha){
       }
     }
   }catch(e){
+    diagnosticoFirestore='conexão Firebase ('+(e.code||'erro')+')';
     console.warn('Firebase não carregou durante o cadastro:',e);
   }
 
-  if(!cadastroRemotoSalvo)return {ok:false,motivo:'falha_persistencia'};
+  if(!cadastroRemotoSalvo)return {ok:false,motivo:'falha_persistencia',detalhe:diagnosticoFirestore||'erro sem código'};
   // Mantém uma cópia local para este aparelho, mas só depois de confirmar a gravação remota.
   persistirCadastroPorCodigo(hash,usuario);
   // Garante login imediato neste aparelho mesmo quando o Firestore bloqueia escrita.
@@ -901,7 +905,7 @@ function montarTelaLogin(){
       falha_servidor:'Não foi possível criar o cadastro. Verifique a internet e tente novamente.',
       falha_persistencia:'Não foi possível salvar a conta no servidor. Confira a internet e tente novamente.'
     };
-    erro.textContent=mensagens[resultado.motivo]||'Não foi possível criar o cadastro.';
+    erro.textContent=(mensagens[resultado.motivo]||'Não foi possível criar o cadastro.')+(resultado.detalhe?' Detalhe: '+resultado.detalhe+'.':'');
   });
 
   formCadastroEl.querySelectorAll('input').forEach(inp=>{
