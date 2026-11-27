@@ -406,7 +406,7 @@ async function credencialValida(hash){
     console.error('Falha ao consultar contas_ativadas:',e);
   }
 
-  return usuariosConsultados&&contasConsultadas?false:null;
+  return usuariosConsultados||contasConsultadas?false:null;
 }
 
 // reduz a foto pra um tamanho leve antes de guardar no localStorage (evita estourar o limite de espaço)
