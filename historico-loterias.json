@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-11-28T03:27:06.131899+00:00",
+  "atualizadoEm": "2026-11-28T12:11:45.147429+00:00",
   "fonte": "API oficial Loterias CAIXA",
   "loterias": {
     "megasena": [
@@ -4420,7 +4420,8 @@
           19,
           21,
           31
-        ]
+        ],
+        "mesSorte": "Maio"
       },
       {
         "concurso": 1357,
@@ -9633,7 +9634,8 @@
           23,
           41,
           42
-        ]
+        ],
+        "timeCoracao": "SAO JOSE         /RS"
       },
       {
         "concurso": 2472,
